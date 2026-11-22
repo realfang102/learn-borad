@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents on Open-Weight &amp; Local Models · Agent Academy</title>
+<meta name="description" content="Run agents on models you host yourself: why teams do it, the open-weight landscape, how tool calling really works inside chat templates, serving stacks, constrained decoding, quantization, VRAM math, hybrid designs, fine-tuning and supply-chain security.">
+<meta property="og:title" content="Agents on Open-Weight &amp; Local Models · Agent Academy">
+<meta property="og:description" content="Run agents on models you host yourself: why teams do it, the open-weight landscape, how tool calling really works inside chat templates, serving stacks, constrained decoding, quantization, VRAM math, hybrid designs, fine-tuning and supply-chain security.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="embodied-agents.html" data-slug="embodied-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Embodied Agents: Robots and the Physical World</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
+        <li><a href="open-models-and-local-agents.html" data-slug="open-models-and-local-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents on Open-Weight &amp; Local Models</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="paths.html">🗺️ Learning paths</a>
+      <a href="lab.html">🧪 Interactive lab</a>
+      <a href="projects.html">🏗️ Hands-on projects</a>
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="papers.html">📚 Reading list</a>
+      <a href="review.html">🧠 Course review</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="open-models-and-local-agents">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building">Module 5: Building Agents</a></nav>
+  <header class="lesson-header">
+    <h1>Agents on Open-Weight &amp; Local Models</h1>
+    <p class="lead">Run agents on models you host yourself: why teams do it, the open-weight landscape, how tool calling really works inside chat templates, serving stacks, constrained decoding, quantization, VRAM math, hybrid designs, fine-tuning and supply-chain security.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 45 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 28 of 40</span>
+      <span class="lesson-status" data-status-for="open-models-and-local-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Weigh the real benefits of open-weight models for agents against the capability gap and operational burden</li><li>Explain how a self-hosted model emits tool calls through its chat template and how the server parses them</li><li>Serve a model behind an OpenAI-compatible endpoint and call it with tools</li><li>Use constrained decoding and sensible quantization to keep tool calls reliable</li><li>Estimate GPU memory for weights and KV cache for an agent workload</li><li>Design hybrid systems in which a frontier model and a local model split the work</li><li>Evaluate an open model on your own agent tasks and secure the model supply chain</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="structured-outputs.html">Structured Outputs &amp; Control Flow</a>, <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a>, <a href="agent-frameworks.html">Frameworks &amp; SDKs Compared</a></p>
+  </section>
+  <article class="prose">
+<p>A hospital wants an agent that reads discharge notes, pulls lab values from an internal database and drafts follow-up tasks. Legal says patient text cannot leave the building. A logistics company wants to classify forty million shipping exceptions a month, and the per-token bill from a frontier API is larger than the team that would review them. A field-service app needs an assistant that works in a basement with no signal. All three end up in the same place: running an agent on a model whose weights they download and serve themselves.</p>
+<p>That is a different job from calling a hosted API. You become responsible for things the provider used to hide: the <strong>chat template</strong> that turns messages into tokens, the parser that turns the model&#39;s text back into tool calls, the GPU memory budget, quantization, throughput tuning, and the safety behavior of a model you didn&#39;t train. Each of these has quietly broken real agents.</p>
+<p>This lesson covers when to go open, the late-2026 landscape, how tool calling works under the hood, serving stacks, reliability, memory math, hybrid designs, fine-tuning, evaluation and supply-chain security. It builds on <a href="tool-use.html">tool use</a>, <a href="structured-outputs.html">structured outputs</a> and <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a>.</p>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>A fast-moving area</div><div class="callout-body"><p>Model releases, licenses, server flags and parser names change month to month. Everything here was checked as of November 2026. Treat specific model versions and CLI flags as perishable and verify them in current docs; the mechanisms (templates, parsers, <dfn class="gt" tabindex="0" data-t="KV cache" data-d="Stored attention keys and values for tokens already processed, so they need not be recomputed. Reusing it across requests is the mechanism behind prompt caching." data-l="cost-and-latency" data-a="kv-cache">KV cache</dfn>, quantization trade-offs) are the durable part.</p>
+</div></div>
+<h2 id="why-run-agents-on-open-models"><a class="anchor" href="#why-run-agents-on-open-models" aria-hidden="true" tabindex="-1">#</a>Why Run Agents on Open Models?</h2>
+<p>First, vocabulary. An <strong>open-weight model</strong> is one whose trained parameters you can download and run. That is not the same as <strong>open source</strong> in the strict sense: most open-weight releases do not include training data or full training code, and many come with licenses that add use restrictions. &quot;Open&quot; in this lesson means &quot;you can run it yourself.&quot;</p>
+<p>The reasons teams choose this path:</p>
+<ul>
+<li><strong>Data control and privacy.</strong> Prompts, tool results and documents never leave infrastructure you control, which can be decisive for regulated data or contracts that forbid third-party processors. (Hosted APIs also offer data-residency and zero-retention options; check whether those suffice first.)</li>
+<li><strong>Cost at scale.</strong> API pricing is per token; your GPUs are a fixed cost you can saturate. For high-volume, narrow steps (classification, extraction, routing), a well-utilized small model can be much cheaper per task. At low or bursty volume the reverse is usually true, because idle GPUs still cost money.</li>
+<li><strong>Latency and locality.</strong> A small model on a nearby GPU, with no network round trip or shared queue, returns short decisions quickly and predictably, which matters for voice agents and tight inner loops.</li>
+<li><strong>Customization.</strong> Fine-tune on your tools, change the chat template, constrain decoding with a grammar, inspect logits.</li>
+<li><strong>Offline and edge.</strong> Laptops, phones, factory floors, ships and air-gapped networks.</li>
+<li><strong>Control over change.</strong> Hosted models get updated or retired on the provider&#39;s schedule; weights on your disk behave the same next year.</li>
+</ul>
+<p>And the honest costs:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Trade-off</th>
+<th>What it means in practice</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Capability gap on long-horizon tasks</strong></td>
+<td>As of 2026, the strongest open models are competitive on many single-turn and short tool-use tasks, but frontier hosted models still generally lead on long, multi-step agentic work (large refactors, extended research, recovering from their own mistakes over dozens of steps). Small errors compound across steps, so a modest per-step gap becomes a large task-level gap (<a href="when-to-use-agents.html">when to use agents</a>).</td>
+</tr>
+<tr>
+<td><strong>Operations burden</strong></td>
+<td>You own GPUs, drivers, autoscaling, upgrades, monitoring, and on-call for the inference server.</td>
+</tr>
+<tr>
+<td><strong>Integration correctness</strong></td>
+<td>Tool calling depends on templates and parsers you configure. Misconfigurations fail silently.</td>
+</tr>
+<tr>
+<td><strong>Safety tuning is your job</strong></td>
+<td>The provider&#39;s runtime safety systems are absent. You add <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrails</dfn>, abuse monitoring and refusal behavior yourself (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</td>
+</tr>
+<tr>
+<td><strong>License diligence</strong></td>
+<td>Licenses range from Apache 2.0 and MIT to custom terms with user-count or revenue thresholds and acceptable-use policies.</td>
+</tr>
+</tbody></table>
+</div>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Open models are a deployment choice, not a capability shortcut</div><div class="callout-body"><p>Go open when control, cost at volume, locality or customization is the binding constraint, and only after measuring that a candidate model is good enough on <em>your</em> tasks. The most common successful pattern is not &quot;replace the frontier model&quot; but &quot;move the high-volume, narrow or sensitive steps to a model you host.&quot;</p>
+</div></div>
+<h2 id="the-open-weight-landscape-late-2026"><a class="anchor" href="#the-open-weight-landscape-late-2026" aria-hidden="true" tabindex="-1">#</a>The Open-Weight Landscape (Late 2026)</h2>
+<p>The field moves too fast for a ranking to survive a quarter, so think in families. Each lab releases a range of sizes, usually instruction-tuned variants with tool calling built in, often in both dense and <strong>mixture-of-experts (MoE)</strong> form.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Developer</th>
+<th>Notes as of November 2026</th>
+<th>Typical license (check each release)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Qwen</strong></td>
+<td>Alibaba</td>
+<td>Very wide size range, from phone-sized to large MoE; Qwen3 (2025) and Qwen3.5 (2026) generations; among the most downloaded and fine-tuned bases</td>
+<td>Mostly Apache 2.0</td>
+</tr>
+<tr>
+<td><strong>DeepSeek</strong></td>
+<td>DeepSeek</td>
+<td>Large MoE models; V3 and R1 (2025) made open reasoning models mainstream; the V4 generation followed in 2026</td>
+<td>Mostly MIT</td>
+</tr>
+<tr>
+<td><strong>gpt-oss</strong></td>
+<td>OpenAI</td>
+<td>gpt-oss-120b and gpt-oss-20b (August 2025), reasoning MoE models trained for tool use, using the &quot;harmony&quot; response format</td>
+<td>Apache 2.0 plus a usage policy</td>
+</tr>
+<tr>
+<td><strong>Gemma</strong></td>
+<td>Google DeepMind</td>
+<td>Gemma 4 (April 2026) in sizes from on-device to a 31B dense model; the first Gemma generation under Apache 2.0</td>
+<td>Apache 2.0 (Gemma 4); earlier Gemma versions used custom Gemma terms</td>
+</tr>
+<tr>
+<td><strong>Mistral</strong></td>
+<td>Mistral AI</td>
+<td>Small, medium and large models; the Mistral 3 family</td>
+<td>Mostly Apache 2.0; some older models used research or non-production licenses</td>
+</tr>
+<tr>
+<td><strong>Llama / Muse</strong></td>
+<td>Meta</td>
+<td>Llama 4 (April 2025) was the last Llama-branded release. Meta&#39;s 2026 flagship launched closed, but it released Muse Glimmer, a 30B open-weight agentic model, in August 2026</td>
+<td>Llama: custom community license with a large-user clause. Muse Glimmer: Apache 2.0</td>
+</tr>
+<tr>
+<td><strong>Kimi</strong></td>
+<td>Moonshot AI</td>
+<td>Large MoE models aimed at agentic coding and tool use</td>
+<td>Kimi K2: modified MIT (attribution for very large deployments); later releases use their own terms</td>
+</tr>
+<tr>
+<td><strong>GLM</strong></td>
+<td>Zhipu AI (Z.ai)</td>
+<td>Strong agentic and coding-oriented MoE models</td>
+<td>Mostly MIT; some 2026 releases use custom terms</td>
+</tr>
+</tbody></table>
+</div>
+<p>Others worth knowing: <strong>MiniMax</strong>, NVIDIA&#39;s <strong>Nemotron</strong>, IBM&#39;s <strong>Granite</strong>, Microsoft&#39;s <strong>Phi</strong> small models, and Ai2&#39;s <strong>OLMo</strong>, which is notable for releasing training data and code as well as weights.</p>
+<p>Three things to take from this table:</p>
+<ol>
+<li><strong>Licenses differ per release, not per family.</strong> Several labs have shipped one generation under MIT or Apache 2.0 and the next under custom terms with revenue or user-count thresholds. Your legal review attaches to an exact model, not a brand.</li>
+<li><strong>MoE changes the arithmetic.</strong> An MoE model with hundreds of billions of <em>total</em> parameters may activate only a few tens of billions per token. Memory is set by the total (all experts must be loaded); speed per token is closer to that of a dense model the size of the <em>active</em> parameters.</li>
+<li><strong>Agentic <dfn class="gt" tabindex="0" data-t="Post-training" data-d="Everything done to a pretrained model to make it useful and safe: instruction tuning, preference optimization, reinforcement learning, and tool-use training." data-l="training-agents" data-a="post-training">post-training</dfn> is what matters.</strong> A model&#39;s general chat quality says little about whether it will call tools correctly for 30 steps. Recent releases from most of these labs advertise agentic and tool-use training explicitly; that is a necessary but not sufficient signal, which is why you evaluate (see <a href="#evaluating-before-you-switch">below</a>).</li>
+</ol>
+<h2 id="how-tool-calling-works-under-the-hood"><a class="anchor" href="#how-tool-calling-works-under-the-hood" aria-hidden="true" tabindex="-1">#</a>How Tool Calling Works Under the Hood</h2>
+<p>With a hosted API you send a JSON <code>tools</code> array and receive structured <code>tool_use</code> blocks. It feels like the model natively speaks JSON objects. It doesn&#39;t. A language model only ever reads and writes tokens. Self-hosting exposes the two translation layers the provider normally hides.</p>
+<h3 id="layer-1-the-chat-template"><a class="anchor" href="#layer-1-the-chat-template" aria-hidden="true" tabindex="-1">#</a>Layer 1: the chat template</h3>
+<p>A <strong>chat template</strong> is a small program (usually Jinja2, shipped in the model&#39;s <code>tokenizer_config.json</code> or a separate template file) that turns a list of messages plus tool definitions into one flat string with <strong>special tokens</strong> marking roles and boundaries. During post-training, the model saw thousands of examples in exactly this format, including examples of calling tools.</p>
+<p>Here is an illustrative rendering in the style many models use (ChatML-like role markers, with tool calls wrapped in tags, as in Qwen&#39;s templates):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&lt;|im_start|&gt;system
+You are a support agent.
+
+# Tools
+You may call one or more functions. Signatures:
+&lt;tools&gt;
+{&quot;name&quot;: &quot;get_order_status&quot;, &quot;description&quot;: &quot;Look up an order&quot;, &quot;parameters&quot;: {...}}
+&lt;/tools&gt;
+Return calls as: &lt;tool_call&gt;{&quot;name&quot;: ..., &quot;arguments&quot;: ...}&lt;/tool_call&gt;&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+Where is order A-1042?&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant
+&lt;tool_call&gt;
+{&quot;name&quot;: &quot;get_order_status&quot;, &quot;arguments&quot;: {&quot;order_id&quot;: &quot;A-1042&quot;}}
+&lt;/tool_call&gt;&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+&lt;tool_response&gt;
+{&quot;status&quot;: &quot;shipped&quot;, &quot;eta_days&quot;: 2}
+&lt;/tool_response&gt;&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant</code></pre></div>
+<p>Everything up to the final <code>assistant</code> marker is the prompt. The model then generates. If it decides to call a tool, it produces the <code>&lt;tool_call&gt;</code> text you see in the middle, token by token, exactly as it learned to.</p>
+<p>Different families use different conventions. Llama 3.x emits JSON with its own header tokens; gpt-oss uses the <strong>harmony</strong> format, with separate channels for reasoning (&quot;analysis&quot;) and final output; some coding models emit XML-like parameter blocks; others write Python-style calls like <code>get_order_status(order_id=&quot;A-1042&quot;)</code>.</p>
+<h3 id="layer-2-the-tool-call-parser"><a class="anchor" href="#layer-2-the-tool-call-parser" aria-hidden="true" tabindex="-1">#</a>Layer 2: the tool-call parser</h3>
+<p>The inference server must turn the generated text back into the structured <code>tool_calls</code> field your client expects. That is the <strong>tool-call parser</strong>: model-specific code that recognizes the start marker, extracts the name and arguments, handles multiple calls, and (in streaming mode) does it incrementally. Reasoning models add a <strong>reasoning parser</strong> that separates thinking text from the final answer.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant App as Agent app
+    participant Srv as Inference server
+    participant M as Model weights
+    App-&gt;&gt;Srv: messages + tools (OpenAI JSON)
+    Srv-&gt;&gt;Srv: Render chat template to tokens
+    Srv-&gt;&gt;M: Prompt tokens
+    M--&gt;&gt;Srv: Generated text with tool-call markers
+    Srv-&gt;&gt;Srv: Tool-call parser extracts name and args
+    Srv--&gt;&gt;App: tool_calls JSON
+    App-&gt;&gt;App: Run tool, append result
+    App-&gt;&gt;Srv: messages + tool result</pre></figure>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Template and parser must match the model&#39;s training</div><div class="callout-body"><p>The model only calls tools reliably in the exact format it was trained on. The server must render that format going in and parse that format coming out. A mismatch on either side breaks tool use, often without an error.</p>
+</div></div>
+<h3 id="how-mismatches-break-agents"><a class="anchor" href="#how-mismatches-break-agents" aria-hidden="true" tabindex="-1">#</a>How mismatches break agents</h3>
+<p>These failures are common and confusing because the server returns HTTP 200:</p>
+<ul>
+<li><strong>Wrong or missing template.</strong> A quantized re-upload ships without the tool section of the template, or an old template predates tool support. The model never sees the tools, answers in prose, and your agent &quot;never calls tools.&quot;</li>
+<li><strong>Wrong parser.</strong> The model emits a perfect <code>&lt;tool_call&gt;</code> block, but the server&#39;s parser expects a different format, so the call arrives as plain text in <code>content</code> and <code>tool_calls</code> is empty.</li>
+<li><strong>Tool results rendered wrong.</strong> The template mislabels <code>tool</code> role messages, so the model doesn&#39;t recognize the observation and calls the same tool again, looping.</li>
+<li><strong>Lost reasoning.</strong> For reasoning models, some templates expect prior reasoning to be dropped or kept in specific ways across turns. Getting it wrong degrades multi-turn tool use.</li>
+<li><strong>Parallel and streaming edge cases.</strong> Parsers sometimes handle a single call correctly but mangle two calls in one turn, or break when arguments are streamed.</li>
+</ul>
+<p>Debugging rule: log the <strong>fully rendered prompt</strong> and the <strong>raw generated text</strong> before parsing. If the raw text contains a well-formed call that the client didn&#39;t receive, the parser is wrong. If the raw text contains no call at all, look at the template first, then the model.</p>
+<h2 id="serving-stacks"><a class="anchor" href="#serving-stacks" aria-hidden="true" tabindex="-1">#</a>Serving Stacks</h2>
+<p>You rarely load weights yourself in an agent. You run an <strong>inference server</strong> that exposes an <strong>OpenAI-compatible</strong> HTTP API (<code>/v1/chat/completions</code> with <code>tools</code> and <code>tool_calls</code>), so any OpenAI-style client or framework can talk to it by changing the base URL.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Agent / framework (OpenAI client)&quot;] --&gt;|&quot;HTTP /v1/chat/completions&quot;| B[&quot;API layer&quot;]
+    B --&gt; C[&quot;Chat template render&quot;]
+    C --&gt; D[&quot;Scheduler (continuous batching)&quot;]
+    D --&gt; E[&quot;Engine: paged KV cache + prefix cache&quot;]
+    E --&gt; F[&quot;GPU / CPU weights (quantized)&quot;]
+    E --&gt; G[&quot;Constrained decoding (grammar)&quot;]
+    G --&gt; H[&quot;Tool-call and reasoning parsers&quot;]
+    H --&gt;|&quot;tool_calls JSON&quot;| A</pre></figure>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Server</th>
+<th>Best for</th>
+<th>Tool-calling notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>vLLM</strong></td>
+<td>High-throughput GPU serving in production</td>
+<td><code>--enable-auto-tool-choice</code> plus a model-specific <code>--tool-call-parser</code> (for example <code>hermes</code> for Qwen-style tags, <code>openai</code> for gpt-oss, Llama and Mistral parsers); custom templates via <code>--chat-template</code></td>
+</tr>
+<tr>
+<td><strong>SGLang</strong></td>
+<td>High-throughput serving, strong prefix reuse for agent and multi-call workloads</td>
+<td><code>--tool-call-parser</code> with names such as <code>qwen</code>, <code>llama3</code>, <code>deepseekv3</code>, <code>kimi_k2</code>, <code>gpt-oss</code>; separate <code>--reasoning-parser</code></td>
+</tr>
+<tr>
+<td><strong>llama.cpp</strong> (<code>llama-server</code>)</td>
+<td>CPU, Apple Silicon, consumer GPUs, GGUF files, edge devices</td>
+<td>Start with <code>--jinja</code> to use the model&#39;s template and enable tool parsing; override with <code>--chat-template-file</code>; native handlers for some families and a generic fallback</td>
+</tr>
+<tr>
+<td><strong>Ollama</strong></td>
+<td>Developer laptops and simple local deployments</td>
+<td>Wraps llama.cpp-style inference with a model registry; OpenAI-compatible API at <code>http://localhost:11434/v1</code>; tool support depends on the model&#39;s packaged template</td>
+</tr>
+<tr>
+<td><strong>LM Studio</strong></td>
+<td>Desktop GUI for trying models</td>
+<td>Local OpenAI-compatible server (default port 1234)</td>
+</tr>
+<tr>
+<td><strong>TGI</strong> (Hugging Face)</td>
+<td>Existing deployments</td>
+<td>In maintenance mode since late 2025; Hugging Face points new deployments to engines like vLLM and SGLang</td>
+</tr>
+</tbody></table>
+</div>
+<p>Commercial and cloud options (NVIDIA&#39;s NIM and Dynamo, TensorRT-LLM, managed endpoints on the major clouds and inference providers) wrap similar engines. Many hosted inference providers also serve open-weight models, which gives you open-model economics and weight portability without running GPUs, though not the data-control benefit.</p>
+<h3 id="calling-a-local-server-with-a-tool"><a class="anchor" href="#calling-a-local-server-with-a-tool" aria-hidden="true" tabindex="-1">#</a>Calling a local server with a tool</h3>
+<p>Start a server. With vLLM and a Qwen3 model, whose templates use the Hermes-style tags shown earlier:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-bash"><span class="hljs-comment"># GPU server (vLLM)</span>
+vllm serve Qwen/Qwen3-8B --enable-auto-tool-choice --tool-call-parser hermes
+
+<span class="hljs-comment"># Or on a laptop (Ollama); the OpenAI-compatible API is at localhost:11434/v1</span>
+ollama pull qwen3:8b</code></pre></div>
+<p>The <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> is the same shape as any <a href="the-agent-loop.html">manual loop</a>; only the wire format differs (OpenAI-style <code>tool_calls</code> and <code>role: &quot;tool&quot;</code> messages). APIs and flags evolve, so check the current docs for your server and client.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI
+
+<span class="hljs-comment"># vLLM default port is 8000; for Ollama use http://localhost:11434/v1</span>
+client = OpenAI(base_url=<span class="hljs-string">&quot;http://localhost:8000/v1&quot;</span>, api_key=<span class="hljs-string">&quot;not-needed&quot;</span>)
+MODEL = <span class="hljs-string">&quot;Qwen/Qwen3-8B&quot;</span>  <span class="hljs-comment"># the name the server registered (Ollama: &quot;qwen3:8b&quot;)</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">get_order_status</span>(<span class="hljs-params">order_id: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">dict</span>:
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;order_id&quot;</span>: order_id, <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;shipped&quot;</span>, <span class="hljs-string">&quot;eta_days&quot;</span>: <span class="hljs-number">2</span>}  <span class="hljs-comment"># stub</span>
+
+TOOLS = [{
+    <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;function&quot;</span>,
+    <span class="hljs-string">&quot;function&quot;</span>: {
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;get_order_status&quot;</span>,
+        <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Look up the shipping status of one order by its ID, e.g. A-1042.&quot;</span>,
+        <span class="hljs-string">&quot;parameters&quot;</span>: {
+            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+            <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;order_id&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}},
+            <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;order_id&quot;</span>],
+        },
+    },
+}]
+
+messages = [
+    {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;You are a support agent. Use tools for facts.&quot;</span>},
+    {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Where is order A-1042?&quot;</span>},
+]
+
+<span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">8</span>):  <span class="hljs-comment"># step limit: small models loop more often</span>
+    resp = client.chat.completions.create(
+        model=MODEL, messages=messages, tools=TOOLS, tool_choice=<span class="hljs-string">&quot;auto&quot;</span>
+    )
+    msg = resp.choices[<span class="hljs-number">0</span>].message
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> msg.tool_calls:
+        <span class="hljs-built_in">print</span>(msg.content)
+        <span class="hljs-keyword">break</span>
+    messages.append(msg.model_dump(exclude_none=<span class="hljs-literal">True</span>))
+    <span class="hljs-keyword">for</span> call <span class="hljs-keyword">in</span> msg.tool_calls:
+        <span class="hljs-keyword">try</span>:  <span class="hljs-comment"># small models produce malformed arguments more often</span>
+            result = get_order_status(**json.loads(call.function.arguments))
+        <span class="hljs-keyword">except</span> (json.JSONDecodeError, TypeError) <span class="hljs-keyword">as</span> e:
+            result = {<span class="hljs-string">&quot;error&quot;</span>: <span class="hljs-string">f&quot;Invalid arguments: <span class="hljs-subst">{e}</span>. Retry with valid JSON.&quot;</span>}
+        messages.append(
+            {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;tool&quot;</span>, <span class="hljs-string">&quot;tool_call_id&quot;</span>: call.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;content&quot;</span>: json.dumps(result)}
+        )</code></pre></div>
+<p>Because the endpoint is OpenAI-compatible, most frameworks from <a href="agent-frameworks.html">Frameworks &amp; SDKs Compared</a> can point at it with a base-URL setting. Feature parity is not guaranteed, though: parallel calls, streaming tool arguments and <code>tool_choice</code> options vary by server and parser.</p>
+<h2 id="making-tool-calls-reliable-constrained-decoding"><a class="anchor" href="#making-tool-calls-reliable-constrained-decoding" aria-hidden="true" tabindex="-1">#</a>Making Tool Calls Reliable: Constrained Decoding</h2>
+<p>With <code>tool_choice=&quot;auto&quot;</code>, the model generates freely, and nothing forces the arguments to be valid JSON or to match your schema. Frontier APIs largely hide this; small open models will hand you a trailing comma, a missing required field or an invented parameter some fraction of the time.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Constrained decoding" data-d="Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output." data-l="structured-outputs" data-a="constrained-decoding">Constrained decoding</dfn></strong> (also called guided or grammar-based decoding) fixes the syntax problem at the source. At each step, the engine computes which next tokens are allowed by a grammar (derived from a <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-l="tool-use" data-a="json-schema">JSON Schema</dfn>, a regex or a context-free grammar) and masks out every other token&#39;s probability. The model <em>cannot</em> produce an invalid structure. The main engines:</p>
+<ul>
+<li><strong>Outlines</strong>: constrained generation with JSON Schema, regex and grammars; usable as a library.</li>
+<li><strong>XGrammar</strong> and <strong>llguidance</strong>: fast grammar engines that inference servers (vLLM and SGLang among them) use for <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, typically via schema-constrained decoding, so responses can be parsed reliably by code. Older JSON mode guarantees only syntactically valid JSON, not the right shape." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn>.</li>
+<li><strong>llama.cpp GBNF</strong>: llama.cpp&#39;s grammar format. You can pass a grammar or a JSON Schema, and its tool-calling support can apply a grammar only once the model starts a tool call, so free text stays unconstrained.</li>
+</ul>
+<p>Most servers expose this through the OpenAI-style <code>response_format</code> with a JSON Schema, and several apply it to tool arguments when a tool is marked strict or a specific tool is required. See <a href="structured-outputs.html">structured outputs</a> for the general mechanics.</p>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Valid is not correct</div><div class="callout-body"><p>A grammar guarantees well-formed JSON with the right fields. It does not guarantee the model chose the right tool, the right order ID, or a sensible plan. Overly tight grammars can also hurt quality, for example by forcing JSON before a <dfn class="gt" tabindex="0" data-t="Reasoning model" data-d="An LLM trained, typically with reinforcement learning, to produce an extended internal chain of reasoning before answering, trading more tokens and latency for accuracy on hard problems." data-l="reasoning-and-planning" data-a="reasoning-model">reasoning model</dfn> has finished thinking. Constrain the <em>structure</em>; validate the <em>semantics</em> in your tool code and return helpful errors the model can recover from.</p>
+</div></div>
+<p>Other reliability tactics that matter more for small models than for frontier ones:</p>
+<ul>
+<li><strong>Fewer, simpler tools.</strong> Ten tools with overlapping descriptions confuse an 8B model far more than a frontier model. Merge or route (<a href="designing-tools.html">designing tools</a>).</li>
+<li><strong>Flat schemas.</strong> Prefer a few top-level fields with enums over deeply nested objects.</li>
+<li><strong>Retry with the error.</strong> Return parse and validation errors as tool results; most models self-correct on the next step.</li>
+<li><strong>Short contexts.</strong> Smaller models degrade faster as context grows; summarize aggressively (<a href="context-engineering.html">context engineering</a>).</li>
+<li><strong>Workflows over autonomy.</strong> A fixed pipeline with small, well-scoped model calls is more robust than an open-ended loop (<a href="workflow-patterns.html">workflow patterns</a>).</li>
+</ul>
+<h2 id="quantization-and-agent-reliability"><a class="anchor" href="#quantization-and-agent-reliability" aria-hidden="true" tabindex="-1">#</a>Quantization and Agent Reliability</h2>
+<p><strong>Quantization</strong> stores weights (and sometimes activations or the KV cache) in fewer bits than the 16-bit format models are usually trained and released in. It trades a little quality for a lot of memory and speed.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Format / method</th>
+<th>What it is</th>
+<th>Typical home</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>BF16 / FP16</strong></td>
+<td>Full 16-bit weights, the reference</td>
+<td>Datacenter GPUs</td>
+</tr>
+<tr>
+<td><strong>FP8 / INT8</strong></td>
+<td>8-bit weights (and sometimes activations); usually very close to 16-bit quality</td>
+<td>vLLM, SGLang, TensorRT-LLM on recent GPUs</td>
+</tr>
+<tr>
+<td><strong>GPTQ</strong></td>
+<td>Post-training 4-bit (or 3/8-bit) weight quantization using approximate second-order information</td>
+<td>GPU serving</td>
+</tr>
+<tr>
+<td><strong>AWQ</strong></td>
+<td>Activation-aware 4-bit weight quantization that protects the most important weight channels</td>
+<td>GPU serving</td>
+</tr>
+<tr>
+<td><strong>GGUF</strong></td>
+<td>llama.cpp&#39;s single-file model format, with many quantization types (for example <code>Q8_0</code>, <code>Q5_K_M</code>, <code>Q4_K_M</code>)</td>
+<td>llama.cpp, Ollama, LM Studio</td>
+</tr>
+<tr>
+<td><strong>MXFP4 / NF4</strong></td>
+<td>4-bit floating-point formats; gpt-oss ships its MoE weights in MXFP4; NF4 is used by QLoRA</td>
+<td>Specific models and fine-tuning</td>
+</tr>
+</tbody></table>
+</div>
+<p>Rules of thumb:</p>
+<ul>
+<li><strong>8-bit is usually safe.</strong> Quality loss is typically small.</li>
+<li><strong>4-bit is the popular sweet spot</strong> for fitting a larger model on smaller hardware, with measurable but often acceptable loss for chat.</li>
+<li><strong>Below 4 bits</strong>, quality drops faster, and small models suffer more than large ones.</li>
+<li><strong>A bigger model at 4-bit often beats a smaller model at 16-bit</strong> for the same memory, but measure on your tasks.</li>
+</ul>
+<p>Why agents are more sensitive than chat: quantization error shows up as slightly noisier token choices. In prose, a slightly different word is harmless. In a tool call, a slightly different token can be a wrong digit in an ID, a dropped brace or a hallucinated parameter, and in a 30-step loop those small per-step error rates compound. Aggregate benchmarks of quantized models often look nearly identical while long agentic runs show a visibly lower success rate. Evaluate the quantized artifact you will deploy, not the original.</p>
+<p>Also check <em>who</em> quantized it. Community GGUF and AWQ uploads are invaluable, but they vary in calibration data, template correctness and provenance (see <a href="#security-and-the-model-supply-chain">security</a>).</p>
+<h2 id="memory-math-weights-and-the-kv-cache"><a class="anchor" href="#memory-math-weights-and-the-kv-cache" aria-hidden="true" tabindex="-1">#</a>Memory Math: Weights and the KV Cache</h2>
+<p>GPU memory goes to three things: <strong>weights</strong>, the <strong>KV cache</strong>, and working overhead (activations, CUDA graphs, fragmentation). Agents are KV-hungry because they carry long histories of tool results.</p>
+<p><strong>Weights</strong> ≈ parameters × bytes per parameter. 16-bit is 2 bytes, 8-bit is 1, 4-bit is about 0.5 (plus a few percent for scales). For MoE, use <em>total</em> parameters.</p>
+<p>The <strong>KV cache</strong> stores the attention keys and values for every token in every active sequence so they aren&#39;t recomputed each step:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">KV bytes per token = 2 (K and V) × layers × KV heads × head dim × bytes per element
+KV total           = KV bytes per token × tokens across all concurrent sequences</code></pre></div>
+<p>Modern models use <strong>grouped-query attention (GQA)</strong>, where many query heads share a few KV heads, which shrinks this a lot. Read <code>num_hidden_layers</code>, <code>num_key_value_heads</code> and <code>head_dim</code> from the model&#39;s <code>config.json</code>. (Architectures like DeepSeek&#39;s multi-head latent attention compress the cache differently; use the engine&#39;s own estimate for those.)</p>
+<div class="callout callout-example" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A worked VRAM estimate</div><div class="callout-body"><p>Take a 32B-parameter dense model with a typical GQA configuration: 64 layers, 8 KV heads, head dimension 128. You want to serve it on one 48 GB GPU for an agent whose sessions reach 32K tokens.</p>
+<p><strong>Weights at 4-bit:</strong> 32B × ~0.5 bytes ≈ 16 GB, call it about 18 GB with quantization scales and unquantized layers. (At BF16 it would be about 64 GB and would not fit.)</p>
+<p><strong>KV per token at 16-bit:</strong> 2 × 64 × 8 × 128 × 2 bytes = 262,144 bytes ≈ 0.26 MB.</p>
+<p><strong>One 32K-token session:</strong> 32,768 × 0.26 MB ≈ 8.6 GB.</p>
+<p><strong>Budget:</strong> 48 GB − 18 GB weights − ~4 GB overhead ≈ 26 GB for KV, so about <strong>3 concurrent full-length sessions</strong> (26 / 8.6). With an FP8 KV cache, that roughly doubles to 6. At a 128K context, a single session would need about 34 GB of KV at 16-bit and would not fit next to the weights at all.</p>
+</div></div>
+<p>Two lessons follow. First, <strong>context length, not model size, often sets your concurrency</strong> for agents. Second, advertised maximum context and <em>affordable</em> context are different numbers. Servers let you cap the context (<code>--max-model-len</code> in vLLM, <code>-c</code> in llama.cpp) and set how much GPU memory to pre-allocate; set them deliberately.</p>
+<h2 id="throughput-vs-latency"><a class="anchor" href="#throughput-vs-latency" aria-hidden="true" tabindex="-1">#</a>Throughput vs Latency</h2>
+<p>Two metrics pull against each other:</p>
+<ul>
+<li><strong>Latency</strong>: <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-l="cost-and-latency" data-a="time-to-first-token">time to first token</dfn> (TTFT) and time per output token for <em>one</em> request. This is what a single agent waiting on its next step feels.</li>
+<li><strong>Throughput</strong>: total tokens per second across <em>all</em> requests. This is what your <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">cost per task</dfn> depends on.</li>
+</ul>
+<p>The techniques that matter:</p>
+<ul>
+<li><strong>Continuous batching.</strong> The scheduler adds and removes sequences from the running batch at every step instead of waiting for a whole batch to finish. GPU decoding is limited by memory bandwidth, so serving many sequences at once costs little extra per step, which raises throughput dramatically. The price is that each individual request runs a bit slower when the batch is full.</li>
+<li><strong>Paged KV cache.</strong> vLLM&#39;s <strong>PagedAttention</strong> stores the KV cache in fixed-size blocks, like virtual memory pages, which removes most fragmentation and lets far more sequences fit.</li>
+<li><strong>Prefix caching.</strong> Agent requests share long prefixes: the same <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> and tool definitions every call, and each step re-sends the previous steps. Reusing the cached KV for a shared prefix skips recomputing it, cutting TTFT and compute. vLLM&#39;s automatic prefix caching and SGLang&#39;s RadixAttention both do this. It is the self-hosted cousin of API <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn> (<a href="cost-and-latency.html">cost and latency</a>), and the same discipline applies: keep stable content first and never put a timestamp at the top of the prompt.</li>
+<li><strong>Speculative decoding.</strong> A cheap <strong>draft</strong> (a small model, extra prediction heads, or n-gram lookup from the prompt) proposes several tokens, and the large model verifies them in one forward pass, accepting the matching prefix. Output is identical in distribution to the large model alone; speed improves when drafts are often right. It helps single-request latency most and helps less when the GPU is already saturated by batching. Tool-call JSON that echoes IDs from the context is often easy to draft.</li>
+<li><strong>Parallelism.</strong> Tensor parallelism splits a model across GPUs to fit it and to cut per-token latency; MoE models also use expert parallelism. Disaggregated serving separates prefill (prompt processing) from decode on different GPUs.</li>
+</ul>
+<p>For agents, a practical tuning target is <strong>cost per successful task at an acceptable p95 step latency</strong>, not raw tokens per second.</p>
+<h2 id="hybrid-architectures"><a class="anchor" href="#hybrid-architectures" aria-hidden="true" tabindex="-1">#</a>Hybrid Architectures</h2>
+<p>The most effective production designs are rarely &quot;all local&quot; or &quot;all frontier.&quot; They route each step to the cheapest model that does it well enough.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TB
+    U[&quot;Task&quot;] --&gt; R{&quot;Router&quot;}
+    R --&gt;|&quot;Hard, open-ended&quot;| F[&quot;Frontier model (plans, decides)&quot;]
+    R --&gt;|&quot;Simple, high-volume&quot;| L[&quot;Local model&quot;]
+    R --&gt;|&quot;Contains PII&quot;| P[&quot;Local model (redact / extract)&quot;]
+    F --&gt;|&quot;Delegates bulk step&quot;| L
+    P --&gt;|&quot;Redacted text&quot;| F
+    L --&gt; O[&quot;Results&quot;]
+    F --&gt; O</pre></figure>
+<p>Common patterns:</p>
+<ul>
+<li><strong><dfn class="gt" tabindex="0" data-t="Plan-and-execute" data-d="An architecture that first produces an explicit multi-step plan, then executes the steps (often with a cheaper model), re-planning when results diverge." data-l="agent-architectures" data-a="plan-and-execute">Planner-executor</dfn>.</strong> The frontier model plans, decides and handles exceptions; a local model executes many cheap, well-specified steps (labeling, extraction, summarizing pages, reformatting).</li>
+<li><strong>Local filter, frontier finisher.</strong> A local model screens or triages a large input set and escalates only the hard or ambiguous items.</li>
+<li><strong>Privacy boundary.</strong> A local model reads sensitive documents and extracts only the fields the task needs, or redacts PII, before anything reaches a hosted API.</li>
+<li><strong>Routing and cascades.</strong> A classifier or a cheap model&#39;s confidence decides which model handles a request, with fallback to the frontier model on failure (<a href="workflow-patterns.html">workflow patterns</a>).</li>
+</ul>
+<p>Here is a sketch of the planner-executor pattern. A frontier Claude model drives the agent and has one tool, <code>bulk_classify</code>, whose implementation fans a batch of tickets out to a local model with a JSON Schema constraint. The frontier model never reads all ten thousand tickets; it reads the summary and the items the local model flagged.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> anthropic
+<span class="hljs-keyword">from</span> openai <span class="hljs-keyword">import</span> OpenAI
+
+claude = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
+local = OpenAI(base_url=<span class="hljs-string">&quot;http://localhost:8000/v1&quot;</span>, api_key=<span class="hljs-string">&quot;not-needed&quot;</span>)
+LOCAL_MODEL = <span class="hljs-string">&quot;Qwen/Qwen3-8B&quot;</span>
+
+LABEL_SCHEMA = {
+    <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+    <span class="hljs-string">&quot;properties&quot;</span>: {
+        <span class="hljs-string">&quot;label&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;enum&quot;</span>: [<span class="hljs-string">&quot;billing&quot;</span>, <span class="hljs-string">&quot;bug&quot;</span>, <span class="hljs-string">&quot;how_to&quot;</span>, <span class="hljs-string">&quot;other&quot;</span>]},
+        <span class="hljs-string">&quot;confident&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;boolean&quot;</span>},
+    },
+    <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;label&quot;</span>, <span class="hljs-string">&quot;confident&quot;</span>],
+    <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">bulk_classify</span>(<span class="hljs-params">ticket_ids: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:
+    counts, unsure = {}, []
+    <span class="hljs-keyword">for</span> tid <span class="hljs-keyword">in</span> ticket_ids:
+        text = load_ticket(tid)  <span class="hljs-comment"># your data access; text stays on-prem</span>
+        r = local.chat.completions.create(
+            model=LOCAL_MODEL,
+            messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Classify this ticket:\n<span class="hljs-subst">{text}</span>&quot;</span>}],
+            response_format={<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;json_schema&quot;</span>,
+                             <span class="hljs-string">&quot;json_schema&quot;</span>: {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;label&quot;</span>, <span class="hljs-string">&quot;schema&quot;</span>: LABEL_SCHEMA}},
+        )
+        out = json.loads(r.choices[<span class="hljs-number">0</span>].message.content)
+        counts[out[<span class="hljs-string">&quot;label&quot;</span>]] = counts.get(out[<span class="hljs-string">&quot;label&quot;</span>], <span class="hljs-number">0</span>) + <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> out[<span class="hljs-string">&quot;confident&quot;</span>]:
+            unsure.append(tid)
+    <span class="hljs-keyword">return</span> json.dumps({<span class="hljs-string">&quot;counts&quot;</span>: counts, <span class="hljs-string">&quot;unsure_ids&quot;</span>: unsure[:<span class="hljs-number">50</span>]})
+
+TOOLS = [{
+    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;bulk_classify&quot;</span>,
+    <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Classify many support tickets with a local model. Returns label &quot;</span>
+                   <span class="hljs-string">&quot;counts and up to 50 IDs the classifier was unsure about.&quot;</span>,
+    <span class="hljs-string">&quot;input_schema&quot;</span>: {
+        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+        <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;ticket_ids&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;array&quot;</span>, <span class="hljs-string">&quot;items&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}}},
+        <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;ticket_ids&quot;</span>],
+    },
+}]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]
+    <span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:
+        resp = claude.messages.create(
+            model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>, tools=TOOLS, messages=messages
+        )
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:  <span class="hljs-comment"># end_turn, max_tokens, refusal...</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        results = []
+        <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> resp.content:
+            <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>:
+                <span class="hljs-keyword">try</span>:
+                    out, err = bulk_classify(**block.<span class="hljs-built_in">input</span>), <span class="hljs-literal">False</span>
+                <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:  <span class="hljs-comment"># report failures to the model</span>
+                    out, err = <span class="hljs-string">f&quot;bulk_classify failed: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-literal">True</span>
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: out, <span class="hljs-string">&quot;is_error&quot;</span>: err})
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})</code></pre></div>
+<p><code>load_ticket</code> is your own data-access function. A production version would batch the local calls concurrently (the server&#39;s continuous batching rewards this), add retries, and handle <code>pause_turn</code> and <code>refusal</code> explicitly as in <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a>. Note the data boundary: in this design the ticket text reaches only the local model, and only labels and IDs reach the hosted API. If the frontier model later needs to read specific tickets, that is a deliberate, auditable decision rather than a side effect.</p>
+<h2 id="fine-tuning-small-models-for-your-tools"><a class="anchor" href="#fine-tuning-small-models-for-your-tools" aria-hidden="true" tabindex="-1">#</a>Fine-Tuning Small Models for Your Tools</h2>
+<p>Open weights let you do something a hosted model rarely allows: train the model on your exact tools. A small fine-tuned model can match or beat a much larger general model on a <em>narrow</em>, well-defined agent task, while being faster and cheaper to serve.</p>
+<p>The usual recipe:</p>
+<ol>
+<li><strong>Collect trajectories.</strong> Run your agent with a strong frontier model (the <strong>teacher</strong>) on realistic tasks, logging every step: prompt, tool calls, tool results, final answer.</li>
+<li><strong>Filter.</strong> Keep only successful trajectories, judged by your graders or by humans. Training on failures teaches failures.</li>
+<li><strong>Format with the student&#39;s chat template.</strong> Render tool definitions, calls and results in the exact format the student model&#39;s template uses, so training and serving agree (the template lesson again).</li>
+<li><strong>Train with LoRA.</strong> <strong>LoRA</strong> freezes the base weights and trains small low-rank adapter matrices, so fine-tuning fits on modest hardware; <strong>QLoRA</strong> does the same over a 4-bit base. Adapters can be merged into the weights or served separately (vLLM and others can serve multiple LoRA adapters on one base).</li>
+<li><strong>Evaluate against the teacher and the base</strong>, on held-out tasks, with the same harness.</li>
+</ol>
+<p>This is <strong><dfn class="gt" tabindex="0" data-t="Distillation" data-d="Training a smaller student model to imitate a larger teacher's outputs or reasoning traces, transferring much of its capability at lower cost." data-l="training-agents" data-a="distillation">distillation</dfn></strong> from the teacher&#39;s trajectories. Two cautions. Read your frontier provider&#39;s terms: several restrict using model outputs to build competing models, so check what your agreement permits. And fine-tuning narrows a model: it may get better at your tools and worse at things you didn&#39;t train, including following safety instructions, so re-run your safety and refusal evals afterwards.</p>
+<p>For the deeper picture (<dfn class="gt" tabindex="0" data-t="Supervised fine-tuning" data-d="Further training a pretrained model on curated input-output examples, such as instructions with good responses or successful agent trajectories." data-l="training-agents" data-a="supervised-fine-tuning">SFT</dfn>, preference optimization, <dfn class="gt" tabindex="0" data-t="RLVR" data-d="Reinforcement learning with verifiable rewards: RL where the reward comes from automatic checks, such as correct math answers or passing tests, the recipe behind modern reasoning models." data-l="training-agents" data-a="rlvr">reinforcement learning with verifiable rewards</dfn>, and the open training tooling), see <a href="training-agents.html">Training Agentic Models</a>.</p>
+<h2 id="evaluating-before-you-switch"><a class="anchor" href="#evaluating-before-you-switch" aria-hidden="true" tabindex="-1">#</a>Evaluating Before You Switch</h2>
+<p>Public leaderboards tell you which models are worth trying. They do not tell you whether a model will run <em>your</em> agent. Before moving any step to an open model, run it through your own eval suite (<a href="evaluating-agents.html">evaluating agents</a>).</p>
+<p>What to measure, per candidate (model × quantization × server configuration, since all three change behavior):</p>
+<ul>
+<li><strong>Task success rate</strong> on a representative set of real tasks, with the same graders you use for the current model. Run each task several times; consistency (<dfn class="gt" tabindex="0" data-t="pass^k" data-d="The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%." data-l="evaluating-agents" data-a="passk">pass^k</dfn>) matters for agents.</li>
+<li><strong>Tool-call validity</strong>: the share of calls that parse, match the schema and name an existing tool. Measure it with constrained decoding on and off.</li>
+<li><strong>Tool selection accuracy</strong> and <strong>argument accuracy</strong> on labeled steps.</li>
+<li><strong>Recovery</strong>: given an injected tool error, does the model retry sensibly or loop?</li>
+<li><strong>Steps and tokens per success</strong>: weaker models often take more steps, which eats the cost advantage.</li>
+<li><strong>Latency</strong> at your expected concurrency (p50 and p95 per step), not on an idle server.</li>
+<li><strong>Cost per successful task</strong>, including GPU amortization and idle time.</li>
+<li><strong>Safety and policy behavior</strong>: refusals, prompt-injection resistance and adherence to your policies, because you no longer inherit the provider&#39;s safeguards (<a href="agent-security.html">agent security</a>).</li>
+</ul>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Shadow before you switch</div><div class="callout-body"><p>Run the open model in <strong>shadow mode</strong>: send it the same production inputs as the current model, log both outputs, and compare offline. You get a realistic eval set without risking users. Then canary it on a small share of traffic with automatic rollback (<a href="deployment.html">deployment</a>).</p>
+</div></div>
+<p>Also test the integration, not just the model: multi-turn conversations with tool results, <dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">parallel tool calls</dfn>, streaming, long contexts near your cap, and non-English inputs. These are where template and parser bugs live.</p>
+<h2 id="security-and-the-model-supply-chain"><a class="anchor" href="#security-and-the-model-supply-chain" aria-hidden="true" tabindex="-1">#</a>Security and the Model Supply Chain</h2>
+<p>Downloading weights from the internet and running them on your GPUs is a supply-chain decision, just like adding a dependency.</p>
+<ul>
+<li><strong>Pickle vs safetensors.</strong> Older PyTorch checkpoints (<code>.bin</code>, <code>.pt</code>) use Python&#39;s <strong>pickle</strong> format, which can execute arbitrary code when loaded. <strong>safetensors</strong> is a format that stores only tensors and metadata and cannot execute code on load. Prefer safetensors (or GGUF for llama.cpp), and refuse pickle files from sources you don&#39;t fully trust.</li>
+<li><strong><code>trust_remote_code</code>.</strong> Some repositories ship custom Python modeling code. Loading them with <code>trust_remote_code=True</code> (in Hugging Face Transformers, and the equivalent flag in vLLM and others) runs that code on your machine. Avoid it when the architecture is already supported natively; when you must use it, read the code and pin an exact revision.</li>
+<li><strong>Provenance.</strong> Popular models attract re-uploads under look-alike names, and many quantized variants come from third parties. Download from the publisher&#39;s official organization, or from quantizers you have vetted, and pin by commit hash rather than a moving <code>main</code> branch. Mirror approved artifacts to an internal registry and record checksums.</li>
+<li><strong>Templates are code too.</strong> A chat template is a Jinja program inside the model repo. A modified template can silently change how system prompts or tools are presented.</li>
+<li><strong>Backdoors are possible.</strong> Research such as <em>Sleeper Agents</em> showed that models can be trained to behave normally until a trigger appears, and that standard safety training may not remove the behavior. You cannot fully audit weights. Mitigate with trusted sources, your own evals, and an agent design that does not grant a model more authority than you would grant untrusted code: sandbox tools, <dfn class="gt" tabindex="0" data-t="Least privilege" data-d="Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise." data-l="agent-security" data-a="least-privilege">least privilege</dfn>, and human approval for consequential actions (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
+<li><strong>The server is an attack surface.</strong> Inference servers parse complex file formats and accept network requests. Keep them updated, don&#39;t expose them to the internet without authentication, and isolate them from sensitive networks.</li>
+<li><strong>Licenses and acceptable-use policies</strong> are part of compliance: record which license each deployed artifact carries.</li>
+</ul>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Local is not automatically private</div><div class="callout-body"><p>Self-hosting keeps data away from a model provider, but your own logs, traces, prompt caches and fine-tuning datasets now hold that sensitive data. Apply the same retention and access controls you would demand of a vendor (<a href="observability.html">observability</a>).</p>
+</div></div>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
+<ul>
+<li>Open-weight models are a <strong>deployment choice</strong>: pick them for data control, cost at volume, latency, customization or offline use, and accept the ops burden and, for long-horizon tasks, a capability gap that is still real as of 2026.</li>
+<li><strong>Licenses vary per release</strong>, from Apache 2.0 and MIT to custom terms with user or revenue thresholds; review the exact artifact you deploy.</li>
+<li>Tool calling on open models is <strong>text generation plus parsing</strong>: the chat template renders tools into tokens, the model emits tool-call markers, and the server&#39;s parser turns them into JSON. Template or parser mismatches fail silently.</li>
+<li><strong>Constrained decoding</strong> (Outlines, XGrammar, llguidance, GBNF) guarantees well-formed tool JSON, but not correct choices; validate semantics in code.</li>
+<li><strong>Quantization</strong> errors compound over agent steps; 8-bit is usually safe, 4-bit is the common trade-off, and you must evaluate the quantized artifact itself.</li>
+<li><strong>KV cache memory</strong>, driven by context length and concurrency, often limits agent serving more than model size does. Do the arithmetic before buying GPUs.</li>
+<li>The strongest designs are often <strong>hybrid</strong>: a frontier model plans and handles hard cases, local models do bulk, narrow or PII-sensitive steps.</li>
+<li>Treat weights like dependencies: <strong>safetensors over pickle</strong>, avoid <code>trust_remote_code</code>, pin revisions, verify provenance, and sandbox the agent anyway.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
+<ol>
+<li><strong>Serve and call.</strong> Run a small instruction-tuned model with Ollama or vLLM and run the tool-calling example above. Then deliberately start the server without tool parsing enabled (or with a wrong parser) and observe what the response looks like. Write down how you would detect this failure in production.</li>
+<li><strong>Do the memory math.</strong> Pick an open model you&#39;re interested in, read its <code>config.json</code>, and compute the KV bytes per token. How many concurrent 16K-token sessions fit on a 24 GB GPU at 4-bit weights? At 8-bit? Compare with what the server reports at startup.</li>
+<li><strong>Measure tool-call validity.</strong> Build a set of 50 prompts that should trigger your tools. For one model, measure the share of valid, schema-conforming calls with and without constrained decoding, and at two quantization levels. Plot success against bits.</li>
+<li><strong>Hybrid split.</strong> Take an agent you&#39;ve built in this course. Identify one step that is high-volume and narrow, move it to a local model behind a tool as in the hybrid sketch, and compare cost per successful task and end-to-end success rate against the all-frontier version.</li>
+<li><strong>Design a supply-chain policy.</strong> Write a one-page policy for your team covering where weights may be downloaded from, allowed file formats, <code>trust_remote_code</code>, revision pinning, license review, and the evals a model must pass before production. Which items could you enforce automatically in CI?</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="open-models-and-local-agents" data-total="7">
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>An agent on a self-hosted model never calls tools; it answers every question in prose. The server returns HTTP 200 and logs no errors. What should you check first?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Whether the GPU has enough free memory to hold the tool schemas</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Whether the client library supports streaming responses</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Whether the rendered prompt and raw output show the expected tool format</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Whether the model&#39;s weights are stored in safetensors format</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tool calling depends on the chat template rendering tools in the format the model was trained on, and a matching parser extracting calls from the output. Logging the rendered prompt and the raw generated text tells you whether the template or the parser is at fault. Memory problems cause errors or evictions, not silent prose.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>You serve a 4-bit model with grammar-constrained decoding for tool arguments. What does this guarantee?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model will pick the correct tool for each step</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model will never call a tool when no tool is needed</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Task success matches the unquantized model on agent tasks</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tool arguments will parse and conform to the schema</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding masks tokens that would violate the grammar, so the structure is always valid. It says nothing about whether the tool choice, IDs or plan are right, and it does not undo quantization loss. Validate semantics in your tool code.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>A model has 64 layers, 8 KV heads and head dimension 128, with a 16-bit KV cache. Roughly how much KV memory does one 32K-token session need?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>About 64 GB, since every attention head stores its own cache</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>About 0.26 GB, the same as a single token at full precision</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>About 2 GB, because grouped-query attention stores only keys</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 8.6 GB, at roughly 0.26 MB per token across all layers</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> 2 (K and V) × 64 layers × 8 KV heads × 128 × 2 bytes = 262,144 bytes per token, times 32,768 tokens ≈ 8.6 GB. GQA shrinks the cache by sharing KV heads among query heads, but both keys and values are still stored.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>A team wants to replace its frontier model with an open model to cut costs on a 30-step coding agent. Which evidence should most influence the decision?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Single-turn tool-call accuracy on a public function-calling benchmark</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The open model&#39;s rank on a popular public chat leaderboard</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The open model&#39;s advertised maximum context length and parameter count</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Success rate and cost per success on their own tasks, with the quantized build</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long-horizon agent success depends on compounding per-step reliability on your tools and tasks, and the deployed quantization and server config change behavior. Public leaderboards and single-turn benchmarks are useful for shortlisting, not deciding.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Which design best keeps patient records away from a hosted frontier API while still using it for planning?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A local model extracts or redacts fields; only the result reaches the frontier model</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Records are base64-encoded before being sent to the frontier model&#39;s context</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The frontier model is prompted to ignore any personal data it sees in records</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The frontier model reads records directly, under a zero-retention agreement</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A privacy boundary enforced by architecture is stronger than one enforced by instructions or encoding. Zero-retention agreements can be valid for some requirements, but they still send the data to a third party, which the requirement here rules out.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Why is prefix caching especially valuable for agent workloads on a self-hosted server?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Every step re-sends the same system prompt, tools and prior steps as a prefix</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It lets the server skip generating tool-call JSON that it has produced before</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It stores each final answer, so repeated user questions skip the model entirely</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It compresses model weights, freeing GPU memory for more concurrent sessions</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Agent calls share long, growing prefixes. Reusing their KV cache avoids recomputing them, cutting time to first token and compute. It caches attention state for input tokens, not outputs or answers, and has nothing to do with weight compression.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>A popular model&#39;s repository asks you to load it with trust_remote_code=True. What is the main risk?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The weights may be quantized to fewer bits than the model card claims</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The license may be changed later without notice to downstream users</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The server will send prompts back to the publisher for usage analytics</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Python code from the repository runs on your machine when you load it</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> trust_remote_code executes the repository&#39;s custom modeling code with your process&#39;s privileges. Prefer natively supported architectures, read the code when you must use it, and pin an exact revision so it cannot change under you.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://docs.vllm.ai/" target="_blank" rel="noopener">vLLM documentation</a>: serving, tool calling and parsers, structured outputs, quantization and prefix caching for the most widely used open-source inference engine.</li>
+<li><a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener">Efficient Memory Management for LLM Serving with PagedAttention (Kwon et al., 2023)</a>: the paper behind vLLM&#39;s paged KV cache, and a clear explanation of why KV memory limits throughput.</li>
+<li><a href="https://arxiv.org/abs/2312.07104" target="_blank" rel="noopener">SGLang: Efficient Execution of Structured Language Model Programs (Zheng et al., 2023)</a>: RadixAttention prefix reuse and fast structured generation.</li>
+<li><a href="https://github.com/ggml-org/llama.cpp" target="_blank" rel="noopener">llama.cpp on GitHub</a>: GGUF, quantization types, <code>llama-server</code>, grammars and the function-calling docs.</li>
+<li><a href="https://huggingface.co/docs/transformers/chat_templating" target="_blank" rel="noopener">Chat templates (Hugging Face Transformers docs)</a>: how templates turn messages and tools into tokens, and how to inspect them.</li>
+<li><a href="https://developers.openai.com/cookbook/articles/gpt-oss/run-vllm" target="_blank" rel="noopener">How to run gpt-oss with vLLM (OpenAI Cookbook)</a>: a concrete example of serving an open reasoning model with tool calling.</li>
+<li><a href="https://arxiv.org/abs/2211.17192" target="_blank" rel="noopener">Fast Inference from Transformers via Speculative Decoding (Leviathan et al., 2022)</a>: the core idea of draft-and-verify decoding.</li>
+<li><a href="https://arxiv.org/abs/2306.00978" target="_blank" rel="noopener">AWQ (Lin et al., 2023)</a> and <a href="https://arxiv.org/abs/2210.17323" target="_blank" rel="noopener">GPTQ (Frantar et al., 2022)</a>: the two most common 4-bit weight quantization methods for GPU serving.</li>
+<li><a href="https://huggingface.co/docs/safetensors" target="_blank" rel="noopener">Safetensors documentation</a>: why the format exists and how it avoids pickle&#39;s code-execution risk.</li>
+<li><a href="https://arxiv.org/abs/2401.05566" target="_blank" rel="noopener">Sleeper Agents (Hubinger et al., 2024)</a>: evidence that backdoored behavior can persist through safety training, and why provenance matters.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="open-models-and-local-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-open-models-and-local-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-open-models-and-local-agents" class="notes" data-slug="open-models-and-local-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="sdk-hands-on.html"><small>← Previous</small><span>Hands-On with Agent SDKs</span></a>
+    <a class="pager-next" href="evaluating-agents.html"><small>Next →</small><span>Evaluating Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
+<li class="toc-h2"><a href="#why-run-agents-on-open-models">Why Run Agents on Open Models?</a></li>
+<li class="toc-h2"><a href="#the-open-weight-landscape-late-2026">The Open-Weight Landscape (Late 2026)</a></li>
+<li class="toc-h2"><a href="#how-tool-calling-works-under-the-hood">How Tool Calling Works Under the Hood</a></li>
+<li class="toc-h3"><a href="#layer-1-the-chat-template">Layer 1: the chat template</a></li>
+<li class="toc-h3"><a href="#layer-2-the-tool-call-parser">Layer 2: the tool-call parser</a></li>
+<li class="toc-h3"><a href="#how-mismatches-break-agents">How mismatches break agents</a></li>
+<li class="toc-h2"><a href="#serving-stacks">Serving Stacks</a></li>
+<li class="toc-h3"><a href="#calling-a-local-server-with-a-tool">Calling a local server with a tool</a></li>
+<li class="toc-h2"><a href="#making-tool-calls-reliable-constrained-decoding">Making Tool Calls Reliable: Constrained Decoding</a></li>
+<li class="toc-h2"><a href="#quantization-and-agent-reliability">Quantization and Agent Reliability</a></li>
+<li class="toc-h2"><a href="#memory-math-weights-and-the-kv-cache">Memory Math: Weights and the KV Cache</a></li>
+<li class="toc-h2"><a href="#throughput-vs-latency">Throughput vs Latency</a></li>
+<li class="toc-h2"><a href="#hybrid-architectures">Hybrid Architectures</a></li>
+<li class="toc-h2"><a href="#fine-tuning-small-models-for-your-tools">Fine-Tuning Small Models for Your Tools</a></li>
+<li class="toc-h2"><a href="#evaluating-before-you-switch">Evaluating Before You Switch</a></li>
+<li class="toc-h2"><a href="#security-and-the-model-supply-chain">Security and the Model Supply Chain</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

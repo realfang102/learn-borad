@@ -17,9 +17,9 @@ tags: [open-weight, local-models, vllm, ollama, llama-cpp, quantization, tool-ca
 
 A hospital wants an agent that reads discharge notes, pulls lab values from an internal database and drafts follow-up tasks. Legal says patient text cannot leave the building. A logistics company wants to classify forty million shipping exceptions a month, and the per-token bill from a frontier API is larger than the team that would review them. A field-service app needs an assistant that works in a basement with no signal. All three end up in the same place: running an agent on a model whose weights they download and serve themselves.
 
-That is a different job from calling a hosted API. You become responsible for things the provider used to hide: the **chat template** that turns messages into tokens, the parser that turns the model's text back into tool calls, the GPU memory budget, the quantization level, the throughput tuning, and the safety behavior of a model you didn't train. Each of these has quietly broken real agents.
+That is a different job from calling a hosted API. You become responsible for things the provider used to hide: the **chat template** that turns messages into tokens, the parser that turns the model's text back into tool calls, the GPU memory budget, quantization, throughput tuning, and the safety behavior of a model you didn't train. Each of these has quietly broken real agents.
 
-This lesson covers why and when teams go open, what the landscape looks like in late 2026, how tool calling works under the hood for self-hosted models, the serving stacks people actually use, how to keep tool calls reliable, how to do the memory math, how to combine local and frontier models, and how to evaluate and secure the whole thing. It builds on [tool use](tool-use.html), [structured outputs](structured-outputs.html) and the from-scratch loop in [Build an Agent From Scratch](build-agent-from-scratch.html).
+This lesson covers when to go open, the late-2026 landscape, how tool calling works under the hood, serving stacks, reliability, memory math, hybrid designs, fine-tuning, evaluation and supply-chain security. It builds on [tool use](tool-use.html), [structured outputs](structured-outputs.html) and [Build an Agent From Scratch](build-agent-from-scratch.html).
 
 > [!WARNING] A fast-moving area
 > Model releases, licenses, server flags and parser names change month to month. Everything here was checked as of November 2026. Treat specific model versions and CLI flags as perishable and verify them in current docs; the mechanisms (templates, parsers, KV cache, quantization trade-offs) are the durable part.
@@ -30,18 +30,18 @@ First, vocabulary. An **open-weight model** is one whose trained parameters you 
 
 The reasons teams choose this path:
 
-- **Data control and privacy.** Prompts, tool results and documents never leave infrastructure you control. For regulated data (health, finance, defense, legal discovery), or contracts that forbid third-party processors, this can be the deciding factor. Note that hosted APIs also offer data-residency options and zero-retention agreements, so check whether those meet the requirement before taking on self-hosting.
-- **Cost at scale.** API pricing is per token; your own GPUs are a fixed cost you can saturate. For high-volume, narrow steps (classification, extraction, routing, summarizing millions of records), a well-utilized small model can be much cheaper per task. At low or bursty volume the reverse is usually true, because idle GPUs still cost money.
-- **Latency and locality.** A small model on a nearby GPU, with no network round trip and no shared queue, can return a short tool decision quickly and predictably. That matters for voice agents and tight inner loops.
-- **Customization.** You can fine-tune the weights on your own tools and formats, change the chat template, constrain decoding with a grammar, or inspect logits. Hosted APIs expose only some of these.
+- **Data control and privacy.** Prompts, tool results and documents never leave infrastructure you control, which can be decisive for regulated data or contracts that forbid third-party processors. (Hosted APIs also offer data-residency and zero-retention options; check whether those suffice first.)
+- **Cost at scale.** API pricing is per token; your GPUs are a fixed cost you can saturate. For high-volume, narrow steps (classification, extraction, routing), a well-utilized small model can be much cheaper per task. At low or bursty volume the reverse is usually true, because idle GPUs still cost money.
+- **Latency and locality.** A small model on a nearby GPU, with no network round trip or shared queue, returns short decisions quickly and predictably, which matters for voice agents and tight inner loops.
+- **Customization.** Fine-tune on your tools, change the chat template, constrain decoding with a grammar, inspect logits.
 - **Offline and edge.** Laptops, phones, factory floors, ships and air-gapped networks.
-- **Control over change.** A hosted model can be updated or retired on the provider's schedule. Weights on your disk behave the same next year, which makes regression testing simpler.
+- **Control over change.** Hosted models get updated or retired on the provider's schedule; weights on your disk behave the same next year.
 
 And the honest costs:
 
 | Trade-off | What it means in practice |
 |---|---|
-| **Capability gap on long-horizon tasks** | As of 2026, the strongest open models are competitive on many single-turn and short tool-use tasks, but frontier hosted models still generally lead on long, multi-step agentic work (large refactors, extended research, recovering from their own mistakes over dozens of steps). Small errors compound across steps, so a modest per-step gap becomes a large task-level gap ([when to use agents](when-to-use-agents.html)). |
+| **Capability gap on long-horizon tasks** | As of 2026, the best open models are competitive on many short tool-use tasks, but frontier hosted models still generally lead on long, multi-step agentic work such as large refactors or recovering from their own mistakes over dozens of steps. Errors compound, so a modest per-step gap becomes a large task-level gap ([when to use agents](when-to-use-agents.html)). |
 | **Operations burden** | You own GPUs, drivers, autoscaling, upgrades, monitoring, and on-call for the inference server. |
 | **Integration correctness** | Tool calling depends on templates and parsers you configure. Misconfigurations fail silently. |
 | **Safety tuning is your job** | The provider's runtime safety systems are absent. You add guardrails, abuse monitoring and refusal behavior yourself ([guardrails and sandboxing](guardrails-and-sandboxing.html)). |

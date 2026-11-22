@@ -18,7 +18,7 @@ Ask a chatbot to "clear the table" and it writes you a cheerful list of steps. A
 
 An **embodied agent** is an agent whose observations come from sensors in the physical world (or a simulated one) and whose actions move a body: a robot arm, a mobile base, a humanoid, a drone, or a character in a 3D game. Everything you learned about [the agent loop](the-agent-loop.html) still applies: observe, decide, act, repeat. What changes is that the "tools" are motors, the observations are noisy and incomplete, the loop must run in real time, and mistakes can hurt people.
 
-This lesson covers what physical action adds to the agent problem, the classical robotics stack and where learned models fit, how large language models became high-level robot planners, the rise of **vision-language-action (VLA)** models, where robot training data comes from, world models, evaluation, safety, game agents as a bridge, and an honest look at where things stand in late 2026.
+This lesson covers the classical robotics stack, LLMs as high-level robot planners, **vision-language-action (VLA)** models, robot data, world models, evaluation, safety, game agents as a bridge, and an honest look at where things stand in late 2026.
 
 ## What Changes When Actions Are Physical
 
@@ -34,17 +34,13 @@ A software agent that writes a bad SQL query gets an error message and tries aga
 | **Data** | Trillions of tokens of web text | Robot experience is scarce, slow and expensive to collect |
 | **Testing** | Spin up a sandbox, run thousands of trials | Real trials need hardware, resets and people; simulators differ from reality |
 
-Five of these deserve a closer look.
+A few consequences shape everything that follows:
 
-**Irreversibility.** In software you can let an agent explore because the sandbox absorbs mistakes. A robot cannot explore freely around people or fragile objects. This pushes robotics toward learning from demonstrations rather than trial and error, and toward conservative action selection.
-
-**Real-time control.** A large model that takes a second to respond is fine for choosing the next subtask, but a gripper closing on a sliding cup needs corrections every few milliseconds. The architecture has to split decisions by timescale, which is why nearly every serious system is hierarchical.
-
-**Partial observability.** The robot never sees the whole state of the world. The cup's handle may face away, the drawer's contents are hidden, and a camera cannot measure how slippery a surface is. The agent must maintain a **belief** (its best estimate of the state) and act to gather information, for example by moving the camera.
-
-**Safety.** Physical harm raises the bar from "usually right" to "never catastrophically wrong". That cannot rest on a model's judgment alone; it needs independent layers, covered later in this lesson.
-
-**The sim-to-real gap.** Simulators let you run millions of trials cheaply, but simulated friction, contact, lighting, sensor noise and object deformation never quite match reality. A policy that is perfect in simulation can fail on the first real attempt. This **sim-to-real gap** is one of the oldest problems in robot learning.
+- **Irreversibility** means a robot cannot explore freely around people or fragile objects, which pushes robotics toward learning from demonstrations rather than trial and error.
+- **Real-time control** means a model that takes a second to respond can choose the next subtask, but cannot correct a gripper closing on a sliding cup. Decisions must be split by timescale, which is why nearly every serious system is hierarchical.
+- **Partial observability** means the robot never sees the whole state: the handle faces away, the drawer is closed, friction is invisible. The agent keeps a **belief** (its best estimate of the state) and sometimes acts just to gather information, such as moving the camera.
+- **Safety** raises the bar from "usually right" to "never catastrophically wrong", which cannot rest on a model's judgment alone.
+- The **sim-to-real gap**: simulators give millions of cheap trials, but simulated friction, contact, lighting and sensor noise never quite match reality, so a policy perfect in simulation can fail on its first real attempt.
 
 > [!KEY] The big idea
 > Embodiment turns an agent's decisions into physics. Decisions must be split across timescales, made from partial and noisy observations, and fenced by safety layers that do not depend on the model being right.
@@ -68,31 +64,24 @@ flowchart LR
 - **Planning** comes in two layers. **Task planning** decides *what* to do in what order (open drawer, pick sponge, close drawer), traditionally with symbolic planners. **Motion planning** decides *how* to move: a collision-free trajectory for the arm, found with sampling-based planners or trajectory optimization.
 - **Control** tracks that trajectory by computing motor commands from moment to moment, often with PID loops, impedance control (behaving like a spring so contact is gentle) or **model predictive control** (MPC), which repeatedly optimizes a short horizon of future actions.
 
-This modular stack is interpretable and reliable in structured settings such as factories, where parts are known and positions are fixed. It struggles in homes and other open environments, because every module assumes a model of the world (object categories, shapes, task rules) that someone has to hand-engineer.
+This stack is interpretable and reliable in structured settings such as factories. It struggles in homes, because every module assumes a hand-engineered model of the world (object categories, shapes, task rules).
 
 ### Where learned models fit
 
-Learning entered the stack piece by piece, then started swallowing whole layers:
-
-1. **Learned perception** (deep detectors and segmenters) was the first and least controversial replacement.
-2. **Learned policies** map observations directly to actions for a specific skill, trained by **imitation learning** (copying demonstrations) or **reinforcement learning** (trial, error and reward). These replace planning and part of control for that skill.
-3. **Language models as task planners** replace the hand-written symbolic task planner with an LLM that knows how the world generally works.
-4. **Vision-language-action models** collapse perception, task reasoning and action generation into a single network that outputs motor commands.
-
-Even in the most end-to-end systems, a low-level controller and hardware safety layer remain underneath. A VLA usually outputs target positions or velocities, and a classical controller turns those into motor currents.
+Learning entered the stack piece by piece: first **learned perception** (deep detectors and segmenters); then **learned policies** for individual skills, trained by **imitation learning** (copying demonstrations) or **reinforcement learning** (trial, error and reward); then **LLMs as task planners**; and finally **VLA models** that collapse perception, reasoning and action generation into one network. Even then, a low-level controller and hardware safety layer remain underneath: a VLA usually outputs target positions or velocities, and a classical controller turns them into motor currents.
 
 ## LLMs as High-Level Planners
 
-In 2022 a group of papers showed that a language model's general world knowledge could drive a robot if you connected it to a library of pre-trained **skills** (also called **primitives**): short, reliable behaviors like `pick(sponge)` or `go_to(kitchen)`, each implemented by a learned policy or classical controller. This is the same pattern as [tool use](tool-use.html), except each tool moves a body. Four ideas from this period remain the conceptual foundation of hierarchical embodied agents.
+In 2022 a group of papers showed that an LLM's world knowledge could drive a robot if you connected it to a library of pre-trained **skills** (or **primitives**): short, reliable behaviors like `pick(sponge)` or `go_to(kitchen)`, each implemented by a learned policy or classical controller. This is [tool use](tool-use.html) where each tool moves a body. Four ideas from this period remain foundational.
 
 ### SayCan: grounding language in affordances
 
-An LLM asked "I spilled my drink, can you help?" may propose "find a vacuum cleaner", which is reasonable in general but useless for a robot that has no vacuum skill and no vacuum nearby. **SayCan** ("Do As I Can, Not As I Say", Ahn et al., Google, 2022) fixed this by combining two scores for each candidate skill:
+An LLM asked "I spilled my drink, can you help?" may propose "find a vacuum cleaner", which is sensible in general but useless for a robot with no vacuum skill. **SayCan** ("Do As I Can, Not As I Say", Ahn et al., Google, 2022) fixed this by combining two scores for each candidate skill:
 
 - **Say**: the LLM's estimate of how useful the skill is as the next step toward the instruction.
 - **Can**: an **affordance** score, a learned value function estimating the probability that the skill succeeds from the robot's *current* state.
 
-The robot picks the skill with the highest product, executes it, appends it to the plan, and repeats. The LLM supplies task knowledge; the value functions supply physical grounding. On 101 instructions in a mock kitchen, the PaLM-based version chose a correct skill sequence 84% of the time and executed it successfully 74% of the time, and removing the affordance grounding substantially lowered planning success.
+The robot executes the skill with the highest product, appends it to the plan, and repeats. On 101 instructions in a mock kitchen, the PaLM-based version chose a correct skill sequence 84% of the time and executed it successfully 74% of the time, and removing the affordance grounding substantially lowered planning success.
 
 ### Inner Monologue: closing the loop with feedback
 

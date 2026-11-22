@@ -109,9 +109,12 @@ function sidebar(site, current) {
       })
       .join("\n")}
     <div class="side-extra">
+      <a href="paths.html">🗺️ Learning paths</a>
+      <a href="lab.html">🧪 Interactive lab</a>
       <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="papers.html">📚 Reading list</a>
       <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>

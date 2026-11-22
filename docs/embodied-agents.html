@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embodied Agents: Robots and the Physical World · Agent Academy</title>
+<meta name="description" content="What changes when an agent's actions move atoms instead of bits: the robotics stack, LLM planners over robot skills, vision-language-action models, data, world models, evaluation, safety and open problems.">
+<meta property="og:title" content="Embodied Agents: Robots and the Physical World · Agent Academy">
+<meta property="og:description" content="What changes when an agent's actions move atoms instead of bits: the robotics stack, LLM planners over robot skills, vision-language-action models, data, world models, evaluation, safety and open problems.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="embodied-agents.html" data-slug="embodied-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Embodied Agents: Robots and the Physical World</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
+        <li><a href="open-models-and-local-agents.html" data-slug="open-models-and-local-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents on Open-Weight &amp; Local Models</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="paths.html">🗺️ Learning paths</a>
+      <a href="lab.html">🧪 Interactive lab</a>
+      <a href="projects.html">🏗️ Hands-on projects</a>
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="papers.html">📚 Reading list</a>
+      <a href="review.html">🧠 Course review</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="embodied-agents">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#agent-types">Module 4: Agents in the Wild</a></nav>
+  <header class="lesson-header">
+    <h1>Embodied Agents: Robots and the Physical World</h1>
+    <p class="lead">What changes when an agent's actions move atoms instead of bits: the robotics stack, LLM planners over robot skills, vision-language-action models, data, world models, evaluation, safety and open problems.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 32 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 23 of 40</span>
+      <span class="lesson-status" data-status-for="embodied-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain what physical action adds to the agent problem (irreversibility, real-time control, partial observability, safety, the sim-to-real gap)</li><li>Map the classical robotics stack and show where learned models now fit</li><li>Describe hierarchical agents in which an LLM or VLM plans and lower-level skills execute (SayCan, Inner Monologue, Code as Policies, VoxPoser)</li><li>Trace the evolution of vision-language-action models from RT-1 and RT-2 to open and frontier VLAs</li><li>Compare robot training data sources, world models and evaluation methods</li><li>Design layered safety for an embodied agent and assess honestly where the field stands</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="computer-use-agents.html">Computer-Use &amp; Browser Agents</a></p>
+  </section>
+  <article class="prose">
+<p>Ask a chatbot to &quot;clear the table&quot; and it writes you a cheerful list of steps. Ask a robot and it has to find the mug in a cluttered image, decide where to grasp a handle it can only half see, lift without spilling, avoid the person reaching for the salt, and notice when the mug slips. Nothing in that sequence can be undone with a retry button. The plate that hits the floor stays broken.</p>
+<p>An <strong>embodied agent</strong> is an agent whose observations come from sensors in the physical world (or a simulated one) and whose actions move a body: a robot arm, a mobile base, a humanoid, a drone, or a character in a 3D game. Everything you learned about <a href="the-agent-loop.html">the agent loop</a> still applies: observe, decide, act, repeat. What changes is that the &quot;tools&quot; are motors, the observations are noisy and incomplete, the loop must run in real time, and mistakes can hurt people.</p>
+<p>This lesson covers the classical robotics stack, LLMs as high-level robot planners, <strong>vision-language-action (VLA)</strong> models, robot data, world models, evaluation, safety, game agents as a bridge, and an honest look at where things stand in late 2026.</p>
+<h2 id="what-changes-when-actions-are-physical"><a class="anchor" href="#what-changes-when-actions-are-physical" aria-hidden="true" tabindex="-1">#</a>What Changes When Actions Are Physical</h2>
+<p>A software agent that writes a bad SQL query gets an error message and tries again. A <a href="computer-use-agents.html">computer-use agent</a> that misclicks can often click &quot;Back&quot;. Physical agents lose most of these comforts.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Software agent</th>
+<th>Embodied agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Reversibility</strong></td>
+<td>Many actions can be undone, sandboxed or rolled back</td>
+<td>Broken objects, spills and collisions are permanent</td>
+</tr>
+<tr>
+<td><strong>Timing</strong></td>
+<td>The world waits while the model thinks</td>
+<td>The world keeps moving; control loops run tens to hundreds of times per second</td>
+</tr>
+<tr>
+<td><strong><dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">Observability</dfn></strong></td>
+<td>Tool results are exact text</td>
+<td>Cameras and sensors are noisy, occluded and partial</td>
+</tr>
+<tr>
+<td><strong><dfn class="gt" tabindex="0" data-t="Action space" data-d="The set of actions available to an agent. For LLM agents it is usually defined by the tools it is given, plus the option of replying in text." data-l="tool-use" data-a="action-space">Action space</dfn></strong></td>
+<td>Discrete calls with typed arguments</td>
+<td>Continuous joint angles, velocities and forces</td>
+</tr>
+<tr>
+<td><strong>Safety</strong></td>
+<td>Harms are informational or financial</td>
+<td>Harms include physical injury</td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>Trillions of tokens of web text</td>
+<td>Robot experience is scarce, slow and expensive to collect</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td>Spin up a sandbox, run thousands of trials</td>
+<td>Real trials need hardware, resets and people; simulators differ from reality</td>
+</tr>
+</tbody></table>
+</div>
+<p>A few consequences shape everything that follows:</p>
+<ul>
+<li><strong>Irreversibility</strong> means a robot cannot explore freely around people or fragile objects, which pushes robotics toward learning from demonstrations rather than trial and error.</li>
+<li><strong>Real-time control</strong> means a model that takes a second to respond can choose the next subtask, but cannot correct a gripper closing on a sliding cup. Decisions must be split by timescale, which is why nearly every serious system is hierarchical.</li>
+<li><strong>Partial observability</strong> means the robot never sees the whole state: the handle faces away, the drawer is closed, friction is invisible. The agent keeps a <strong>belief</strong> (its best estimate of the state) and sometimes acts just to gather information, such as moving the camera.</li>
+<li><strong>Safety</strong> raises the bar from &quot;usually right&quot; to &quot;never catastrophically wrong&quot;, which cannot rest on a model&#39;s judgment alone.</li>
+<li>The <strong>sim-to-real gap</strong>: simulators give millions of cheap trials, but simulated friction, contact, lighting and sensor noise never quite match reality, so a policy perfect in simulation can fail on its first real attempt.</li>
+</ul>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Embodiment turns an agent&#39;s decisions into physics. Decisions must be split across timescales, made from partial and noisy observations, and fenced by safety layers that do not depend on the model being right.</p>
+</div></div>
+<h2 id="the-classical-robotics-stack"><a class="anchor" href="#the-classical-robotics-stack" aria-hidden="true" tabindex="-1">#</a>The Classical Robotics Stack</h2>
+<p>Before foundation models, robots were built as a pipeline of specialized modules. That stack still exists in almost every deployed robot, and learned models are best understood as replacing or augmenting pieces of it.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    S[&quot;Sensors (cameras, depth, joint encoders, force)&quot;] --&gt; P[Perception]
+    P --&gt; E[&quot;State estimation and mapping&quot;]
+    E --&gt; PL[&quot;Task and motion planning&quot;]
+    PL --&gt; C[&quot;Control (tens to 1000+ Hz)&quot;]
+    C --&gt; A[&quot;Actuators (motors)&quot;]
+    A --&gt;|&quot;world changes&quot;| S</pre></figure>
+<ul>
+<li><strong>Perception</strong> turns raw sensor data into meaningful quantities: object detections, segmentation masks, 6-DoF object poses (position plus orientation), point clouds.</li>
+<li><strong>State estimation</strong> fuses perception with motion models over time to estimate where the robot and objects are. Kalman filters and <strong>SLAM</strong> (simultaneous localization and mapping) are the classic tools.</li>
+<li><strong>Planning</strong> comes in two layers. <strong>Task planning</strong> decides <em>what</em> to do in what order (open drawer, pick sponge, close drawer), traditionally with symbolic planners. <strong>Motion planning</strong> decides <em>how</em> to move: a collision-free trajectory for the arm, found with sampling-based planners or trajectory optimization.</li>
+<li><strong>Control</strong> tracks that trajectory by computing motor commands from moment to moment, often with PID loops, impedance control (behaving like a spring so contact is gentle) or <strong>model predictive control</strong> (MPC), which repeatedly optimizes a short horizon of future actions.</li>
+</ul>
+<p>This stack is interpretable and reliable in structured settings such as factories. It struggles in homes, because every module assumes a hand-engineered model of the world (object categories, shapes, task rules).</p>
+<h3 id="where-learned-models-fit"><a class="anchor" href="#where-learned-models-fit" aria-hidden="true" tabindex="-1">#</a>Where learned models fit</h3>
+<p>Learning entered the stack piece by piece: first <strong>learned perception</strong> (deep detectors and segmenters); then <strong>learned policies</strong> for individual skills, trained by <strong>imitation learning</strong> (copying demonstrations) or <strong>reinforcement learning</strong> (trial, error and reward); then <strong>LLMs as task planners</strong>; and finally <strong>VLA models</strong> that collapse perception, reasoning and action generation into one network. Even then, a low-level controller and hardware safety layer remain underneath: a VLA usually outputs target positions or velocities, and a classical controller turns them into motor currents.</p>
+<h2 id="llms-as-high-level-planners"><a class="anchor" href="#llms-as-high-level-planners" aria-hidden="true" tabindex="-1">#</a>LLMs as High-Level Planners</h2>
+<p>In 2022 a group of papers showed that an LLM&#39;s world knowledge could drive a robot if you connected it to a library of pre-trained <strong>skills</strong> (or <strong>primitives</strong>): short, reliable behaviors like <code>pick(sponge)</code> or <code>go_to(kitchen)</code>, each implemented by a learned policy or classical controller. This is <a href="tool-use.html">tool use</a> where each tool moves a body. Four ideas from this period remain foundational.</p>
+<h3 id="saycan-grounding-language-in-affordances"><a class="anchor" href="#saycan-grounding-language-in-affordances" aria-hidden="true" tabindex="-1">#</a>SayCan: grounding language in affordances</h3>
+<p>An LLM asked &quot;I spilled my drink, can you help?&quot; may propose &quot;find a vacuum cleaner&quot;, which is sensible in general but useless for a robot with no vacuum skill. <strong>SayCan</strong> (&quot;Do As I Can, Not As I Say&quot;, Ahn et al., Google, 2022) fixed this by combining two scores for each candidate skill:</p>
+<ul>
+<li><strong>Say</strong>: the LLM&#39;s estimate of how useful the skill is as the next step toward the instruction.</li>
+<li><strong>Can</strong>: an <strong>affordance</strong> score, a learned value function estimating the probability that the skill succeeds from the robot&#39;s <em>current</em> state.</li>
+</ul>
+<p>The robot executes the skill with the highest product, appends it to the plan, and repeats. On 101 instructions in a mock kitchen, the PaLM-based version chose a correct skill sequence 84% of the time and executed it successfully 74% of the time, and removing the affordance grounding substantially lowered planning success.</p>
+<h3 id="inner-monologue-closing-the-loop-with-feedback"><a class="anchor" href="#inner-monologue-closing-the-loop-with-feedback" aria-hidden="true" tabindex="-1">#</a>Inner Monologue: closing the loop with feedback</h3>
+<p>SayCan planned open-loop: it did not check whether a skill actually worked. <strong>Inner Monologue</strong> (Huang et al., 2022) fed textual feedback back into the LLM&#39;s context after each step: success detection (&quot;the grasp failed&quot;), scene descriptions (&quot;I see a coke can and an apple&quot;) and human answers to clarifying questions. With feedback, the planner could retry, re-plan or ask for help. This is exactly the ReAct-style observe-and-reason loop from <a href="reasoning-and-planning.html">reasoning and planning</a>, applied to a robot.</p>
+<h3 id="code-as-policies-plans-as-programs"><a class="anchor" href="#code-as-policies-plans-as-programs" aria-hidden="true" tabindex="-1">#</a>Code as Policies: plans as programs</h3>
+<p><strong>Code as Policies</strong> (Liang et al., 2022) had the LLM write Python that called perception and control APIs, rather than choosing from a fixed skill list. Code can express loops, conditionals and spatial arithmetic (&quot;place the blocks in a line 5 cm apart&quot;), and the LLM can define new helper functions on the fly. The trade-off is familiar from <a href="coding-agents.html">coding agents</a>: far more expressive, and far more ways to go wrong, so generated code needs a constrained API and checks before it runs.</p>
+<h3 id="voxposer-language-to-3d-value-maps"><a class="anchor" href="#voxposer-language-to-3d-value-maps" aria-hidden="true" tabindex="-1">#</a>VoxPoser: language to 3D value maps</h3>
+<p><strong>VoxPoser</strong> (Huang et al., 2023) went one level lower. An LLM writes code that queries a vision-language model for object locations and composes <strong>3D value maps</strong> over the robot&#39;s workspace: high value near the target (&quot;the top drawer handle&quot;), high cost near things to avoid (&quot;stay away from the vase&quot;). A motion planner then synthesizes end-effector trajectories through these maps, without any robot-specific training. It showed that language models can shape <em>how</em> a robot moves, not just which skill it calls.</p>
+<h3 id="the-hierarchical-architecture"><a class="anchor" href="#the-hierarchical-architecture" aria-hidden="true" tabindex="-1">#</a>The hierarchical architecture</h3>
+<p>These ideas converge on a common architecture that remains the most practical way to build embodied agents with today&#39;s models:</p>
+<figure class="diagram"><pre class="mermaid">flowchart TB
+    U[&quot;User instruction&quot;] --&gt; PL[&quot;LLM / VLM planner (seconds per step)&quot;]
+    PL --&gt;|&quot;skill call, e.g. pick(mug)&quot;| G[&quot;Safety and validity gate&quot;]
+    G --&gt;|&quot;approved&quot;| SK[&quot;Skill library (VLA or scripted policies)&quot;]
+    G --&gt;|&quot;rejected or risky&quot;| H[&quot;Ask human / re-plan&quot;]
+    H --&gt; PL
+    SK --&gt;|&quot;target poses, 5-50 Hz&quot;| CT[&quot;Low-level controller (100-1000 Hz)&quot;]
+    CT --&gt; R[&quot;Robot hardware + hardware e-stop&quot;]
+    R --&gt; SE[&quot;Sensors&quot;]
+    SE --&gt; PR[&quot;Perception and success detection&quot;]
+    PR --&gt;|&quot;scene description, skill result&quot;| PL
+    PR --&gt; SK</pre></figure>
+<p>Each layer runs at its own rate. The planner thinks in seconds and reasons about goals, the skill policy reacts to images many times per second, and the controller closes force and position loops fast enough to be smooth and safe. The gate between planner and skills is the same &quot;separate deciding from doing&quot; principle used for software agents (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>), and the hardware emergency stop sits outside the software entirely.</p>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Modern versions of this pattern often replace the text-only LLM with a <strong>VLM</strong> (vision-language model) that sees camera images directly, and replace scripted skills with a VLA that accepts open-ended language commands. Google DeepMind&#39;s Gemini Robotics-ER plus Gemini Robotics, NVIDIA&#39;s GR00T &quot;System 2 / System 1&quot; split and Figure&#39;s Helix all follow this slow-planner, fast-actor shape.</p>
+</div></div>
+<h3 id="a-sketch-an-llm-planner-calling-robot-skills"><a class="anchor" href="#a-sketch-an-llm-planner-calling-robot-skills" aria-hidden="true" tabindex="-1">#</a>A sketch: an LLM planner calling robot skills</h3>
+<p>Here is a minimal hierarchical agent using the Anthropic Python SDK. The <code>RobotStub</code> class is a <strong>hypothetical stand-in</strong> for a real robot&#39;s skill server; nothing here talks to real hardware. The structure is the standard <a href="tool-use.html">tool-use loop</a>, plus a harness-side safety gate.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> anthropic
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">RobotStub</span>:
+    <span class="hljs-string">&quot;&quot;&quot;HYPOTHETICAL robot skill server. A real one would run learned or scripted
+    policies and report success from perception, not from a dictionary.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self</span>):
+        <span class="hljs-variable language_">self</span>.scene = {<span class="hljs-string">&quot;mug&quot;</span>: <span class="hljs-string">&quot;table&quot;</span>, <span class="hljs-string">&quot;sponge&quot;</span>: <span class="hljs-string">&quot;sink&quot;</span>, <span class="hljs-string">&quot;knife&quot;</span>: <span class="hljs-string">&quot;table&quot;</span>}
+        <span class="hljs-variable language_">self</span>.holding = <span class="hljs-literal">None</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">look</span>(<span class="hljs-params">self</span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">return</span> json.dumps({<span class="hljs-string">&quot;objects&quot;</span>: <span class="hljs-variable language_">self</span>.scene, <span class="hljs-string">&quot;holding&quot;</span>: <span class="hljs-variable language_">self</span>.holding})
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">pick</span>(<span class="hljs-params">self, obj: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">if</span> obj <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.scene <span class="hljs-keyword">or</span> <span class="hljs-variable language_">self</span>.holding:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;FAILED: cannot pick <span class="hljs-subst">{obj}</span>&quot;</span>
+        <span class="hljs-variable language_">self</span>.holding = obj
+        <span class="hljs-variable language_">self</span>.scene.pop(obj)
+        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;OK: holding <span class="hljs-subst">{obj}</span>&quot;</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">place</span>(<span class="hljs-params">self, location: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-variable language_">self</span>.holding:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;FAILED: gripper empty&quot;</span>
+        <span class="hljs-variable language_">self</span>.scene[<span class="hljs-variable language_">self</span>.holding], <span class="hljs-variable language_">self</span>.holding = location, <span class="hljs-literal">None</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;OK: placed at <span class="hljs-subst">{location}</span>&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">skill</span>(<span class="hljs-params">name, desc, props</span>):
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;name&quot;</span>: name, <span class="hljs-string">&quot;description&quot;</span>: desc, <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,
+            <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>, <span class="hljs-string">&quot;properties&quot;</span>: props,
+                             <span class="hljs-string">&quot;required&quot;</span>: <span class="hljs-built_in">list</span>(props), <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>}}
+
+TOOLS = [
+    skill(<span class="hljs-string">&quot;look&quot;</span>, <span class="hljs-string">&quot;Describe visible objects and their locations.&quot;</span>, {}),
+    skill(<span class="hljs-string">&quot;pick&quot;</span>, <span class="hljs-string">&quot;Grasp one visible object. Fails if already holding something.&quot;</span>,
+          {<span class="hljs-string">&quot;obj&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}}),
+    skill(<span class="hljs-string">&quot;place&quot;</span>, <span class="hljs-string">&quot;Place the held object at a named location.&quot;</span>,
+          {<span class="hljs-string">&quot;location&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}}),
+]
+NEEDS_HUMAN_OK = {<span class="hljs-string">&quot;knife&quot;</span>}  <span class="hljs-comment"># harness policy, not a prompt instruction</span>
+
+robot, client = RobotStub(), anthropic.Anthropic()
+messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Put the dishes from the table in the sink.&quot;</span>}]
+SYSTEM = <span class="hljs-string">&quot;You control a kitchen robot through skills. Call look first, verify each step, and stop when done.&quot;</span>
+
+<span class="hljs-keyword">for</span> step <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">20</span>):  <span class="hljs-comment"># skill budget</span>
+    resp = client.messages.create(model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+                                  system=SYSTEM, tools=TOOLS, messages=messages)
+    messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+    <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:
+        <span class="hljs-keyword">break</span>  <span class="hljs-comment"># end_turn, refusal or max_tokens: report and stop</span>
+    results = []
+    <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> (c <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> c.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>):
+        <span class="hljs-keyword">if</span> b.name == <span class="hljs-string">&quot;pick&quot;</span> <span class="hljs-keyword">and</span> b.<span class="hljs-built_in">input</span>[<span class="hljs-string">&quot;obj&quot;</span>] <span class="hljs-keyword">in</span> NEEDS_HUMAN_OK:
+            out, err = <span class="hljs-string">&quot;BLOCKED: sharp object needs operator approval.&quot;</span>, <span class="hljs-literal">True</span>
+        <span class="hljs-keyword">else</span>:
+            out = <span class="hljs-built_in">getattr</span>(robot, b.name)(**b.<span class="hljs-built_in">input</span>)
+            err = out.startswith(<span class="hljs-string">&quot;FAILED&quot;</span>)
+        results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: b.<span class="hljs-built_in">id</span>,
+                        <span class="hljs-string">&quot;content&quot;</span>: out, <span class="hljs-string">&quot;is_error&quot;</span>: err})
+    messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})</code></pre></div>
+<p>Three details matter more than they look. The skills return <strong>success or failure</strong>, which is the Inner Monologue lesson: a planner without feedback cannot recover. The <strong>safety gate lives in the harness</strong>, so a confused or manipulated model cannot talk its way past it. And the planner never sees joint angles: it works at the level of objects and places, which is where language models are strong.</p>
+<p>A run might produce a trace like this:</p>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Instruction: Put the dishes from the table in the sink.
+<span class="tr-thought">Thought:</span> I should see what is on the table first.
+<span class="tr-action">Action:</span> look({})
+<span class="tr-observation">Observation:</span> {&quot;objects&quot;: {&quot;mug&quot;: &quot;table&quot;, &quot;sponge&quot;: &quot;sink&quot;, &quot;knife&quot;: &quot;table&quot;}, &quot;holding&quot;: null}
+<span class="tr-thought">Thought:</span> The mug is a dish. The knife is cutlery; it may count as a dish.
+<span class="tr-action">Action:</span> pick({&quot;obj&quot;: &quot;mug&quot;})
+<span class="tr-observation">Observation:</span> OK: holding mug
+<span class="tr-action">Action:</span> place({&quot;location&quot;: &quot;sink&quot;})
+<span class="tr-observation">Observation:</span> OK: placed at sink
+<span class="tr-action">Action:</span> pick({&quot;obj&quot;: &quot;knife&quot;})
+<span class="tr-observation">Observation:</span> BLOCKED: sharp object needs operator approval.  [is_error]
+<span class="tr-thought">Thought:</span> I cannot move the knife without approval. Everything else is done.
+Final: I moved the mug to the sink. The knife is still on the table because
+       handling sharp objects needs operator approval. Want me to request it?</code></pre></div>
+<p>On a real robot, <code>pick</code> would take several seconds and fail some of the time, so the planner would see more <code>FAILED</code> observations and retries. The <a href="human-in-the-loop.html">human-in-the-loop</a> escalation at the end is the right behavior, not a failure.</p>
+<h2 id="vision-language-action-models"><a class="anchor" href="#vision-language-action-models" aria-hidden="true" tabindex="-1">#</a>Vision-Language-Action Models</h2>
+<p>The hierarchical approach depends on having good skills, and each skill traditionally needed its own data and training. The next idea was to train <em>one</em> model that maps camera images and a language instruction directly to robot actions, across many tasks. These are <strong>vision-language-action (VLA) models</strong>.</p>
+<h3 id="from-rt-1-to-rt-2"><a class="anchor" href="#from-rt-1-to-rt-2" aria-hidden="true" tabindex="-1">#</a>From RT-1 to RT-2</h3>
+<p><strong>RT-1</strong> (Robotics <dfn class="gt" tabindex="0" data-t="Transformer" data-d="The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers; in the decoder-only form LLMs use, each token draws information from every earlier token." data-l="llm-fundamentals" data-a="transformer">Transformer</dfn> 1, Google, December 2022) was trained on about 130,000 teleoperated episodes covering more than 700 instructions, collected over 17 months with a fleet of 13 mobile manipulators. It took images and an instruction and output discretized arm and base actions. It reached 97% success on the instructions it was trained on and generalized better than prior methods to new objects and scenes, but it knew only what was in its robot data.</p>
+<p><strong>RT-2</strong> (Google DeepMind, July 2023) introduced the term VLA and the key idea behind it. Start from a large <strong>vision-language model</strong> pretrained on web images and text, represent robot actions as text tokens (for example, a string of integers for discretized position and rotation changes), and <strong>co-fine-tune</strong> on robot data and web data together. The robot inherited semantic knowledge it never saw in demonstrations: it could follow commands like &quot;move the banana to the sum of two plus one&quot; or pick up an object that could serve as an improvised hammer. The lesson was that web-scale <dfn class="gt" tabindex="0" data-t="Pretraining" data-d="The first and largest training stage: next-token prediction on trillions of tokens of web text, code and books. It supplies knowledge and latent skills; post-training turns them into assistant and agent behavior." data-l="training-agents" data-a="pretraining">pretraining</dfn> transfers to physical action.</p>
+<h3 id="cross-embodiment-open-x-embodiment-and-rt-x"><a class="anchor" href="#cross-embodiment-open-x-embodiment-and-rt-x" aria-hidden="true" tabindex="-1">#</a>Cross-embodiment: Open X-Embodiment and RT-X</h3>
+<p>Every lab had its own robots and its own small dataset. The <strong>Open X-Embodiment</strong> collaboration (October 2023) pooled 60 existing datasets from 34 labs into more than one million real robot trajectories across 22 embodiments, from single arms to bimanual robots and quadrupeds. Models trained on the mixture (<strong>RT-1-X</strong> and <strong>RT-2-X</strong>) often did better on a given robot than models trained only on that robot&#39;s data. This <strong>positive transfer</strong> across embodiments suggested robotics might follow the same &quot;more diverse data wins&quot; scaling story as language.</p>
+<h3 id="open-vlas-octo-and-openvla"><a class="anchor" href="#open-vlas-octo-and-openvla" aria-hidden="true" tabindex="-1">#</a>Open VLAs: Octo and OpenVLA</h3>
+<p>Two open models made VLAs accessible outside large labs in 2024:</p>
+<ul>
+<li><strong>Octo</strong> (May 2024) is a transformer-based policy pretrained on 800,000 episodes from Open X-Embodiment, released in small sizes (27M and 93M parameters) with a <strong>diffusion</strong> action head that generates continuous actions. It was designed to be fine-tuned to new robots, sensors and action spaces.</li>
+<li><strong>OpenVLA</strong> (June 2024) is a 7B-parameter VLA built on a Llama 2 backbone with pretrained vision encoders, trained on 970,000 episodes. Its authors reported a 16.5% absolute gain in task success over the 55B-parameter RT-2-X across 29 tasks, with about seven times fewer parameters, and released weights and fine-tuning code.</li>
+</ul>
+<h3 id="flow-matching-and-π0"><a class="anchor" href="#flow-matching-and-π0" aria-hidden="true" tabindex="-1">#</a>Flow matching and π0</h3>
+<p>Tokenized actions have a resolution problem: a robot folding laundry needs smooth, high-frequency, continuous motion. <strong>Physical Intelligence</strong>, a startup founded in 2024, released <strong>π0</strong> (pi-zero) in October 2024. It pairs a pretrained VLM (PaliGemma) with a separate ~300M-parameter <strong>action expert</strong> that generates continuous <strong>action chunks</strong> (short sequences of future actions) via <strong>flow matching</strong>, a relative of diffusion, controlling robots at up to 50 Hz. Physical Intelligence open-sourced π0 weights in early 2025 through its openpi repository. Its successors moved in telling directions:</p>
+<ul>
+<li><strong>π0.5</strong> (April 2025) focused on <strong>open-world generalization</strong>: cleaning kitchens and bedrooms in homes it had never seen.</li>
+<li><strong>π*0.6</strong> (November 2025) added <strong>Recap</strong>, a method for learning from the robot&#39;s own experience, including human corrections and autonomous practice, rather than demonstrations alone. The company reported large throughput gains on tasks such as making espresso drinks and assembling boxes.</li>
+<li><strong>π0.7</strong> (April 2026) was presented as a &quot;steerable&quot; generalist that accepts richer prompts (language, subgoal images, metadata) and composes separately learned skills for new tasks.</li>
+</ul>
+<h3 id="frontier-vlas-gemini-robotics-and-gr00t"><a class="anchor" href="#frontier-vlas-gemini-robotics-and-gr00t" aria-hidden="true" tabindex="-1">#</a>Frontier VLAs: Gemini Robotics and GR00T</h3>
+<ul>
+<li><strong>Gemini Robotics</strong> (Google DeepMind, March 2025) built a VLA on Gemini 2.0, alongside <strong>Gemini Robotics-ER</strong>, a VLM specialized for embodied reasoning (spatial understanding, pointing, grasp prediction). An on-device version followed in June 2025. <strong>Gemini Robotics 1.5</strong> (September 2025) added &quot;thinking&quot; before acting and <strong>motion transfer</strong> across embodiments, with ER 1.5 available to developers through the Gemini API. <strong>Gemini Robotics 2</strong> (July 2026) extended control to humanoid <strong>whole-body</strong> movement, and <strong>Gemini Robotics 2.5</strong> (November 2026) was announced as DeepMind&#39;s most capable VLA so far, rolling out to robotics partners.</li>
+<li><strong>NVIDIA Isaac GR00T N1</strong> (March 2025) was released as an open foundation model for humanoids with an explicit dual-system design: a slower VLM-based reasoning module and a fast diffusion-based action module. It was trained on a mix of real teleoperation, <dfn class="gt" tabindex="0" data-t="Synthetic data" data-d="Training or evaluation data generated by models rather than collected from humans, such as synthetic tool-use dialogues or task variations." data-l="training-agents" data-a="synthetic-data">synthetic data</dfn> and human videos. Updates followed (N1.5 in mid-2025, then N1.6 using NVIDIA&#39;s Cosmos Reason VLM).</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Org, date</th>
+<th>Action representation</th>
+<th>Open weights?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RT-1</td>
+<td>Google, Dec 2022</td>
+<td>Discretized action tokens</td>
+<td>No</td>
+</tr>
+<tr>
+<td>RT-2</td>
+<td>Google DeepMind, Jul 2023</td>
+<td>Actions as text tokens from a web VLM</td>
+<td>No</td>
+</tr>
+<tr>
+<td>RT-1-X / RT-2-X</td>
+<td>Open X-Embodiment, Oct 2023</td>
+<td>As RT-1 / RT-2</td>
+<td>RT-1-X yes</td>
+</tr>
+<tr>
+<td>Octo</td>
+<td>Berkeley-led team, May 2024</td>
+<td>Diffusion head</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>OpenVLA</td>
+<td>Stanford-led team, Jun 2024</td>
+<td>Discretized action tokens</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>π0</td>
+<td>Physical Intelligence, Oct 2024</td>
+<td>Flow-matching action chunks</td>
+<td>Yes (2025)</td>
+</tr>
+<tr>
+<td>Gemini Robotics family</td>
+<td>Google DeepMind, 2025–2026</td>
+<td>VLA plus separate embodied-reasoning VLM</td>
+<td>No (ER via API)</td>
+</tr>
+<tr>
+<td>GR00T N1 family</td>
+<td>NVIDIA, 2025–</td>
+<td>Dual system, diffusion action module</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+</div>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Reading robotics announcements</div><div class="callout-body"><p>Most frontier results are reported by the developers themselves, on their own robots and task sets, often with videos selected to show success. Treat claimed success rates as evidence of direction, not as numbers you can compare across labs.</p>
+</div></div>
+<h2 id="where-robot-data-comes-from"><a class="anchor" href="#where-robot-data-comes-from" aria-hidden="true" tabindex="-1">#</a>Where Robot Data Comes From</h2>
+<p>Language models feast on the web. Robots have no equivalent corpus of &quot;what the motors did&quot;, and that <strong>data bottleneck</strong> shapes the entire field. The main sources, usually mixed together:</p>
+<ul>
+<li><strong>Teleoperation.</strong> A human drives the robot (with a VR headset, a matching &quot;leader&quot; arm, or a handheld gripper with a camera) while sensors record observations and actions. This is the highest-quality data and the most expensive: it scales with human hours and hardware. Large collection efforts such as DROID and the in-house fleets of frontier labs follow this route.</li>
+<li><strong>Cross-embodiment datasets.</strong> Pooling data from many robot types (Open X-Embodiment and successors) trades consistency for diversity. The challenge is that action spaces differ: a 7-joint arm and a humanoid hand do not share a common &quot;language&quot; of motion, so models need per-embodiment heads or normalized action representations.</li>
+<li><strong>Simulation.</strong> Physics simulators (MuJoCo, NVIDIA Isaac Sim and Isaac Lab, and others) produce unlimited data and support reinforcement learning at enormous scale. Locomotion is the big success story: legged robots&#39; walking controllers are now commonly trained in simulation and transferred to real hardware. <strong>Domain randomization</strong>, varying textures, lighting, masses and friction during training so the real world looks like just another variation, is the classic bridge across the sim-to-real gap. Contact-rich manipulation of deformable objects (cloth, cables, food) remains much harder to simulate faithfully.</li>
+<li><strong>Human video.</strong> The internet holds vast amounts of video of people manipulating objects, but no action labels. Methods learn <strong>latent actions</strong> (inferred changes between frames), predict future frames or hand poses, or use video for representation learning before fine-tuning on robot data. GR00T N1, for example, used human videos alongside robot data.</li>
+<li><strong>The robot&#39;s own experience.</strong> Deployed robots generate data, including failures and human corrections. Learning from this, as π*0.6&#39;s Recap does, is how the data flywheel familiar from software products might eventually reach robotics (see <a href="training-agents.html">training agents</a> and <a href="self-improving-agents.html">self-improving agents</a>).</li>
+</ul>
+<h2 id="world-models-for-robotics"><a class="anchor" href="#world-models-for-robotics" aria-hidden="true" tabindex="-1">#</a>World Models for Robotics</h2>
+<p>A <strong><dfn class="gt" tabindex="0" data-t="World model" data-d="An internal model of how an environment works, used to predict the consequences of actions and plan ahead." data-l="future-of-agents" data-a="world-model">world model</dfn></strong> predicts how the world will change given an action. Model-based control has always used hand-written physics models; the new idea is learning <strong>world foundation models</strong> from video at scale.</p>
+<ul>
+<li><strong>Genie</strong> (Google DeepMind) learned controllable environments from unlabeled internet video in 2024. <strong>Genie 2</strong> (December 2024) generated playable 3D worlds from a prompt image, and <strong>Genie 3</strong> (August 2025) produced interactive worlds in real time that a user or an agent can move through.</li>
+<li><strong>NVIDIA Cosmos</strong> (announced at CES in January 2025) is a family of open world foundation models aimed squarely at physical AI: <strong>Cosmos Predict</strong> generates future video from text, image or video inputs, <strong>Cosmos Transfer</strong> turns simulator output or structured inputs into varied photorealistic video for synthetic data, and <strong>Cosmos Reason</strong> is a VLM for physical reasoning.</li>
+</ul>
+<p>World models serve robotics in three ways: <strong>synthetic data</strong> (generate many variations of a scene for training), <strong>policy evaluation</strong> (roll a policy out &quot;in imagination&quot; instead of on hardware), and <strong>planning</strong> (imagine the outcome of candidate actions before committing). The open question is fidelity. Generated video can look convincing while violating physics in small ways that matter enormously to a grasp, and errors compound over long rollouts. As of 2026, world models are valuable for data augmentation and coarse evaluation, but they do not replace real-world testing.</p>
+<h2 id="evaluating-embodied-agents"><a class="anchor" href="#evaluating-embodied-agents" aria-hidden="true" tabindex="-1">#</a>Evaluating Embodied Agents</h2>
+<p>Evaluating robots is much harder than evaluating chatbots (see <a href="evaluating-agents.html">evaluating agents</a> and <a href="benchmarks.html">benchmarks</a>).</p>
+<p><strong>Real-world success rates</strong> are the ground truth: run the policy on physical hardware for a set of tasks and count successes. They are also slow, expensive, and hard to reproduce. Results depend on the exact robot, cameras, lighting, object set, initial positions and how strictly &quot;success&quot; is judged, and many papers report a few dozen trials per task. A 10-point difference between two papers using different setups tells you almost nothing.</p>
+<p><strong>Simulation benchmarks</strong> trade realism for reproducibility:</p>
+<ul>
+<li><strong>LIBERO</strong> (2023) offers 130 simulated manipulation tasks in four suites (spatial layouts, object variety, goals, and a long-horizon set) with teleoperated demonstrations. It is widely used to compare VLA fine-tuning recipes; top models now score very high on its standard suites, so it is increasingly saturated.</li>
+<li><strong>SIMPLER</strong> (2024) builds simulated replicas of real evaluation setups (Google&#39;s RT-series robot tasks and BridgeData V2 tasks), using real-image overlays and texture matching, and shows that rankings in simulation correlate with real-world rankings.</li>
+<li><strong>BEHAVIOR-1K</strong> (Stanford) defines 1,000 everyday household activities in a high-fidelity simulator, aimed at long-horizon mobile manipulation.</li>
+</ul>
+<p><strong>Game and virtual environments</strong> (Minecraft, commercial 3D games) evaluate the high-level side: instruction following, exploration and long-horizon planning without contact physics.</p>
+<p>Good practice borrowed from software agents applies here too: report the number of trials and confidence intervals, test on held-out objects, scenes and instructions, and measure more than success: time to completion, number of human interventions, and the rate of unsafe events.</p>
+<h2 id="safety-in-the-physical-world"><a class="anchor" href="#safety-in-the-physical-world" aria-hidden="true" tabindex="-1">#</a>Safety in the Physical World</h2>
+<p>Software agents can leak data or spend money. Embodied agents can injure someone. Safety therefore comes in independent layers, and the most important ones do not involve the AI model at all.</p>
+<ol>
+<li><strong>Hardware and low-level safeguards.</strong> Emergency stop buttons wired to cut motor power, torque and speed limits, force sensing that stops on unexpected contact, and safety-rated monitoring around industrial robots. Standards such as ISO 10218 (industrial robots) and ISO/TS 15066 (collaborative robots working near people) codify limits on speed and contact force. These layers must work even if every line of AI code is wrong.</li>
+<li><strong>Constraints in planning and control.</strong> Workspace boundaries, keep-out zones around people, collision checking before execution, and <strong>control barrier functions</strong> or similar methods that mathematically filter commands to stay inside a safe set.</li>
+<li><strong>Harness-level gates.</strong> As in the code sketch above: validate each skill call, require approval for risky objects or actions, cap the number of steps, and log everything for review (see <a href="observability.html">observability</a>).</li>
+<li><strong>Human oversight and override.</strong> A person who can pause, correct or take over the robot, and an agent that asks when uncertain rather than guessing.</li>
+<li><strong>Semantic safety in the model.</strong> The model itself should understand that a knife is handed over handle-first and that bleach does not go in the coffee machine. Google DeepMind&#39;s <strong>ASIMOV</strong> benchmark (introduced with Gemini Robotics in March 2025, alongside work on generating &quot;robot constitutions&quot;) measures this kind of common-sense safety understanding, and later versions added scenarios drawn from real injury reports and, in 2026, agentic and <dfn class="gt" tabindex="0" data-t="Jailbreak" data-d="An input crafted to make a model violate its own safety policies. Unlike prompt injection, the attacker is usually the user." data-l="agent-security" data-a="jailbreak">jailbreak</dfn> variants.</li>
+</ol>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Language makes robots attackable</div><div class="callout-body"><p>A robot that takes natural-language instructions inherits the <a href="agent-security.html">prompt injection and jailbreak</a> problems of LLM agents, now with physical consequences. Researchers have shown that LLM-controlled robots can be jailbroken into unsafe behavior. Text on a sign or a package is untrusted input, just like text on a web page. This is why layers 1 to 4 must not depend on the model&#39;s cooperation.</p>
+</div></div>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Defense in depth, from silicon to steel</div><div class="callout-body"><p>Model judgment is the outermost and weakest layer. Physical safety rests on hardware stops and force limits, then on constraints the planner cannot override, then on harness gates and human oversight. The broader alignment questions are covered in <a href="agent-safety-alignment.html">agent safety and alignment</a>.</p>
+</div></div>
+<h2 id="virtual-embodiment-game-agents-as-a-bridge"><a class="anchor" href="#virtual-embodiment-game-agents-as-a-bridge" aria-hidden="true" tabindex="-1">#</a>Virtual Embodiment: Game Agents as a Bridge</h2>
+<p>3D games offer embodiment without broken dishes: agents see pixels, act through controls, and pursue long-horizon goals, while resets are free. Two lines of work show how ideas flow between virtual and physical agents.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Voyager" data-d="A lifelong-learning Minecraft agent (Wang et al., 2023) with an automatic curriculum, an iterative prompting loop and a skill library of executable code." data-l="self-improving-agents" data-a="voyager">Voyager</dfn></strong> (2023) was an LLM-powered agent in Minecraft built on GPT-4. It had three parts that map cleanly onto robotics: an <strong>automatic curriculum</strong> proposing progressively harder goals, a <strong><dfn class="gt" tabindex="0" data-t="Skill library" data-d="A growing store of reusable, verified programs or procedures an agent has learned, retrieved for new tasks, as in Voyager." data-l="self-improving-agents" data-a="skill-library">skill library</dfn></strong> of executable code that it wrote, verified and reused, and an <strong>iterative prompting</strong> loop that fed back game errors and execution results. It acted through a code API rather than raw keyboard and mouse, which is the Code as Policies idea in a game world. The skill library is a vivid example of agent <a href="memory.html">memory</a>: competence accumulated as reusable, verified programs.</p>
+<p><strong>SIMA</strong> (Google DeepMind, March 2024) went the other way: a single agent that followed natural-language instructions across many commercial 3D games using only screen pixels and keyboard-and-mouse output, like a human player. <strong>SIMA 2</strong> (November 2025) put a Gemini model at its core, so it could reason about goals, explain its plans and improve through self-generated practice in which Gemini proposed tasks and estimated rewards. DeepMind also tested it inside worlds generated by Genie 3, a glimpse of agents training in endless generated environments.</p>
+<p>Game agents do not solve contact physics, but they are a proving ground for the high-level half of embodied agents: grounding language in perception, long-horizon planning, skill reuse and learning from experience.</p>
+<h2 id="the-state-of-the-field-late-2026"><a class="anchor" href="#the-state-of-the-field-late-2026" aria-hidden="true" tabindex="-1">#</a>The State of the Field (Late 2026)</h2>
+<p>An honest summary, as of November 2026:</p>
+<p><strong>What works.</strong></p>
+<ul>
+<li>Hierarchical systems in which a VLM plans and reliable skills execute, in constrained settings with a well-defined task set.</li>
+<li>Learned locomotion for quadrupeds and humanoids, trained largely in simulation.</li>
+<li>Dexterous demonstrations of tasks that were out of reach a few years ago: folding laundry, assembling boxes, making coffee, clearing tables in unfamiliar homes. Frontier VLAs from Google DeepMind, Physical Intelligence, NVIDIA and others now show genuine generalization to new objects and scenes.</li>
+<li>Industrial pilots, mostly structured tasks such as moving totes and parts, with humanoids from several companies.</li>
+</ul>
+<p><strong>What remains hard.</strong></p>
+<ul>
+<li><strong>Reliability.</strong> A demo that works 80% of the time is impressive research and an unusable product. Homes and workplaces need the long tail of rare situations handled, and per-step errors compound over long tasks exactly as they do for <a href="when-to-use-agents.html">software agents</a>.</li>
+<li><strong>Data.</strong> Robot data remains orders of magnitude smaller than text or image data. Whether human video, simulation, world models and fleet experience can close the gap is the central bet of the field.</li>
+<li><strong>Evaluation.</strong> There is still no agreed, reproducible way to compare generalist robot policies in the real world.</li>
+<li><strong>Dexterity and contact.</strong> Fine manipulation, tactile sensing and deformable objects lag well behind visual understanding.</li>
+<li><strong>Latency and compute.</strong> Large VLAs need serious onboard or nearby compute to run at control rates, which pushes toward smaller on-device models and the slow-planner, fast-actor split.</li>
+<li><strong>Safety assurance.</strong> We can test safety but cannot yet certify that a learned policy will never do something dangerous in an unseen situation.</li>
+<li><strong>Cost and hardware.</strong> Capable robots are still expensive, and hardware reliability (hands, actuators, batteries) is its own bottleneck.</li>
+</ul>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb for practitioners</div><div class="callout-body"><p>If you are building an embodied application today, start hierarchical: a VLM or LLM planner over a small set of skills you can test exhaustively, with hardware safety and a harness gate underneath. Add learned generalist policies where scripted skills break down, and measure interventions per hour, not just success rate.</p>
+</div></div>
+<p>For where this might go, see <a href="future-of-agents.html">the future of agents</a>.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
+<ul>
+<li>Physical action makes agent mistakes <strong>irreversible</strong>, imposes <strong>real-time</strong> constraints, forces reasoning under <strong>partial observability</strong>, raises the stakes of <strong>safety</strong>, and introduces the <strong>sim-to-real gap</strong>.</li>
+<li>The classical robotics stack (perception, state estimation, planning, control) still sits underneath modern systems; learned models replaced perception first, then skills, then task planning.</li>
+<li><strong>Hierarchical agents</strong> let an LLM or VLM plan at the level of objects and skills while learned or scripted policies and fast controllers execute. SayCan added <strong>affordance grounding</strong>, Inner Monologue added <strong>feedback</strong>, Code as Policies used <strong>code as the plan</strong>, and VoxPoser shaped <strong>motion</strong> with 3D value maps.</li>
+<li><strong>VLAs</strong> map images and language directly to actions. RT-2 showed web pretraining transfers to robots; Open X-Embodiment showed <strong>cross-embodiment</strong> data helps; Octo, OpenVLA and π0 opened the field; Gemini Robotics and GR00T represent frontier and open industrial efforts.</li>
+<li>Data is the bottleneck: teleoperation, cross-embodiment pools, simulation with domain randomization, human video and the robot&#39;s own experience are all part of the mix. World models such as Genie and Cosmos add synthetic data and imagined rollouts, with fidelity limits.</li>
+<li>Evaluate with real-world trials plus simulation benchmarks such as <strong>LIBERO</strong> and <strong>SIMPLER</strong>, and report trials, interventions and unsafe events, not just headline success.</li>
+<li>Safety is layered from hardware e-stops and force limits up through constraints, harness gates and human override; model-level semantic safety (measured by benchmarks like <strong>ASIMOV</strong>) is the last layer, not the first.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
+<ol>
+<li><strong>Timescales.</strong> For the task &quot;wipe a spill off the table&quot;, list the decisions made at three timescales (seconds, tenths of a second, milliseconds). Which component in the hierarchical diagram owns each, and what happens if the planner is slowed to 5 seconds per step?</li>
+<li><strong>Add affordances.</strong> Extend the <code>RobotStub</code> sketch with a <code>can_succeed(skill, obj)</code> method that returns a probability (for example, low for objects far from the robot). Expose it as a tool and change the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> so the planner checks affordances before acting, SayCan-style. What failure modes does this prevent, and what new ones appear?</li>
+<li><strong>Feedback realism.</strong> Modify <code>pick</code> to fail randomly 25% of the time. Run the agent and inspect how it recovers. Add a per-object retry limit in the harness and an escalation to the user after repeated failures.</li>
+<li><strong>Safety design.</strong> You are deploying a mobile manipulator in a hospital supply room shared with staff. Write a layered safety plan covering hardware, planning constraints, harness gates, human override and model-level checks. For each layer, describe one failure it catches that the others might miss.</li>
+<li><strong>Evaluation protocol.</strong> Design a real-world evaluation for comparing two VLAs on ten kitchen tasks with a budget of 300 trials. Decide how to allocate trials, randomize initial conditions, define success, and report uncertainty. How would you use SIMPLER-style simulation to decide which tasks deserve the most real trials?</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="embodied-agents" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Why did SayCan multiply the language model&#39;s score for a skill by a learned affordance score?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To convert the language model&#39;s text output into joint-level motor commands</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To make the language model&#39;s output deterministic across repeated runs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Because the language model could not rank more than a few skills at once</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The LLM judges usefulness; the value function judges feasibility right now</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The LLM knows what would help in general, but not what this robot can do from its current state. The affordance value function estimates the chance that a skill succeeds here and now, so the product favors steps that are both useful and achievable. Converting to motor commands is the job of the skills themselves.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>In a hierarchical embodied agent, why does the LLM planner not send motor commands directly?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It runs at seconds per step, far slower than the control loop needs</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>LLMs cannot output numbers precisely enough to describe joint angles at all</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Robot manufacturers do not permit language models to access joint controllers</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Motor commands use far too many tokens to fit in the model&#39;s context window</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Control loops correct motion tens to hundreds of times per second, while a large model takes on the order of a second or more per decision. So the planner works at the level of skills and objects, and faster policies and controllers handle motion. LLMs can emit numbers; the problem is timescale, not syntax.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>What was the key idea that RT-2 introduced?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Generating smooth continuous action chunks using flow matching</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Pooling data from many robot types into one cross-embodiment dataset</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Treating actions as tokens and co-fine-tuning a web-pretrained VLM</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Training only in simulation, then transferring the policy to real robots</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> RT-2 represented robot actions as text tokens and co-fine-tuned a vision-language model on web and robot data, so semantic knowledge from the web transferred to physical tasks. Pooling robot types describes Open X-Embodiment, and flow-matching action chunks describe π0.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>A grasping policy trained in simulation fails on the real robot because real lighting and friction differ. Which technique most directly targets this?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Adding a larger language model as the high-level task planner</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Converting the policy&#39;s continuous actions into discrete tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Domain randomization of textures, lighting, mass and friction</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Increasing the control frequency of the low-level joint controller</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Domain randomization trains across many variations of visual and physical parameters so the real world looks like one more variation. A bigger planner or faster controller does not change what the grasping policy learned about appearance and contact.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Two papers report 72% and 81% real-world success for different VLAs. Why is that comparison weak evidence?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Robots, scenes, task sets, trial counts and success criteria differ</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Higher-capacity models always perform better on any real robot task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Real-world success rates are always lower than simulation success rates</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Success rates only matter for humanoids, not for single-arm robots</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Real-world results depend heavily on the hardware, objects, initial conditions, number of trials and how success is judged. Without a shared protocol and confidence intervals, a 9-point gap can be noise or setup differences. Shared simulation benchmarks like SIMPLER and LIBERO exist partly to address this.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Where should the guarantee &quot;the arm stops if it contacts a person unexpectedly&quot; be implemented?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>In the planner&#39;s system prompt, as a rule it must always follow</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In a semantic safety benchmark that the VLA is evaluated against</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In force sensing and stops below the AI, independent of any model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>In the VLA&#39;s training data, through many demonstrations of stopping</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Physical safety guarantees must hold even if every AI component is wrong or manipulated. Prompts can be overridden, training only makes behavior more likely, and benchmarks measure rather than enforce. Hardware and low-level force limits act regardless of what the model decides.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>What did the Open X-Embodiment collaboration find when training RT-X models on pooled data?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Cross-embodiment training only helped once the model exceeded 100B params</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A model trained on many robots often beat one trained on a single robot&#39;s data</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Mixing robot types always hurt performance because their action spaces differ</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Simulated data from many robots fully replaced the need for any real data</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The RT-X results showed positive transfer: diverse data from other robots improved performance on a given robot. Action-space differences are a real challenge, but they did not prevent the gains, and the dataset consisted of real robot trajectories, not simulation.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2204.01691" target="_blank" rel="noopener">Do As I Can, Not As I Say: Grounding Language in Robotic Affordances (Ahn et al., 2022)</a> — SayCan, the paper that combined LLM planning with learned affordances.</li>
+<li><a href="https://arxiv.org/abs/2207.05608" target="_blank" rel="noopener">Inner Monologue: Embodied Reasoning through Planning with Language Models (Huang et al., 2022)</a> — closing the loop with success detection, scene descriptions and human feedback.</li>
+<li><a href="https://arxiv.org/abs/2209.07753" target="_blank" rel="noopener">Code as Policies: Language Model Programs for Embodied Control (Liang et al., 2022)</a> — LLM-written programs as robot policies.</li>
+<li><a href="https://arxiv.org/abs/2307.15818" target="_blank" rel="noopener">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control (Brohan et al., 2023)</a> — the paper that defined VLAs.</li>
+<li><a href="https://arxiv.org/abs/2310.08864" target="_blank" rel="noopener">Open X-Embodiment: Robotic Learning Datasets and RT-X Models (2023)</a> — the cross-embodiment dataset and evidence of positive transfer.</li>
+<li><a href="https://arxiv.org/abs/2406.09246" target="_blank" rel="noopener">OpenVLA: An Open-Source Vision-Language-Action Model (Kim et al., 2024)</a> — a readable, open VLA with weights and fine-tuning code.</li>
+<li><a href="https://arxiv.org/abs/2410.24164" target="_blank" rel="noopener">π0: A Vision-Language-Action Flow Model for General Robot Control (Black et al., 2024)</a> — flow-matching action experts and action chunks.</li>
+<li><a href="https://arxiv.org/abs/2510.03342" target="_blank" rel="noopener">Gemini Robotics 1.5 technical report (Google DeepMind, 2025)</a> — embodied reasoning, thinking before acting, motion transfer and layered safety.</li>
+<li><a href="https://arxiv.org/abs/2405.05941" target="_blank" rel="noopener">Evaluating Real-World Robot Manipulation Policies in Simulation (SIMPLER, Li et al., 2024)</a> — how to make simulated evaluation track real-world performance.</li>
+<li><a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noopener">Voyager: An Open-Ended Embodied Agent with Large Language Models (Wang et al., 2023)</a> — automatic curriculum and a code skill library in Minecraft.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="embodied-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-embodied-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-embodied-agents" class="notes" data-slug="embodied-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="conversational-voice-agents.html"><small>← Previous</small><span>Customer-Facing &amp; Voice Agents</span></a>
+    <a class="pager-next" href="agent-use-cases.html"><small>Next →</small><span>The Agent Landscape: Use Cases by Domain</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
+<li class="toc-h2"><a href="#what-changes-when-actions-are-physical">What Changes When Actions Are Physical</a></li>
+<li class="toc-h2"><a href="#the-classical-robotics-stack">The Classical Robotics Stack</a></li>
+<li class="toc-h3"><a href="#where-learned-models-fit">Where learned models fit</a></li>
+<li class="toc-h2"><a href="#llms-as-high-level-planners">LLMs as High-Level Planners</a></li>
+<li class="toc-h3"><a href="#saycan-grounding-language-in-affordances">SayCan: grounding language in affordances</a></li>
+<li class="toc-h3"><a href="#inner-monologue-closing-the-loop-with-feedback">Inner Monologue: closing the loop with feedback</a></li>
+<li class="toc-h3"><a href="#code-as-policies-plans-as-programs">Code as Policies: plans as programs</a></li>
+<li class="toc-h3"><a href="#voxposer-language-to-3d-value-maps">VoxPoser: language to 3D value maps</a></li>
+<li class="toc-h3"><a href="#the-hierarchical-architecture">The hierarchical architecture</a></li>
+<li class="toc-h3"><a href="#a-sketch-an-llm-planner-calling-robot-skills">A sketch: an LLM planner calling robot skills</a></li>
+<li class="toc-h2"><a href="#vision-language-action-models">Vision-Language-Action Models</a></li>
+<li class="toc-h3"><a href="#from-rt-1-to-rt-2">From RT-1 to RT-2</a></li>
+<li class="toc-h3"><a href="#cross-embodiment-open-x-embodiment-and-rt-x">Cross-embodiment: Open X-Embodiment and RT-X</a></li>
+<li class="toc-h3"><a href="#open-vlas-octo-and-openvla">Open VLAs: Octo and OpenVLA</a></li>
+<li class="toc-h3"><a href="#flow-matching-and-π0">Flow matching and π0</a></li>
+<li class="toc-h3"><a href="#frontier-vlas-gemini-robotics-and-gr00t">Frontier VLAs: Gemini Robotics and GR00T</a></li>
+<li class="toc-h2"><a href="#where-robot-data-comes-from">Where Robot Data Comes From</a></li>
+<li class="toc-h2"><a href="#world-models-for-robotics">World Models for Robotics</a></li>
+<li class="toc-h2"><a href="#evaluating-embodied-agents">Evaluating Embodied Agents</a></li>
+<li class="toc-h2"><a href="#safety-in-the-physical-world">Safety in the Physical World</a></li>
+<li class="toc-h2"><a href="#virtual-embodiment-game-agents-as-a-bridge">Virtual Embodiment: Game Agents as a Bridge</a></li>
+<li class="toc-h2"><a href="#the-state-of-the-field-late-2026">The State of the Field (Late 2026)</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>
