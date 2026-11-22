@@ -348,6 +348,8 @@ data = json.loads(text)  <span class="hljs-comment"># guaranteed to parse and ma
         <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;end_turn&quot;</span>:
             <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;Extraction stopped: <span class="hljs-subst">{response.stop_reason}</span>&quot;</span>)
         invoice = response.parsed_output
+        <span class="hljs-keyword">if</span> invoice <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:  <span class="hljs-comment"># defensive: should not happen after end_turn, but never assume</span>
+            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&quot;No parsed output returned&quot;</span>)
         problems = check_invoice(invoice)
         <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> problems:
             <span class="hljs-keyword">return</span> invoice

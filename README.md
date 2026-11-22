@@ -41,6 +41,7 @@ scripts/
   build.mjs           # Markdown → HTML, search index, glossary tooltips, validation
   templates.mjs       # page templates
   quiz-stats.mjs      # flags quiz giveaways (correct answer = longest option)
+  check_code.py       # compiles every Python block; lints Claude API usage (npm run check-code)
   qa.cjs              # browser QA: JS errors, diagram failures, mobile overflow (needs Playwright)
 src/assets/
   styles.css          # all styles (light + dark themes)

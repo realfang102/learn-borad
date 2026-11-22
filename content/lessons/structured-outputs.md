@@ -203,6 +203,8 @@ def extract_invoice(document: str, max_attempts: int = 3) -> Invoice:
         if response.stop_reason != "end_turn":
             raise RuntimeError(f"Extraction stopped: {response.stop_reason}")
         invoice = response.parsed_output
+        if invoice is None:  # defensive: should not happen after end_turn, but never assume
+            raise RuntimeError("No parsed output returned")
         problems = check_invoice(invoice)
         if not problems:
             return invoice
