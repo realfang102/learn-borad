@@ -43,6 +43,7 @@ scripts/
   quiz-stats.mjs      # flags quiz giveaways (correct answer = longest option)
   check_code.py       # compiles every Python block; lints Claude API usage (npm run check-code)
   run_examples.py      # runs every lesson's code via the real SDK against fake_api.py (npm run check-examples)
+  check_citations.py  # verifies every arXiv citation against arXiv (npm run check-citations)
   fake_api.py         # strict local Messages API fake: validates requests, scripts replies, streams
   qa.cjs              # browser QA: JS errors, diagram failures, mobile overflow (needs Playwright)
 src/assets/
