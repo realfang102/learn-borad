@@ -428,7 +428,7 @@ Q: A payment tool times out and the agent retries. What design prevents a double
 - [ ] Tell the agent in the tool description not to retry payment calls
 - [x] Accept an idempotency key so repeat calls with that key run at most once
 - [ ] Return is_error true on timeouts so the agent knows the charge failed
-- [ ] Lengthen the tool's timeout so the first call always gets a response
+- [ ] Lengthen the tool's timeout so the first call gets a response in time
 E: Agents retry when outcomes are uncertain, so make retries safe: an idempotency key guarantees the side effect happens at most once per key. Flagging a timeout as an error is tempting but wrong: the charge may in fact have gone through, so the error misleads the agent. Longer timeouts only make the problem rarer.
 
 Q: You connected six MCP servers and now have 150 tools; tool selection got worse and every request is expensive. What is the best next step?

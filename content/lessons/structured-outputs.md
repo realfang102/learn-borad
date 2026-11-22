@@ -401,7 +401,7 @@ APIs evolve quickly; check each project's current documentation for exact parame
 Q: What does schema-constrained decoding guarantee?
 - [ ] That values are correct, since only schema-valid tokens can be sampled
 - [x] That a normally completed response parses and matches the schema
-- [ ] That a response always arrives, because refusals can't fit the schema
+- [ ] That the model won't refuse, because a refusal can't fit the schema
 - [ ] That the output is complete, since the grammar must reach its end state
 E: Masking guarantees syntax and shape for a response that finishes normally. It says nothing about whether values are true, and refusals and max_tokens truncation can still produce output that doesn't match, which is why you check stop_reason.
 

@@ -409,7 +409,7 @@ Before shipping memory, answer these:
 Q: An agent has a 1M-token context window. Why might it still need a long-term memory system?
 - [ ] A big window holds a single session, but the cost per call makes it impractical
 - [x] Context doesn't persist across sessions, and stuffing it full degrades quality
-- [ ] Long contexts are only reliable for documents, not for conversation history
+- [ ] Long contexts work well for documents but poorly for conversation history
 - [ ] The model can't attend to tokens beyond the first 200K, so the rest is wasted
 E: Context is per-request working memory: cross-session knowledge has to be stored somewhere, and even within a session more context isn't free, since quality degrades (context rot) as well as cost rising. Cost alone is a half-truth; the decisive problem is persistence.
 

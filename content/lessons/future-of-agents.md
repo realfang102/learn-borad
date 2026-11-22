@@ -249,11 +249,11 @@ Q: Why is prompt injection considered an open problem rather than a solved one?
 E: Even the most resistant current models can still be manipulated by content they read, so dependable defenses limit what a hijacked agent can do: restricted permissions, data-flow separation and approvals. Classifiers are probabilistic regardless of speed, and text-only injection is not solved either.
 
 Q: What is the core idea behind AP2's "mandates"?
-- [ ] Merchant-signed price guarantees an agent can enforce at checkout
+- [ ] Spending caps that card networks enforce on each agent's account
 - [x] Signed records of what a user authorized, from intent to cart
 - [ ] A shared wallet that agents draw on without per-purchase approval
 - [ ] Card-network rules that make the agent's vendor liable for errors
-E: Mandates provide verifiable delegation: an intent mandate captures what the user asked for and a cart mandate the exact items and price they approved. The signatures come from the user's side of the transaction, not the merchant's, and the protocol doesn't assign liability by itself.
+E: Mandates provide verifiable delegation: an intent mandate captures what the user asked for and a cart mandate the exact items and price they approved. They are an auditable delegation record, not a network-enforced spending cap, a pooled wallet or a liability rule in themselves.
 
 Q: Which statement about AI and developer productivity is best supported by the evidence in this lesson?
 - [ ] Gains are largest for senior developers, who know what to ask for
