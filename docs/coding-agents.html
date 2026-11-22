@@ -455,67 +455,67 @@ runner = client.beta.messages.tool_runner(
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What property of software engineering most explains why coding agents work better than agents in many other domains?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Programming languages have fewer tokens per concept</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The environment gives fast, objective feedback through compilers, tests and linters</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Code is shorter than natural-language documents</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Developers tolerate mistakes better than other users</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code is more compact than prose, so whole repos fit in context</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Compilers and tests give fast, objective feedback on each change</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Models saw far more code than any other kind of text in pretraining</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Developers tolerate an agent&#39;s mistakes better than other users</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Verifiability is the key advantage. Running tests gives the agent a grounded signal to correct against, which most domains lack.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Verifiability is the key advantage: running tests gives the agent a grounded signal to correct against, which most domains lack. Abundant training data helps, but it does not let an agent find out it was wrong; and real repositories are far too big to fit in context, which is why navigation tools matter.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Why does a str_replace edit tool require old_str to match exactly once?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Because source files cannot contain duplicate lines</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>So a missing or ambiguous match fails loudly instead of silently editing the wrong place</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>To reduce output tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>So the edit can be expressed as a unified diff</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Source files rarely contain duplicate lines, so it&#39;s always safe</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A missing or ambiguous match fails loudly, not silently</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Exact matching uses fewer output tokens than a full diff</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It lets the harness convert each edit into a unified diff</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactly-once matching converts silent misedits into explicit errors; the model then reads more context and retries with a unique snippet.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactly-once matching converts silent misedits into explicit errors; the model then reads more context and retries with a unique snippet. Duplicate lines are common in real code, which is exactly why the uniqueness check is needed.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Which best captures the agent-computer interface (ACI) idea from SWE-agent?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents should use the same GUIs humans use</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agents need dedicated hardware to run code</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>All agent actions should go through a raw shell</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tools should be designed for language models, with concise output, clear feedback and guardrails</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents should drive the very same IDEs and GUIs that humans use</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Every agent action should go through one raw, unrestricted shell</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agents need their own sandboxed VMs before they can run code</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tools built for models: compact output, clear errors, guardrails</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Purpose-built commands (windowed viewer, summarized search, lint-checked edits) beat a raw shell for the models of the time. Designing tool I/O for the model remains important even as models need less scaffolding.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Purpose-built commands (a windowed file viewer, summarized search, lint-checked edits) beat a raw shell for the models of the time. Designing tool input and output for the model remains important even as models need less scaffolding. Sandboxing matters, but it is a security idea, not the ACI idea.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Told to &quot;make the failing tests pass&quot;, an agent adds <code>if user_id == &#39;test-123&#39;: return True</code> to production code. What is this?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reward hacking by special-casing the test input</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A legitimate edge-case fix</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A hallucinated API</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion setting in</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reward hacking by special-casing</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A legitimate edge-case bug fix</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A hallucinated API or library call</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The agent met the literal objective without fixing the behavior. Forbid test-specific logic, commit tests first, review for special-casing and use hidden tests.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The agent met the literal objective without fixing the behavior. Forbid test-specific logic, commit tests first, review diffs for special-casing and use hidden tests.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>You want three coding agents working on three tasks in the same repository on your laptop at once. What prevents them from clobbering each other&#39;s files?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Give each agent read-only access</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Use a different model for each</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Share one branch and coordinate in comments</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have each agent lock a file before it edits it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Give each agent a different model and its own task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Share one branch, and have them commit very often</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Give each agent its own git worktree and branch</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Worktrees are separate working directories sharing one repository. Your review bandwidth then becomes the bottleneck.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Worktrees are separate working directories sharing one repository, so each agent edits its own checkout. Frequent commits on a shared branch still leave three agents writing the same working tree. Your review bandwidth then becomes the bottleneck.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>A background agent handles small tickets well but loops and forgets constraints on long tasks in a large monorepo. What is the likely cause and fix?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion; truncate tool output, use subagents, compact history and split the task</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Prompt injection; disable network access</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model is too small; change nothing but the model</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Bad edit format; switch to whole-file writes</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion; trim tool output, compact, split the task</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model is too weak; swap in a bigger model and change nothing</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Prompt injection from repo files; turn off network access</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Edit-format errors; switch every edit to whole-file rewrites</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long tasks fill context with stale logs and file contents. Context engineering and smaller task scopes address this directly.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long tasks fill context with stale logs and file contents, so constraints stated early get lost. Context engineering (truncated output, subagents, compaction, smaller task scopes) addresses this directly; a bigger model alone still fills the same window.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>

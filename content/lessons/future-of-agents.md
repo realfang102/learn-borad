@@ -25,7 +25,7 @@ A ground rule for this lesson: we'll avoid unfalsifiable predictions. When we de
 
 The most-cited measurement of agent progress comes from **METR**, an AI evaluation nonprofit. In March 2025 they introduced the **50% task-completion time horizon**: take a set of tasks (mostly software engineering and research tasks), measure how long skilled *humans* take to do each one, then find the task length at which an AI agent succeeds about half the time.
 
-Their headline finding: **the length of tasks frontier AI agents can complete with 50% reliability has been doubling roughly every seven months since 2019**, with signs the trend may have sped up in 2024–2025. In the original paper, the best models of early 2025 could complete tasks that take a human expert about an hour, at 50% reliability; later models have extended that further.
+Their headline finding: **the length of tasks frontier AI agents can complete with 50% reliability has been doubling roughly every seven months since 2019**. In the original paper, the best models of early 2025 could complete tasks that take a human expert about an hour, at 50% reliability. METR's January 2026 update (Time Horizon 1.1, with more long tasks) left the long-run seven-month estimate essentially unchanged but found faster recent progress — a doubling time nearer four months since 2023 — and by 2026 the best models' horizons had grown to many hours, close to the longest tasks METR's suite can measure.
 
 How to read this carefully:
 

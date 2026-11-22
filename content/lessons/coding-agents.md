@@ -331,46 +331,46 @@ The developer's role shifts from typing code to **specifying, delegating and rev
 
 ```quiz
 Q: What property of software engineering most explains why coding agents work better than agents in many other domains?
-- [ ] Code is shorter than natural-language documents
-- [x] The environment gives fast, objective feedback through compilers, tests and linters
-- [ ] Programming languages have fewer tokens per concept
-- [ ] Developers tolerate mistakes better than other users
-E: Verifiability is the key advantage. Running tests gives the agent a grounded signal to correct against, which most domains lack.
+- [ ] Models saw far more code than any other kind of text in pretraining
+- [x] Compilers and tests give fast, objective feedback on each change
+- [ ] Code is more compact than prose, so whole repos fit in context
+- [ ] Developers tolerate an agent's mistakes better than other users
+E: Verifiability is the key advantage: running tests gives the agent a grounded signal to correct against, which most domains lack. Abundant training data helps, but it does not let an agent find out it was wrong; and real repositories are far too big to fit in context, which is why navigation tools matter.
 
 Q: Why does a str_replace edit tool require old_str to match exactly once?
-- [ ] To reduce output tokens
-- [ ] Because source files cannot contain duplicate lines
-- [x] So a missing or ambiguous match fails loudly instead of silently editing the wrong place
-- [ ] So the edit can be expressed as a unified diff
-E: Exactly-once matching converts silent misedits into explicit errors; the model then reads more context and retries with a unique snippet.
+- [ ] Exact matching uses fewer output tokens than a full diff
+- [ ] Source files rarely contain duplicate lines, so it's always safe
+- [x] A missing or ambiguous match fails loudly, not silently
+- [ ] It lets the harness convert each edit into a unified diff
+E: Exactly-once matching converts silent misedits into explicit errors; the model then reads more context and retries with a unique snippet. Duplicate lines are common in real code, which is exactly why the uniqueness check is needed.
 
 Q: Which best captures the agent-computer interface (ACI) idea from SWE-agent?
-- [ ] Agents should use the same GUIs humans use
-- [x] Tools should be designed for language models, with concise output, clear feedback and guardrails
-- [ ] Agents need dedicated hardware to run code
-- [ ] All agent actions should go through a raw shell
-E: Purpose-built commands (windowed viewer, summarized search, lint-checked edits) beat a raw shell for the models of the time. Designing tool I/O for the model remains important even as models need less scaffolding.
+- [ ] Agents should drive the very same IDEs and GUIs that humans use
+- [x] Tools built for models: compact output, clear errors, guardrails
+- [ ] Every agent action should go through one raw, unrestricted shell
+- [ ] Agents need their own sandboxed VMs before they can run code
+E: Purpose-built commands (a windowed file viewer, summarized search, lint-checked edits) beat a raw shell for the models of the time. Designing tool input and output for the model remains important even as models need less scaffolding. Sandboxing matters, but it is a security idea, not the ACI idea.
 
 Q: Told to "make the failing tests pass", an agent adds `if user_id == 'test-123': return True` to production code. What is this?
-- [ ] A hallucinated API
-- [ ] Context exhaustion
-- [x] Reward hacking by special-casing the test input
-- [ ] A legitimate edge-case fix
-E: The agent met the literal objective without fixing the behavior. Forbid test-specific logic, commit tests first, review for special-casing and use hidden tests.
+- [ ] A hallucinated API or library call
+- [ ] Context exhaustion setting in
+- [x] Reward hacking by special-casing
+- [ ] A legitimate edge-case bug fix
+E: The agent met the literal objective without fixing the behavior. Forbid test-specific logic, commit tests first, review diffs for special-casing and use hidden tests.
 
 Q: You want three coding agents working on three tasks in the same repository on your laptop at once. What prevents them from clobbering each other's files?
-- [ ] Use a different model for each
-- [ ] Share one branch and coordinate in comments
+- [ ] Give each agent a different model and its own task
+- [ ] Share one branch, and have them commit very often
 - [x] Give each agent its own git worktree and branch
-- [ ] Give each agent read-only access
-E: Worktrees are separate working directories sharing one repository. Your review bandwidth then becomes the bottleneck.
+- [ ] Have each agent lock a file before it edits it
+E: Worktrees are separate working directories sharing one repository, so each agent edits its own checkout. Frequent commits on a shared branch still leave three agents writing the same working tree. Your review bandwidth then becomes the bottleneck.
 
 Q: A background agent handles small tickets well but loops and forgets constraints on long tasks in a large monorepo. What is the likely cause and fix?
-- [ ] The model is too small; change nothing but the model
-- [x] Context exhaustion; truncate tool output, use subagents, compact history and split the task
-- [ ] Prompt injection; disable network access
-- [ ] Bad edit format; switch to whole-file writes
-E: Long tasks fill context with stale logs and file contents. Context engineering and smaller task scopes address this directly.
+- [ ] Prompt injection from repo files; turn off network access
+- [x] Context exhaustion; trim tool output, compact, split the task
+- [ ] The model is too weak; swap in a bigger model and change nothing
+- [ ] Edit-format errors; switch every edit to whole-file rewrites
+E: Long tasks fill context with stale logs and file contents, so constraints stated early get lost. Context engineering (truncated output, subagents, compaction, smaller task scopes) addresses this directly; a bigger model alone still fills the same window.
 ```
 
 ## Further Reading
