@@ -270,7 +270,7 @@ Building all of the above is a significant platform investment. Managed services
 | **Claude Managed Agents** (Anthropic) | Runs the agent loop on Anthropic's infrastructure with a container per session. Agent configs are versioned objects that sessions pin to, and credentials live in vaults. Also offers scheduled deployments, webhooks, and an option to run tool execution in your own sandboxes |
 | **Amazon Bedrock AgentCore** (AWS) | Modular services for running agents built with any framework: runtime, memory, gateway for tools, identity, and observability |
 | **Vertex AI Agent Engine** (Google Cloud) | Managed runtime for agents built with Google's ADK, LangGraph and other frameworks, with sessions, memory and evaluation integrations |
-| **OpenAI AgentKit** (OpenAI) | Agent Builder (a visual workflow canvas), ChatKit for embedding agent UIs, a connector registry and evaluation tooling |
+| **OpenAI AgentKit** (OpenAI) | Agent Builder (a visual workflow canvas), ChatKit for embedding agent UIs, a connector registry and evaluation tooling. OpenAI is winding down Agent Builder and Evals (unavailable from November 30, 2026) and points code-first workflows to the Agents SDK |
 
 These products change fast, so check current docs. Build-vs-buy turns on how much control you need over the loop, sandbox and data location, how portable you must be across model providers, and where you'd rather spend engineering time. Many teams start managed and pull pieces in-house later, or keep the loop in their own code and buy only the sandbox (see [agent frameworks](agent-frameworks.html)).
 

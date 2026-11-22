@@ -231,7 +231,7 @@ This **separation of concerns** keeps the lead's context clean for synthesis and
 
 When a model processes a prompt, it computes key/value tensors for every token (the **KV cache**). If the next request starts with **exactly the same prefix**, a provider can reuse that work: **prompt caching**. For agents this matters enormously, because each step re-sends everything before it with a little appended.
 
-Manus called KV-cache hit rate *the single most important metric* for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time (on current Claude models in 2026, a cache read costs about 5% of the base input price, and a 5-minute cache write 1.25×), but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.
+Manus called KV-cache hit rate *the single most important metric* for a production agent. They reported input-to-output token ratios around 100:1, and noted that with Claude Sonnet, cached input tokens cost about a tenth of uncached ones ($0.30 vs $3 per million tokens). Exact prices vary by model and change over time (on current Claude models in 2026, a cache read costs about 5% of the base input price, and a 5-minute cache write 1.25×), but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.
 
 Caching is a **prefix match**: change one byte early and everything after it is recomputed. Render order is tools, then system, then messages. That gives a set of design rules:
 
