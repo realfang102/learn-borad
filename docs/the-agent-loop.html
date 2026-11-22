@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="the-agent-loop">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
   <header class="lesson-header">
     <h1>The Agent Loop</h1>
     <p class="lead">The perceive–think–act cycle at the heart of every agent: transcript structure, the tool_use/tool_result cycle, stop conditions, errors as observations, and a compact working loop with the Anthropic SDK.</p>
@@ -144,7 +144,7 @@
   <article class="prose">
 <p>Strip away the frameworks, the marketing and the multi-agent diagrams, and almost every AI agent comes down to a loop of a couple dozen lines. Call the model. If it asks for a tool, run the tool and hand back the result. Repeat until it says it&#39;s done. That&#39;s the engine behind coding agents that fix bugs across a repository, research agents that read fifty sources, and support agents that issue refunds.</p>
 <p>The loop is simple. Getting it <em>right</em> is not. When does it stop? What happens when a tool throws an exception? How do you keep a runaway agent from making 400 calls overnight? Which parts are the model&#39;s job and which are yours? This lesson answers those questions and ends with a compact loop you can run. The full production build, with streaming, context management and permissions, comes later in <a href="build-agent-from-scratch.html">build an agent from scratch</a>.</p>
-<h2 id="perceive-think-act"><a class="anchor" href="#perceive-think-act" aria-hidden="true">#</a>Perceive, Think, Act</h2>
+<h2 id="perceive-think-act"><a class="anchor" href="#perceive-think-act" aria-hidden="true" tabindex="-1">#</a>Perceive, Think, Act</h2>
 <p>Classical agents run a <strong>perceive–think–act</strong> cycle: sense the environment, decide, act, and sense the consequences. An LLM agent does the same thing with API calls:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -192,9 +192,9 @@
     end
     M--&gt;&gt;H: Final text (stop_reason end_turn)
     H--&gt;&gt;U: Answer</pre></figure>
-<h2 id="the-core-loop"><a class="anchor" href="#the-core-loop" aria-hidden="true">#</a>The Core Loop</h2>
+<h2 id="the-core-loop"><a class="anchor" href="#the-core-loop" aria-hidden="true" tabindex="-1">#</a>The Core Loop</h2>
 <p>In pseudocode:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">messages = [user_task]
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">messages = [user_task]
 loop:
     response = model(system, tools, messages)
     messages.append(response)                 # the model&#x27;s turn, including tool calls
@@ -207,23 +207,23 @@ loop:
 <li><strong>The environment pushes back.</strong> Every action produces an observation, so the model&#39;s next decision rests on reality rather than its assumptions.</li>
 <li><strong>The transcript is the state.</strong> Because the model is stateless, the growing message list <em>is</em> the agent&#39;s memory of this task.</li>
 </ol>
-<h2 id="anatomy-of-a-transcript"><a class="anchor" href="#anatomy-of-a-transcript" aria-hidden="true">#</a>Anatomy of a Transcript</h2>
+<h2 id="anatomy-of-a-transcript"><a class="anchor" href="#anatomy-of-a-transcript" aria-hidden="true" tabindex="-1">#</a>Anatomy of a Transcript</h2>
 <p>Let&#39;s watch a transcript grow, using the Anthropic Messages API format. The user asks: &quot;Is the <code>requests</code> version pinned in this project, and is it the latest major version?&quot;</p>
 <p><strong>Call 1.</strong> The harness sends the task:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">[</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">[</span>
   <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Is the requests version pinned in this project, and is it the latest major version?&quot;</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span></code></pre></div>
 <p>The model replies with a short note and a tool call. Its <code>stop_reason</code> is <code>tool_use</code>:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
   <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Let me check the dependency files.&quot;</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
   <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_use&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_01A&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;read_file&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;path&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;requirements.txt&quot;</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span><span class="hljs-punctuation">}</span></code></pre></div>
 <p><strong>Call 2.</strong> The harness appends that assistant message <em>unchanged</em>, runs the tool, and appends a <code>user</code> message containing a <code>tool_result</code> that references the call&#39;s <code>id</code>:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
   <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_result&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;tool_use_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_01A&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;requests==2.31.0\nflask&gt;=3.0\n&quot;</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span><span class="hljs-punctuation">}</span></code></pre></div>
 <p>The model now knows the pin. To answer the second half it might call a <code>web_search</code> tool, then finish:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
   <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Yes. requirements.txt pins requests==2.31.0. According to the search results, the latest release is on the same major version (2.x), so...&quot;</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">]</span><span class="hljs-punctuation">}</span></code></pre></div>
 <p>with <code>stop_reason</code> <code>end_turn</code>. The loop exits.</p>
@@ -234,9 +234,9 @@ loop:
 <li><strong>When the model makes several tool calls in one turn, return all the results together in one user message.</strong> Splitting them across messages breaks the pairing and teaches the model to stop making parallel calls.</li>
 <li><strong>Append the assistant content unchanged</strong>, including any <code>thinking</code> blocks. Current models need their thinking blocks passed back intact to continue reasoning coherently across tool calls.</li>
 </ul>
-<h2 id="a-react-style-trace"><a class="anchor" href="#a-react-style-trace" aria-hidden="true">#</a>A ReAct-Style Trace</h2>
+<h2 id="a-react-style-trace"><a class="anchor" href="#a-react-style-trace" aria-hidden="true" tabindex="-1">#</a>A ReAct-Style Trace</h2>
 <p>The <strong><dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn></strong> pattern (Yao et al., 2022) describes this loop as Thought → Action → Observation. Here&#39;s what an agent investigating a failing deployment looks like, rendered in that style:</p>
-<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Task: The nightly deploy failed. Find out why and suggest a fix.
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Task: The nightly deploy failed. Find out why and suggest a fix.
 
 <span class="tr-thought">Thought:</span> Start with the most recent deploy log.
 <span class="tr-action">Action:</span> get_deploy_logs({&quot;pipeline&quot;: &quot;nightly&quot;, &quot;limit&quot;: 1})
@@ -259,7 +259,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
        with CREATE TABLE IF NOT EXISTS, then re-run the pipeline.</code></pre></div>
 <p>Three things to notice. Each Thought is driven by the previous Observation. The agent tested a hypothesis (&quot;maybe there are two files&quot;) instead of guessing. And it stopped as soon as it had enough evidence, which is good behavior you should reward in your prompts.</p>
 <p>In modern APIs, the &quot;Thought&quot; lines are a mix of visible text and the model&#39;s internal <strong>thinking</strong>, and &quot;Action&quot; is a structured <code>tool_use</code> block rather than parsed text. The pattern is the same.</p>
-<h2 id="model-vs-harness-who-does-what"><a class="anchor" href="#model-vs-harness-who-does-what" aria-hidden="true">#</a>Model vs. Harness: Who Does What</h2>
+<h2 id="model-vs-harness-who-does-what"><a class="anchor" href="#model-vs-harness-who-does-what" aria-hidden="true" tabindex="-1">#</a>Model vs. Harness: Who Does What</h2>
 <p>The most important architectural idea in this lesson is the division of labor:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -298,15 +298,15 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 </tbody></table>
 </div>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>The model proposes; the harness disposes. Anything that <em>must</em> hold (a budget, a permission, a safety rule, a format) belongs in the harness as code, not in the prompt as a hope. Prompts steer behavior. Code guarantees it.</p>
-</div></aside>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>The model proposes; the harness disposes. Anything that <em>must</em> hold (a budget, a permission, a safety rule, a format) belongs in the harness as code, not in the prompt as a hope. Prompts steer behavior. Code guarantees it.</p>
+</div></div>
 <p>For example, &quot;never delete files outside the project directory&quot; in a <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> is a request. A <code>delete_file</code> tool that resolves the path and refuses anything outside the project root is a guarantee. You want both (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</p>
 <p>Try it yourself: step through the loop below and watch which component acts at each stage, and how the transcript grows.</p>
 <div class="widget" data-widget="agent-loop"></div>
 
-<h2 id="stop-conditions-and-termination"><a class="anchor" href="#stop-conditions-and-termination" aria-hidden="true">#</a>Stop Conditions and Termination</h2>
+<h2 id="stop-conditions-and-termination"><a class="anchor" href="#stop-conditions-and-termination" aria-hidden="true" tabindex="-1">#</a>Stop Conditions and Termination</h2>
 <p>An <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-a="agent-loop">agent loop</dfn> has to end. There are two families of stopping: the model decides it&#39;s done, or the harness stops it.</p>
-<h3 id="model-driven-stops-the-stop-reason"><a class="anchor" href="#model-driven-stops-the-stop-reason" aria-hidden="true">#</a>Model-driven stops: the stop reason</h3>
+<h3 id="model-driven-stops-the-stop-reason"><a class="anchor" href="#model-driven-stops-the-stop-reason" aria-hidden="true" tabindex="-1">#</a>Model-driven stops: the stop reason</h3>
 <p>Every Messages API response includes <code>stop_reason</code>. A correct loop handles each value:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -348,7 +348,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 </tbody></table>
 </div>
-<h3 id="harness-driven-stops-budgets-and-guards"><a class="anchor" href="#harness-driven-stops-budgets-and-guards" aria-hidden="true">#</a>Harness-driven stops: budgets and guards</h3>
+<h3 id="harness-driven-stops-budgets-and-guards"><a class="anchor" href="#harness-driven-stops-budgets-and-guards" aria-hidden="true" tabindex="-1">#</a>Harness-driven stops: budgets and guards</h3>
 <p>Nothing guarantees a model converges. It can loop on a failing approach, keep &quot;just checking one more thing,&quot; or wait for a condition that never comes. The harness must bound every run:</p>
 <ul>
 <li><strong>Max steps (iterations).</strong> The simplest and most essential guard. Typical values range from about 10 for narrow tasks to hundreds for long coding sessions.</li>
@@ -358,9 +358,9 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <li><strong>Human interruption.</strong> A way for a user or operator to cancel a run.</li>
 </ul>
 <p>When the harness stops a run, fail <em>informatively</em>. Return what the agent accomplished, why it stopped, and the transcript for debugging, rather than a bare error.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>An agent without a step or cost limit is a production incident waiting to happen. Every loop you write, even a quick prototype, should have a <code>max_steps</code> guard from the first line.</p>
-</div></aside>
-<h2 id="observations-formatting-tool-results"><a class="anchor" href="#observations-formatting-tool-results" aria-hidden="true">#</a>Observations: Formatting Tool Results</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>An agent without a step or cost limit is a production incident waiting to happen. Every loop you write, even a quick prototype, should have a <code>max_steps</code> guard from the first line.</p>
+</div></div>
+<h2 id="observations-formatting-tool-results"><a class="anchor" href="#observations-formatting-tool-results" aria-hidden="true" tabindex="-1">#</a>Observations: Formatting Tool Results</h2>
 <p>The model&#39;s next decision can only be as good as what it observes. Tool results are prompts, and they deserve the same care:</p>
 <ul>
 <li><strong>Be concise.</strong> A 2 MB log dumped into context costs money, pushes out useful information and dilutes attention. Truncate, paginate or summarize, and <em>say</em> that you did: <code>&quot;[showing first 200 of 15,302 lines; use offset to see more]&quot;</code>.</li>
@@ -370,9 +370,9 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <li><strong>State empty results explicitly.</strong> <code>&quot;No files matched &#39;invoice_v3&#39; in src/&quot;</code> is far better than an empty string, which models can misread.</li>
 </ul>
 <p>Tool design is covered in depth in <a href="designing-tools.html">designing tools</a>. The principle for now: <strong>the observation is the agent&#39;s only window onto the world</strong>, so make it clear.</p>
-<h2 id="errors-are-observations"><a class="anchor" href="#errors-are-observations" aria-hidden="true">#</a>Errors Are Observations</h2>
+<h2 id="errors-are-observations"><a class="anchor" href="#errors-are-observations" aria-hidden="true" tabindex="-1">#</a>Errors Are Observations</h2>
 <p>Beginners often let tool exceptions crash the loop. Instead, return errors to the model as observations, marked with <code>is_error: true</code>:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_result&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;tool_use_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_07&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;is_error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_result&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;tool_use_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_07&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;is_error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
  <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;FileNotFoundError: src/config.yml does not exist. Files in src/: config.yaml, main.py&quot;</span><span class="hljs-punctuation">}</span></code></pre></div>
 <p>The model will typically recover on the next step, for example by reading <code>config.yaml</code>. That only works if the error is <strong>actionable</strong>: say what went wrong and, ideally, what would work instead. &quot;Error&quot; alone teaches nothing. &quot;Invalid date &#39;2026-13-01&#39;: month must be 1–12&quot; lets the model fix its call.</p>
 <p>There are two kinds of error to tell apart:</p>
@@ -397,9 +397,9 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tbody></table>
 </div>
 <p>The Anthropic SDK already retries transient API errors (connection errors, 429s and 5xx) with <dfn class="gt" tabindex="0" data-t="Exponential backoff" data-d="Retrying failed requests with waits that grow exponentially (usually with random jitter), to ride out rate limits and transient errors without hammering the service." data-l="reliability" data-a="exponential-backoff">exponential backoff</dfn>. Your own tools need the same discipline: retry transient failures in code, and surface meaningful failures to the model.</p>
-<h2 id="interleaved-thinking"><a class="anchor" href="#interleaved-thinking" aria-hidden="true">#</a>Interleaved Thinking</h2>
+<h2 id="interleaved-thinking"><a class="anchor" href="#interleaved-thinking" aria-hidden="true" tabindex="-1">#</a>Interleaved Thinking</h2>
 <p>With reasoning models, the &quot;think&quot; phase can be explicit. On current Claude models, thinking is <strong>adaptive</strong>: the model decides when and how much to reason, including <em>between</em> tool calls. After each observation it can think through what the result means before choosing the next action:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">[thinking] The test failed with KeyError: &#x27;DATABASE_URL&#x27;. The settings module reads
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">[thinking] The test failed with KeyError: &#x27;DATABASE_URL&#x27;. The settings module reads
            env vars at import time, and the test runner doesn&#x27;t load .env. Two options:
            load .env in conftest.py, or set the var in the test config. The project
            already uses pytest-env according to pyproject.toml, so use that.
@@ -409,7 +409,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <li>Always pass thinking blocks back unchanged in the assistant message. Appending <code>response.content</code> as-is does this for you.</li>
 <li>Control the overall depth with <code>output_config={&quot;effort&quot;: ...}</code>: lower for fast, routine loops and higher for hard debugging or planning.</li>
 </ul>
-<h2 id="state-what-the-loop-remembers"><a class="anchor" href="#state-what-the-loop-remembers" aria-hidden="true">#</a>State: What the Loop Remembers</h2>
+<h2 id="state-what-the-loop-remembers"><a class="anchor" href="#state-what-the-loop-remembers" aria-hidden="true" tabindex="-1">#</a>State: What the Loop Remembers</h2>
 <p>Within a single run, the <strong>transcript is the state</strong>. But real agents usually keep state in several places:</p>
 <ul>
 <li><strong>The transcript</strong>: messages, tool calls and results. Short-term <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn>.</li>
@@ -418,9 +418,9 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <li><strong>External memory</strong>: notes, to-do lists or progress files the agent writes so it can resume later or survive context compaction (see <a href="memory.html">memory</a>).</li>
 </ul>
 <p>As runs get longer, the transcript outgrows the context window and has to be compacted or pruned. That&#39;s the subject of <a href="context-engineering.html">context engineering</a>.</p>
-<h2 id="a-compact-agent-loop-in-python"><a class="anchor" href="#a-compact-agent-loop-in-python" aria-hidden="true">#</a>A Compact Agent Loop in Python</h2>
+<h2 id="a-compact-agent-loop-in-python"><a class="anchor" href="#a-compact-agent-loop-in-python" aria-hidden="true" tabindex="-1">#</a>A Compact Agent Loop in Python</h2>
 <p>Here is a small but correct loop using the Anthropic Python SDK. It gives the model two read-only tools for exploring a project directory, handles every <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-a="stop-reason">stop reason</dfn>, returns errors as observations, and enforces a step limit.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> pathlib
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> pathlib
 <span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()          <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
@@ -498,9 +498,9 @@ TOOLS = [
 <li><strong><code>try/except</code></strong> turns failures into <code>is_error</code> observations the model can learn from within the run.</li>
 <li><strong>One user message with every result</strong> keeps <dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">parallel tool calls</dfn> correctly paired.</li>
 </ul>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Don&#39;t always hand-roll it</div><div class="callout-body"><p>The Anthropic SDK&#39;s <strong>tool runner</strong> (<code>client.beta.messages.tool_runner(...)</code> with <code>@beta_tool</code>-decorated functions) runs this loop for you, and agent SDKs add context management, permissions and more. Write the manual loop once so you understand it, then use the higher-level tools where they fit (see <a href="sdk-hands-on.html">SDK hands-on</a> and <a href="agent-frameworks.html">agent frameworks</a>).</p>
-</div></aside>
-<h2 id="common-loop-bugs"><a class="anchor" href="#common-loop-bugs" aria-hidden="true">#</a>Common Loop Bugs</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Don&#39;t always hand-roll it</div><div class="callout-body"><p>The Anthropic SDK&#39;s <strong>tool runner</strong> (<code>client.beta.messages.tool_runner(...)</code> with <code>@beta_tool</code>-decorated functions) runs this loop for you, and agent SDKs add context management, permissions and more. Write the manual loop once so you understand it, then use the higher-level tools where they fit (see <a href="sdk-hands-on.html">SDK hands-on</a> and <a href="agent-frameworks.html">agent frameworks</a>).</p>
+</div></div>
+<h2 id="common-loop-bugs"><a class="anchor" href="#common-loop-bugs" aria-hidden="true" tabindex="-1">#</a>Common Loop Bugs</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -546,7 +546,7 @@ TOOLS = [
 </tr>
 </tbody></table>
 </div>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>Every agent is a <strong>perceive–think–act loop</strong>: call the model, run the requested tools, feed back the results, repeat.</li>
 <li>The <strong>transcript is the state</strong>. Append assistant content unchanged, and return every <code>tool_result</code> for a turn in <strong>one</strong> user message with matching <code>tool_use_id</code>s.</li>
@@ -556,7 +556,7 @@ TOOLS = [
 <li><strong>Observation quality drives decision quality.</strong> Keep tool results concise, structured and explicit.</li>
 <li><strong>Interleaved thinking</strong> lets the model interpret each result before acting, which is a major source of modern agents&#39; robustness.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Trace it by hand.</strong> Write out the full message list (JSON) for a three-step run in which the agent lists a directory, reads two files <em>in parallel</em> in one turn, then answers. Check that every <code>tool_use</code> id has a matching <code>tool_result</code>.</li>
 <li><strong>Add a cost budget.</strong> Extend the loop to sum <code>response.usage.input_tokens</code> and <code>response.usage.output_tokens</code> across calls and stop with an informative message once the total exceeds 200,000 tokens.</li>
@@ -564,7 +564,7 @@ TOOLS = [
 <li><strong>Make errors actionable.</strong> Change <code>read_file</code> so that on <code>FileNotFoundError</code> it returns the closest matching filenames in that directory (hint: <code>difflib.get_close_matches</code>). Compare how many steps the agent needs to recover from a typo&#39;d path before and after.</li>
 <li><strong>Stretch: <dfn class="gt" tabindex="0" data-t="Approval gate" data-d="A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation." data-l="human-in-the-loop" data-a="approval-gate">approval gate</dfn>.</strong> Add a <code>write_file</code> tool. Before executing it, have the harness print the proposed change and ask for <code>y/n</code> on stdin. On &quot;n&quot;, return <code>is_error: true</code> with &quot;User declined this change&quot;, and observe how the model adapts. Which stop conditions and guards does a write-capable agent need that a read-only one doesn&#39;t?</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="the-agent-loop" data-total="7">
 
 <div class="quiz-q" data-correct="3">
@@ -644,7 +644,7 @@ TOOLS = [
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt rule or a stronger model may reduce looping, but neither guarantees it stops. Loop detection plus hard budgets in the harness keeps a stuck agent from burning time and money, and a nudge often gets it to change strategy.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</a>: the paper behind the Thought/Action/Observation loop.</li>
 <li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents (Anthropic, 2024)</a>: why the simple loop with good tools usually beats elaborate frameworks.</li>
@@ -669,7 +669,7 @@ TOOLS = [
     <a class="pager-next" href="when-to-use-agents.html"><small>Next →</small><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#perceive-think-act">Perceive, Think, Act</a></li>
 <li class="toc-h2"><a href="#the-core-loop">The Core Loop</a></li>
 <li class="toc-h2"><a href="#anatomy-of-a-transcript">Anatomy of a Transcript</a></li>
@@ -695,9 +695,9 @@ TOOLS = [
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

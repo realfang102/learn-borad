@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="sdk-hands-on">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building">Module 5: Building Agents</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building">Module 5: Building Agents</a></nav>
   <header class="lesson-header">
     <h1>Hands-On with Agent SDKs</h1>
     <p class="lead">Build the same repo-triage agent four ways: the Anthropic Tool Runner, the Claude Agent SDK, the OpenAI Agents SDK and LangGraph, then compare loops, tools, state, human approval and tracing.</p>
@@ -144,9 +144,9 @@
   <article class="prose">
 <p>Reading framework comparisons only gets you so far. The differences that matter (how much loop you own, where state lives, how a human approves a risky action, what a trace looks like) only become clear when you build the <em>same</em> agent in each and feel where the seams are.</p>
 <p>This lesson does exactly that. We define one small but realistic agent, a <strong>repo triage agent</strong> that investigates a bug report in a codebase and files a ticket, then build it four times: with the <strong>Anthropic <dfn class="gt" tabindex="0" data-t="Tool Runner" data-d="An Anthropic SDK helper (beta) that runs the agent loop for you: decorate typed functions with @beta_tool, call client.beta.messages.tool_runner(...), and iterate over the messages it yields." data-l="tool-use" data-a="tool-runner">Tool Runner</dfn></strong>, the <strong><dfn class="gt" tabindex="0" data-t="Claude Agent SDK" data-d="A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents." data-a="claude-agent-sdk">Claude Agent SDK</dfn></strong>, the <strong>OpenAI Agents SDK</strong>, and <strong>LangGraph</strong>. Each version satisfies the same spec, so the diffs between them <em>are</em> the lesson.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>APIs drift</div><div class="callout-body"><p>Every snippet here was checked against the official documentation and the installed packages in November 2026: <code>anthropic</code> 2.12, <code>claude-agent-sdk</code> 0.2.172, <code>openai-agents</code> 0.25, <code>langgraph</code> 1.2 with <code>langchain</code> 1.5. These libraries ship often, and several are pre-1.0. Treat the code as a map of the concepts, and check the current docs before you copy it into production.</p>
-</div></aside>
-<h2 id="the-spec"><a class="anchor" href="#the-spec" aria-hidden="true">#</a>The Spec</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>APIs drift</div><div class="callout-body"><p>Every snippet here was checked against the official documentation and the installed packages in November 2026: <code>anthropic</code> 2.12, <code>claude-agent-sdk</code> 0.2.172, <code>openai-agents</code> 0.25, <code>langgraph</code> 1.2 with <code>langchain</code> 1.5. These libraries ship often, and several are pre-1.0. Treat the code as a map of the concepts, and check the current docs before you copy it into production.</p>
+</div></div>
+<h2 id="the-spec"><a class="anchor" href="#the-spec" aria-hidden="true" tabindex="-1">#</a>The Spec</h2>
 <p>The agent receives a report such as &quot;Uploads sometimes hang forever. Why?&quot; and must:</p>
 <ol>
 <li><strong>Investigate read-only</strong>: search and read the repository; never modify it.</li>
@@ -156,7 +156,7 @@
 <li><strong>Be observable</strong>: show which tools ran.</li>
 </ol>
 <p>The tool <em>logic</em> is plain Python shared by every version, so each framework section shows only the framework:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-string">&quot;&quot;&quot;repo_tools.py: plain-Python tool logic shared by every framework version.&quot;&quot;&quot;</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-string">&quot;&quot;&quot;repo_tools.py: plain-Python tool logic shared by every framework version.&quot;&quot;&quot;</span>
 <span class="hljs-keyword">import</span> json
 <span class="hljs-keyword">import</span> re
 <span class="hljs-keyword">import</span> time
@@ -201,9 +201,9 @@ TICKETS = Path(<span class="hljs-string">&quot;./tickets.jsonl&quot;</span>)    
     H --&gt;|&quot;yes&quot;| T[(&quot;tickets.jsonl&quot;)]
     H --&gt;|&quot;no&quot;| A
     A --&gt; S[&quot;Summary&quot;]</pre></figure>
-<h2 id="a-anthropic-tool-runner"><a class="anchor" href="#a-anthropic-tool-runner" aria-hidden="true">#</a>(a) Anthropic Tool Runner</h2>
+<h2 id="a-anthropic-tool-runner"><a class="anchor" href="#a-anthropic-tool-runner" aria-hidden="true" tabindex="-1">#</a>(a) Anthropic Tool Runner</h2>
 <p>The baseline is the SDK helper you met in <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a>: plain functions decorated with <code>@beta_tool</code>, and a runner that owns the loop.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
 <span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
@@ -272,10 +272,10 @@ runner = client.beta.messages.tool_runner(
             <span class="hljs-built_in">print</span>(block.text)
 <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;stop_reason:&quot;</span>, message.stop_reason, <span class="hljs-string">&quot;| usage:&quot;</span>, message.usage.output_tokens, <span class="hljs-string">&quot;output tokens&quot;</span>)</code></pre></div>
 <p><strong>What you get:</strong> schemas inferred from type hints and docstring <code>Args:</code> (the <code>Literal</code> becomes an <code>enum</code>), the tool loop with correct <code>tool_use_id</code> matching, exceptions mapped to <code>is_error</code> results, and a <code>max_iterations</code> cap. <strong>What you still own:</strong> the read tools themselves, the approval prompt (inside <code>file_ticket</code>), the conversation history across user turns, tracing beyond printing, and persistence. It runs anywhere Python runs and is the thinnest layer over the Messages API, so nothing is hidden.</p>
-<h2 id="b-claude-agent-sdk"><a class="anchor" href="#b-claude-agent-sdk" aria-hidden="true">#</a>(b) Claude Agent SDK</h2>
+<h2 id="b-claude-agent-sdk"><a class="anchor" href="#b-claude-agent-sdk" aria-hidden="true" tabindex="-1">#</a>(b) Claude Agent SDK</h2>
 <p>The <strong>Claude Agent SDK</strong> (<code>pip install claude-agent-sdk</code>, Python and TypeScript) packages the harness behind Claude Code as a library. The Python package bundles the Claude Code CLI and drives it as a subprocess, so you inherit its <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>, its built-in tools (<code>Read</code>, <code>Write</code>, <code>Edit</code>, <code>Bash</code>, <code>Grep</code>, <code>Glob</code>, <code>WebSearch</code>, <code>WebFetch</code> and more), context <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, sessions, permissions, <dfn class="gt" tabindex="0" data-t="Hooks" data-d="User-defined code that runs at lifecycle points in an agent loop, such as Claude Code's PreToolUse (which can block or rewrite a tool call) and PostToolUse. Unlike prompt instructions, hooks are deterministic and cannot be talked out of a decision." data-l="guardrails-and-sandboxing" data-a="hooks">hooks</dfn> and subagents. Authenticate with <code>ANTHROPIC_API_KEY</code> (cloud-provider credentials are also supported).</p>
 <p>The smallest useful program needs no custom code at all:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 <span class="hljs-keyword">from</span> claude_agent_sdk <span class="hljs-keyword">import</span> ClaudeAgentOptions, ResultMessage, query
 
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>() -&gt; <span class="hljs-literal">None</span>:
@@ -290,7 +290,7 @@ runner = client.beta.messages.tool_runner(
 
 asyncio.run(main())</code></pre></div>
 <p>Because search and file reading are built in, the triage spec reduces to adding the ticket tool, policy and limits:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 <span class="hljs-keyword">import</span> json
 <span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Any</span>
 
@@ -418,11 +418,11 @@ asyncio.run(main())</code></pre></div>
 <li><strong>Subagents</strong> (<code>agents=</code>) get their own <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, prompt, tool subset and model. The main agent delegates through the built-in <code>Agent</code> tool, which must be allowed. Only the subagent&#39;s final report returns, keeping the main context clean.</li>
 <li><strong>Bounds and sessions.</strong> <code>max_turns</code> and <code>max_budget_usd</code> cap the run; the final <code>ResultMessage</code> carries <code>num_turns</code>, <code>total_cost_usd</code> and a <code>session_id</code> you can pass as <code>resume=</code> later. <code>ClaudeSDKClient</code> keeps one session open for multi-turn conversations.</li>
 </ul>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Where Claude Agent SDK fits</div><div class="callout-body"><p>It shines when your agent needs to <em>work on a computer</em>: files, shells, code, the web. You get Claude Code&#39;s tuned tools and context management for free. The cost is less control over the loop internals, a dependency on the CLI runtime, and Claude models only. If Anthropic should host the loop and sandbox too, look at Claude Managed Agents (<a href="agent-frameworks.html">frameworks compared</a>).</p>
-</div></aside>
-<h2 id="c-openai-agents-sdk"><a class="anchor" href="#c-openai-agents-sdk" aria-hidden="true">#</a>(c) OpenAI Agents SDK</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Where Claude Agent SDK fits</div><div class="callout-body"><p>It shines when your agent needs to <em>work on a computer</em>: files, shells, code, the web. You get Claude Code&#39;s tuned tools and context management for free. The cost is less control over the loop internals, a dependency on the CLI runtime, and Claude models only. If Anthropic should host the loop and sandbox too, look at Claude Managed Agents (<a href="agent-frameworks.html">frameworks compared</a>).</p>
+</div></div>
+<h2 id="c-openai-agents-sdk"><a class="anchor" href="#c-openai-agents-sdk" aria-hidden="true" tabindex="-1">#</a>(c) OpenAI Agents SDK</h2>
 <p>The <strong>OpenAI Agents SDK</strong> (<code>pip install openai-agents</code>, imported as <code>agents</code>) is a lightweight, Python-first framework built on a few primitives: <strong>Agents</strong> (instructions + tools), <strong>handoffs</strong> (one agent passing control to another), <strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrails</dfn></strong> (validation that runs alongside the agent), <strong>sessions</strong> (conversation memory) and built-in <strong>tracing</strong>. <code>Runner</code> executes the loop.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 <span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
 <span class="hljs-keyword">from</span> agents <span class="hljs-keyword">import</span> (
@@ -529,9 +529,9 @@ asyncio.run(main())</code></pre></div>
 <li><strong>Tracing</strong> is on by default: every run, model call, tool call, handoff and guardrail becomes a span, exported to OpenAI&#39;s traces dashboard unless you disable it or add your own processor.</li>
 </ul>
 <p>Model choice: agents default to an OpenAI model, set by the SDK and overridable per agent. Other providers work through model adapters (for example LiteLLM, with model names like <code>litellm/anthropic/...</code>), though provider-specific features may not carry over.</p>
-<h2 id="d-langgraph"><a class="anchor" href="#d-langgraph" aria-hidden="true">#</a>(d) LangGraph</h2>
+<h2 id="d-langgraph"><a class="anchor" href="#d-langgraph" aria-hidden="true" tabindex="-1">#</a>(d) LangGraph</h2>
 <p><strong>LangGraph</strong> models an agent as an explicit <strong>state machine</strong>: nodes are functions that read and update a shared state, edges (including conditional ones) decide what runs next, and a <strong>checkpointer</strong> saves the state after every step. That makes it the most explicit of the four, and the strongest at durability and <dfn class="gt" tabindex="0" data-t="Human-in-the-loop" data-d="A design in which a human must review or approve certain agent actions or outputs before they take effect." data-l="human-in-the-loop" data-a="human-in-the-loop">human-in-the-loop</dfn>.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
 <span class="hljs-keyword">from</span> langchain_anthropic <span class="hljs-keyword">import</span> ChatAnthropic
 <span class="hljs-keyword">from</span> langchain_core.messages <span class="hljs-keyword">import</span> SystemMessage
@@ -604,10 +604,10 @@ result = graph.invoke({<span class="hljs-string">&quot;messages&quot;</span>: [{
 <li><strong>Checkpoints are memory.</strong> With a checkpointer, every <code>invoke</code> with the same <code>thread_id</code> continues the same conversation. Swap <code>InMemorySaver</code> for a SQLite or Postgres saver to survive restarts and inspect or rewind past states (&quot;time travel&quot;).</li>
 <li><strong><code>interrupt()</code> is human-in-the-loop.</strong> Calling <code>interrupt(payload)</code> inside a node or tool pauses the graph and persists its state. The caller sees <code>__interrupt__</code> in the result, and resumes with <code>Command(resume=value)</code>, which becomes <code>interrupt()</code>&#39;s return value.</li>
 </ul>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Resuming re-runs the node</div><div class="callout-body"><p>On resume, LangGraph re-executes the interrupted node (here, the whole tool call) from the top, and <code>interrupt()</code> then returns the resume value. Code with side effects <em>before</em> the <code>interrupt()</code> runs twice, so put side effects after it, or make them idempotent.</p>
-</div></aside>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Resuming re-runs the node</div><div class="callout-body"><p>On resume, LangGraph re-executes the interrupted node (here, the whole tool call) from the top, and <code>interrupt()</code> then returns the resume value. Code with side effects <em>before</em> the <code>interrupt()</code> runs twice, so put side effects after it, or make them idempotent.</p>
+</div></div>
 <p>For the common case you do not need to hand-build the graph. LangChain 1.x&#39;s <code>create_agent</code> (which replaced LangGraph&#39;s deprecated <code>create_react_agent</code>) builds this loop for you, and approval becomes middleware:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> langchain.agents <span class="hljs-keyword">import</span> create_agent
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> langchain.agents <span class="hljs-keyword">import</span> create_agent
 <span class="hljs-keyword">from</span> langchain.agents.middleware <span class="hljs-keyword">import</span> HumanInTheLoopMiddleware
 
 agent = create_agent(
@@ -619,7 +619,7 @@ agent = create_agent(
 )
 <span class="hljs-comment"># After it pauses: agent.invoke(Command(resume={&quot;decisions&quot;: [{&quot;type&quot;: &quot;approve&quot;}]}), config)</span></code></pre></div>
 <p>Tracing is not built into the library itself; set the LangSmith environment variables (or wire in <dfn class="gt" tabindex="0" data-t="OpenTelemetry" data-d="A vendor-neutral open standard for traces, metrics and logs. Its GenAI semantic conventions define standard attributes for recording LLM and agent operations." data-l="observability" data-a="opentelemetry">OpenTelemetry</dfn> or another callback handler) to record every node, model call and tool call.</p>
-<h2 id="side-by-side-comparison"><a class="anchor" href="#side-by-side-comparison" aria-hidden="true">#</a>Side-by-Side Comparison</h2>
+<h2 id="side-by-side-comparison"><a class="anchor" href="#side-by-side-comparison" aria-hidden="true" tabindex="-1">#</a>Side-by-Side Comparison</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -715,7 +715,7 @@ agent = create_agent(
 <li><strong>Batteries versus control.</strong> The Claude Agent SDK needed the least tool code because it ships tuned file and search tools; LangGraph needed the most wiring and gave the most control over every transition.</li>
 <li><strong>Portability is real but partial.</strong> The <code>repo_tools.py</code> logic moved between all four unchanged. What does not move is the harness: prompts tuned for one loop, hook and guardrail logic, and state formats.</li>
 </ol>
-<h2 id="choosing"><a class="anchor" href="#choosing" aria-hidden="true">#</a>Choosing</h2>
+<h2 id="choosing"><a class="anchor" href="#choosing" aria-hidden="true" tabindex="-1">#</a>Choosing</h2>
 <ul>
 <li><strong>Prototype on the Tool Runner</strong> when you want to understand behavior with minimal magic, or ship a simple custom-tool agent.</li>
 <li><strong>Choose the Claude Agent SDK</strong> when the agent operates on files, code, shells or the web and you want production-grade tools, permissions and context management immediately.</li>
@@ -723,7 +723,7 @@ agent = create_agent(
 <li><strong>Choose LangGraph</strong> for long-running, durable, branching workflows where explicit state, checkpoints and resumable human approvals matter more than brevity.</li>
 </ul>
 <p>Whatever you choose, keep tool logic in plain functions (as <code>repo_tools.py</code> does) so the framework stays a replaceable layer. The broader landscape and selection criteria are in <a href="agent-frameworks.html">Frameworks &amp; SDKs Compared</a>; for approvals see <a href="human-in-the-loop.html">human-in-the-loop</a>, for tracing see <a href="observability.html">observability</a>, and for multi-agent designs see <a href="multi-agent-systems.html">multi-agent systems</a>.</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>Building one spec in several SDKs reveals the real differences: who owns the loop, where state lives, how approvals pause, and what you can trace.</li>
 <li>The Anthropic Tool Runner is a thin helper over the Messages API; you keep control and responsibility for everything except loop mechanics.</li>
@@ -732,7 +732,7 @@ agent = create_agent(
 <li>LangGraph makes the loop an explicit graph with checkpointed state; <code>interrupt()</code> and <code>Command(resume=...)</code> give durable human-in-the-loop, but resumed nodes re-run from the top.</li>
 <li>Keep tool logic framework-free and pin versions: these APIs change frequently.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Run them all.</strong> Create a small <code>repo/</code> with a function that calls <code>requests.post</code> without a timeout. Run all four versions on the same report and compare the transcripts: number of steps, tools used, ticket quality and cost.</li>
 <li><strong>Deny by policy.</strong> In the Claude Agent SDK version, add a <code>PreToolUse</code> hook on <code>mcp__tickets__file_ticket</code> that denies <code>severity=&quot;high&quot;</code> tickets unless the body contains a <code>file:line</code> reference. Check that the agent revises the ticket instead of giving up.</li>
@@ -740,7 +740,7 @@ agent = create_agent(
 <li><strong>Durable LangGraph.</strong> Replace <code>InMemorySaver</code> with a SQLite checkpointer, kill the process while it waits for approval, restart, and resume the same <code>thread_id</code>.</li>
 <li><strong>Port a framework.</strong> Implement the spec in a fifth framework from <a href="agent-frameworks.html">Frameworks &amp; SDKs Compared</a>, such as Pydantic AI or Google ADK, and add a column to the comparison table.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="sdk-hands-on" data-total="6">
 
 <div class="quiz-q" data-correct="0">
@@ -809,7 +809,7 @@ agent = create_agent(
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both run Claude and both support approval (can_use_tool versus interrupt()). The difference is batteries and an opinionated runtime versus an explicit graph with checkpointed, durable state.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://code.claude.com/docs/en/agent-sdk/overview" target="_blank" rel="noopener">Claude Agent SDK overview</a>: capabilities, quickstart and links to the Python and TypeScript references.</li>
 <li><a href="https://code.claude.com/docs/en/agent-sdk/custom-tools" target="_blank" rel="noopener">Claude Agent SDK: custom tools</a> and <a href="https://code.claude.com/docs/en/agent-sdk/hooks" target="_blank" rel="noopener">hooks</a>: in-process MCP tools, naming, error handling and hook outputs.</li>
@@ -834,7 +834,7 @@ agent = create_agent(
     <a class="pager-next" href="evaluating-agents.html"><small>Next →</small><span>Evaluating Agents</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#the-spec">The Spec</a></li>
 <li class="toc-h2"><a href="#a-anthropic-tool-runner">(a) Anthropic Tool Runner</a></li>
 <li class="toc-h2"><a href="#b-claude-agent-sdk">(b) Claude Agent SDK</a></li>
@@ -853,9 +853,9 @@ agent = create_agent(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="designing-tools">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Designing Great Tools (The Agent–Computer Interface)</h1>
     <p class="lead">How to design tools agents can actually use well: descriptions as prompts, consolidated scope, high-signal responses, pagination, teaching errors, poka-yoke, safety, large tool sets, and agent-driven tool evaluation.</p>
@@ -145,7 +145,7 @@
 <p>An agent at a sales company keeps failing a simple task: &quot;Email the account owner of Globex about their renewal.&quot; The team tries prompt tweaks for a week. Then someone reads the transcripts. The agent&#39;s <code>list_contacts</code> tool returns 5,000 contacts as raw JSON, each with a UUID and fifteen fields. The agent pages through the first 100, burns most of its context, never finds Globex, and finally sends an email to a UUID it half-remembered — one that belongs to someone else. The fix wasn&#39;t a better prompt. It was a <code>search_contacts(query)</code> tool that returns five names, titles and companies.</p>
 <p>This lesson is about that kind of fix. A tool is not just an API wrapper. It is the interface through which a non-deterministic reasoner with a limited attention budget perceives and changes the world. Designing that interface well — the names, descriptions, parameters, responses and errors — is one of the highest-leverage things you can do for an agent&#39;s reliability.</p>
 <p>You&#39;ll learn the principles behind the <strong>agent–computer interface</strong>, concrete patterns for each part of a tool, how to handle safety and scale, and how to use agents themselves to evaluate and improve your tools. The mechanics of tool calling are covered in <a href="tool-use.html">tool use</a>; here we focus on design.</p>
-<h2 id="the-agentcomputer-interface"><a class="anchor" href="#the-agentcomputer-interface" aria-hidden="true">#</a>The Agent–Computer Interface</h2>
+<h2 id="the-agentcomputer-interface"><a class="anchor" href="#the-agentcomputer-interface" aria-hidden="true" tabindex="-1">#</a>The Agent–Computer Interface</h2>
 <p>We spend enormous effort on <strong>human–computer interfaces</strong>: layouts, affordances, error messages, undo. In the 2024 SWE-agent paper, researchers at Princeton argued that language-model agents deserve the same care, and named the idea the <strong>agent–computer interface (<dfn class="gt" tabindex="0" data-t="Agent-computer interface" data-d="The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance." data-l="coding-agents" data-a="agent-computer-interface">ACI</dfn>)</strong>: the set of commands an agent can use and the format of the feedback it gets back.</p>
 <p>SWE-agent gave a model a purpose-built interface for working in code repositories instead of a raw shell. Among its design choices:</p>
 <ul>
@@ -185,9 +185,9 @@
 </tr>
 </tbody></table>
 </div>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Design tools for the agent&#39;s actual constraints: limited context, no access to your code, and judgment that depends entirely on what you write in descriptions and return in results. When an agent misuses a tool, first ask what about the interface made the mistake easy.</p>
-</div></aside>
-<h2 id="tool-descriptions-are-prompts"><a class="anchor" href="#tool-descriptions-are-prompts" aria-hidden="true">#</a>Tool Descriptions Are Prompts</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Design tools for the agent&#39;s actual constraints: limited context, no access to your code, and judgment that depends entirely on what you write in descriptions and return in results. When an agent misuses a tool, first ask what about the interface made the mistake easy.</p>
+</div></div>
+<h2 id="tool-descriptions-are-prompts"><a class="anchor" href="#tool-descriptions-are-prompts" aria-hidden="true" tabindex="-1">#</a>Tool Descriptions Are Prompts</h2>
 <p>The tool description, parameter names and parameter descriptions are loaded into the model&#39;s context and drive both <em>whether</em> the agent calls a tool and <em>how</em>. They are prompts, and they deserve the same care as the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> (see <a href="prompting-for-agents.html">prompt engineering for agents</a>). Anthropic has reported that precise refinements to tool descriptions alone produced large gains on coding benchmarks.</p>
 <p>A useful frame is a good man page. A strong description covers:</p>
 <ol>
@@ -198,7 +198,7 @@
 <li><strong>Limits and caveats</strong>: coverage, default page size, rate limits, side effects.</li>
 </ol>
 <p>Before:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;search&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Searches tickets.&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;input_schema&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
@@ -208,7 +208,7 @@
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code></pre></div>
 <p>After:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tickets_search&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Search support tickets by keyword and filters. Use this to find tickets when you don&#x27;t have a ticket number; if you do, use tickets_get instead. Covers tickets from the last 24 months. Returns up to `limit` matches, newest first, each with ticket number, title, status, customer name and last-update date (not the full conversation; use tickets_get for that).&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;input_schema&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
@@ -223,9 +223,9 @@
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code></pre></div>
 <p>The improved version disambiguates against a neighboring tool, names parameters unambiguously (<code>customer_email</code>, not <code>user</code> — is that a name, an ID, an email?), states coverage limits, and tells the agent what it will and won&#39;t get back.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Contract, not steering</div><div class="callout-body"><p>Descriptions should state the tool&#39;s contract precisely. Avoid smuggling behavioral instructions into them (&quot;ALWAYS call this first!&quot;, &quot;After showing results, recommend our premium plan&quot;). Capitalized boosters tend to make modern models over-call a tool, and conversational rules belong in the system prompt. The common failure is <em>under</em>-description, not length — a four-sentence description is normal.</p>
-</div></aside>
-<h2 id="choose-few-well-scoped-tools"><a class="anchor" href="#choose-few-well-scoped-tools" aria-hidden="true">#</a>Choose Few, Well-Scoped Tools</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Contract, not steering</div><div class="callout-body"><p>Descriptions should state the tool&#39;s contract precisely. Avoid smuggling behavioral instructions into them (&quot;ALWAYS call this first!&quot;, &quot;After showing results, recommend our premium plan&quot;). Capitalized boosters tend to make modern models over-call a tool, and conversational rules belong in the system prompt. The common failure is <em>under</em>-description, not length — a four-sentence description is normal.</p>
+</div></div>
+<h2 id="choose-few-well-scoped-tools"><a class="anchor" href="#choose-few-well-scoped-tools" aria-hidden="true" tabindex="-1">#</a>Choose Few, Well-Scoped Tools</h2>
 <p>The instinct when connecting an agent to a system is to wrap every API endpoint as a tool. Resist it. APIs are designed for programs that can call 30 endpoints cheaply; agents pay for every call in latency, tokens and chances to go wrong.</p>
 <p>Design tools around the <strong>tasks the agent will actually perform</strong>, consolidating multi-step chores into one call:</p>
 <div class="table-wrap"><table>
@@ -262,19 +262,19 @@
     end</pre></figure>
 <p>The task-shaped tool moves deterministic work (computing calendar overlap) into code, where it&#39;s fast, cheap and correct, and leaves the agent the judgment it&#39;s good at (who should attend, which slot to pick if several work).</p>
 <p>Don&#39;t overshoot into a single god-tool, though. <code>do_action(action: str, params: object)</code> hides everything from the model&#39;s schema and from your harness, which can no longer gate or audit specific actions. A good tool set is a small number of tools with <strong>clear, non-overlapping purposes</strong>. If you have two tools and <em>you</em> can&#39;t say in one sentence when to use which, the agent can&#39;t either.</p>
-<h3 id="namespacing"><a class="anchor" href="#namespacing" aria-hidden="true">#</a>Namespacing</h3>
+<h3 id="namespacing"><a class="anchor" href="#namespacing" aria-hidden="true" tabindex="-1">#</a>Namespacing</h3>
 <p>Agents increasingly combine tools from many sources — your own, several <a href="protocols-mcp-a2a.html">MCP</a> servers, built-ins. Name collisions and near-duplicates multiply. <strong>Namespacing</strong> groups related tools with a common prefix by service and resource:</p>
 <ul>
 <li><code>asana_projects_search</code>, <code>asana_tasks_create</code></li>
 <li><code>jira_issues_search</code>, <code>jira_issues_comment</code></li>
 </ul>
 <p>Namespacing helps the model pick the right family and makes boundaries obvious. Anthropic&#39;s tool-writing guide notes that prefix- versus suffix-based naming schemes can have measurably different effects depending on the model, so treat the scheme as something to evaluate, not a fixed rule.</p>
-<h2 id="return-high-signal-results"><a class="anchor" href="#return-high-signal-results" aria-hidden="true">#</a>Return High-Signal Results</h2>
+<h2 id="return-high-signal-results"><a class="anchor" href="#return-high-signal-results" aria-hidden="true" tabindex="-1">#</a>Return High-Signal Results</h2>
 <p>Whatever a tool returns goes straight into the agent&#39;s context. Every irrelevant field is noise the agent must read, pay for, and potentially be misled by. Optimize for <strong>signal per token</strong>.</p>
 <p><strong>Prefer meaningful identifiers over opaque ones.</strong> Agents handle names, slugs and short IDs far more reliably than 36-character UUIDs, which they can confuse or reproduce incorrectly. Return <code>&quot;owner&quot;: &quot;Priya Raman (priya@globex.com)&quot;</code> rather than <code>&quot;owner_id&quot;: &quot;4f1c9a2e-...&quot;</code>. If you need technical IDs for follow-up calls, include them alongside a human-readable label, or map them to short, stable handles.</p>
 <p><strong>Drop low-level fields.</strong> MIME types, internal flags, thumbnail URLs at four sizes, audit timestamps — if the agent wouldn&#39;t use it to decide its next step, leave it out.</p>
 <p><strong>Offer a verbosity control.</strong> Sometimes the agent needs IDs for a follow-up action; often it just needs to read. A <code>response_format</code> parameter lets it choose:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> enum <span class="hljs-keyword">import</span> Enum
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> enum <span class="hljs-keyword">import</span> Enum
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">ResponseFormat</span>(<span class="hljs-built_in">str</span>, Enum):
     CONCISE = <span class="hljs-string">&quot;concise&quot;</span>    <span class="hljs-comment"># names and key facts: for reading and deciding</span>
@@ -286,7 +286,7 @@
         line += <span class="hljs-string">f&quot;\n  id=<span class="hljs-subst">{t[<span class="hljs-string">&#x27;id&#x27;</span>]}</span> channel=<span class="hljs-subst">{t[<span class="hljs-string">&#x27;channel&#x27;</span>]}</span> assignee=<span class="hljs-subst">{t[<span class="hljs-string">&#x27;assignee&#x27;</span>]}</span>&quot;</span>
     <span class="hljs-keyword">return</span> line</code></pre></div>
 <p><strong>Pick a format the model reads well.</strong> JSON, Markdown and plain text all work; the right choice depends on the task and the model, so test it. Compact, line-oriented text is often more token-efficient than deeply nested JSON for lists.</p>
-<h2 id="pagination-filtering-and-truncation"><a class="anchor" href="#pagination-filtering-and-truncation" aria-hidden="true">#</a>Pagination, Filtering and Truncation</h2>
+<h2 id="pagination-filtering-and-truncation"><a class="anchor" href="#pagination-filtering-and-truncation" aria-hidden="true" tabindex="-1">#</a>Pagination, Filtering and Truncation</h2>
 <p>Some queries legitimately match thousands of results. Never return them all. Design for it:</p>
 <ul>
 <li><strong>Filter parameters</strong> (<code>since</code>, <code>status</code>, <code>owner</code>) so the agent can ask precise questions instead of reading everything.</li>
@@ -295,7 +295,7 @@
 <li><strong>Truncation with hints.</strong> When you cut output, say so, and tell the agent how to get what it needs.</li>
 </ul>
 <p>Here&#39;s a search tool implementation that puts these together (<code>db</code> stands in for your data layer, and <code>format_ticket</code> is from the previous section):</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">MAX_CHARS = <span class="hljs-number">8_000</span>  <span class="hljs-comment"># hard cap on what goes into the agent&#x27;s context</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">MAX_CHARS = <span class="hljs-number">8_000</span>  <span class="hljs-comment"># hard cap on what goes into the agent&#x27;s context</span>
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">tickets_search</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, status: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;any&quot;</span>, limit: <span class="hljs-built_in">int</span> = <span class="hljs-number">10</span>,
                    cursor: <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span> = <span class="hljs-literal">None</span>,
@@ -316,9 +316,9 @@
                    <span class="hljs-string">&quot;narrow the search with status or more specific keywords.&quot;</span>)
     <span class="hljs-keyword">return</span> body + footer</code></pre></div>
 <p>The empty-result message and the footer are small touches with large effects. &quot;No results&quot; leaves the agent guessing whether the tool failed; an explanation plus a suggestion steers it toward a productive next call. Hints that encourage <strong>narrow, targeted queries</strong> (&quot;narrow the search with…&quot;) tend to work better than hints that encourage paging through everything.</p>
-<h2 id="errors-that-teach"><a class="anchor" href="#errors-that-teach" aria-hidden="true">#</a>Errors That Teach</h2>
+<h2 id="errors-that-teach"><a class="anchor" href="#errors-that-teach" aria-hidden="true" tabindex="-1">#</a>Errors That Teach</h2>
 <p>Every error message is an instruction to the agent about what to do next. Compare:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Bad:   Error 422
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Bad:   Error 422
 Bad:   Traceback (most recent call last): File &quot;/srv/app/handlers.py&quot;, line 88, in ...
        KeyError: &#x27;start&#x27;
 Good:  Invalid &#x27;start_date&#x27;: &quot;next Tuesday&quot;. Use ISO format YYYY-MM-DD, e.g. &quot;2026-11-24&quot;.
@@ -333,7 +333,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <li>Says <strong>what would work</strong>: the valid format, the allowed values, the alternative tool, or that a human is needed.</li>
 </ol>
 <p>Return these as tool results with <code>is_error: true</code> (see <a href="tool-use.html">tool use</a>) rather than raising. Stack traces are almost never useful to the model; they leak internals and waste tokens. Log them for yourself in your <a href="observability.html">observability</a> system instead.</p>
-<h2 id="poka-yoke-make-mistakes-hard"><a class="anchor" href="#poka-yoke-make-mistakes-hard" aria-hidden="true">#</a>Poka-Yoke: Make Mistakes Hard</h2>
+<h2 id="poka-yoke-make-mistakes-hard"><a class="anchor" href="#poka-yoke-make-mistakes-hard" aria-hidden="true" tabindex="-1">#</a>Poka-Yoke: Make Mistakes Hard</h2>
 <p><strong><dfn class="gt" tabindex="0" data-t="Poka-yoke" data-d="Mistake-proofing: designing tool interfaces so that wrong usage is hard or impossible, for example requiring absolute file paths or enumerated values instead of free text." data-a="poka-yoke">Poka-yoke</dfn></strong> is a Japanese manufacturing term for mistake-proofing: designing a part so it physically can&#39;t be installed the wrong way. Applied to tools, it means changing the interface so the common mistakes become impossible or immediately visible.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -377,7 +377,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 </tbody></table>
 </div>
 <p>Each of these is cheap to implement and removes a whole category of failure from your transcripts — usually far more reliably than a sentence in the prompt asking the agent to be careful.</p>
-<h2 id="side-effects-idempotency-and-safety"><a class="anchor" href="#side-effects-idempotency-and-safety" aria-hidden="true">#</a>Side Effects, Idempotency and Safety</h2>
+<h2 id="side-effects-idempotency-and-safety"><a class="anchor" href="#side-effects-idempotency-and-safety" aria-hidden="true" tabindex="-1">#</a>Side Effects, Idempotency and Safety</h2>
 <p>Read-only tools are forgiving: a wrong call wastes a step. Tools with <strong>side effects</strong> — sending, paying, deleting, deploying — need more design.</p>
 <ul>
 <li><strong>Separate reads from writes.</strong> <code>orders_get</code> and <code>orders_cancel</code>, not <code>orders(action=...)</code>. It makes gating and auditing simple and lets you run reads in parallel safely.</li>
@@ -387,7 +387,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <li><strong>Label risk.</strong> The <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol, built on JSON-RPC 2.0, that standardizes how applications expose tools, resources and prompts to LLM applications, so any compliant agent can use any compliant server. Released by Anthropic in November 2024 and donated to the Linux Foundation's Agentic AI Foundation in December 2025; the 2026-07-28 revision made the core protocol stateless." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> specification lets servers annotate tools with hints such as read-only, destructive or idempotent, so hosts can decide what to auto-approve. Treat such hints from untrusted servers as advisory, not as security guarantees.</li>
 </ul>
 <p>Tool <em>results</em> are also an attack surface: a fetched web page or an email body can contain instructions aimed at the agent. Mark untrusted content clearly in results and limit what a single agent with untrusted inputs is allowed to do (see <a href="agent-security.html">agent security</a>).</p>
-<h2 id="bash-vs-dedicated-tools"><a class="anchor" href="#bash-vs-dedicated-tools" aria-hidden="true">#</a>Bash vs Dedicated Tools</h2>
+<h2 id="bash-vs-dedicated-tools"><a class="anchor" href="#bash-vs-dedicated-tools" aria-hidden="true" tabindex="-1">#</a>Bash vs Dedicated Tools</h2>
 <p>A shell is the ultimate general-purpose tool. With <code>bash</code>, an agent can grep, run tests, call APIs with <code>curl</code>, and do nearly anything a developer can. Many strong coding agents lean on it heavily. So why build dedicated tools at all?</p>
 <p>Because a bash call gives your harness only an <strong>opaque command string</strong> — the same shape for every action. A dedicated tool gives it <strong>typed, action-specific arguments</strong> it can reason about. Promote an action to a dedicated tool when you need to:</p>
 <div class="table-wrap"><table>
@@ -426,7 +426,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 </tbody></table>
 </div>
 <p><strong>Rule of thumb:</strong> start with bash for breadth, then promote actions to dedicated tools when you need to gate, render, audit or parallelize them.</p>
-<h2 id="large-tool-sets-search-and-deferred-loading"><a class="anchor" href="#large-tool-sets-search-and-deferred-loading" aria-hidden="true">#</a>Large Tool Sets: Search and Deferred Loading</h2>
+<h2 id="large-tool-sets-search-and-deferred-loading"><a class="anchor" href="#large-tool-sets-search-and-deferred-loading" aria-hidden="true" tabindex="-1">#</a>Large Tool Sets: Search and Deferred Loading</h2>
 <p>Every <dfn class="gt" tabindex="0" data-t="Tool definition" data-d="The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly." data-a="tool-definition">tool definition</dfn> costs context on every request. With a handful of tools that&#39;s negligible. Connect five MCP servers and you may have a hundred tools whose definitions consume a large slice of the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> before the user says anything — and selection accuracy tends to drop as near-duplicate options multiply.</p>
 <p>Strategies, roughly in order of preference:</p>
 <ol>
@@ -434,7 +434,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <li><strong>Scope tools per agent.</strong> A billing subagent doesn&#39;t need deployment tools (see <a href="multi-agent-systems.html">multi-agent systems</a>).</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-a="tool-search">Tool search</dfn> with deferred loading.</strong> Declare the full catalog, but mark most tools as deferred so their definitions aren&#39;t loaded up front. The model gets a search tool, finds what it needs (&quot;calendar availability&quot;), and only the matching definitions are added to context. With Claude&#39;s API, tools are marked with <code>&quot;defer_loading&quot;: true</code> and the provider&#39;s tool search tool is declared alongside them; discovered schemas are <em>appended</em> rather than swapped in, which preserves the prompt cache.</li>
 </ol>
-<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;calendar_find_free_slots&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Find time slots when all given attendees are free...&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;input_schema&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;object&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;required&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
@@ -445,7 +445,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <li><strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-a="programmatic-tool-calling">Programmatic tool calling</dfn>.</strong> For long chains of calls with large intermediate results, the model can write a script that calls tools in a sandbox and returns only the final output, so intermediate data never enters its context.</li>
 </ol>
 <p>These are context-management techniques at heart; <a href="context-engineering.html">context engineering</a> covers the broader picture.</p>
-<h2 id="evaluating-and-improving-tools-with-agents"><a class="anchor" href="#evaluating-and-improving-tools-with-agents" aria-hidden="true">#</a>Evaluating and Improving Tools with Agents</h2>
+<h2 id="evaluating-and-improving-tools-with-agents"><a class="anchor" href="#evaluating-and-improving-tools-with-agents" aria-hidden="true" tabindex="-1">#</a>Evaluating and Improving Tools with Agents</h2>
 <p>You can&#39;t design good tools by intuition alone. Agents misuse tools in ways their designers don&#39;t predict, and the only reliable way to find out is to watch them. Anthropic&#39;s guide to writing tools describes a loop that uses agents at every stage:</p>
 <figure class="diagram"><pre class="mermaid">flowchart TD
     A[&quot;Prototype tools (local or MCP server)&quot;] --&gt; B[&quot;Generate realistic, multi-step eval tasks&quot;]
@@ -489,9 +489,9 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <p><strong>4. Let an agent refactor the tools.</strong> Paste a batch of transcripts, the tool definitions and the implementations into a coding agent and ask it to find patterns and propose improvements — clearer descriptions, better defaults, consolidated tools, more useful errors. Anthropic reports that tools optimized this way outperformed their hand-written expert versions on held-out tests.</p>
 <p><strong>5. Guard against overfitting</strong> with a held-out task set that the improvement loop never sees. A tool description tuned to pass ten specific tasks can get worse on the eleventh.</p>
 <p>This connects directly to the broader practice of <a href="evaluating-agents.html">evaluating agents</a>.</p>
-<h2 id="before-and-after-a-full-redesign"><a class="anchor" href="#before-and-after-a-full-redesign" aria-hidden="true">#</a>Before and After: A Full Redesign</h2>
+<h2 id="before-and-after-a-full-redesign"><a class="anchor" href="#before-and-after-a-full-redesign" aria-hidden="true" tabindex="-1">#</a>Before and After: A Full Redesign</h2>
 <p>A customer-support agent for a subscription business started with tools wrapped one-to-one from the internal API:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">BEFORE (7 tools)
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">BEFORE (7 tools)
 get_user(user_id)                 -&gt; 40-field JSON with UUIDs
 list_subscriptions(user_id)       -&gt; all subscriptions ever, no paging
 get_subscription(subscription_id)
@@ -500,7 +500,7 @@ update_subscription(subscription_id, payload)   -&gt; free-form JSON payload
 refund(invoice_id, amount)        -&gt; returns &quot;OK&quot; or HTTP status code
 search(q)                         -&gt; searches users, invoices and docs together</code></pre></div>
 <p>Transcripts showed the agent averaging many calls per ticket, hallucinating subscription IDs, sending malformed <code>payload</code> objects, and occasionally refunding the wrong invoice.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">AFTER (5 tools)
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">AFTER (5 tools)
 customers_find(query)                   -&gt; up to 5 matches: name, email, plan, status
 customers_get_context(customer_email, response_format=&quot;concise&quot;|&quot;detailed&quot;)
     -&gt; plan, renewal date, last 5 invoices, open tickets, in one readable summary
@@ -510,23 +510,23 @@ invoices_refund(invoice_number, amount_usd, reason: enum, idempotency_key)
     -&gt; confirmation with new balance; errors explain limits and next steps
 help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs</code></pre></div>
 <p>What changed: task-shaped consolidation (<code>customers_get_context</code>), human-readable identifiers (email, invoice number), enums and a dry-run instead of a free-form payload, an idempotency key on the money-moving action, namespaced names, and a separate docs search instead of an everything-search. The system prompt barely changed.</p>
-<h2 id="tool-design-checklist"><a class="anchor" href="#tool-design-checklist" aria-hidden="true">#</a>Tool Design Checklist</h2>
+<h2 id="tool-design-checklist"><a class="anchor" href="#tool-design-checklist" aria-hidden="true" tabindex="-1">#</a>Tool Design Checklist</h2>
 <p>Use this when reviewing any tool an agent will call:</p>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Purpose:</strong> Can you state in one sentence when to use this tool rather than its neighbors?</li>
-<li><input disabled="" type="checkbox"> <strong>Scope:</strong> Is it shaped around a task the agent performs, not an endpoint?</li>
-<li><input disabled="" type="checkbox"> <strong>Name:</strong> Specific and namespaced (<code>service_resource_action</code>)?</li>
-<li><input disabled="" type="checkbox"> <strong>Description:</strong> What it does, when to use and not use it, returns, limits, side effects?</li>
-<li><input disabled="" type="checkbox"> <strong>Parameters:</strong> Unambiguous names, described formats, enums for fixed sets, units in names?</li>
-<li><input disabled="" type="checkbox"> <strong>Poka-yoke:</strong> Absolute paths, ISO dates, unique-match edits, <code>strict</code> where inputs must be exact?</li>
-<li><input disabled="" type="checkbox"> <strong>Response:</strong> Only high-signal fields, readable identifiers, a verbosity option where useful?</li>
-<li><input disabled="" type="checkbox"> <strong>Volume:</strong> Default limits, filters, pagination, hard size cap, truncation hints?</li>
-<li><input disabled="" type="checkbox"> <strong>Errors:</strong> Specific, actionable, returned as <code>is_error</code> results, no stack traces?</li>
-<li><input disabled="" type="checkbox"> <strong>Side effects:</strong> Reads separated from writes, idempotency keys, dry-run, approvals enforced in code?</li>
-<li><input disabled="" type="checkbox"> <strong>Scale:</strong> Is the total tool set small enough, or are rarely used tools deferred?</li>
-<li><input disabled="" type="checkbox"> <strong>Evidence:</strong> Have you watched agents use it on realistic tasks and read the transcripts?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Purpose:</strong> Can you state in one sentence when to use this tool rather than its neighbors?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Scope:</strong> Is it shaped around a task the agent performs, not an endpoint?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Name:</strong> Specific and namespaced (<code>service_resource_action</code>)?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Description:</strong> What it does, when to use and not use it, returns, limits, side effects?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Parameters:</strong> Unambiguous names, described formats, enums for fixed sets, units in names?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Poka-yoke:</strong> Absolute paths, ISO dates, unique-match edits, <code>strict</code> where inputs must be exact?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Response:</strong> Only high-signal fields, readable identifiers, a verbosity option where useful?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Volume:</strong> Default limits, filters, pagination, hard size cap, truncation hints?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Errors:</strong> Specific, actionable, returned as <code>is_error</code> results, no stack traces?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Side effects:</strong> Reads separated from writes, idempotency keys, dry-run, approvals enforced in code?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Scale:</strong> Is the total tool set small enough, or are rarely used tools deferred?</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Evidence:</strong> Have you watched agents use it on realistic tasks and read the transcripts?</li>
 </ul>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>The agent–computer interface deserves the same design care as a human interface; tool changes often beat prompt changes.</li>
 <li>Tool names, descriptions and parameter descriptions are prompts: state the contract precisely, including when not to use the tool and what it doesn&#39;t return.</li>
@@ -537,7 +537,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
 <li>Start with bash for breadth; promote actions to dedicated tools to gate, render, audit or parallelize them. Use tool search and deferred loading for large catalogs.</li>
 <li>Evaluate tools with realistic multi-step tasks, read transcripts, let agents propose improvements, and check against held-out tasks.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Rewrite a description.</strong> Pick any tool from a public <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> or API wrapper. Rewrite its description and parameter descriptions using the man-page structure from this lesson. Note every ambiguity you resolved.</li>
 <li><strong>Teaching errors.</strong> Take the <code>tickets_search</code> implementation above and list five ways the agent could call it wrongly. For each, write the exact error message it should return, following the what/why/what-would-work pattern.</li>
@@ -545,7 +545,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
 <li><strong>Measure a change.</strong> Build a small eval (5–10 multi-step tasks) for an agent with a deliberately poor tool (UUIDs, no pagination, vague errors). Record success rate, calls per task and tokens. Apply the improvements from this lesson one at a time and chart which change mattered most.</li>
 <li><strong>Agent as tool critic.</strong> Feed ten transcripts from exercise 4 plus your tool definitions to a capable model and ask it to identify tool-design problems and propose changes. Compare its suggestions with your own. Which did it catch that you missed, and which of its suggestions would overfit?</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="designing-tools" data-total="7">
 
 <div class="quiz-q" data-correct="3">
@@ -625,7 +625,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Large catalogs cost context and create near-duplicate choices. Fewer tools, per-agent scoping and deferred loading fix both. Caching is tempting because it lowers cost, but it does nothing for selection accuracy; shorter descriptions make selection even worse.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener">Anthropic: Writing effective tools for agents — with agents</a> — the primary source for the principles and agent-driven evaluation loop in this lesson.</li>
 <li><a href="https://arxiv.org/abs/2405.15793" target="_blank" rel="noopener">Yang et al., SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering</a> — the paper that introduced the ACI concept, with ablations of interface design choices.</li>
@@ -650,7 +650,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
     <a class="pager-next" href="structured-outputs.html"><small>Next →</small><span>Structured Outputs &amp; Control Flow</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#the-agentcomputer-interface">The Agent–Computer Interface</a></li>
 <li class="toc-h2"><a href="#tool-descriptions-are-prompts">Tool Descriptions Are Prompts</a></li>
 <li class="toc-h2"><a href="#choose-few-well-scoped-tools">Choose Few, Well-Scoped Tools</a></li>
@@ -676,9 +676,9 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

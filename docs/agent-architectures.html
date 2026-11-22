@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="agent-architectures">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#architectures">Module 3: Architectures &amp; Patterns</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#architectures">Module 3: Architectures &amp; Patterns</a></nav>
   <header class="lesson-header">
     <h1>Single-Agent Architectures</h1>
     <p class="lead">The design space of single agents: ReAct, MRKL, Self-Ask, Plan-and-Execute, ReWOO, LLMCompiler, Reflexion, LATS, cognitive architectures, state-machine graphs, routers and blackboards, and why one agent with good tools is the default.</p>
@@ -144,11 +144,11 @@
   <article class="prose">
 <p>Two agents can share the same model, the same tools and the same task and still behave completely differently, because of how they are <strong>architected</strong>: when they think, when they act, whether they plan up front, whether they look back at their mistakes, whether they explore alternatives. Since 2022 researchers and practitioners have produced a zoo of named architectures (<dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-a="react">ReAct</dfn>, <dfn class="gt" tabindex="0" data-t="MRKL" data-d="Modular Reasoning, Knowledge and Language (Karpas et al., 2022): an early neuro-symbolic architecture that routes queries from an LLM to expert modules such as calculators and APIs." data-l="history-of-agents" data-a="mrkl">MRKL</dfn>, <dfn class="gt" tabindex="0" data-t="ReWOO" data-d="Reasoning WithOut Observation (Xu et al., 2023): a planner writes the whole tool plan with placeholders up front, workers fill them in, and a solver composes the answer, saving tokens versus ReAct." data-a="rewoo">ReWOO</dfn>, <dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-a="reflexion">Reflexion</dfn>, <dfn class="gt" tabindex="0" data-t="Language Agent Tree Search" data-d="LATS (Zhou et al., 2023) applies Monte Carlo tree search to agent trajectories, using the LLM as action proposer, value estimator and self-reflector." data-l="reasoning-and-planning" data-a="language-agent-tree-search">LATS</dfn>, and more), each a different answer to the question &quot;how should a language model interleave reasoning and acting?&quot;</p>
 <p>This lesson is a field guide to that zoo for a <strong>single agent</strong>: one decision-making locus, possibly with many tools. (Systems of multiple cooperating agents get their own lesson, <a href="multi-agent-systems.html">Multi-Agent Systems</a>.) For each architecture you will see the core idea, a diagram or trace, what it is good at and what it costs. Then we zoom out to a unifying framework (<dfn class="gt" tabindex="0" data-t="CoALA" data-d="Cognitive Architectures for Language Agents (Sumers et al., 2023): a framework that organizes agents by modular memory (working, episodic, semantic, procedural), internal and external actions, and a decision loop." data-a="coala">CoALA</dfn>), look at how production systems actually implement agents as <strong>state machines</strong>, and end with the most important and least glamorous conclusion: a capable model in a simple loop with well-designed tools is the right default.</p>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Research architectures vs. modern models</div><div class="callout-body"><p>Many of these architectures were invented in 2022–2023, when models needed elaborate scaffolding to reason reliably. Today&#39;s models think natively (extended or <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">adaptive thinking</dfn>), call tools in parallel, and can plan without being prompted to. Some ideas below are now absorbed <em>into the model</em>; others remain essential <em>harness</em> design. We will flag which is which.</p>
-</div></aside>
-<h2 id="react-reason-act"><a class="anchor" href="#react-reason-act" aria-hidden="true">#</a>ReAct: Reason + Act</h2>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Research architectures vs. modern models</div><div class="callout-body"><p>Many of these architectures were invented in 2022–2023, when models needed elaborate scaffolding to reason reliably. Today&#39;s models think natively (extended or <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">adaptive thinking</dfn>), call tools in parallel, and can plan without being prompted to. Some ideas below are now absorbed <em>into the model</em>; others remain essential <em>harness</em> design. We will flag which is which.</p>
+</div></div>
+<h2 id="react-reason-act"><a class="anchor" href="#react-reason-act" aria-hidden="true" tabindex="-1">#</a>ReAct: Reason + Act</h2>
 <p><strong>ReAct</strong> (Yao et al., 2022) is the ancestor of almost every modern agent. The idea: interleave <strong>reasoning traces</strong> (&quot;Thought&quot;) with <strong>actions</strong> (tool calls) and <strong>observations</strong> (tool results) in a single growing context. Reasoning helps the model plan and handle exceptions; actions ground the reasoning in real information, reducing <dfn class="gt" tabindex="0" data-t="Hallucination" data-d="Model output that is fluent and confident but factually wrong or unsupported by the provided sources, such as an invented citation or API." data-l="llm-fundamentals" data-a="hallucination">hallucination</dfn>.</p>
-<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Question: Which is older, the Eiffel Tower or the Statue of Liberty's dedication?
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Question: Which is older, the Eiffel Tower or the Statue of Liberty's dedication?
 <span class="tr-thought">Thought:</span> I need the completion date of the Eiffel Tower and the dedication date of the statue.
 <span class="tr-action">Action:</span> search(&quot;Eiffel Tower completed&quot;)
 <span class="tr-observation">Observation:</span> The Eiffel Tower was completed in March 1889.
@@ -165,7 +165,7 @@
     T --&gt;|done| F([Final answer])</pre></figure>
 <p><strong>Strengths:</strong> adapts every step to what it just learned; simple; robust to surprises. <strong>Weaknesses:</strong> one LLM call per step (latency and cost scale with steps), the context grows with every observation, and it is <strong>greedy</strong>: it commits to one path and can wander or loop.</p>
 <p>Today ReAct is not so much an architecture as the default shape of the <a href="the-agent-loop.html">agent loop</a>. With native tool calling, the &quot;Thought&quot; lives in the model&#39;s thinking blocks and the &quot;Action&quot; is a structured <code>tool_use</code> block rather than parsed text, but the cycle is identical.</p>
-<h2 id="mrkl-routing-to-expert-modules"><a class="anchor" href="#mrkl-routing-to-expert-modules" aria-hidden="true">#</a>MRKL: Routing to Expert Modules</h2>
+<h2 id="mrkl-routing-to-expert-modules"><a class="anchor" href="#mrkl-routing-to-expert-modules" aria-hidden="true" tabindex="-1">#</a>MRKL: Routing to Expert Modules</h2>
 <p><strong>MRKL</strong> (Modular Reasoning, Knowledge and Language, pronounced &quot;miracle&quot;; Karpas et al., 2022, AI21 Labs) predates ReAct&#39;s popularity and contributed a different idea: a <strong>neuro-symbolic</strong> system where an LLM acts as a <strong>router</strong> over a set of <strong>expert modules</strong>, some neural (other models) and some symbolic (a calculator, a database, a weather API). The LLM&#39;s job is to recognize which expert can handle a query and extract the arguments for it.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     In([Query]) --&gt; R[&quot;LLM router&quot;]
@@ -176,9 +176,9 @@
     D --&gt; Out
     L --&gt; Out</pre></figure>
 <p>MRKL&#39;s lasting contribution is the principle that <strong>LLMs should not do what deterministic tools do better</strong>: exact arithmetic, lookups, date math. Its paper showed that extracting arguments reliably for even a calculator was nontrivial, an early glimpse of why tool design matters (<a href="designing-tools.html">Designing Tools</a>). In modern terms, a MRKL system is a single-step tool-calling agent, or a router workflow (<a href="workflow-patterns.html#routing">Workflow Patterns</a>).</p>
-<h2 id="self-ask-decomposing-into-follow-up-questions"><a class="anchor" href="#self-ask-decomposing-into-follow-up-questions" aria-hidden="true">#</a>Self-Ask: Decomposing Into Follow-Up Questions</h2>
+<h2 id="self-ask-decomposing-into-follow-up-questions"><a class="anchor" href="#self-ask-decomposing-into-follow-up-questions" aria-hidden="true" tabindex="-1">#</a>Self-Ask: Decomposing Into Follow-Up Questions</h2>
 <p><strong>Self-Ask</strong> (Press et al., 2022) targets <strong>compositional questions</strong>, ones that require combining facts the model may know individually but fails to compose. The model is prompted to explicitly ask itself <strong>follow-up questions</strong>, answer each (optionally via a search engine), and only then answer the original.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Question: Who was president of the U.S. when superconductivity was discovered?
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Question: Who was president of the U.S. when superconductivity was discovered?
 Are follow up questions needed here: Yes.
 Follow up: When was superconductivity discovered?
 Intermediate answer: Superconductivity was discovered in 1911.
@@ -186,7 +186,7 @@ Follow up: Who was president of the U.S. in 1911?
 Intermediate answer: William Howard Taft.
 So the final answer is: William Howard Taft.</code></pre></div>
 <p>The paper named the failure it addressed the <strong>compositionality gap</strong>: models could often answer both sub-questions correctly but not the composed question. Making decomposition explicit closed much of that gap, and plugging a search engine into the &quot;Intermediate answer&quot; slot made it a simple agent. Self-Ask is a specialization of ReAct where every action is a question; its spirit lives on in how <a href="research-agents.html">research agents</a> decompose queries.</p>
-<h2 id="plan-and-execute"><a class="anchor" href="#plan-and-execute" aria-hidden="true">#</a>Plan-and-Execute</h2>
+<h2 id="plan-and-execute"><a class="anchor" href="#plan-and-execute" aria-hidden="true" tabindex="-1">#</a>Plan-and-Execute</h2>
 <p>ReAct decides one step at a time. <strong><dfn class="gt" tabindex="0" data-t="Plan-and-execute" data-d="An architecture that first produces an explicit multi-step plan, then executes the steps (often with a cheaper model), re-planning when results diverge." data-a="plan-and-execute">Plan-and-Execute</dfn></strong> (inspired by Plan-and-Solve prompting, Wang et al., 2023, and the BabyAGI line of projects) separates <strong>planning</strong> from <strong>execution</strong>: a planner produces a multi-step plan up front; an executor (often a ReAct agent with tools) carries out each step; and a <strong>replanner</strong> revises the remaining plan after each step based on results.</p>
 <figure class="diagram"><pre class="mermaid">flowchart TB
     In([Task]) --&gt; P[&quot;Planner LLM: full plan&quot;]
@@ -202,14 +202,14 @@ So the final answer is: William Howard Taft.</code></pre></div>
 <li><strong>Transparency.</strong> A plan can be shown to a human before anything happens (<a href="human-in-the-loop.html">Human-in-the-Loop</a>).</li>
 </ul>
 <p><strong>Why it hurts:</strong> plans made before seeing any data are often wrong, so replanning is essential, and a rigid plan can be worse than no plan. In modern coding agents you see a lightweight version: the agent writes a <strong>to-do list</strong> into its context (or a file) and updates it as it goes. The plan is just another piece of state the model maintains, not a separate component.</p>
-<h2 id="rewoo-plan-once-no-observations-in-the-loop"><a class="anchor" href="#rewoo-plan-once-no-observations-in-the-loop" aria-hidden="true">#</a>ReWOO: Plan Once, No Observations in the Loop</h2>
+<h2 id="rewoo-plan-once-no-observations-in-the-loop"><a class="anchor" href="#rewoo-plan-once-no-observations-in-the-loop" aria-hidden="true" tabindex="-1">#</a>ReWOO: Plan Once, No Observations in the Loop</h2>
 <p><strong>ReWOO</strong> (Reasoning WithOut Observation; Xu et al., 2023) pushes the separation further. In ReAct, every tool result is appended to the context and the whole growing prompt is re-sent to the model for the next step, which is redundant and expensive. ReWOO splits the agent into three roles:</p>
 <ol>
 <li><strong>Planner</strong>: produces the entire plan in one call, with <strong>placeholder variables</strong> (<code>#E1</code>, <code>#E2</code>, ...) for evidence not yet gathered. Later steps can reference earlier placeholders.</li>
 <li><strong>Worker</strong>: executes the tool calls in order, substituting earlier results into later inputs. <em>No LLM reasoning happens here.</em></li>
 <li><strong>Solver</strong>: one final LLM call that receives the plan plus all evidence and writes the answer.</li>
 </ol>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Plan: Find who directed the film that won Best Picture in 2020.
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Plan: Find who directed the film that won Best Picture in 2020.
 #E1 = search[&quot;Best Picture winner 2020 Academy Awards&quot;]
 Plan: Find the director of that film.
 #E2 = llm[&quot;Who directed the film named in: #E1&quot;]
@@ -222,7 +222,7 @@ Plan: Find the director&#x27;s other notable films.
     S --&gt; Out([Answer])</pre></figure>
 <p>The LLM never sees an observation until the solver step, so total LLM calls are roughly two regardless of the number of tool calls. The authors reported large token savings relative to ReAct on multi-hop QA with comparable or better accuracy, and that the decoupling allowed the planner&#39;s skill to be distilled into a smaller model. The catch is obvious: <strong>the plan cannot adapt to surprises</strong>. If <code>#E1</code> comes back empty or ambiguous, the worker blindly proceeds.</p>
 <p>Here is a compact ReWOO with the Anthropic SDK. The planner emits a structured plan; the worker is pure Python:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> re
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> re
 <span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 <span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
@@ -263,9 +263,9 @@ TOOLS = {
         messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Task: <span class="hljs-subst">{task}</span>\n\nEvidence:\n<span class="hljs-subst">{trail}</span>\n\nAnswer the task.&quot;</span>}],
     )
     <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> solved.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)</code></pre></div>
-<h2 id="llmcompiler-a-dag-of-parallel-calls"><a class="anchor" href="#llmcompiler-a-dag-of-parallel-calls" aria-hidden="true">#</a>LLMCompiler: A DAG of Parallel Calls</h2>
+<h2 id="llmcompiler-a-dag-of-parallel-calls"><a class="anchor" href="#llmcompiler-a-dag-of-parallel-calls" aria-hidden="true" tabindex="-1">#</a>LLMCompiler: A DAG of Parallel Calls</h2>
 <p><strong><dfn class="gt" tabindex="0" data-t="LLMCompiler" data-d="A framework (Kim et al., 2023) that plans tool calls as a dependency graph and executes independent calls in parallel, reducing latency and cost." data-a="llmcompiler">LLMCompiler</dfn></strong> (Kim et al., 2023) observes that many tool calls in a plan are <strong>independent</strong> and could run at the same time. Borrowing from compilers, it has a <strong>planner</strong> that emits a <strong>directed acyclic graph (DAG)</strong> of tasks with explicit dependencies, a <strong>task-fetching unit</strong> that dispatches any task whose dependencies are satisfied, and an <strong>executor</strong> that runs them in parallel. A <strong>joiner</strong> then decides whether to answer or replan.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">1. search(&quot;Microsoft market cap&quot;)             deps: []
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">1. search(&quot;Microsoft market cap&quot;)             deps: []
 2. search(&quot;Apple market cap&quot;)                 deps: []
 3. calculate($1 / $2)                         deps: [1, 2]
 4. join()                                     deps: [3]</code></pre></div>
@@ -278,9 +278,9 @@ TOOLS = {
     J --&gt;|replan| P
     J --&gt;|answer| Out([Answer])</pre></figure>
 <p>Tasks 1 and 2 run concurrently; task 3 waits for both. The paper reported meaningful latency and cost reductions versus sequential ReAct on parallelizable workloads, and unlike ReWOO it keeps a replanning loop.</p>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span><dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">Parallel tool calls</dfn> are now native</div><div class="callout-body"><p>Modern APIs let the model emit <strong>several tool calls in one turn</strong>, and the harness can run them concurrently. That captures much of LLMCompiler&#39;s benefit for free whenever the independent calls are visible at the same step. Explicit DAG planning still pays off when dependency chains are deep, or when you want the whole plan up front for approval or scheduling. A related modern technique, <strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-l="designing-tools" data-a="programmatic-tool-calling">programmatic tool calling</dfn></strong>, lets the model write a short script that calls tools in loops and branches, so intermediate results never enter the context at all.</p>
-</div></aside>
-<h2 id="reflexion-learning-from-failure-in-words"><a class="anchor" href="#reflexion-learning-from-failure-in-words" aria-hidden="true">#</a>Reflexion: Learning From Failure in Words</h2>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span><dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">Parallel tool calls</dfn> are now native</div><div class="callout-body"><p>Modern APIs let the model emit <strong>several tool calls in one turn</strong>, and the harness can run them concurrently. That captures much of LLMCompiler&#39;s benefit for free whenever the independent calls are visible at the same step. Explicit DAG planning still pays off when dependency chains are deep, or when you want the whole plan up front for approval or scheduling. A related modern technique, <strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-l="designing-tools" data-a="programmatic-tool-calling">programmatic tool calling</dfn></strong>, lets the model write a short script that calls tools in loops and branches, so intermediate results never enter the context at all.</p>
+</div></div>
+<h2 id="reflexion-learning-from-failure-in-words"><a class="anchor" href="#reflexion-learning-from-failure-in-words" aria-hidden="true" tabindex="-1">#</a>Reflexion: Learning From Failure in Words</h2>
 <p><strong>Reflexion</strong> (Shinn et al., 2023) adds a learning loop without touching model weights. After a trial fails (a test fails, an environment signals failure, a heuristic detects a loop), a <strong>self-reflection</strong> step asks the model to diagnose <em>why</em> in natural language. The reflection is stored in an <strong><dfn class="gt" tabindex="0" data-t="Episodic memory" data-d="Memory of specific past events or interactions, such as &quot;last Tuesday the deploy failed because of X&quot;, often used for few-shot recall or reflection." data-l="memory" data-a="episodic-memory">episodic memory</dfn> buffer</strong> and prepended to the next attempt. The authors called this <strong>verbal reinforcement learning</strong>: the &quot;gradient&quot; is a paragraph of advice to oneself.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     T([Task]) --&gt; A[&quot;Actor: attempt&quot;]
@@ -289,13 +289,13 @@ TOOLS = {
     Ev --&gt;|no| R[&quot;Self-reflection: why did it fail?&quot;]
     R --&gt; M[(&quot;Episodic memory&quot;)]
     M --&gt; A</pre></figure>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Trial 1: wrote is_palindrome(s) -&gt; s == s[::-1]
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Trial 1: wrote is_palindrome(s) -&gt; s == s[::-1]
 Tests: FAIL  is_palindrome(&quot;A man, a plan, a canal: Panama&quot;) expected True
 Reflection: I compared the raw string. The tests expect case-insensitive comparison
             ignoring non-alphanumeric characters. Next time, normalize first.
 Trial 2: normalize with s.lower() and filter str.isalnum, then compare -&gt; PASS</code></pre></div>
 <p>Reflexion reported strong gains on coding benchmarks (HumanEval at the time) and on sequential decision-making tasks. Its key dependency is a <strong>good evaluator signal</strong>: unit tests, environment rewards or exact-match checks. With a weak or LLM-only evaluator, reflections can confidently &quot;learn&quot; the wrong lesson. Reflexion is a close cousin of the <dfn class="gt" tabindex="0" data-t="Evaluator-optimizer" data-d="A loop in which one LLM generates a response and another evaluates it with feedback, iterating until the evaluator is satisfied or a limit is reached." data-l="workflow-patterns" data-a="evaluator-optimizer">evaluator-optimizer</dfn> workflow, plus persistent memory across attempts; it also underpins much of <a href="self-improving-agents.html">Self-Improving Agents</a>.</p>
-<h2 id="lats-tree-search-over-actions"><a class="anchor" href="#lats-tree-search-over-actions" aria-hidden="true">#</a>LATS: Tree Search Over Actions</h2>
+<h2 id="lats-tree-search-over-actions"><a class="anchor" href="#lats-tree-search-over-actions" aria-hidden="true" tabindex="-1">#</a>LATS: Tree Search Over Actions</h2>
 <p><strong>LATS</strong> (Language Agent Tree Search; Zhou et al., 2023) addresses ReAct&#39;s greediness by applying <strong>Monte Carlo Tree Search (MCTS)</strong> to agent trajectories. Each node is a state (the trajectory so far). LATS repeatedly:</p>
 <ol>
 <li><strong>Selects</strong> a promising node (balancing exploitation and exploration, as in UCT).</li>
@@ -312,7 +312,7 @@ Trial 2: normalize with s.lower() and filter str.isalnum, then compare -&gt; PAS
     A --&gt; A2((&quot;a1.2: 0.2&quot;))
     A1 --&gt; G([&quot;Success&quot;])</pre></figure>
 <p>LATS unifies reasoning, acting and planning and reported top results on programming and web-navigation benchmarks of its time. The costs are severe: dozens to hundreds of LLM calls per task, and it requires an environment where you can <strong>revert to an earlier state</strong> to try another branch. That is easy in QA or code (re-run from scratch) and hard or impossible in the real world (you cannot un-send an email). Search-based agents remain an active research area (<a href="reasoning-and-planning.html">Reasoning &amp; Planning</a>), and the related idea of sampling many attempts and selecting with a verifier (&quot;best-of-N&quot;) is widely used in coding agents.</p>
-<h2 id="the-cognitive-architecture-view-coala"><a class="anchor" href="#the-cognitive-architecture-view-coala" aria-hidden="true">#</a>The Cognitive Architecture View: CoALA</h2>
+<h2 id="the-cognitive-architecture-view-coala"><a class="anchor" href="#the-cognitive-architecture-view-coala" aria-hidden="true" tabindex="-1">#</a>The Cognitive Architecture View: CoALA</h2>
 <p>With so many named architectures, we need a common vocabulary. <strong>CoALA</strong> (Cognitive Architectures for Language Agents; Sumers, Yao, Narasimhan and Griffiths, 2023) draws on decades of cognitive-architecture research (Soar, ACT-R) to describe any language agent along three dimensions:</p>
 <p><strong>1. Memory</strong></p>
 <ul>
@@ -382,7 +382,7 @@ Trial 2: normalize with s.lower() and filter str.isalnum, then compare -&gt; PAS
 </tbody></table>
 </div>
 <p>The <a href="memory.html">Memory</a> lesson builds on the same taxonomy.</p>
-<h2 id="graph-and-state-machine-agents"><a class="anchor" href="#graph-and-state-machine-agents" aria-hidden="true">#</a>Graph and State-Machine Agents</h2>
+<h2 id="graph-and-state-machine-agents"><a class="anchor" href="#graph-and-state-machine-agents" aria-hidden="true" tabindex="-1">#</a>Graph and State-Machine Agents</h2>
 <p>Research architectures describe <em>how the model thinks</em>. Production engineering asks a different question: <strong>how do I make this controllable, debuggable and resumable?</strong> The dominant answer is to model the agent as an explicit <strong>state machine</strong> or <strong>graph</strong>:</p>
 <ul>
 <li><strong>State</strong>: a typed object holding everything the agent knows (messages, plan, intermediate results, flags).</li>
@@ -391,7 +391,7 @@ Trial 2: normalize with s.lower() and filter str.isalnum, then compare -&gt; PAS
 <li><strong>Checkpointing</strong>: the state is persisted after each node, enabling pause, resume, human approval, time travel and crash recovery.</li>
 </ul>
 <p>LangGraph popularized this style; the <dfn class="gt" tabindex="0" data-t="Claude Agent SDK" data-d="A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents." data-l="sdk-hands-on" data-a="claude-agent-sdk">Claude Agent SDK</dfn>, OpenAI Agents SDK and others offer related primitives (<a href="agent-frameworks.html">Agent Frameworks</a>). Here is a research-then-write agent with an explicit review loop, in LangGraph&#39;s documented <code>StateGraph</code> shape (check current docs; APIs evolve):</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> TypedDict, <span class="hljs-type">Literal</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> TypedDict, <span class="hljs-type">Literal</span>
 <span class="hljs-keyword">from</span> langgraph.graph <span class="hljs-keyword">import</span> StateGraph, START, END
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">State</span>(<span class="hljs-title class_ inherited__">TypedDict</span>):
@@ -435,11 +435,11 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 <li><strong>Mix freely</strong>: some nodes are full autonomous agents, others are deterministic code.</li>
 </ul>
 <p><strong>The cost:</strong> you are hard-coding control flow, which is precisely what agents were supposed to free you from. Over-specified graphs become brittle flowcharts that break on inputs the designer did not anticipate. A good heuristic: put <strong>hard constraints</strong> (compliance steps, approvals, irreversible actions) in the graph, and let the model handle the open-ended parts <em>inside</em> nodes.</p>
-<h2 id="router-agents-and-the-blackboard"><a class="anchor" href="#router-agents-and-the-blackboard" aria-hidden="true">#</a>Router Agents and the Blackboard</h2>
+<h2 id="router-agents-and-the-blackboard"><a class="anchor" href="#router-agents-and-the-blackboard" aria-hidden="true" tabindex="-1">#</a>Router Agents and the Blackboard</h2>
 <p>Two more classic shapes complete the picture.</p>
-<h3 id="router-agents"><a class="anchor" href="#router-agents" aria-hidden="true">#</a>Router agents</h3>
+<h3 id="router-agents"><a class="anchor" href="#router-agents" aria-hidden="true" tabindex="-1">#</a>Router agents</h3>
 <p>A <strong>router agent</strong> is an LLM whose main decision is <em>which capability to hand the task to</em>: a specialized prompt, a sub-graph, a tool set or a model. It is the agentic version of the routing workflow, and the MRKL idea applied at a higher level. Routers keep each downstream component&#39;s context small and focused, and they are how many assistants scale to hundreds of capabilities: route first, then load only the relevant tools. The failure mode is the same as for routing workflows: misroutes are silent, so measure the router as a classifier. When the &quot;capabilities&quot; become separate agents with their own loops, you have crossed into <a href="multi-agent-systems.html">multi-agent</a> territory.</p>
-<h3 id="blackboard-architecture"><a class="anchor" href="#blackboard-architecture" aria-hidden="true">#</a>Blackboard architecture</h3>
+<h3 id="blackboard-architecture"><a class="anchor" href="#blackboard-architecture" aria-hidden="true" tabindex="-1">#</a>Blackboard architecture</h3>
 <p>The <strong><dfn class="gt" tabindex="0" data-t="Blackboard architecture" data-d="A coordination pattern, dating to early AI, in which agents communicate by reading from and writing to a shared workspace rather than messaging each other directly." data-l="multi-agent-systems" data-a="blackboard-architecture">blackboard architecture</dfn></strong> comes from 1970s–80s AI (the Hearsay-II speech-understanding system). A shared data structure, the <strong>blackboard</strong>, holds the current state of the solution. Independent <strong>knowledge sources</strong> watch the blackboard and contribute when they can add something; a <strong>controller</strong> decides which contribution to apply next.</p>
 <figure class="diagram"><pre class="mermaid">flowchart TB
     BB[(&quot;Blackboard: shared, evolving solution&quot;)]
@@ -448,7 +448,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
     K3[&quot;Source: draft summary&quot;] &lt;--&gt; BB
     C{&quot;Controller: who acts next?&quot;} --&gt; BB</pre></figure>
 <p>In an LLM setting the blackboard might be a structured document or database, the knowledge sources might be prompts or tools, and the controller might be an LLM choosing which to invoke. Its appeal is <strong>opportunistic, non-linear problem solving</strong>: no fixed pipeline, contributors added or removed freely. Its cost is coordination: someone has to decide what happens next and when the solution is done. Blackboards reappear as &quot;shared state&quot; communication in multi-agent systems, and a coding agent&#39;s working directory and to-do file are, in effect, a blackboard.</p>
-<h2 id="one-agent-with-good-tools-the-default"><a class="anchor" href="#one-agent-with-good-tools-the-default" aria-hidden="true">#</a>One Agent With Good Tools: The Default</h2>
+<h2 id="one-agent-with-good-tools-the-default"><a class="anchor" href="#one-agent-with-good-tools-the-default" aria-hidden="true" tabindex="-1">#</a>One Agent With Good Tools: The Default</h2>
 <p>After touring a dozen architectures, here is the conclusion most experienced builders reach: <strong>for most tasks, start with a single capable model in a simple <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">tool-use loop</dfn></strong>, essentially ReAct with native tool calling, and invest your effort in:</p>
 <ol>
 <li><strong>Tools</strong>: few, well-named, well-documented, returning concise high-signal results with actionable errors (<a href="designing-tools.html">Designing Tools</a>).</li>
@@ -457,9 +457,9 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 <li><strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">Guardrails</dfn></strong>: budgets, permissions, approval gates.</li>
 </ol>
 <p>Why does the simple loop win so often now? Because the model has absorbed much of what elaborate scaffolds once provided. It plans when planning helps, emits parallel tool calls, reflects after an error, and reasons in its thinking blocks, <em>adaptively</em>, rather than following a rigid script that is wrong for half the tasks. The scaffolds of 2023 were partly compensating for model weaknesses; as models improve, scaffolding that constrains them can start to hurt.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Architecture is a means, not a goal</div><div class="callout-body"><p>Add structure where you have <strong>evidence</strong> that it helps: an explicit plan for long tasks that drift; a reflection step where failures recur; parallel fan-out where latency matters; a <dfn class="gt" tabindex="0" data-t="Graph-based orchestration" data-d="Defining an agent or workflow as an explicit state graph of nodes (LLM calls, tools, code) and edges (transitions), as in LangGraph, for control, persistence and resumability." data-l="agent-frameworks" data-a="graph-based-orchestration">state graph</dfn> where compliance demands guaranteed ordering. Each addition should earn its place in an evaluation (<a href="evaluating-agents.html">Evaluating Agents</a>).</p>
-</div></aside>
-<h2 id="comparing-the-architectures"><a class="anchor" href="#comparing-the-architectures" aria-hidden="true">#</a>Comparing the Architectures</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Architecture is a means, not a goal</div><div class="callout-body"><p>Add structure where you have <strong>evidence</strong> that it helps: an explicit plan for long tasks that drift; a reflection step where failures recur; parallel fan-out where latency matters; a <dfn class="gt" tabindex="0" data-t="Graph-based orchestration" data-d="Defining an agent or workflow as an explicit state graph of nodes (LLM calls, tools, code) and edges (transitions), as in LangGraph, for control, persistence and resumability." data-l="agent-frameworks" data-a="graph-based-orchestration">state graph</dfn> where compliance demands guaranteed ordering. Each addition should earn its place in an evaluation (<a href="evaluating-agents.html">Evaluating Agents</a>).</p>
+</div></div>
+<h2 id="comparing-the-architectures"><a class="anchor" href="#comparing-the-architectures" aria-hidden="true" tabindex="-1">#</a>Comparing the Architectures</h2>
 <p>Relative characteristics, assuming the same model and tools. Real numbers depend heavily on task and implementation.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -554,7 +554,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 </tr>
 </tbody></table>
 </div>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li><strong>ReAct</strong> (thought, action, observation) is the shape of the modern agent loop; most other architectures modify when the model plans, observes, reflects or explores.</li>
 <li><strong>Plan-and-Execute</strong> and <strong>ReWOO</strong> plan up front for coherence and lower cost; ReWOO trades away all mid-run adaptivity. <strong>LLMCompiler</strong> turns plans into DAGs of parallel calls.</li>
@@ -564,7 +564,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 <li><strong>Router</strong> and <strong>blackboard</strong> architectures handle many capabilities and opportunistic collaboration respectively.</li>
 <li>Default to <strong>one capable model with good tools</strong> in a simple loop; add architectural structure only where evaluations show it helps.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Trace translation.</strong> Take the ReAct trace about the Eiffel Tower and rewrite it as (a) a ReWOO plan with <code>#E</code> variables and (b) an LLMCompiler DAG. Which calls can run in parallel? What happens in each version if the first search returns nothing useful?</li>
 <li><strong>Run ReWOO.</strong> Replace the stub <code>search</code> in the ReWOO example with a real search API (or the web search <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server tool</dfn> inside a small helper call), run it on five multi-hop questions, and count LLM calls and input tokens. Compare against a plain tool-runner agent on the same questions.</li>
@@ -572,7 +572,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 <li><strong>CoALA audit.</strong> Pick an agent you use (a coding agent, a research assistant). Describe its memory types, internal and external actions, and decision procedure using CoALA. Identify one missing component and argue whether adding it would help.</li>
 <li><strong>Graph design.</strong> Design a state graph for an expense-reimbursement agent that must always check policy before approving and must get human sign-off above $500. Implement it in plain Python or LangGraph, and write a test proving no path reaches <code>approve</code> without <code>check_policy</code>.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="agent-architectures" data-total="7">
 
 <div class="quiz-q" data-correct="2">
@@ -652,7 +652,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Much elaborate scaffolding compensated for weaker models. With capable models, structure should be added only where evaluations show it helps. Simple loops still need step budgets to terminate, and a fixed workflow is often cheaper when the path is known.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</a> — the foundational paper for interleaved reasoning and tool use.</li>
 <li><a href="https://arxiv.org/abs/2205.00445" target="_blank" rel="noopener">MRKL Systems (Karpas et al., 2022)</a> — the modular, neuro-symbolic router architecture.</li>
@@ -679,7 +679,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
     <a class="pager-next" href="multi-agent-systems.html"><small>Next →</small><span>Multi-Agent Systems</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#react-reason-act">ReAct: Reason + Act</a></li>
 <li class="toc-h2"><a href="#mrkl-routing-to-expert-modules">MRKL: Routing to Expert Modules</a></li>
 <li class="toc-h2"><a href="#self-ask-decomposing-into-follow-up-questions">Self-Ask: Decomposing Into Follow-Up Questions</a></li>
@@ -706,9 +706,9 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

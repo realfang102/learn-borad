@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="cost-and-latency">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
   <header class="lesson-header">
     <h1>Cost &amp; Latency Optimization</h1>
     <p class="lead">Where an agent's money and seconds actually go, and how to cut both: token economics, prompt caching in depth, model routing, effort, batching, parallelism, streaming, fast mode, and measuring cost per completed task.</p>
@@ -144,14 +144,14 @@
   <article class="prose">
 <p>A team prototypes a support agent. In testing, a ticket costs about thirty cents and takes forty seconds. After launch, real conversations run three times longer than the test cases, the bill grows far faster than ticket volume, and users abandon chats while staring at a spinner. Nobody changed the model or the prompt. The team simply hadn&#39;t understood how an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> spends tokens and time.</p>
 <p>This lesson takes apart where an agent&#39;s dollars and seconds go, then works through the levers that cut them, starting with the free wins (caching, hygiene, batching) and moving to the trade-offs (effort, model choice). The unit throughout is the one that matters to the business: <strong>cost and time per completed task</strong>, not per request.</p>
-<h2 id="token-economics"><a class="anchor" href="#token-economics" aria-hidden="true">#</a>Token Economics</h2>
+<h2 id="token-economics"><a class="anchor" href="#token-economics" aria-hidden="true" tabindex="-1">#</a>Token Economics</h2>
 <p>You pay per <strong>token</strong>, the sub-word unit models read and write, priced per million tokens (MTok). Three facts drive nearly every cost decision:</p>
 <ol>
 <li><strong>Output costs much more than input.</strong> On current Claude models, output is 5× the input price. <strong>Thinking tokens bill as output</strong>, whether or not you display them.</li>
 <li><strong>The model is stateless.</strong> Every call re-sends everything: <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, tool definitions, and the entire conversation so far.</li>
 <li><strong>Agents make many calls.</strong> A 30-step task is 30 requests, each one carrying all the history before it.</li>
 </ol>
-<h3 id="current-pricing"><a class="anchor" href="#current-pricing" aria-hidden="true">#</a>Current pricing</h3>
+<h3 id="current-pricing"><a class="anchor" href="#current-pricing" aria-hidden="true" tabindex="-1">#</a>Current pricing</h3>
 <p>Prices as of <strong>November 2026</strong>, in USD per million tokens:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -199,11 +199,11 @@
 </tbody></table>
 </div>
 <p>Haiku 5.5 has a second rate card for prompts over 100K tokens ($0.50 / $2.50). A 1-hour cache write costs 2× the base input price.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Prices change often, sometimes several times a year, and differ by platform and region. Treat this table as an illustration of the <em>structure</em> (output &gt; input, cache reads far cheaper than input, batch at half price) and check the official pricing page before you budget.</p>
-</div></aside>
-<h3 id="why-cost-grows-quadratically"><a class="anchor" href="#why-cost-grows-quadratically" aria-hidden="true">#</a>Why cost grows quadratically</h3>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Prices change often, sometimes several times a year, and differ by platform and region. Treat this table as an illustration of the <em>structure</em> (output &gt; input, cache reads far cheaper than input, batch at half price) and check the official pricing page before you budget.</p>
+</div></div>
+<h3 id="why-cost-grows-quadratically"><a class="anchor" href="#why-cost-grows-quadratically" aria-hidden="true" tabindex="-1">#</a>Why cost grows quadratically</h3>
 <p>Turn <em>k</em> of a loop sends the base prompt plus everything the previous <em>k − 1</em> turns appended. Summed over <em>N</em> turns, total input is roughly <code>N × base + delta × N²/2</code>, so it grows with the <strong>square</strong> of the number of turns. Doubling the turn count roughly quadruples the history-driven part of the bill. That is why the prototype&#39;s test cost misled the team: their production conversations were three times longer, so they cost several times more per ticket, not three times more.</p>
-<h2 id="a-worked-cost-example"><a class="anchor" href="#a-worked-cost-example" aria-hidden="true">#</a>A Worked Cost Example</h2>
+<h2 id="a-worked-cost-example"><a class="anchor" href="#a-worked-cost-example" aria-hidden="true" tabindex="-1">#</a>A Worked Cost Example</h2>
 <p>Take a realistic research agent on Claude Opus 5.5:</p>
 <ul>
 <li>System prompt + tool definitions: <strong>8,000 tokens</strong>. Initial user message: <strong>500 tokens</strong>.</li>
@@ -255,11 +255,11 @@
 <p>Try it yourself: adjust turns, prompt size, tool-result size and model, and watch how caching changes the curve.</p>
 <div class="widget" data-widget="cost-calculator"></div>
 
-<h2 id="prompt-caching-in-depth"><a class="anchor" href="#prompt-caching-in-depth" aria-hidden="true">#</a>Prompt Caching in Depth</h2>
+<h2 id="prompt-caching-in-depth"><a class="anchor" href="#prompt-caching-in-depth" aria-hidden="true" tabindex="-1">#</a>Prompt Caching in Depth</h2>
 <p><strong>Prompt caching</strong> stores the model&#39;s processed state for a prompt prefix so later requests that start with the same bytes can skip re-processing them. It cuts both cost and <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-a="time-to-first-token">time to first token</dfn> on long prompts.</p>
-<h3 id="the-one-invariant-prefix-matching"><a class="anchor" href="#the-one-invariant-prefix-matching" aria-hidden="true">#</a>The one invariant: prefix matching</h3>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Caching is an exact <strong>prefix match</strong>. Any byte that changes invalidates the cache for everything after it. Design the prompt so stable content comes first and volatile content comes last.</p>
-</div></aside>
+<h3 id="the-one-invariant-prefix-matching"><a class="anchor" href="#the-one-invariant-prefix-matching" aria-hidden="true" tabindex="-1">#</a>The one invariant: prefix matching</h3>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Caching is an exact <strong>prefix match</strong>. Any byte that changes invalidates the cache for everything after it. Design the prompt so stable content comes first and volatile content comes last.</p>
+</div></div>
 <p>The request renders in a fixed order: <strong>tools → system → messages</strong>. A timestamp in the system prompt therefore invalidates the system prompt <em>and the entire conversation</em>, every single turn. Classify every input by how often it changes, and order the prompt the same way:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -291,9 +291,9 @@
 </tr>
 </tbody></table>
 </div>
-<h3 id="breakpoints-and-automatic-caching"><a class="anchor" href="#breakpoints-and-automatic-caching" aria-hidden="true">#</a>Breakpoints and automatic caching</h3>
+<h3 id="breakpoints-and-automatic-caching"><a class="anchor" href="#breakpoints-and-automatic-caching" aria-hidden="true" tabindex="-1">#</a>Breakpoints and automatic caching</h3>
 <p>You mark cache points with <code>cache_control</code> on a content block, with up to <strong>4 breakpoints</strong> per request. The simplest option is <strong>automatic caching</strong>, a top-level <code>cache_control</code> that places a breakpoint on the last cacheable block and moves it forward as the conversation grows. A robust setup for agent loops is one explicit breakpoint at the end of the static system prompt, which many conversations share, plus automatic caching for the growing tail:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
 
@@ -315,7 +315,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;read <span class="hljs-subst">{read}</span>/<span class="hljs-subst">{u.input_tokens + read + wrote}</span> from cache; &quot;</span>
       <span class="hljs-string">f&quot;wrote <span class="hljs-subst">{wrote}</span>; uncached <span class="hljs-subst">{u.input_tokens}</span>&quot;</span>)</code></pre></div>
 <p>Note that <code>input_tokens</code> counts only the <strong>uncached remainder</strong>. The full prompt size is the sum of all three fields. In a healthy loop, <code>cache_read_input_tokens</code> grows each turn and dominates, <code>cache_creation_input_tokens</code> is about one turn&#39;s worth of new content, and <code>input_tokens</code> stays small.</p>
-<h3 id="pricing-ttl-and-break-even"><a class="anchor" href="#pricing-ttl-and-break-even" aria-hidden="true">#</a>Pricing, TTL and break-even</h3>
+<h3 id="pricing-ttl-and-break-even"><a class="anchor" href="#pricing-ttl-and-break-even" aria-hidden="true" tabindex="-1">#</a>Pricing, TTL and break-even</h3>
 <ul>
 <li><strong>Cache reads</strong> are cheap: typically 0.1× the base input price, and lower still on the newest models (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2).</li>
 <li><strong>Cache writes</strong> cost <em>more</em> than normal input: 1.25× for the default 5-minute lifetime, 2× for the 1-hour option.</li>
@@ -323,7 +323,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <li><strong>Break-even</strong> is quick. With the 5-minute TTL, two requests already beat no caching (1.25 + 0.1 &lt; 2). Don&#39;t cache prefixes that are unique per request, because you&#39;d pay the write premium and never get a read.</li>
 <li><strong>Minimum size.</strong> Current models won&#39;t cache prefixes shorter than 512 tokens (older models need more). Below that, the marker is silently ignored.</li>
 </ul>
-<h3 id="silent-invalidators"><a class="anchor" href="#silent-invalidators" aria-hidden="true">#</a>Silent invalidators</h3>
+<h3 id="silent-invalidators"><a class="anchor" href="#silent-invalidators" aria-hidden="true" tabindex="-1">#</a>Silent invalidators</h3>
 <p>The most expensive caching bug produces no error at all: requests keep succeeding and the bill just goes up. Check prompt-building code for these:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -363,8 +363,8 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 </tbody></table>
 </div>
 <p>For mid-conversation changes, prefer append-only forms. For example, send a new instruction as a <code>{&quot;role&quot;: &quot;system&quot;, ...}</code> message appended after the history (supported on current models) rather than editing the top-level <code>system</code>. And <strong>verify after every prompt-assembly change</strong>. A standing test that asserts a second identical request shows <code>cache_read_input_tokens &gt; 0</code> catches regressions that code review misses.</p>
-<h2 id="choosing-the-right-model-and-effort"><a class="anchor" href="#choosing-the-right-model-and-effort" aria-hidden="true">#</a>Choosing the Right Model and Effort</h2>
-<h3 id="cost-per-completed-task-not-per-token"><a class="anchor" href="#cost-per-completed-task-not-per-token" aria-hidden="true">#</a>Cost per completed task, not per token</h3>
+<h2 id="choosing-the-right-model-and-effort"><a class="anchor" href="#choosing-the-right-model-and-effort" aria-hidden="true" tabindex="-1">#</a>Choosing the Right Model and Effort</h2>
+<h3 id="cost-per-completed-task-not-per-token"><a class="anchor" href="#cost-per-completed-task-not-per-token" aria-hidden="true" tabindex="-1">#</a>Cost per completed task, not per token</h3>
 <p>A cheaper model that fails still bills you for its tokens, then for the retry, then for whatever the failure costs downstream. Here is a hypothetical comparison:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -393,19 +393,19 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 </tbody></table>
 </div>
 <p>On sticker price, B is 4× cheaper. Counted honestly, it costs 2.4× more. The reverse also happens: a smaller model that clears your eval bar is pure savings. Only measurement on <em>your</em> tasks can tell you which case you&#39;re in (see <a href="evaluating-agents.html">evaluating agents</a>).</p>
-<h3 id="effort-the-first-dial-to-turn"><a class="anchor" href="#effort-the-first-dial-to-turn" aria-hidden="true">#</a>Effort: the first dial to turn</h3>
+<h3 id="effort-the-first-dial-to-turn"><a class="anchor" href="#effort-the-first-dial-to-turn" aria-hidden="true" tabindex="-1">#</a>Effort: the first dial to turn</h3>
 <p>Current Claude models think adaptively, and the <strong>effort</strong> parameter (<code>output_config={&quot;effort&quot;: &quot;low&quot; | &quot;medium&quot; | &quot;high&quot; | &quot;xhigh&quot; | &quot;max&quot;}</code>) controls how many tokens they spend on thinking, text and tool calls. Lower effort means fewer output tokens and usually fewer turns. Sweep effort on your eval <em>before</em> switching models, since it changes cost without changing the model&#39;s capability ceiling. Published sweeps tend to show flat curves on research and knowledge work, where lower effort loses little, and real trade-offs on long-horizon coding. Set effort per route and keep it fixed within a conversation. Changing it mid-conversation invalidates the cached messages.</p>
-<h3 id="routing-and-cascades"><a class="anchor" href="#routing-and-cascades" aria-hidden="true">#</a>Routing and cascades</h3>
+<h3 id="routing-and-cascades"><a class="anchor" href="#routing-and-cascades" aria-hidden="true" tabindex="-1">#</a>Routing and cascades</h3>
 <ul>
 <li><strong>Routing</strong> sends each request to the cheapest adequate model, based on a classifier (often a small, fast model) or on known task types. Password resets go to Haiku; contract analysis goes to Opus.</li>
 <li><strong>Cascades</strong> try the cheap model first, check the result with a validator (tests, schema, confidence), and escalate to a stronger model only on failure. This works well when you have a reliable, cheap check. A related trick is to run everything at low effort and re-run only the failures at high effort.</li>
 <li><strong>Cheaper models for subagents.</strong> A frontier orchestrator delegates bounded subtasks (search, extraction, summarizing a file) to cheaper subagents, which absorb the bulky context and return a short result (<a href="multi-agent-systems.html">multi-agent systems</a>). Each subagent starts a fresh, uncached prompt, so delegate only when there&#39;s real bulk.</li>
 </ul>
 <p>Don&#39;t switch models <em>inside</em> a conversation to save money. The cold cache usually costs more than the switch saves.</p>
-<h2 id="doing-less-work"><a class="anchor" href="#doing-less-work" aria-hidden="true">#</a>Doing Less Work</h2>
-<h3 id="batch-processing-50-off-for-offline-work"><a class="anchor" href="#batch-processing-50-off-for-offline-work" aria-hidden="true">#</a>Batch processing: 50% off for offline work</h3>
+<h2 id="doing-less-work"><a class="anchor" href="#doing-less-work" aria-hidden="true" tabindex="-1">#</a>Doing Less Work</h2>
+<h3 id="batch-processing-50-off-for-offline-work"><a class="anchor" href="#batch-processing-50-off-for-offline-work" aria-hidden="true" tabindex="-1">#</a>Batch processing: 50% off for offline work</h3>
 <p>The <strong><dfn class="gt" tabindex="0" data-t="Batch API" data-d="An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs." data-a="batch-api">Message Batches</dfn> API</strong> processes requests asynchronously at <strong>half price on every token</strong>, and that discount stacks with caching. Most batches finish within an hour, and the hard limit is 24 hours. Use it for evaluation runs, backfills, nightly report generation, and any job nobody is waiting on:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">batch = client.messages.batches.create(requests=[
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">batch = client.messages.batches.create(requests=[
     {<span class="hljs-string">&quot;custom_id&quot;</span>: <span class="hljs-string">f&quot;ticket-<span class="hljs-subst">{t.<span class="hljs-built_in">id</span>}</span>&quot;</span>,
      <span class="hljs-string">&quot;params&quot;</span>: {<span class="hljs-string">&quot;model&quot;</span>: <span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, <span class="hljs-string">&quot;max_tokens&quot;</span>: <span class="hljs-number">4000</span>,
                 <span class="hljs-string">&quot;system&quot;</span>: TRIAGE_PROMPT,
@@ -415,20 +415,20 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <span class="hljs-comment"># Later: poll client.messages.batches.retrieve(batch.id) until processing_status == &quot;ended&quot;,</span>
 <span class="hljs-comment"># then iterate client.messages.batches.results(batch.id).</span></code></pre></div>
 <p>Batch requests are single-shot, with no tool loop inside. You can sometimes flatten an agent task into one request by pre-fetching its inputs, but that changes how the model reasons, so re-run your evals.</p>
-<h3 id="fewer-round-trips"><a class="anchor" href="#fewer-round-trips" aria-hidden="true">#</a>Fewer round trips</h3>
+<h3 id="fewer-round-trips"><a class="anchor" href="#fewer-round-trips" aria-hidden="true" tabindex="-1">#</a>Fewer round trips</h3>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">Parallel tool calls</dfn>.</strong> When the model requests several independent tools in one turn, run them concurrently and return all results in one message. Five lookups then cost one round trip instead of five, which saves both latency and re-sent history.</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-l="designing-tools" data-a="programmatic-tool-calling">Programmatic tool calling</dfn>.</strong> Instead of one model turn per tool call, the model writes a script that runs in a code-execution sandbox and calls your tools from there. Intermediate results flow through the script, not the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and only the final, filtered output comes back to the model. For chained or data-heavy tool use (loop over 200 records, filter, aggregate), this removes many turns and keeps large payloads out of the history the loop keeps re-sending.</li>
 <li><strong>Better tools.</strong> One <code>get_order_summary</code> beats <code>get_order</code> + <code>get_items</code> + <code>get_shipping</code>. Give list tools <code>limit</code> and <code>fields</code> parameters. See <a href="designing-tools.html">designing tools</a>.</li>
 </ul>
-<h3 id="keep-context-lean"><a class="anchor" href="#keep-context-lean" aria-hidden="true">#</a>Keep context lean</h3>
+<h3 id="keep-context-lean"><a class="anchor" href="#keep-context-lean" aria-hidden="true" tabindex="-1">#</a>Keep context lean</h3>
 <ul>
 <li><strong>Trim at the source.</strong> Truncate or summarize large tool outputs before they enter history. Downscale images. Load rarely used tools on demand (<dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-l="designing-tools" data-a="tool-search">tool search</dfn>) when schemas run to many thousands of tokens.</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">Compaction</dfn> and <dfn class="gt" tabindex="0" data-t="Context editing" data-d="Selectively removing stale content from the context, such as old tool results or thinking blocks, while keeping the rest of the conversation intact." data-l="context-engineering" data-a="context-editing">context editing</dfn></strong> keep long sessions inside the window by summarizing earlier turns or clearing old tool results. Treat them as <strong>context-window tools rather than savings levers</strong>. Every rewrite of history is a cache miss from that point onward, and on current Claude models, client-side edits to earlier turns also invalidate preserved thinking. Prefer the API&#39;s server-side compaction and context editing, trigger them infrequently, and clear in large batches. See <a href="context-engineering.html">context engineering</a>.</li>
 </ul>
-<h3 id="control-output-length"><a class="anchor" href="#control-output-length" aria-hidden="true">#</a>Control output length</h3>
+<h3 id="control-output-length"><a class="anchor" href="#control-output-length" aria-hidden="true" tabindex="-1">#</a>Control output length</h3>
 <p>Output is the expensive side. <code>max_tokens</code> is a <strong>backstop, not a tuning knob</strong>: the model never sees it, and hitting it truncates a response mid-thought, which wastes the whole attempt. To get shorter output, specify the shape you want (with an example), use <a href="structured-outputs.html">structured outputs</a>, ask for no commentary between tool calls, and lower effort to reduce thinking.</p>
-<h2 id="latency-anatomy"><a class="anchor" href="#latency-anatomy" aria-hidden="true">#</a>Latency Anatomy</h2>
+<h2 id="latency-anatomy"><a class="anchor" href="#latency-anatomy" aria-hidden="true" tabindex="-1">#</a>Latency Anatomy</h2>
 <p>An agent&#39;s wall-clock time breaks down, to first order, like this:</p>
 <blockquote><p><strong>task time ≈ calls × TTFT + output tokens ÷ output speed + tool time + overhead</strong></p>
 </blockquote>
@@ -486,9 +486,9 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 </tr>
 </tbody></table>
 </div>
-<h3 id="streaming-perceived-latency"><a class="anchor" href="#streaming-perceived-latency" aria-hidden="true">#</a>Streaming: perceived latency</h3>
+<h3 id="streaming-perceived-latency"><a class="anchor" href="#streaming-perceived-latency" aria-hidden="true" tabindex="-1">#</a>Streaming: perceived latency</h3>
 <p>Streaming doesn&#39;t make the task finish sooner, but it changes how the wait <em>feels</em>. Users see text appear within seconds instead of a spinner for thirty. Measure TTFT on your own traffic:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> time
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> time
 
 start = time.perf_counter()
 first = <span class="hljs-literal">None</span>
@@ -507,15 +507,15 @@ total = time.perf_counter() - start
 <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;\nfirst text <span class="hljs-subst">{first <span class="hljs-keyword">or</span> total:<span class="hljs-number">.2</span>f}</span>s, total <span class="hljs-subst">{total:<span class="hljs-number">.2</span>f}</span>s, &quot;</span>  <span class="hljs-comment"># first is None if no text streamed</span>
       <span class="hljs-string">f&quot;<span class="hljs-subst">{final.usage.output_tokens / total:<span class="hljs-number">.0</span>f}</span> output tok/s overall&quot;</span>)</code></pre></div>
 <p>For agent UIs, stream progress as well as the final answer (&quot;Searching orders… Found 3 matches… Drafting reply…&quot;). Users tolerate long tasks much better when they can see work happening. See <a href="conversational-voice-agents.html">conversational and voice agents</a> for the extreme case, where every few hundred milliseconds counts.</p>
-<h3 id="fast-mode"><a class="anchor" href="#fast-mode" aria-hidden="true">#</a>Fast mode</h3>
+<h3 id="fast-mode"><a class="anchor" href="#fast-mode" aria-hidden="true" tabindex="-1">#</a>Fast mode</h3>
 <p><strong>Fast mode</strong> runs the <em>same</em> model with substantially faster output, at a premium. As of November 2026 it&#39;s available on Claude Opus 5.5 (and a few other models) by setting <code>speed=&quot;fast&quot;</code> on a request; on Opus 5.5 it costs 2× the standard price ($8 / $40 per MTok), and availability varies by platform. Because the model doesn&#39;t change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.</p>
-<h3 id="tail-latency"><a class="anchor" href="#tail-latency" aria-hidden="true">#</a>Tail latency</h3>
+<h3 id="tail-latency"><a class="anchor" href="#tail-latency" aria-hidden="true" tabindex="-1">#</a>Tail latency</h3>
 <p>Users feel the p95, not the mean, and agent tails are long: one slow tool, one backed-off retry, one long reasoning step. Find out why the slow tasks are slow before tuning. Remedies include tool timeouts, <strong>hedged requests</strong> (after a deadline, send a duplicate and take the first reply, which costs money and is only safe on idempotent paths), and rate-limit headroom so 429 retries don&#39;t land on interactive traffic.</p>
-<h2 id="measuring-what-matters"><a class="anchor" href="#measuring-what-matters" aria-hidden="true">#</a>Measuring What Matters</h2>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Optimize cost and time per completed task</div><div class="callout-body"><p>Every lever either preserves quality (free wins) or trades it away (effort, model choice). Measure dollars, seconds and success rate together, per task, on a fixed eval set, and make one change at a time.</p>
-</div></aside>
+<h2 id="measuring-what-matters"><a class="anchor" href="#measuring-what-matters" aria-hidden="true" tabindex="-1">#</a>Measuring What Matters</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Optimize cost and time per completed task</div><div class="callout-body"><p>Every lever either preserves quality (free wins) or trades it away (effort, model choice). Measure dollars, seconds and success rate together, per task, on a fixed eval set, and make one change at a time.</p>
+</div></div>
 <p>Instrument every model call and roll the numbers up per task:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
 
 PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, cache read, 5-min cache write</span>
     <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>: (<span class="hljs-number">4.00</span>, <span class="hljs-number">20.00</span>, <span class="hljs-number">0.20</span>, <span class="hljs-number">5.00</span>),
@@ -548,7 +548,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <li><strong>Cache hit rate</strong>, with an alert when it drops. That is your early warning for silent invalidators.</li>
 </ul>
 <p>Plot candidate configurations as success rate against <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-a="cost-per-task">cost per task</dfn> and pick from the Pareto frontier. Work the levers in order: <strong>free wins first</strong> (caching, input and output hygiene, batching for offline work), then <strong>trade-offs</strong> (effort, then model tier), each validated on the eval before you keep it.</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>Output tokens cost about 5× input, thinking bills as output, and because every call re-sends the history, uncached agent cost grows roughly with the <strong>square</strong> of the turn count.</li>
 <li>Prompt caching is the biggest single lever. Keep stable content first, hunt silent invalidators, and verify with <code>cache_read_input_tokens</code>, since <code>input_tokens</code> is only the uncached remainder.</li>
@@ -558,7 +558,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <li>Latency ≈ calls × TTFT + output tokens ÷ speed + tool time. Streaming improves felt latency, and fast mode buys output speed for money.</li>
 <li>Change one thing at a time, measure on a fixed eval, and treat compaction as a context tool rather than a cost tool.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Recompute.</strong> Redo the worked example on Sonnet 5.5 for 30 turns, with and without caching. What share of the cached cost is output?</li>
 <li><strong>Find the invalidator.</strong> A system prompt begins <code>f&quot;Today is {date.today()}. User: {user.name}.\n&quot; + INSTRUCTIONS</code>. Explain what this does to caching across turns and across users, and rewrite the prompt assembly so it caches.</li>
@@ -566,7 +566,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <li><strong>Effort sweep.</strong> On a 20-task eval, run <code>low</code>, <code>medium</code> and <code>high</code> effort. Plot success rate against cost per task and against p50 latency, and say which setting you&#39;d ship and why.</li>
 <li><strong>Design.</strong> A nightly job summarizes 50,000 support tickets and flags urgent ones, while an interactive assistant answers agents&#39; questions about those tickets. Propose a model, effort, caching and batch strategy for each path, with a rough cost estimate.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="cost-and-latency" data-total="7">
 
 <div class="quiz-q" data-correct="0">
@@ -646,7 +646,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The cold cache on a long history can cost more than the switch saves, and earlier thinking may not carry over. No surcharge or tool re-run is involved. Route at task boundaries, or delegate bounded subtasks to a cheaper subagent instead.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">Anthropic pricing</a>: current per-model rates, cache multipliers and batch pricing. Check it before budgeting.</li>
 <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching" target="_blank" rel="noopener">Prompt caching (Claude docs)</a>: breakpoints, TTLs, minimums and what invalidates the cache.</li>
@@ -672,7 +672,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
     <a class="pager-next" href="deployment.html"><small>Next →</small><span>Deploying &amp; Operating Agents</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#token-economics">Token Economics</a></li>
 <li class="toc-h3"><a href="#current-pricing">Current pricing</a></li>
 <li class="toc-h3"><a href="#why-cost-grows-quadratically">Why cost grows quadratically</a></li>
@@ -707,9 +707,9 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

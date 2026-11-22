@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="llm-fundamentals">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
   <header class="lesson-header">
     <h1>LLMs: The Engine Inside Every Agent</h1>
     <p class="lead">Tokens, next-token prediction, transformers, context windows, training, sampling, hallucination, reasoning models and model tiers: the parts of LLMs every agent builder needs to understand.</p>
@@ -145,9 +145,9 @@
 <p>Every LLM agent, whether it fixes bugs, researches markets or answers customers, has the same thing at its center: a large language model deciding what to do next. The model is the agent&#39;s judgment. Its strengths become the agent&#39;s strengths, and its quirks become the agent&#39;s failure modes.</p>
 <p>You don&#39;t need to know how to train an LLM to build great agents. You do need an accurate mental model of what it is and how it behaves. Why does the same prompt give different answers? Why does the agent confidently cite a file that doesn&#39;t exist? Why does a long task get worse after an hour? Why does a tool result in the middle of a huge context get ignored? Every one of those questions has an answer in this lesson.</p>
 <p>We&#39;ll go from tokens up to reasoning models, then look at the API you&#39;ll actually call and the properties that matter most when an LLM is in a loop.</p>
-<h2 id="tokens-how-models-see-text"><a class="anchor" href="#tokens-how-models-see-text" aria-hidden="true">#</a>Tokens: How Models See Text</h2>
+<h2 id="tokens-how-models-see-text"><a class="anchor" href="#tokens-how-models-see-text" aria-hidden="true" tabindex="-1">#</a>Tokens: How Models See Text</h2>
 <p>LLMs don&#39;t read characters or words. They read <strong>tokens</strong>: chunks of text from a fixed vocabulary, typically tens of thousands to a few hundred thousand entries. Most vocabularies are built with variants of <strong>byte-pair encoding (BPE)</strong>, which starts from bytes and repeatedly merges the most frequent adjacent pairs. Common words become single tokens, rare words split into pieces, and any byte sequence can be represented.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&quot;The agent called get_weather(city=&#x27;Oslo&#x27;)&quot;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&quot;The agent called get_weather(city=&#x27;Oslo&#x27;)&quot;
 → [&quot;The&quot;, &quot; agent&quot;, &quot; called&quot;, &quot; get&quot;, &quot;_weather&quot;, &quot;(&quot;, &quot;city&quot;, &quot;=&#x27;&quot;, &quot;Os&quot;, &quot;lo&quot;, &quot;&#x27;)&quot;]</code></pre></div>
 <p>(Exact splits depend on the tokenizer; this one is illustrative.)</p>
 <p>Why agent builders care:</p>
@@ -156,9 +156,9 @@
 <li><strong>Tokenizers differ between models</strong>, even within one vendor. Anthropic notes, for example, that newer Claude tokenizers can count the same text as noticeably more tokens than older ones. Measure with the provider&#39;s token-counting endpoint rather than guessing.</li>
 <li><strong>Tokenization explains some odd weaknesses.</strong> Counting letters in a word, reversing strings or doing digit-level arithmetic is awkward when the model sees &quot;Oslo&quot; as &quot;Os&quot; + &quot;lo&quot;. For exact work, give the agent a tool (code execution) instead of trusting mental arithmetic.</li>
 </ul>
-<h2 id="next-token-prediction"><a class="anchor" href="#next-token-prediction" aria-hidden="true">#</a>Next-Token Prediction</h2>
+<h2 id="next-token-prediction"><a class="anchor" href="#next-token-prediction" aria-hidden="true" tabindex="-1">#</a>Next-Token Prediction</h2>
 <p>At its core, an LLM is a function that takes a sequence of tokens and outputs a <strong>probability distribution over the next token</strong>. To generate text, you pick a token from that distribution, append it, and repeat. This is <strong><dfn class="gt" tabindex="0" data-t="Autoregressive generation" data-d="Producing output one token at a time, with each new token conditioned on all previous tokens. This is why output tokens are slower and pricier than input tokens." data-a="autoregressive-generation">autoregressive generation</dfn></strong>.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Input:   &quot;The capital of France is&quot;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Input:   &quot;The capital of France is&quot;
 Model →  &quot; Paris&quot; 0.92 | &quot; a&quot; 0.03 | &quot; the&quot; 0.02 | ...
 Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <p>That this simple objective produces something that can write code, plan multi-step tasks and call tools sounds implausible until you consider what predicting the next token <em>well</em> across trillions of tokens of text requires. To predict the next line of a proof, a function body or a doctor&#39;s note, a model has to build internal representations of logic, syntax and the world. Prediction at scale forces a great deal of compression and abstraction.</p>
@@ -167,7 +167,7 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>A tool call is just text the model predicts.</strong> When an agent &quot;decides&quot; to call <code>run_tests</code>, the model is generating tokens that form a structured tool-use block. The API parses them. The model never executes anything itself (see <a href="tool-use.html">tool use</a>).</li>
 <li><strong>The model produces output one token at a time with no backtracking.</strong> It can&#39;t edit what it already wrote in this turn. That&#39;s one reason thinking before answering, and loops that let the model see results and revise, help so much.</li>
 </ol>
-<h2 id="transformers-and-attention-intuitively"><a class="anchor" href="#transformers-and-attention-intuitively" aria-hidden="true">#</a>Transformers and Attention, Intuitively</h2>
+<h2 id="transformers-and-attention-intuitively"><a class="anchor" href="#transformers-and-attention-intuitively" aria-hidden="true" tabindex="-1">#</a>Transformers and Attention, Intuitively</h2>
 <p>Modern LLMs are <strong>transformers</strong>, the architecture introduced in <em>Attention Is All You Need</em> (Vaswani et al., 2017). The key mechanism is <strong>self-attention</strong>.</p>
 <p>Intuition: as the model processes each token, it asks, &quot;Which earlier tokens are relevant to understanding this one?&quot; In &quot;The agent read the file, then <em>it</em> summarized <em>it</em>&quot;, attention lets the first &quot;it&quot; connect to &quot;the agent&quot; and the second to &quot;the file.&quot; Each token&#39;s representation is updated by mixing in information from the tokens it attends to, weighted by learned relevance scores. Stack dozens of these layers, each with many attention &quot;heads&quot; that specialize in different relationships, and you get rich contextual understanding.</p>
 <p>What practitioners should take from this:</p>
@@ -176,7 +176,7 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>Reachable isn&#39;t the same as reliably used.</strong> Studies such as <em><dfn class="gt" tabindex="0" data-t="Lost in the middle" data-d="The finding (Liu et al., 2023) that models use information at the beginning and end of a long context better than information in the middle." data-l="context-engineering" data-a="lost-in-the-middle">Lost in the Middle</dfn></em> (Liu et al., 2023) found that models use information at the start and end of long contexts more reliably than information buried in the middle. Models have improved a lot since, but the advice stands: put critical instructions where they&#39;ll be seen and keep contexts lean.</li>
 <li><strong>Compute grows with context length.</strong> Longer inputs cost more and take longer to process, which is why <a href="context-engineering.html">context engineering</a> is a core agent skill.</li>
 </ul>
-<h2 id="the-context-window"><a class="anchor" href="#the-context-window" aria-hidden="true">#</a>The Context Window</h2>
+<h2 id="the-context-window"><a class="anchor" href="#the-context-window" aria-hidden="true" tabindex="-1">#</a>The Context Window</h2>
 <p>The <strong><dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-a="context-window">context window</dfn></strong> is the maximum number of tokens the model can consider at once: <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, tool definitions, the full conversation, tool results, and the response it&#39;s generating. As of 2026, frontier models offer windows from a few hundred thousand up to about a million tokens (current Claude models have 1M-token windows), with separate limits on output length.</p>
 <p>For agents, the context window is the <strong>entire <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn></strong>. The model has no memory between API calls. Each call, the harness sends the whole transcript again. So:</p>
 <ul>
@@ -184,9 +184,9 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li>When the transcript approaches the limit, something has to give: summarizing (<dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>), clearing old tool results, or offloading state to files and memory stores (see <a href="memory.html">memory</a>).</li>
 <li>More context isn&#39;t free even when it fits. Irrelevant material dilutes attention, a problem practitioners call <strong><dfn class="gt" tabindex="0" data-t="Context rot" data-d="The degradation of a model's recall and reasoning as its context grows longer, even well within the advertised window limit." data-l="context-engineering" data-a="context-rot">context rot</dfn></strong>.</li>
 </ul>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>An LLM is <strong>stateless</strong>. Everything an agent &quot;knows&quot; about its current task is whatever the harness put in the context window for this call. Agent engineering is largely the art of putting the right tokens in that window at each step.</p>
-</div></aside>
-<h2 id="from-text-predictor-to-assistant-how-llms-are-trained"><a class="anchor" href="#from-text-predictor-to-assistant-how-llms-are-trained" aria-hidden="true">#</a>From Text Predictor to Assistant: How LLMs Are Trained</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>An LLM is <strong>stateless</strong>. Everything an agent &quot;knows&quot; about its current task is whatever the harness put in the context window for this call. Agent engineering is largely the art of putting the right tokens in that window at each step.</p>
+</div></div>
+<h2 id="from-text-predictor-to-assistant-how-llms-are-trained"><a class="anchor" href="#from-text-predictor-to-assistant-how-llms-are-trained" aria-hidden="true" tabindex="-1">#</a>From Text Predictor to Assistant: How LLMs Are Trained</h2>
 <p>A raw pretrained model is an excellent autocomplete, not an assistant. Ask it a question and it might continue with five more questions. Assistant behavior comes from several training stages.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     A[&quot;Pretraining (trillions of tokens)&quot;] --&gt; B[&quot;Instruction tuning (SFT)&quot;]
@@ -200,7 +200,7 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>RL on verifiable tasks.</strong> Increasingly important since 2024: models are trained with RL on problems whose outcomes can be checked automatically, such as math answers, passing unit tests and completed agentic tasks in sandboxes. This is where much of the improvement in reasoning, tool use and long-horizon agent behavior now comes from (see <a href="training-agents.html">training agents</a>).</li>
 </ol>
 <p>The order matters for intuition. Knowledge comes mostly from pretraining. Behavior (following instructions, using tools well, knowing when to stop or ask) comes mostly from <dfn class="gt" tabindex="0" data-t="Post-training" data-d="Everything done to a pretrained model to make it useful and safe: instruction tuning, preference optimization, reinforcement learning, and tool-use training." data-l="training-agents" data-a="post-training">post-training</dfn>. When a model is good at agentic work, it&#39;s because it was explicitly trained on agentic work.</p>
-<h2 id="sampling-and-non-determinism"><a class="anchor" href="#sampling-and-non-determinism" aria-hidden="true">#</a>Sampling and Non-Determinism</h2>
+<h2 id="sampling-and-non-determinism"><a class="anchor" href="#sampling-and-non-determinism" aria-hidden="true" tabindex="-1">#</a>Sampling and Non-Determinism</h2>
 <p>At each step the model outputs a probability distribution, and something has to choose a token from it. <strong>Sampling</strong> picks randomly in proportion to the probabilities, usually reshaped by settings such as <strong>temperature</strong> (sharpen or flatten the distribution) and <strong>top-p</strong> (only consider the most likely tokens). Always picking the single most likely token is <strong>greedy decoding</strong>.</p>
 <p>Consequences for agents:</p>
 <ul>
@@ -208,9 +208,9 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>Even &quot;deterministic&quot; settings aren&#39;t perfectly deterministic</strong> in practice. Floating-point arithmetic on parallel hardware and request batching can change results slightly.</li>
 <li><strong>Many current models no longer expose these knobs.</strong> Current Claude models reject <code>temperature</code>, <code>top_p</code> and <code>top_k</code>. Sampling is tuned by the provider, and you steer behavior through instructions, <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, typically via schema-constrained decoding, so responses can be parsed reliably by code. Older JSON mode guarantees only syntactically valid JSON, not the right shape." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn> and effort settings instead.</li>
 </ul>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Treat agent behavior as a <strong>distribution</strong>, not a single outcome. Evaluate by running each task several times and measuring success rates (see <a href="evaluating-agents.html">evaluating agents</a>). One good demo run proves very little.</p>
-</div></aside>
-<h2 id="hallucination"><a class="anchor" href="#hallucination" aria-hidden="true">#</a>Hallucination</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Treat agent behavior as a <strong>distribution</strong>, not a single outcome. Evaluate by running each task several times and measuring success rates (see <a href="evaluating-agents.html">evaluating agents</a>). One good demo run proves very little.</p>
+</div></div>
+<h2 id="hallucination"><a class="anchor" href="#hallucination" aria-hidden="true" tabindex="-1">#</a>Hallucination</h2>
 <p>A <strong><dfn class="gt" tabindex="0" data-t="Hallucination" data-d="Model output that is fluent and confident but factually wrong or unsupported by the provided sources, such as an invented citation or API." data-a="hallucination">hallucination</dfn></strong> is fluent, confident output that&#39;s false: a nonexistent API method, an invented citation, a fabricated file path. It follows from the training objective. The model learned to produce <em>plausible</em> continuations, and plausible isn&#39;t the same as true. When the model lacks the information but the context strongly invites an answer, it may produce one anyway.</p>
 <p>Post-training has made models much better at saying &quot;I don&#39;t know,&quot; but hallucination isn&#39;t solved. In agents it shows up in particular ways:</p>
 <ul>
@@ -219,7 +219,7 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li>Assuming facts about the environment instead of observing them.</li>
 </ul>
 <p>The most powerful mitigation is <strong>grounding</strong>: make the agent look things up instead of recalling them, and verify instead of assuming. Tools that read files, search docs and run tests turn guesses into observations, which is a big part of why tool use emerged at all. Add instructions like &quot;never state that tests pass unless you ran them in this session,&quot; and use harness-side checks for critical claims (see <a href="reliability.html">reliability</a>).</p>
-<h2 id="in-context-learning"><a class="anchor" href="#in-context-learning" aria-hidden="true">#</a>In-Context Learning</h2>
+<h2 id="in-context-learning"><a class="anchor" href="#in-context-learning" aria-hidden="true" tabindex="-1">#</a>In-Context Learning</h2>
 <p><strong><dfn class="gt" tabindex="0" data-t="In-context learning" data-d="A model's ability to pick up a task from instructions and examples in its prompt, without any weight updates (Brown et al., 2020)." data-a="in-context-learning">In-context learning</dfn></strong> is a model&#39;s ability to pick up a task from instructions and examples in the prompt, with no weight updates. GPT-3 (2020) made it famous with &quot;few-shot&quot; prompting. It&#39;s what makes agents possible without per-task training:</p>
 <ul>
 <li>The <strong>system prompt</strong> defines the role, rules and workflow.</li>
@@ -228,16 +228,16 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>Examples</strong> demonstrate formats and edge cases.</li>
 </ul>
 <p>In-context learning is powerful but limited: it lasts only as long as the context does, it competes with the model&#39;s trained habits, and long, contradictory prompts dilute it. See <a href="prompting-for-agents.html">prompting for agents</a> for how to write instructions that hold up over many steps.</p>
-<h2 id="reasoning-models-and-test-time-compute"><a class="anchor" href="#reasoning-models-and-test-time-compute" aria-hidden="true">#</a>Reasoning Models and Test-Time Compute</h2>
+<h2 id="reasoning-models-and-test-time-compute"><a class="anchor" href="#reasoning-models-and-test-time-compute" aria-hidden="true" tabindex="-1">#</a>Reasoning Models and Test-Time Compute</h2>
 <p><dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer. Wei et al. (2022) elicited it with few-shot worked examples, markedly improving multi-step reasoning; the zero-shot &quot;Let's think step by step&quot; variant is Kojima et al. (2022)." data-l="reasoning-and-planning" data-a="chain-of-thought">Chain-of-thought</dfn> prompting (2022) showed that letting a model &quot;think out loud&quot; improves multi-step problem solving. <strong>Reasoning models</strong>, starting with OpenAI&#39;s o1 (September 2024) and followed by DeepSeek-R1 (January 2025), Claude&#39;s <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">extended thinking</dfn> and others, are <em>trained</em> with RL to produce long internal reasoning before answering: exploring approaches, checking work, and backtracking when something doesn&#39;t add up.</p>
 <p>This adds a new dimension: <strong><dfn class="gt" tabindex="0" data-t="Test-time compute" data-d="Extra computation spent while answering, such as longer reasoning, sampling many candidates or search, to improve accuracy without changing model weights." data-l="reasoning-and-planning" data-a="test-time-compute">test-time compute</dfn></strong>. Beyond making models bigger, you can make them think longer on a hard problem. More thinking tokens generally means better answers on hard tasks, at the cost of latency and money.</p>
 <p>For agents, the most important variant is <strong><dfn class="gt" tabindex="0" data-t="Interleaved thinking" data-d="Reasoning that happens between tool calls, not only before the first one, so the model can reflect on each tool result before choosing its next action." data-l="reasoning-and-planning" data-a="interleaved-thinking">interleaved thinking</dfn></strong>: the model reasons <em>between</em> tool calls (&quot;the test failed with a KeyError, so the config isn&#39;t loaded; check the loader next&quot;) rather than only at the start. That&#39;s where much of the gain in agent reliability comes from (see <a href="the-agent-loop.html">the agent loop</a> and <a href="reasoning-and-planning.html">reasoning and planning</a>).</p>
 <p>On current Claude models, thinking is <strong>adaptive</strong>: the model decides how much to think at each step, and you control the overall depth with an <strong>effort</strong> setting (<code>low</code> through <code>max</code>). Lower effort means faster, cheaper, terser runs. Higher effort means more thorough reasoning for hard problems.</p>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Thinking isn&#39;t free and isn&#39;t always better. For simple lookups and classification, extra reasoning mostly adds latency. Reserve high effort for genuinely hard steps, such as debugging, planning and ambiguous judgment calls, and measure the difference on your own tasks.</p>
-</div></aside>
-<h2 id="multimodality"><a class="anchor" href="#multimodality" aria-hidden="true">#</a>Multimodality</h2>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Thinking isn&#39;t free and isn&#39;t always better. For simple lookups and classification, extra reasoning mostly adds latency. Reserve high effort for genuinely hard steps, such as debugging, planning and ambiguous judgment calls, and measure the difference on your own tasks.</p>
+</div></div>
+<h2 id="multimodality"><a class="anchor" href="#multimodality" aria-hidden="true" tabindex="-1">#</a>Multimodality</h2>
 <p>Modern frontier models are <strong>multimodal</strong>: they accept images (and on some platforms audio or video) alongside text. For agents, vision unlocks reading screenshots, charts, scanned documents and UI mockups, and it&#39;s the basis of <a href="computer-use-agents.html">computer-use agents</a> that operate software by looking at the screen. Images are converted into tokens too, so they consume context and cost like everything else.</p>
-<h2 id="the-messages-api-roles-and-content-blocks"><a class="anchor" href="#the-messages-api-roles-and-content-blocks" aria-hidden="true">#</a>The Messages API: Roles and Content Blocks</h2>
+<h2 id="the-messages-api-roles-and-content-blocks"><a class="anchor" href="#the-messages-api-roles-and-content-blocks" aria-hidden="true" tabindex="-1">#</a>The Messages API: Roles and Content Blocks</h2>
 <p>Chat models are trained on conversations with <strong>roles</strong>. In the Anthropic Messages API:</p>
 <ul>
 <li><strong><code>system</code></strong>: top-level instructions (role, rules, context), passed separately from the conversation.</li>
@@ -245,7 +245,7 @@ Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
 <li><strong>Content blocks</strong>: each message holds typed blocks: <code>text</code>, <code>image</code>, <code>tool_use</code> (the model requesting a tool), <code>tool_result</code> (your harness returning the output), and <code>thinking</code>.</li>
 </ul>
 <p>Here is a minimal call with the Anthropic Python SDK (<code>pip install anthropic</code>):</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY from the environment</span>
 
@@ -275,7 +275,7 @@ response = client.messages.create(
 <li><strong>Content is a list of blocks.</strong> Always check <code>block.type</code>. A single response can contain thinking, text and several tool calls.</li>
 </ul>
 <p>The <a href="the-agent-loop.html">agent loop</a> lesson builds directly on this call.</p>
-<h2 id="model-tiers-cost-and-latency"><a class="anchor" href="#model-tiers-cost-and-latency" aria-hidden="true">#</a>Model Tiers, Cost and Latency</h2>
+<h2 id="model-tiers-cost-and-latency"><a class="anchor" href="#model-tiers-cost-and-latency" aria-hidden="true" tabindex="-1">#</a>Model Tiers, Cost and Latency</h2>
 <p>Providers offer <strong>tiers</strong> that trade capability against cost and speed:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -315,7 +315,7 @@ response = client.messages.create(
 <p><strong>Pricing is per token</strong>, with output tokens costing several times more than input tokens. As an illustration, Anthropic&#39;s list prices as of late 2026 are $4 per million input tokens and $20 per million output tokens for Claude Opus 5.5, and $0.10 / $0.50 for Claude Haiku 5.5 on prompts up to 100K tokens. Check the pricing page for current numbers. <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">Prompt caching</dfn></strong> makes repeated prefixes much cheaper, which matters enormously for agents that resend a growing transcript every step (see <a href="cost-and-latency.html">cost and latency</a>).</p>
 <p><strong>Latency</strong> has two parts: <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-l="cost-and-latency" data-a="time-to-first-token">time to first token</dfn> (grows with input length) and generation speed in tokens per second (output and thinking). An agent&#39;s wall-clock time is roughly the number of steps × (model latency + tool latency), which is why a 30-step agent can take minutes even when each call feels quick.</p>
 <p><strong>Open-weight models</strong> have improved rapidly and are a real option, especially for narrower agents, but as of 2026 the strongest long-horizon agentic performance generally still comes from frontier hosted models. Benchmark on your tasks, not leaderboards.</p>
-<h2 id="strengths-and-weaknesses-that-matter-for-agents"><a class="anchor" href="#strengths-and-weaknesses-that-matter-for-agents" aria-hidden="true">#</a>Strengths and Weaknesses That Matter for Agents</h2>
+<h2 id="strengths-and-weaknesses-that-matter-for-agents"><a class="anchor" href="#strengths-and-weaknesses-that-matter-for-agents" aria-hidden="true" tabindex="-1">#</a>Strengths and Weaknesses That Matter for Agents</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -354,11 +354,11 @@ response = client.messages.create(
 </tbody></table>
 </div>
 <p>The last weakness deserves emphasis. An LLM can&#39;t reliably tell instructions from its developer apart from instructions embedded in a web page or email it reads. That&#39;s <strong>prompt injection</strong>, the central security problem for agents (see <a href="agent-security.html">agent security</a>).</p>
-<h3 id="why-tool-use-emerged"><a class="anchor" href="#why-tool-use-emerged" aria-hidden="true">#</a>Why tool use emerged</h3>
+<h3 id="why-tool-use-emerged"><a class="anchor" href="#why-tool-use-emerged" aria-hidden="true" tabindex="-1">#</a>Why tool use emerged</h3>
 <p>Look at the weaknesses column again: stale knowledge, hallucination, poor arithmetic, no persistent memory, no ability to affect the world. Nearly every one is fixed by the same move. <strong>Let the model call tools</strong> (search for fresh facts, run code for exact computation, read files to ground claims, write to memory for persistence, call APIs to act) and <strong>feed the results back into its context</strong>. LLMs are strong at deciding <em>what</em> to do and weak at doing some things <em>precisely</em>. Tools fill that gap, and a loop lets the model react to what the tools return. That&#39;s the agent.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Why LLMs became agents</div><div class="callout-body"><p>Tool use isn&#39;t a bolt-on feature. It&#39;s the natural complement to how LLMs work: the model supplies judgment, tools supply facts, precision and action, and the loop connects them.</p>
-</div></aside>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Why LLMs became agents</div><div class="callout-body"><p>Tool use isn&#39;t a bolt-on feature. It&#39;s the natural complement to how LLMs work: the model supplies judgment, tools supply facts, precision and action, and the loop connects them.</p>
+</div></div>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>LLMs process <strong>tokens</strong> and generate by <strong>predicting the next token</strong>, one at a time. Tool calls are structured text the model predicts and the harness executes.</li>
 <li><strong>Transformers</strong> use <strong>attention</strong> to relate every token to earlier ones, but very long contexts still dilute focus, so keep contexts lean.</li>
@@ -369,7 +369,7 @@ response = client.messages.create(
 <li><strong>Reasoning models</strong> trade test-time compute for accuracy. Interleaved thinking between tool calls is especially valuable for agents.</li>
 <li>Choose <strong>model tiers</strong> by task difficulty, volume and latency needs, and remember that cost scales with tokens across <em>every</em> step of the loop.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Count tokens.</strong> Use your provider&#39;s token-counting endpoint (or the <code>usage</code> field) to compare the token counts of the same content as English prose, minified JSON, pretty-printed JSON, and Python code. What does this suggest about how to format tool results?</li>
 <li><strong>Observe non-determinism.</strong> Send the same open-ended prompt (&quot;Suggest a name for a CLI tool that tidies Git branches&quot;) five times. Record how much the answers vary. Then make the request more specific and repeat. What changed?</li>
@@ -377,7 +377,7 @@ response = client.messages.create(
 <li><strong>Effort experiment.</strong> Using the code above, ask a tricky multi-step logic puzzle at <code>effort</code> <code>&quot;low&quot;</code> and <code>&quot;high&quot;</code>. Compare correctness, <code>usage.output_tokens</code> and wall-clock time. When would you pay for the higher setting?</li>
 <li><strong>Stretch: cost model.</strong> An agent makes 25 calls per task. The transcript starts at 6,000 tokens and grows by 2,500 tokens per step, and each step outputs 400 tokens. Using the Opus 5.5 list prices above and assuming no caching, estimate the <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">cost per task</dfn>. Then estimate how prompt caching would change the input cost, and explain why.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="llm-fundamentals" data-total="7">
 
 <div class="quiz-q" data-correct="1">
@@ -457,7 +457,7 @@ response = client.messages.create(
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMs bring judgment and language; their weaknesses (stale knowledge, hallucination, arithmetic, statelessness, no actuators) are covered by tools whose results flow back into context. The model still has to decide which tool to call and interpret the result, so tools don&#39;t replace its reasoning.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need (Vaswani et al., 2017)</a>: the transformer paper.</li>
 <li><a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener">Language Models are Few-Shot Learners (Brown et al., 2020)</a>: GPT-3 and the discovery of in-context learning at scale.</li>
@@ -484,7 +484,7 @@ response = client.messages.create(
     <a class="pager-next" href="the-agent-loop.html"><small>Next →</small><span>The Agent Loop</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#tokens-how-models-see-text">Tokens: How Models See Text</a></li>
 <li class="toc-h2"><a href="#next-token-prediction">Next-Token Prediction</a></li>
 <li class="toc-h2"><a href="#transformers-and-attention-intuitively">Transformers and Attention, Intuitively</a></li>
@@ -510,9 +510,9 @@ response = client.messages.create(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

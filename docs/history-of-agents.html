@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="history-of-agents">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
   <header class="lesson-header">
     <h1>A Brief History of AI Agents</h1>
     <p class="lead">Seventy-five years of agents, from cybernetics and Shakey the robot through BDI, reinforcement learning and ReAct to Claude Code, MCP and A2A, and what each era teaches today's builders.</p>
@@ -144,7 +144,7 @@
   <article class="prose">
 <p>Today&#39;s AI agents can look as if they appeared from nowhere in 2023. They didn&#39;t. Almost every idea in a modern agent, including planning before acting, reacting quickly to surprises, keeping beliefs and goals separate, splitting work across specialized agents, and learning from reward, was invented, tried and argued over decades ago. What changed is the engine: large language models finally gave these old designs a general-purpose reasoner that works in any domain you can describe in words.</p>
 <p>This lesson is a guided tour of roughly 75 years of agents. It isn&#39;t nostalgia. Each era solved a problem that modern builders still face, and each failed in a way that&#39;s worth knowing before you repeat it. We&#39;ll finish by mapping classical ideas directly onto the parts of a modern LLM agent.</p>
-<h2 id="the-big-picture"><a class="anchor" href="#the-big-picture" aria-hidden="true">#</a>The Big Picture</h2>
+<h2 id="the-big-picture"><a class="anchor" href="#the-big-picture" aria-hidden="true" tabindex="-1">#</a>The Big Picture</h2>
 <figure class="diagram"><pre class="mermaid">timeline
     title From cybernetics to LLM agents
     section Foundations
@@ -171,23 +171,23 @@
         2023 : Function calling, AutoGPT, SWE-bench
         2024 : Computer use, o1, MCP
         2025 : Claude Code, Operator, A2A</pre></figure>
-<h2 id="foundations-cybernetics-and-early-ai-1940s1960s"><a class="anchor" href="#foundations-cybernetics-and-early-ai-1940s1960s" aria-hidden="true">#</a>Foundations: Cybernetics and Early AI (1940s–1960s)</h2>
-<h3 id="cybernetics"><a class="anchor" href="#cybernetics" aria-hidden="true">#</a>Cybernetics</h3>
+<h2 id="foundations-cybernetics-and-early-ai-1940s1960s"><a class="anchor" href="#foundations-cybernetics-and-early-ai-1940s1960s" aria-hidden="true" tabindex="-1">#</a>Foundations: Cybernetics and Early AI (1940s–1960s)</h2>
+<h3 id="cybernetics"><a class="anchor" href="#cybernetics" aria-hidden="true" tabindex="-1">#</a>Cybernetics</h3>
 <p>The agent idea predates the term &quot;artificial intelligence.&quot; In 1948 Norbert Wiener published <em>Cybernetics: Or Control and Communication in the Animal and the Machine</em>. Its central concept was the <strong>feedback loop</strong>: a system measures the gap between its current state and a goal, acts to shrink the gap, measures again and repeats. A thermostat, an anti-aircraft predictor and a person reaching for a cup all fit.</p>
 <p>Around the same time, W. Grey Walter built small electromechanical &quot;tortoises&quot; that wandered toward light and found their way back to a charging station. They were strikingly lifelike for machines with a couple of vacuum-tube &quot;neurons.&quot;</p>
 <p><strong>Lesson for today:</strong> the <a href="the-agent-loop.html">agent loop</a> is a feedback loop. An agent that acts without checking the result of its action, by running the tests or re-reading the page, has thrown away cybernetics&#39; most important idea.</p>
-<h3 id="logic-theorist-and-the-general-problem-solver"><a class="anchor" href="#logic-theorist-and-the-general-problem-solver" aria-hidden="true">#</a>Logic Theorist and the General Problem Solver</h3>
+<h3 id="logic-theorist-and-the-general-problem-solver"><a class="anchor" href="#logic-theorist-and-the-general-problem-solver" aria-hidden="true" tabindex="-1">#</a>Logic Theorist and the General Problem Solver</h3>
 <p>At the 1956 Dartmouth workshop, the event that named the field, Allen Newell, Herbert Simon and Cliff Shaw presented the <strong>Logic Theorist</strong>, a program that proved theorems from Whitehead and Russell&#39;s <em>Principia Mathematica</em> by searching through possible inference steps. Their follow-up, the <strong>General Problem Solver (GPS)</strong> (1957–59), introduced <strong>means-ends analysis</strong>: compare the current state to the goal, find the biggest difference, and pick an operator that reduces it, recursing into subgoals if that operator can&#39;t be applied yet.</p>
 <p>GPS was &quot;general&quot; only in principle. Every problem had to be hand-encoded as states and operators, and the search exploded on anything realistic. Still, it established that intelligent behavior could be framed as <strong>search through a problem space</strong>, an idea that runs straight through to modern planning and tree-search methods like those in <a href="reasoning-and-planning.html">reasoning and planning</a>.</p>
-<h2 id="symbolic-agents-in-small-worlds-1960s1980s"><a class="anchor" href="#symbolic-agents-in-small-worlds-1960s1980s" aria-hidden="true">#</a>Symbolic Agents in Small Worlds (1960s–1980s)</h2>
-<h3 id="shrdlu"><a class="anchor" href="#shrdlu" aria-hidden="true">#</a>SHRDLU</h3>
+<h2 id="symbolic-agents-in-small-worlds-1960s1980s"><a class="anchor" href="#symbolic-agents-in-small-worlds-1960s1980s" aria-hidden="true" tabindex="-1">#</a>Symbolic Agents in Small Worlds (1960s–1980s)</h2>
+<h3 id="shrdlu"><a class="anchor" href="#shrdlu" aria-hidden="true" tabindex="-1">#</a>SHRDLU</h3>
 <p>Terry Winograd&#39;s <strong>SHRDLU</strong> (MIT, around 1968–70) let a user converse in English with a program that manipulated a simulated &quot;blocks world&quot;:</p>
-<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-user">User:</span>    Pick up a big red block.
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text"><span class="tr-user">User:</span>    Pick up a big red block.
 SHRDLU:  OK.
 <span class="tr-user">User:</span>    Find a block which is taller than the one you are holding and put it into the box.
 SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the one I am holding. OK.</code></pre></div>
 <p>It parsed language, kept track of the world state, planned actions and explained its reasoning. It was dazzling, and it didn&#39;t scale. Every word, object and rule was hand-coded for a tiny world. Outside the blocks it understood nothing.</p>
-<h3 id="shakey-and-strips"><a class="anchor" href="#shakey-and-strips" aria-hidden="true">#</a>Shakey and STRIPS</h3>
+<h3 id="shakey-and-strips"><a class="anchor" href="#shakey-and-strips" aria-hidden="true" tabindex="-1">#</a>Shakey and STRIPS</h3>
 <p><strong>Shakey</strong> (SRI International, 1966–72) was the first mobile robot that reasoned about its own actions. It had a camera, a range finder and bump sensors, and it took commands like &quot;push the block off the platform.&quot; Shakey&#39;s project produced three ideas still in use:</p>
 <ul>
 <li><strong>A* search</strong> (1968), the pathfinding algorithm used in games and route planners to this day.</li>
@@ -196,17 +196,17 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 </ul>
 <p>Shakey also exposed the weakness of pure deliberation. Planning took so long that the world could change before the robot moved, and a single wrong belief could derail a whole plan.</p>
 <p><strong>Lesson for today:</strong> STRIPS-style thinking (&quot;what must be true before I call this tool, and what will be true after?&quot;) is exactly how you should write <a href="designing-tools.html">tool descriptions</a>. And Shakey&#39;s slowness is the ancestor of a modern question: how much should an agent plan up front versus re-plan after each observation?</p>
-<h3 id="expert-systems"><a class="anchor" href="#expert-systems" aria-hidden="true">#</a>Expert systems</h3>
+<h3 id="expert-systems"><a class="anchor" href="#expert-systems" aria-hidden="true" tabindex="-1">#</a>Expert systems</h3>
 <p>The 1970s and 80s brought <strong>expert systems</strong>: programs that encoded specialist knowledge as hundreds or thousands of if-then rules. <strong>DENDRAL</strong> inferred molecular structures, <strong>MYCIN</strong> recommended antibiotics for serious bacterial infections, and <strong>XCON (R1)</strong> configured computer orders at Digital Equipment Corporation and was a genuine commercial success.</p>
 <p>Expert systems were mostly advisors, not agents, but their story matters. They hit the <strong>knowledge acquisition bottleneck</strong>: getting experts&#39; knowledge into rules was slow and expensive, rules interacted in unexpected ways, and systems were <strong>brittle</strong>, failing badly just outside their designed scope. Inflated expectations and disappointing results contributed to the late-1980s collapse in funding known as an <strong>AI winter</strong>.</p>
 <p><strong>Lesson for today:</strong> LLMs sidestep the knowledge bottleneck by learning from text at scale. But brittleness at the edge of competence hasn&#39;t gone away; it just moved. And the hype-then-disappointment cycle is worth remembering whenever agent marketing gets ahead of results.</p>
-<h2 id="new-paradigms-reactive-bdi-and-multi-agent-1980s1990s"><a class="anchor" href="#new-paradigms-reactive-bdi-and-multi-agent-1980s1990s" aria-hidden="true">#</a>New Paradigms: Reactive, BDI and Multi-Agent (1980s–1990s)</h2>
-<h3 id="brooks-and-the-reactive-revolution"><a class="anchor" href="#brooks-and-the-reactive-revolution" aria-hidden="true">#</a>Brooks and the reactive revolution</h3>
+<h2 id="new-paradigms-reactive-bdi-and-multi-agent-1980s1990s"><a class="anchor" href="#new-paradigms-reactive-bdi-and-multi-agent-1980s1990s" aria-hidden="true" tabindex="-1">#</a>New Paradigms: Reactive, BDI and Multi-Agent (1980s–1990s)</h2>
+<h3 id="brooks-and-the-reactive-revolution"><a class="anchor" href="#brooks-and-the-reactive-revolution" aria-hidden="true" tabindex="-1">#</a>Brooks and the reactive revolution</h3>
 <p>Rodney Brooks at MIT argued that the sense–model–plan–act pipeline was backwards. His <strong>subsumption architecture</strong> (1986) built robots from layers of simple behaviors (&quot;avoid obstacles&quot;, &quot;wander&quot;, &quot;explore&quot;), with higher layers able to suppress lower ones, and <strong>no central <dfn class="gt" tabindex="0" data-t="World model" data-d="An internal model of how an environment works, used to predict the consequences of actions and plan ahead." data-l="future-of-agents" data-a="world-model">world model</dfn> at all</strong>. In papers like &quot;Intelligence without representation&quot; (1991) and &quot;Elephants Don&#39;t Play Chess&quot; (1990) he argued that the world is its own best model: sense it constantly instead of reasoning about a stale copy.</p>
 <p>Reactive robots were fast and robust in messy physical environments. Brooks&#39; approach later reached millions of homes through iRobot&#39;s Roomba. But purely reactive agents struggle with anything that needs long-horizon reasoning.</p>
 <p>The field&#39;s eventual answer was <strong>hybrid architectures</strong>: a fast reactive layer for immediate responses and a slower deliberative layer for planning.</p>
 <p><strong>Lesson for today:</strong> modern agents echo this split. A model reasons deliberately, but the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> keeps it reactive by putting fresh observations in front of it at every step. Re-reading a file before editing it is Brooks&#39; &quot;use the world as its own model.&quot;</p>
-<h3 id="beliefs-desires-intentions"><a class="anchor" href="#beliefs-desires-intentions" aria-hidden="true">#</a>Beliefs, Desires, Intentions</h3>
+<h3 id="beliefs-desires-intentions"><a class="anchor" href="#beliefs-desires-intentions" aria-hidden="true" tabindex="-1">#</a>Beliefs, Desires, Intentions</h3>
 <p>Philosopher Michael Bratman&#39;s theory of practical reasoning (1987) argued that intentions, commitments to plans, are what let resource-bounded agents act coherently over time. Anand Rao and Michael Georgeff formalized this as the <strong>BDI</strong> architecture (early 1990s), and it was implemented in systems like the <strong>Procedural Reasoning System (PRS)</strong>:</p>
 <ul>
 <li><strong>Beliefs</strong>: what the agent thinks is true about the world.</li>
@@ -215,7 +215,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 </ul>
 <p>A key BDI insight is <strong>commitment with reconsideration</strong>. An agent that never reconsiders its intentions plows ahead after the world has changed. One that reconsiders constantly never finishes anything.</p>
 <p><strong>Lesson for today:</strong> an LLM agent&#39;s to-do list or plan file is its set of intentions, its context is its beliefs, and the user&#39;s goal is its desire. The BDI reconsideration problem is alive and well: agents that rigidly follow an outdated plan and agents that thrash between approaches are two of the most common failure modes.</p>
-<h3 id="multi-agent-systems-and-agent-communication"><a class="anchor" href="#multi-agent-systems-and-agent-communication" aria-hidden="true">#</a>Multi-agent systems and agent communication</h3>
+<h3 id="multi-agent-systems-and-agent-communication"><a class="anchor" href="#multi-agent-systems-and-agent-communication" aria-hidden="true" tabindex="-1">#</a>Multi-agent systems and agent communication</h3>
 <p>Once you have one agent, you want several. Distributed AI research produced the <strong>Contract Net Protocol</strong> (Reid Smith, 1980), in which a manager announces a task, contractors bid and the manager awards it. That pattern is still used in task allocation.</p>
 <p>The 1990s brought efforts to standardize how agents talk:</p>
 <ul>
@@ -225,10 +225,10 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <p>Wooldridge and Jennings&#39; 1995 paper &quot;Intelligent Agents: Theory and Practice&quot; gave the properties of agency (autonomy, social ability, reactivity, pro-activeness) covered in <a href="what-is-an-agent.html">What Is an AI Agent?</a>.</p>
 <p>These standards saw real but niche use. Agents built on them were hand-coded and had little to say to each other that wasn&#39;t anticipated by their designers.</p>
 <p><strong>Lesson for today:</strong> the problems KQML and FIPA tried to solve, namely discovery, capability description, task delegation and trust between agents, are exactly what <strong><dfn class="gt" tabindex="0" data-t="Agent2Agent protocol" data-d="An open protocol for opaque agents built by different vendors to discover each other via Agent Cards, exchange messages and coordinate long-running tasks. Announced by Google in April 2025 and donated to the Linux Foundation that June, it reached v1.0 in March 2026 and became an Agentic AI Foundation project in August 2026." data-l="protocols-mcp-a2a" data-a="agent2agent-protocol">A2A</dfn></strong> and <strong><dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol, built on JSON-RPC 2.0, that standardizes how applications expose tools, resources and prompts to LLM applications, so any compliant agent can use any compliant server. Released by Anthropic in November 2024 and donated to the Linux Foundation's Agentic AI Foundation in December 2025; the 2026-07-28 revision made the core protocol stateless." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn></strong> address today (see <a href="protocols-mcp-a2a.html">protocols</a>). The difference is that LLM agents can interpret natural-language capability descriptions instead of needing rigid shared ontologies.</p>
-<h3 id="cognitive-architectures"><a class="anchor" href="#cognitive-architectures" aria-hidden="true">#</a>Cognitive architectures</h3>
+<h3 id="cognitive-architectures"><a class="anchor" href="#cognitive-architectures" aria-hidden="true" tabindex="-1">#</a>Cognitive architectures</h3>
 <p>A parallel tradition tried to build complete models of the mind. <strong>Soar</strong> (Laird, Newell and Rosenbloom, 1980s) is built around a <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn>, long-term production rules, and a mechanism called <strong><dfn class="gt" tabindex="0" data-t="Chunking" data-d="Splitting documents into smaller passages before embedding them. Chunk size and boundaries strongly affect retrieval quality." data-l="rag-and-retrieval" data-a="chunking">chunking</dfn></strong> that compiles solved subproblems into new rules. <strong>ACT-R</strong> (John Anderson; the ACT-R name dates to the early 1990s) models human cognition with separate declarative and <dfn class="gt" tabindex="0" data-t="Procedural memory" data-d="Memory of how to do things: skills, routines and instructions. In LLM agents it lives in model weights, system prompts, skill files and code." data-l="memory" data-a="procedural-memory">procedural memory</dfn> modules and has been used to predict human reaction times and errors.</p>
 <p><strong>Lesson for today:</strong> the memory distinctions these architectures introduced, between working memory and <dfn class="gt" tabindex="0" data-t="Long-term memory" data-d="Information persisted outside the context window, in files, databases or vector stores, and retrieved into context when relevant across sessions." data-l="memory" data-a="long-term-memory">long-term memory</dfn> and between episodic, semantic and procedural memory, are the same vocabulary used to design <a href="memory.html">LLM agent memory</a>. The 2023 paper <em>Cognitive Architectures for Language Agents</em> (<dfn class="gt" tabindex="0" data-t="CoALA" data-d="Cognitive Architectures for Language Agents (Sumers et al., 2023): a framework that organizes agents by modular memory (working, episodic, semantic, procedural), internal and external actions, and a decision loop." data-l="agent-architectures" data-a="coala">CoALA</dfn>) explicitly maps LLM agents onto this tradition.</p>
-<h2 id="learning-agents-reinforcement-learning-1990s2019"><a class="anchor" href="#learning-agents-reinforcement-learning-1990s2019" aria-hidden="true">#</a>Learning Agents: Reinforcement Learning (1990s–2019)</h2>
+<h2 id="learning-agents-reinforcement-learning-1990s2019"><a class="anchor" href="#learning-agents-reinforcement-learning-1990s2019" aria-hidden="true" tabindex="-1">#</a>Learning Agents: Reinforcement Learning (1990s–2019)</h2>
 <p>Symbolic agents had knowledge but no learning. <strong>Reinforcement learning (RL)</strong> agents learn behavior from <strong>reward</strong>: try actions, observe outcomes, and adjust to get more reward over time. The theory (temporal-difference learning, Q-learning) matured in the late 1980s and 90s, and Sutton and Barto&#39;s textbook <em>Reinforcement Learning: An Introduction</em> (1998) consolidated it.</p>
 <ul>
 <li><strong>TD-Gammon</strong> (Gerald Tesauro, IBM, early 1990s) learned backgammon by playing against itself with a small neural network and temporal-difference learning, coming close to the level of the world&#39;s best human players. It was an early demonstration that self-play plus neural networks could discover strong strategies.</li>
@@ -238,41 +238,41 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 </ul>
 <p>RL agents were superhuman in their domains and useless outside them. Each needed a simulator, a precise reward signal and huge amounts of experience. An Atari agent couldn&#39;t read a sentence, and nothing it learned transferred to booking a flight.</p>
 <p><strong>Lesson for today:</strong> RL never went away; it became the <em>training method</em> for LLM agents. Reasoning models and agentic coding models are trained with RL on tasks that have verifiable rewards (tests pass, answer correct). The ingredients of AlphaGo&#39;s success, namely a verifiable reward, lots of practice and search at decision time, are back in a new form (see <a href="training-agents.html">training agents</a>).</p>
-<h2 id="early-web-agents-20172022"><a class="anchor" href="#early-web-agents-20172022" aria-hidden="true">#</a>Early Web Agents (2017–2022)</h2>
+<h2 id="early-web-agents-20172022"><a class="anchor" href="#early-web-agents-20172022" aria-hidden="true" tabindex="-1">#</a>Early Web Agents (2017–2022)</h2>
 <p>Before LLMs, researchers already wanted agents to use the web. <strong>World of Bits / MiniWoB</strong> (OpenAI and Stanford, 2017) offered dozens of small web tasks, such as clicking buttons, filling forms and booking a flight on a toy site, for RL agents. Agents learned them slowly from pixels and DOM elements, and struggled to generalize.</p>
 <p><strong>WebShop</strong> (Princeton, 2022) offered a simulated e-commerce site with over a million real products and natural-language shopping instructions. <strong>WebGPT</strong> (OpenAI, December 2021) fine-tuned GPT-3 to answer questions by issuing search, click and quote commands in a text-based browser, collecting references along the way. It was an early, direct ancestor of today&#39;s <a href="research-agents.html">research agents</a> and of tool use in general.</p>
-<h2 id="the-llm-era-begins-20202022"><a class="anchor" href="#the-llm-era-begins-20202022" aria-hidden="true">#</a>The LLM Era Begins (2020–2022)</h2>
-<h3 id="gpt-3-and-in-context-learning"><a class="anchor" href="#gpt-3-and-in-context-learning" aria-hidden="true">#</a>GPT-3 and in-context learning</h3>
+<h2 id="the-llm-era-begins-20202022"><a class="anchor" href="#the-llm-era-begins-20202022" aria-hidden="true" tabindex="-1">#</a>The LLM Era Begins (2020–2022)</h2>
+<h3 id="gpt-3-and-in-context-learning"><a class="anchor" href="#gpt-3-and-in-context-learning" aria-hidden="true" tabindex="-1">#</a>GPT-3 and in-context learning</h3>
 <p>In May 2020, OpenAI&#39;s paper <em>Language Models are Few-Shot Learners</em> introduced <strong>GPT-3</strong> (175 billion parameters) and showed that a large enough language model could perform new tasks from a few examples in the prompt, with no retraining. This <strong><dfn class="gt" tabindex="0" data-t="In-context learning" data-d="A model's ability to pick up a task from instructions and examples in its prompt, without any weight updates (Brown et al., 2020)." data-l="llm-fundamentals" data-a="in-context-learning">in-context learning</dfn></strong> meant one model could be steered toward many tasks just by writing text, which is the foundation every agent prompt stands on (see <a href="llm-fundamentals.html">LLM fundamentals</a>).</p>
-<h3 id="chain-of-thought"><a class="anchor" href="#chain-of-thought" aria-hidden="true">#</a>Chain-of-thought</h3>
+<h3 id="chain-of-thought"><a class="anchor" href="#chain-of-thought" aria-hidden="true" tabindex="-1">#</a>Chain-of-thought</h3>
 <p>In January 2022, Wei et al. showed that prompting models to write out intermediate reasoning steps, <strong><dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer. Wei et al. (2022) elicited it with few-shot worked examples, markedly improving multi-step reasoning; the zero-shot &quot;Let's think step by step&quot; variant is Kojima et al. (2022)." data-l="reasoning-and-planning" data-a="chain-of-thought">chain-of-thought</dfn> (CoT)</strong> prompting, dramatically improved performance on multi-step problems. A few months later Kojima et al. found that simply adding &quot;Let&#39;s think step by step&quot; helped. Reasoning became something a model could <em>do in its output</em>, which an agent could later interleave with actions.</p>
-<h3 id="mrkl-and-react"><a class="anchor" href="#mrkl-and-react" aria-hidden="true">#</a>MRKL and ReAct</h3>
+<h3 id="mrkl-and-react"><a class="anchor" href="#mrkl-and-react" aria-hidden="true" tabindex="-1">#</a>MRKL and ReAct</h3>
 <p>Two 2022 papers set the template for LLM agents:</p>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="MRKL" data-d="Modular Reasoning, Knowledge and Language (Karpas et al., 2022): an early neuro-symbolic architecture that routes queries from an LLM to expert modules such as calculators and APIs." data-a="mrkl">MRKL</dfn></strong> (Modular Reasoning, Knowledge and Language; AI21 Labs, May 2022) proposed an LLM that routes sub-problems to external modules such as a calculator, a database or an API, which they called &quot;neuro-symbolic&quot; architecture.</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn></strong> (Yao et al., October 2022) interleaved <strong>Reasoning</strong> traces and <strong>Act</strong>ions in one loop: <em>Thought → Action → Observation → Thought…</em> Reasoning helped the model plan and handle exceptions, and actions grounded the reasoning in real information, reducing <dfn class="gt" tabindex="0" data-t="Hallucination" data-d="Model output that is fluent and confident but factually wrong or unsupported by the provided sources, such as an invented citation or API." data-l="llm-fundamentals" data-a="hallucination">hallucination</dfn>.</li>
 </ul>
 <p>ReAct&#39;s trace format, shown in <a href="the-agent-loop.html">the agent loop</a>, is the direct ancestor of how virtually every agent works today. LangChain, launched the same month, made the pattern easy to try, and ChatGPT&#39;s launch on November 30, 2022 put LLMs in front of a mass audience almost overnight.</p>
-<h2 id="the-agent-explosion-20232024"><a class="anchor" href="#the-agent-explosion-20232024" aria-hidden="true">#</a>The Agent Explosion (2023–2024)</h2>
-<h3 id="tools-become-first-class"><a class="anchor" href="#tools-become-first-class" aria-hidden="true">#</a>Tools become first-class</h3>
+<h2 id="the-agent-explosion-20232024"><a class="anchor" href="#the-agent-explosion-20232024" aria-hidden="true" tabindex="-1">#</a>The Agent Explosion (2023–2024)</h2>
+<h3 id="tools-become-first-class"><a class="anchor" href="#tools-become-first-class" aria-hidden="true" tabindex="-1">#</a>Tools become first-class</h3>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="Toolformer" data-d="A model (Schick et al., 2023) that taught itself when and how to call APIs by self-supervised filtering of candidate calls that improved next-token prediction." data-l="tool-use" data-a="toolformer">Toolformer</dfn></strong> (Meta, February 2023) showed that a model could learn, in a self-supervised way, when to call APIs (calculator, search, calendar) and how to fold the results into its text.</li>
 <li><strong>ChatGPT plugins</strong> (March 2023) let ChatGPT call third-party APIs described in an OpenAPI spec.</li>
 <li><strong>Function calling</strong> in the OpenAI API (June 2023) let developers pass <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-l="tool-use" data-a="json-schema">JSON Schema</dfn> tool definitions and receive structured tool calls back. Anthropic&#39;s tool use API reached general availability in May 2024, and the pattern became universal (see <a href="tool-use.html">tool use</a>).</li>
 </ul>
-<h3 id="the-autogpt-moment"><a class="anchor" href="#the-autogpt-moment" aria-hidden="true">#</a>The AutoGPT moment</h3>
+<h3 id="the-autogpt-moment"><a class="anchor" href="#the-autogpt-moment" aria-hidden="true" tabindex="-1">#</a>The AutoGPT moment</h3>
 <p>In spring 2023, <strong>AutoGPT</strong> and <strong>BabyAGI</strong> went viral. Give them a goal (&quot;grow my business&quot;) and they would loop on their own: create tasks, execute them with GPT-4, store results, create more tasks. AutoGPT became one of the fastest-growing repositories in GitHub&#39;s history.</p>
 <p>Mostly, they didn&#39;t work. They looped, lost track of goals, hallucinated progress and burned through API credits. But they demonstrated public appetite for autonomous agents and exposed the real problems: reliability over long horizons, context management, evaluation and cost. The lesson, &quot;the loop is easy; making it reliable is the hard part,&quot; shaped everything that followed.</p>
-<h3 id="research-milestones"><a class="anchor" href="#research-milestones" aria-hidden="true">#</a>Research milestones</h3>
+<h3 id="research-milestones"><a class="anchor" href="#research-milestones" aria-hidden="true" tabindex="-1">#</a>Research milestones</h3>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-l="agent-architectures" data-a="reflexion">Reflexion</dfn></strong> (March 2023) had agents write verbal reflections on their failures and use them on the next attempt (see <a href="self-improving-agents.html">self-improving agents</a>).</li>
 <li><strong>Generative Agents</strong> (Park et al., Stanford and Google, April 2023) populated a small simulated town, &quot;Smallville&quot;, with 25 LLM-driven characters. With a <strong>memory stream</strong>, <strong>reflection</strong> and <strong>planning</strong>, they formed relationships, spread news and organized a Valentine&#39;s Day party on their own. It became a reference design for agent <a href="memory.html">memory</a>.</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="Voyager" data-d="A lifelong-learning Minecraft agent (Wang et al., 2023) with an automatic curriculum, an iterative prompting loop and a skill library of executable code." data-l="self-improving-agents" data-a="voyager">Voyager</dfn></strong> (NVIDIA and collaborators, May 2023) was a Minecraft agent that wrote code to perform skills, stored working skills in a growing <strong><dfn class="gt" tabindex="0" data-t="Skill library" data-d="A growing store of reusable, verified programs or procedures an agent has learned, retrieved for new tasks, as in Voyager." data-l="self-improving-agents" data-a="skill-library">skill library</dfn></strong> and set its own curriculum, continuing to discover new items and abilities over time.</li>
 </ul>
-<h3 id="benchmarks-and-coding-agents"><a class="anchor" href="#benchmarks-and-coding-agents" aria-hidden="true">#</a>Benchmarks and coding agents</h3>
+<h3 id="benchmarks-and-coding-agents"><a class="anchor" href="#benchmarks-and-coding-agents" aria-hidden="true" tabindex="-1">#</a>Benchmarks and coding agents</h3>
 <p><strong><dfn class="gt" tabindex="0" data-t="SWE-bench" data-d="A benchmark (Jimenez et al., 2023) of real GitHub issues from 12 Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified (OpenAI, 2024) is a human-validated 500-task subset, which OpenAI stopped reporting in February 2026 citing contamination and flawed tests." data-l="benchmarks" data-a="swe-bench">SWE-bench</dfn></strong> (Jimenez et al., October 2023) gave models real GitHub issues from popular Python repositories and checked whether their patches made the hidden tests pass. Early scores were in the low single digits. The benchmark became the field&#39;s yardstick for agentic coding; a human-validated subset, SWE-bench Verified, followed in 2024 (see <a href="benchmarks.html">benchmarks</a>).</p>
 <p>In 2024 the scores climbed quickly. <strong>Devin</strong> (Cognition, March 2024) was announced as an &quot;AI software engineer&quot; with its own shell, editor and browser. <strong>SWE-agent</strong> (Princeton, May 2024) showed that designing a good <strong><dfn class="gt" tabindex="0" data-t="Agent-computer interface" data-d="The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance." data-l="coding-agents" data-a="agent-computer-interface">agent-computer interface</dfn></strong> (ACI), meaning tools shaped for how models read and act, mattered as much as the model itself. That insight underlies modern <a href="designing-tools.html">tool design</a>.</p>
-<h3 id="seeing-screens-connecting-tools-thinking-longer"><a class="anchor" href="#seeing-screens-connecting-tools-thinking-longer" aria-hidden="true">#</a>Seeing screens, connecting tools, thinking longer</h3>
+<h3 id="seeing-screens-connecting-tools-thinking-longer"><a class="anchor" href="#seeing-screens-connecting-tools-thinking-longer" aria-hidden="true" tabindex="-1">#</a>Seeing screens, connecting tools, thinking longer</h3>
 <p>Three late-2024 releases defined the next phase:</p>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="Computer use" data-d="A capability in which a model operates a graphical computer by viewing screenshots and issuing mouse and keyboard actions." data-l="computer-use-agents" data-a="computer-use">Computer use</dfn></strong> (Anthropic, October 2024) let Claude operate a desktop by viewing screenshots and issuing mouse and keyboard actions, so agents could use any software built for humans (see <a href="computer-use-agents.html">computer-use agents</a>).</li>
@@ -280,7 +280,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <li><strong>Model Context Protocol (MCP)</strong> (Anthropic, November 2024) was an open standard for connecting models to tools and data sources, so a tool integration written once works with any MCP-compatible client.</li>
 </ul>
 <p>In December 2024, Anthropic&#39;s essay <em>Building Effective Agents</em> crystallized the workflow-vs-agent distinction and argued for simple, composable patterns over heavy frameworks (see <a href="when-to-use-agents.html">when to use agents</a>).</p>
-<h2 id="agents-go-mainstream-20252026"><a class="anchor" href="#agents-go-mainstream-20252026" aria-hidden="true">#</a>Agents Go Mainstream (2025–2026)</h2>
+<h2 id="agents-go-mainstream-20252026"><a class="anchor" href="#agents-go-mainstream-20252026" aria-hidden="true" tabindex="-1">#</a>Agents Go Mainstream (2025–2026)</h2>
 <p>2025 was the year agents became products used daily by millions:</p>
 <ul>
 <li><strong>Operator</strong> (OpenAI, January 2025), a browser-using agent for web tasks, later folded into ChatGPT&#39;s agent mode.</li>
@@ -290,7 +290,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <li><strong>A2A</strong> (Agent2Agent, announced by Google in April 2025 and later contributed to the Linux Foundation), a protocol for agents to discover each other and delegate tasks. It revisits the KQML/FIPA problem with LLM-era tools.</li>
 </ul>
 <p>Through 2025 and into 2026, the length and complexity of tasks agents could finish kept growing. Agents moved from supervised, minute-long tasks toward hours-long background work, and agent SDKs, managed agent platforms and agent observability became standard parts of the software stack. The specific products change fast. The durable trend is longer horizons, more autonomy where it&#39;s earned, and standard protocols connecting everything (see <a href="future-of-agents.html">the future of agents</a>).</p>
-<h2 id="the-timeline-at-a-glance"><a class="anchor" href="#the-timeline-at-a-glance" aria-hidden="true">#</a>The Timeline at a Glance</h2>
+<h2 id="the-timeline-at-a-glance"><a class="anchor" href="#the-timeline-at-a-glance" aria-hidden="true" tabindex="-1">#</a>The Timeline at a Glance</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -401,9 +401,9 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 </tr>
 </tbody></table>
 </div>
-<h2 id="what-history-teaches-builders"><a class="anchor" href="#what-history-teaches-builders" aria-hidden="true">#</a>What History Teaches Builders</h2>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>LLM agents didn&#39;t replace classical agent ideas. They gave those ideas a general-purpose engine. Nearly every component of a modern agent has a decades-old ancestor, and the ancestor&#39;s failure modes are a preview of yours.</p>
-</div></aside>
+<h2 id="what-history-teaches-builders"><a class="anchor" href="#what-history-teaches-builders" aria-hidden="true" tabindex="-1">#</a>What History Teaches Builders</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>LLM agents didn&#39;t replace classical agent ideas. They gave those ideas a general-purpose engine. Nearly every component of a modern agent has a decades-old ancestor, and the ancestor&#39;s failure modes are a preview of yours.</p>
+</div></div>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -464,7 +464,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <li><strong>Hype cycles are real.</strong> AI winters followed overpromising. AutoGPT&#39;s 2023 hype outran its reliability. Calibrated claims and honest <a href="evaluating-agents.html">evaluation</a> protect the field and your project.</li>
 <li><strong>Interfaces matter as much as intelligence.</strong> From STRIPS operators to SWE-agent&#39;s ACI to MCP, how an agent perceives and acts shapes what it can do. Tool design isn&#39;t an afterthought.</li>
 </ol>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>The core agent idea, a <strong>feedback loop toward a goal</strong>, dates to 1940s cybernetics.</li>
 <li><strong>Symbolic agents</strong> (GPS, Shakey, SHRDLU, expert systems) could plan and reason but needed hand-built knowledge and were brittle outside small worlds.</li>
@@ -474,7 +474,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <li>In <strong>2025</strong>, agents became everyday products (Claude Code, Codex, Operator, deep research) and interoperability standards (MCP, A2A) moved to neutral foundations.</li>
 <li>Classical ideas map almost one-to-one onto modern agent components, and so do classical failure modes.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Map an agent.</strong> Pick a modern agent you know (Claude Code, a deep-research tool, a support bot). For each row of the &quot;classical idea → modern counterpart&quot; table, identify the concrete feature that plays that role, or note that it&#39;s missing.</li>
 <li><strong>STRIPS your tools.</strong> Take three tools from an agent you&#39;ve built or imagined (e.g. <code>create_branch</code>, <code>run_tests</code>, <code>open_pr</code>). Write each as a STRIPS operator with preconditions, an add list and a delete list. Then rewrite the tool descriptions so they convey that information to a model.</li>
@@ -482,7 +482,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
 <li><strong>AutoGPT post-mortem.</strong> Using what you&#39;ll learn in <a href="the-agent-loop.html">the agent loop</a> and <a href="context-engineering.html">context engineering</a>, list four specific reasons 2023-era autonomous agents looped and drifted, and the modern technique that addresses each.</li>
 <li><strong>Stretch.</strong> Read the ReAct paper and the WebGPT paper. Write a half-page comparison: how did each give a language model the ability to act, and which approach generalized better? Why?</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="history-of-agents" data-total="7">
 
 <div class="quiz-q" data-correct="0">
@@ -562,7 +562,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reasoning models and agentic coding models are post-trained with RL on tasks whose outcomes can be checked, carrying AlphaGo-era ideas into the LLM era. That training happens before deployment; a deployed agent&#39;s weights don&#39;t change during a session.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://aima.cs.berkeley.edu/" target="_blank" rel="noopener">Artificial Intelligence: A Modern Approach (Russell &amp; Norvig)</a>: the standard textbook; its historical notes trace most of the classical ideas in this lesson.</li>
 <li><a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)</a>: the paper that set the pattern for LLM agents.</li>
@@ -590,7 +590,7 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
     <a class="pager-next" href="llm-fundamentals.html"><small>Next →</small><span>LLMs: The Engine Inside Every Agent</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#the-big-picture">The Big Picture</a></li>
 <li class="toc-h2"><a href="#foundations-cybernetics-and-early-ai-1940s1960s">Foundations: Cybernetics and Early AI (1940s–1960s)</a></li>
 <li class="toc-h3"><a href="#cybernetics">Cybernetics</a></li>
@@ -630,9 +630,9 @@ SHRDLU:  By &quot;it&quot;, I assume you mean the block which is taller than the
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

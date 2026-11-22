@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="conversational-voice-agents">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#agent-types">Module 4: Agents in the Wild</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#agent-types">Module 4: Agents in the Wild</a></nav>
   <header class="lesson-header">
     <h1>Customer-Facing &amp; Voice Agents</h1>
     <p class="lead">How customer-support and voice agents work: policies, tools, authentication and handoff; τ-bench evaluation; cascaded vs. speech-to-speech voice pipelines, latency, turn-taking, telephony, compliance and metrics.</p>
@@ -144,7 +144,7 @@
   <article class="prose">
 <p>Customer service is where most people will first <em>talk</em> to an agent, often without thinking of it that way. A customer types &quot;my package never arrived&quot; into a chat widget, or calls a phone number and hears a natural voice ask for an order number. Behind it, an agent looks up the order, checks the carrier, applies the company&#39;s refund policy, issues a replacement, and either resolves the issue or hands off to a human with a summary.</p>
 <p>These agents face constraints that internal or developer-facing agents do not. They talk to <strong>untrusted strangers</strong> in real time, represent a <strong>brand</strong>, operate under <strong>policies</strong> with financial and legal consequences, and, for voice, must respond within the rhythm of human conversation, where a pause of over a second already feels awkward. This lesson covers the support-agent half (policy, tools, authentication, handoff and evaluation) and then the voice half (pipelines, latency, turn-taking, telephony, compliance and metrics).</p>
-<h2 id="anatomy-of-a-customer-support-agent"><a class="anchor" href="#anatomy-of-a-customer-support-agent" aria-hidden="true">#</a>Anatomy of a Customer-Support Agent</h2>
+<h2 id="anatomy-of-a-customer-support-agent"><a class="anchor" href="#anatomy-of-a-customer-support-agent" aria-hidden="true" tabindex="-1">#</a>Anatomy of a Customer-Support Agent</h2>
 <p>A support agent is the <a href="the-agent-loop.html">agent loop</a> wrapped in a business process. Its components:</p>
 <ul>
 <li><strong>Policies and SOPs.</strong> The company&#39;s rules: refund windows, exceptions, eligibility, what requires a supervisor. These go into the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> or a retrievable knowledge base. Writing policies an agent can follow is real work: human SOPs are full of ambiguity that experienced staff resolve with judgment.</li>
@@ -154,9 +154,9 @@
 <li><strong>Handoff.</strong> A path to a human agent with full context, for cases outside policy, high-risk actions, or a customer who asks for a person.</li>
 <li><strong>Tone and persona.</strong> Brand voice, empathy, de-escalation, and clarity.</li>
 </ul>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Policy lives in two places</div><div class="callout-body"><p>Tell the model the policy in its prompt, and <strong>enforce</strong> the policy in code. The prompt shapes conversation; the tool layer guarantees that a refund over the limit, or an action on an unauthenticated account, simply cannot happen. Assume the model will sometimes be persuaded or confused, and make that harmless.</p>
-</div></aside>
-<h3 id="tools-permissions-and-authentication"><a class="anchor" href="#tools-permissions-and-authentication" aria-hidden="true">#</a>Tools, permissions and authentication</h3>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Policy lives in two places</div><div class="callout-body"><p>Tell the model the policy in its prompt, and <strong>enforce</strong> the policy in code. The prompt shapes conversation; the tool layer guarantees that a refund over the limit, or an action on an unauthenticated account, simply cannot happen. Assume the model will sometimes be persuaded or confused, and make that harmless.</p>
+</div></div>
+<h3 id="tools-permissions-and-authentication"><a class="anchor" href="#tools-permissions-and-authentication" aria-hidden="true" tabindex="-1">#</a>Tools, permissions and authentication</h3>
 <p>Design support tools around <strong><dfn class="gt" tabindex="0" data-t="Least privilege" data-d="Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise." data-l="agent-security" data-a="least-privilege">least privilege</dfn></strong> (see <a href="designing-tools.html">designing tools</a>):</p>
 <ul>
 <li>Scope every tool to the authenticated customer. <code>get_order(order_id)</code> should verify that the order belongs to the session&#39;s verified customer ID; the model should never pass a customer ID it heard in conversation.</li>
@@ -164,7 +164,7 @@
 <li>Gate identity: until verification succeeds (a one-time code, account login, or verified caller ID plus knowledge factors), only expose tools that reveal nothing sensitive.</li>
 </ul>
 <p>Here is a compact sketch with the Anthropic SDK&#39;s tool runner. The harness holds the session state, so authentication and refund limits are enforced regardless of what the model is talked into.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
 
 session = {<span class="hljs-string">&quot;customer_id&quot;</span>: <span class="hljs-literal">None</span>, <span class="hljs-string">&quot;handoff&quot;</span>: <span class="hljs-literal">None</span>}  <span class="hljs-comment"># trusted state, owned by the harness</span>
@@ -222,7 +222,7 @@ runner = client.beta.messages.tool_runner(
 )
 <span class="hljs-keyword">for</span> message <span class="hljs-keyword">in</span> runner:
     ...  <span class="hljs-comment"># stream text to the chat UI; stop when session[&quot;handoff&quot;] is set</span></code></pre></div>
-<h3 id="handoff-to-humans"><a class="anchor" href="#handoff-to-humans" aria-hidden="true">#</a>Handoff to humans</h3>
+<h3 id="handoff-to-humans"><a class="anchor" href="#handoff-to-humans" aria-hidden="true" tabindex="-1">#</a>Handoff to humans</h3>
 <p>Good escalation is a feature, not a failure. Escalate when:</p>
 <ul>
 <li>The request is outside policy, or policy is ambiguous for this case</li>
@@ -231,9 +231,9 @@ runner = client.beta.messages.tool_runner(
 <li>The agent is looping or its confidence is low</li>
 </ul>
 <p>The handoff must carry <strong>context</strong>: a summary, verification status, what was tried, and the transcript, so the customer never has to repeat themselves. A smooth handoff often scores better on satisfaction than a forced, wrong automated resolution. See <a href="human-in-the-loop.html">human-in-the-loop</a>.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Companies are accountable for what their agents say. In <em>Moffatt v. Air Canada</em> (2024), a Canadian tribunal held the airline liable after its website chatbot gave a customer incorrect information about bereavement fares, rejecting the argument that the chatbot was responsible for its own statements. Ground answers in current policy documents and enforce commitments in tools.</p>
-</div></aside>
-<h3 id="conversation-design"><a class="anchor" href="#conversation-design" aria-hidden="true">#</a>Conversation design</h3>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Companies are accountable for what their agents say. In <em>Moffatt v. Air Canada</em> (2024), a Canadian tribunal held the airline liable after its website chatbot gave a customer incorrect information about bereavement fares, rejecting the argument that the chatbot was responsible for its own statements. Ground answers in current policy documents and enforce commitments in tools.</p>
+</div></div>
+<h3 id="conversation-design"><a class="anchor" href="#conversation-design" aria-hidden="true" tabindex="-1">#</a>Conversation design</h3>
 <p>Correct agents can still converse badly. Principles:</p>
 <ul>
 <li><strong>One question at a time</strong>, especially in voice. Do not ask for order number, email and reason in one breath.</li>
@@ -243,7 +243,7 @@ runner = client.beta.messages.tool_runner(
 <li><strong>Repair gracefully.</strong> When the agent misunderstands, recover without blaming the user, and escalate after repeated failures.</li>
 <li><strong>Stay on task.</strong> Politely decline off-topic requests and resist attempts to make the agent say off-brand things (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
 </ul>
-<h2 id="evaluating-support-agents-τ-bench-and-τ²-bench"><a class="anchor" href="#evaluating-support-agents-τ-bench-and-τ²-bench" aria-hidden="true">#</a>Evaluating Support Agents: τ-bench and τ²-bench</h2>
+<h2 id="evaluating-support-agents-τ-bench-and-τ²-bench"><a class="anchor" href="#evaluating-support-agents-τ-bench-and-τ²-bench" aria-hidden="true" tabindex="-1">#</a>Evaluating Support Agents: τ-bench and τ²-bench</h2>
 <p>How do you test an agent whose job is to follow policy while talking to unpredictable humans? <strong><dfn class="gt" tabindex="0" data-t="τ-bench" data-d="A benchmark (Yao et al., 2024) of tool-agent-user interaction in domains like airline and retail, with a simulated user and domain policies; it introduced the pass^k metric. τ²-bench adds dual-control environments." data-l="benchmarks" data-a="τ-bench">τ-bench</dfn></strong> (Yao et al., Sierra, 2024) introduced a now-standard recipe:</p>
 <ul>
 <li><strong>Domains</strong> with realistic databases, tools and written policies: retail (returns, exchanges, address changes) and airline (bookings, changes, cancellations, baggage).</li>
@@ -253,11 +253,11 @@ runner = client.beta.messages.tool_runner(
 </ul>
 <p>The original paper found that even strong function-calling agents of 2024 solved under half of the tasks, and that reliability collapsed as k grew: in retail, pass^8 fell below 25%. An agent that handles a refund correctly 70% of the time handles it correctly eight times in a row far less often. (The interactive pass@k vs. pass^k widget in <a href="evaluating-agents.html">evaluating agents</a> makes this visceral.)</p>
 <p><strong>τ²-bench</strong> (2025) added a <strong>dual-control</strong> setting with a telecom troubleshooting domain: the <em>user</em> also has tools and must take actions on their own device (&quot;toggle airplane mode&quot;, &quot;check APN settings&quot;) under the agent&#39;s guidance. Agents performed markedly worse when they had to guide a user through actions rather than act alone, a realistic picture of tech support, where much of the work is coaching a person.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Build your own τ-bench</div><div class="callout-body"><p>The recipe generalizes: write 50–200 scenarios from real tickets, each with a persona, hidden goal and expected end state; run a simulated customer against your agent; grade the resulting database state and policy compliance; repeat each scenario several times and track pass^k. This catches policy regressions before customers do.</p>
-</div></aside>
-<h2 id="voice-agents-two-architectures"><a class="anchor" href="#voice-agents-two-architectures" aria-hidden="true">#</a>Voice Agents: Two Architectures</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Build your own τ-bench</div><div class="callout-body"><p>The recipe generalizes: write 50–200 scenarios from real tickets, each with a persona, hidden goal and expected end state; run a simulated customer against your agent; grade the resulting database state and policy compliance; repeat each scenario several times and track pass^k. This catches policy regressions before customers do.</p>
+</div></div>
+<h2 id="voice-agents-two-architectures"><a class="anchor" href="#voice-agents-two-architectures" aria-hidden="true" tabindex="-1">#</a>Voice Agents: Two Architectures</h2>
 <p>Voice adds a physical constraint: time. Text users tolerate a few seconds; on a call, silence over a second or so feels broken. Studies of conversation across languages (Stivers et al., 2009) found typical gaps between turns of around 200 milliseconds. Agents cannot match that yet, but they must get close enough to feel natural.</p>
-<h3 id="cascaded-pipeline"><a class="anchor" href="#cascaded-pipeline" aria-hidden="true">#</a>Cascaded pipeline</h3>
+<h3 id="cascaded-pipeline"><a class="anchor" href="#cascaded-pipeline" aria-hidden="true" tabindex="-1">#</a>Cascaded pipeline</h3>
 <p>The classic architecture chains specialized components:</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     A[&quot;Caller audio (WebRTC or phone)&quot;] --&gt; V[&quot;VAD: is someone speaking?&quot;]
@@ -276,7 +276,7 @@ runner = client.beta.messages.tool_runner(
 <li><strong>TTS (text-to-speech)</strong> turns the response into audio, ideally streaming from the first words.</li>
 </ul>
 <p>Strengths: you can choose best-in-class components, inspect the text at every stage, use any text LLM with full tool calling, and apply text <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrails</dfn> and logging. Weaknesses: latency adds up across stages, and paralinguistic information (tone, hesitation, emotion, laughter) is lost in transcription.</p>
-<h3 id="speech-to-speech-realtime-models"><a class="anchor" href="#speech-to-speech-realtime-models" aria-hidden="true">#</a>Speech-to-speech (realtime) models</h3>
+<h3 id="speech-to-speech-realtime-models"><a class="anchor" href="#speech-to-speech-realtime-models" aria-hidden="true" tabindex="-1">#</a>Speech-to-speech (realtime) models</h3>
 <p><strong>Speech-to-speech</strong> models take audio in and produce audio out directly, with a single model handling understanding and generation. OpenAI&#39;s Realtime API (launched in beta October 2024, generally available with the <code>gpt-realtime</code> model in August 2025) and Google&#39;s Gemini Live API are prominent examples, and research systems such as Kyutai&#39;s Moshi explored <strong>full-duplex</strong> models that listen and speak simultaneously.</p>
 <p>Strengths: lower latency, more natural prosody, and awareness of tone and interruptions. Weaknesses: less control and <dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">observability</dfn> (you can transcribe, but the model reasons over audio), typically weaker tool-calling and instruction-following than the best text models, fewer choices of voice and vendor, and harder guardrails because there is no text checkpoint before speech.</p>
 <div class="table-wrap"><table>
@@ -320,7 +320,7 @@ runner = client.beta.messages.tool_runner(
 </tbody></table>
 </div>
 <p>As of 2026, many production systems with complex tool use and strict policies remain cascaded or hybrid, while speech-to-speech is growing fastest where naturalness matters most. Both are improving quickly; measure on your own calls.</p>
-<h2 id="the-latency-budget"><a class="anchor" href="#the-latency-budget" aria-hidden="true">#</a>The Latency Budget</h2>
+<h2 id="the-latency-budget"><a class="anchor" href="#the-latency-budget" aria-hidden="true" tabindex="-1">#</a>The Latency Budget</h2>
 <p>The key metric is <strong>voice-to-voice latency</strong>: from when the user stops speaking to when they hear the agent&#39;s first audio. Practitioners commonly target well under a second. Here is where time goes in a cascaded pipeline, with <strong>illustrative</strong> ranges (your numbers depend on vendors, regions and configuration, so measure them):</p>
 <div class="table-wrap"><table>
 <thead>
@@ -370,7 +370,7 @@ runner = client.beta.messages.tool_runner(
 <li><strong>Co-locate services</strong> in the same region as each other and the telephony provider.</li>
 <li><strong>Fill tool latency.</strong> Say &quot;Let me pull that up&quot; while a slow lookup runs, or start the lookup speculatively when the order number is heard.</li>
 </ul>
-<h2 id="turn-taking-endpointing-and-barge-in"><a class="anchor" href="#turn-taking-endpointing-and-barge-in" aria-hidden="true">#</a>Turn-Taking, Endpointing and Barge-In</h2>
+<h2 id="turn-taking-endpointing-and-barge-in"><a class="anchor" href="#turn-taking-endpointing-and-barge-in" aria-hidden="true" tabindex="-1">#</a>Turn-Taking, Endpointing and Barge-In</h2>
 <p>Human conversation is full of overlaps, backchannels (&quot;mm-hmm&quot;) and interruptions. Voice agents must handle:</p>
 <ul>
 <li><strong>Endpointing errors.</strong> Too eager, and the agent interrupts a user pausing to find their card. Too slow, and every exchange has dead air. Tune per use case: reading out long numbers needs patience.</li>
@@ -378,12 +378,12 @@ runner = client.beta.messages.tool_runner(
 <li><strong>False barge-in.</strong> Coughs, background TV, or backchannels (&quot;uh-huh&quot;) should not stop the agent. Echo cancellation keeps the agent from hearing itself.</li>
 <li><strong>Silence handling.</strong> Prompt gently (&quot;Are you still there?&quot;), then end gracefully.</li>
 </ul>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Agent (speaking): &quot;I can refund the full amount of forty-two dollars and ten cents to the card ending—&quot;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Agent (speaking): &quot;I can refund the full amount of forty-two dollars and ten cents to the card ending—&quot;
 User (interrupts): &quot;No, wait, put it on store credit.&quot;
 [VAD fires -&gt; TTS stopped -&gt; unspoken audio flushed]
 [History records agent turn as: &quot;I can refund the full amount of forty-two dollars and ten cents to the card ending&quot; (truncated)]
 Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to your account. Shall I go ahead?&quot;</code></pre></div>
-<h2 id="telephony-basics"><a class="anchor" href="#telephony-basics" aria-hidden="true">#</a>Telephony Basics</h2>
+<h2 id="telephony-basics"><a class="anchor" href="#telephony-basics" aria-hidden="true" tabindex="-1">#</a>Telephony Basics</h2>
 <p>Many voice agents answer phone numbers, which brings in the telephone network:</p>
 <ul>
 <li><strong>PSTN</strong> (public switched telephone network) is the traditional phone system. Calls reach your software through a provider (such as Twilio, Telnyx or Vonage) over <strong>SIP</strong> (Session Initiation Protocol) trunks, or through the provider&#39;s media-streaming APIs that deliver call audio over WebSockets.</li>
@@ -392,7 +392,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li><strong>Transfers</strong> to human agents use SIP transfer or the contact-center platform&#39;s routing, ideally with the summary attached.</li>
 <li>In-app and web voice usually use <strong>WebRTC</strong>, which gives wideband audio, built-in echo cancellation and lower latency.</li>
 </ul>
-<h3 id="frameworks"><a class="anchor" href="#frameworks" aria-hidden="true">#</a>Frameworks</h3>
+<h3 id="frameworks"><a class="anchor" href="#frameworks" aria-hidden="true" tabindex="-1">#</a>Frameworks</h3>
 <p>You rarely build this plumbing from scratch:</p>
 <ul>
 <li><strong>LiveKit Agents</strong>: an open-source framework on LiveKit&#39;s WebRTC infrastructure, with plugins for STT, LLM, TTS and realtime models, turn detection, and telephony via SIP.</li>
@@ -400,14 +400,14 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li>Hosted platforms (for example Vapi and Retell) trade control for speed of setup.</li>
 </ul>
 <p>APIs evolve quickly; check current documentation.</p>
-<h2 id="persona-and-brand-voice"><a class="anchor" href="#persona-and-brand-voice" aria-hidden="true">#</a>Persona and Brand Voice</h2>
+<h2 id="persona-and-brand-voice"><a class="anchor" href="#persona-and-brand-voice" aria-hidden="true" tabindex="-1">#</a>Persona and Brand Voice</h2>
 <p>Voice agents <em>are</em> the brand on the phone. Decide deliberately:</p>
 <ul>
 <li><strong>Persona</strong>: name (or none), formality, warmth, humor (usually minimal). Be honest that it is an AI; many jurisdictions require it.</li>
 <li><strong>Voice selection</strong>: a TTS voice matching the brand and audience, with consistent pronunciation of product names (use pronunciation dictionaries or phonetic hints).</li>
 <li><strong>Spoken style</strong>: write for the ear. Short sentences, no bullet lists or URLs read aloud, numbers formatted for speech (&quot;forty-two dollars and ten cents&quot;), and confirmations of critical details by reading them back.</li>
 </ul>
-<h2 id="guardrails-and-compliance"><a class="anchor" href="#guardrails-and-compliance" aria-hidden="true">#</a>Guardrails and Compliance</h2>
+<h2 id="guardrails-and-compliance"><a class="anchor" href="#guardrails-and-compliance" aria-hidden="true" tabindex="-1">#</a>Guardrails and Compliance</h2>
 <p>Customer-facing agents operate under real regulation. The major areas (not legal advice; consult counsel for your jurisdictions):</p>
 <ul>
 <li><strong>Recording and transcription consent.</strong> Some US states require all parties to consent to recording; the EU&#39;s GDPR governs processing of voice data. Disclose recording at the start of calls.</li>
@@ -417,10 +417,10 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li><strong>Content guardrails.</strong> Topic restrictions, refusal of harmful requests, no medical, legal or financial advice beyond policy, and protection against <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> and jailbreaks from users (see <a href="agent-security.html">agent security</a>).</li>
 <li><strong>Vulnerable customers.</strong> Detect distress, mentions of self-harm, or confusion, and route to humans.</li>
 </ul>
-<h2 id="testing-with-simulated-callers"><a class="anchor" href="#testing-with-simulated-callers" aria-hidden="true">#</a>Testing With Simulated Callers</h2>
+<h2 id="testing-with-simulated-callers"><a class="anchor" href="#testing-with-simulated-callers" aria-hidden="true" tabindex="-1">#</a>Testing With Simulated Callers</h2>
 <p>Manual test calls do not scale. Mature teams use <strong>simulated callers</strong>: LLM-driven personas that call the agent (through the real voice stack, or text-only for fast iteration) with scripted goals and behaviors such as an impatient customer, a heavy accent, background noise, interruptions, a caller who changes their mind, or one who tries to social-engineer a refund. Each simulated call is graded on outcome (correct end state), policy adherence, latency percentiles and conversation quality, often by an <a href="evaluating-agents.html">LLM judge</a>.</p>
 <p>Combine this with <strong>production monitoring</strong>: sample real calls for review, track p50 and p95 latency, and alert on spikes in escalations or negative sentiment (see <a href="observability.html">observability</a>).</p>
-<h2 id="metrics-that-matter"><a class="anchor" href="#metrics-that-matter" aria-hidden="true">#</a>Metrics That Matter</h2>
+<h2 id="metrics-that-matter"><a class="anchor" href="#metrics-that-matter" aria-hidden="true" tabindex="-1">#</a>Metrics That Matter</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -466,10 +466,10 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 </tr>
 </tbody></table>
 </div>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Optimize for resolution, not deflection</div><div class="callout-body"><p>The trap in support automation is optimizing <strong>containment</strong>, which counts customers who did not reach a human, instead of <strong>resolution</strong>, which counts customers whose problem was solved. Agents that trap customers in loops look great on containment and destroy trust. Make escalation easy and measure outcomes.</p>
-</div></aside>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Optimize for resolution, not deflection</div><div class="callout-body"><p>The trap in support automation is optimizing <strong>containment</strong>, which counts customers who did not reach a human, instead of <strong>resolution</strong>, which counts customers whose problem was solved. Agents that trap customers in loops look great on containment and destroy trust. Make escalation easy and measure outcomes.</p>
+</div></div>
 <p>Most mature deployments are hybrids: AI handles high-volume routine contacts, and humans handle complex, emotional or high-value ones (see <a href="agent-use-cases.html">agent use cases</a>).</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>Support agents combine <strong>policies, scoped tools, authentication, handoff and tone</strong>. State policy in the prompt and <strong>enforce it in the tool layer</strong>.</li>
 <li><strong>τ-bench</strong> evaluates policy adherence with simulated users and end-state checks; <strong>pass^k</strong> measures consistency, which drops sharply as k grows. <strong>τ²-bench</strong> adds dual control, where users act too.</li>
@@ -479,7 +479,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li>Telephony brings SIP/PSTN, narrowband audio and DTMF; compliance brings <strong>recording consent, AI disclosure, TCPA and PCI</strong>.</li>
 <li>Measure <strong>resolution and CSAT</strong>, not just containment, and test with simulated callers.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Policy audit.</strong> Take a real returns policy from any retailer&#39;s website. List three ambiguities an agent would struggle with, and rewrite the policy into agent-ready rules with explicit escalation criteria.</li>
 <li><strong>Harden the sketch.</strong> In the support example, add a <code>get_order</code> tool scoped to the verified customer, and a rule that refunds above $50 require the customer to confirm the amount in a separate turn. Try to talk the agent into violating each rule and record what happens.</li>
@@ -487,7 +487,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li><strong>Latency budget.</strong> Build a cascaded voice demo with LiveKit Agents or Pipecat. Instrument each stage and record p50 and p95 voice-to-voice latency over 30 turns. Change one variable (model tier, endpointing threshold, TTS vendor) and measure the effect.</li>
 <li><strong>Compliance design.</strong> Design the payment-collection step of a phone agent so no card number ever reaches the LLM, transcripts or logs. Draw the call flow, including how recording is paused and how the agent learns whether payment succeeded.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="conversational-voice-agents" data-total="7">
 
 <div class="quiz-q" data-correct="3">
@@ -567,7 +567,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Post-call redaction is too late: the number already passed through STT and the LLM prompt. A speech-to-speech model still receives the audio. The safe design never lets the data enter the agent&#39;s context or logs; the agent only learns whether payment succeeded.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener">τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains (Yao et al., 2024)</a> — simulated users, policy documents, end-state grading and pass^k.</li>
 <li><a href="https://arxiv.org/abs/2506.07982" target="_blank" rel="noopener">τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment (Barres et al., 2025)</a> — extends τ-bench to settings where users act on their own devices.</li>
@@ -592,7 +592,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
     <a class="pager-next" href="agent-use-cases.html"><small>Next →</small><span>The Agent Landscape: Use Cases by Domain</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#anatomy-of-a-customer-support-agent">Anatomy of a Customer-Support Agent</a></li>
 <li class="toc-h3"><a href="#tools-permissions-and-authentication">Tools, permissions and authentication</a></li>
 <li class="toc-h3"><a href="#handoff-to-humans">Handoff to humans</a></li>
@@ -620,9 +620,9 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

@@ -407,7 +407,8 @@
     function show() {
       current = pick(); cardEl.classList.remove("flipped");
       if (!current) { front.innerHTML = "No cards in this deck."; back.innerHTML = ""; return; }
-      var term = "<small>Term</small>" + escHtml(current.t), def = "<small>Definition</small>" + escHtml(current.d) + (current.l ? '<br><a href="' + current.l + '.html" onclick="event.stopPropagation()" style="font-size:14px">Learn more →</a>' : "");
+      var term = "<small>Term</small>" + escHtml(current.t), def = "<small>Definition</small>" + escHtml(current.d);
+      $(".fc-learn").innerHTML = current.l ? '<a href="' + current.l + '.html">Learn more: ' + escHtml((COURSE.lessons[current.l] || {}).t || "lesson") + " →</a>" : "";
       setTimeout(function () { front.innerHTML = reverse ? def : term; back.innerHTML = reverse ? term : def; }, cardEl.classList.contains("flipped") ? 250 : 0);
       renderBoxes();
       $(".fc-session").textContent = session.seen ? "This session: " + session.good + "/" + session.seen + " recalled" : "";

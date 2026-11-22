@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="reasoning-and-planning">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Reasoning &amp; Planning</h1>
     <p class="lead">How agents think before and while they act: chain-of-thought, self-consistency, decomposition, tree search, ReAct, plan-and-execute, reflection, reasoning models and test-time compute, and where LLM planning breaks.</p>
@@ -145,16 +145,16 @@
 <p>Ask a model &quot;A bat and a ball cost $1.10 together; the bat costs $1.00 more than the ball. How much is the ball?&quot; and older models would often blurt out &quot;10 cents.&quot; Ask the same model to <em>work through it step by step</em> and the answer usually comes out right: 5 cents. Nothing about the model changed. What changed is how much computation it was allowed to do before it committed to an answer.</p>
 <p>That small observation, that <strong>how</strong> a model reaches an answer matters as much as <strong>which</strong> model you use, grew into a whole research field. It led to prompting tricks (<dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer. Wei et al. (2022) elicited it with few-shot worked examples, markedly improving multi-step reasoning; the zero-shot &quot;Let's think step by step&quot; variant is Kojima et al. (2022)." data-a="chain-of-thought">chain-of-thought</dfn>), sampling strategies (<dfn class="gt" tabindex="0" data-t="Self-consistency" data-d="Sampling several independent reasoning paths and taking the majority answer (Wang et al., 2022), trading extra compute for accuracy." data-a="self-consistency">self-consistency</dfn>), search algorithms over thoughts (<dfn class="gt" tabindex="0" data-t="Tree of Thoughts" data-d="A framework (Yao et al., 2023) in which the model generates and evaluates multiple partial reasoning steps and searches over them with breadth- or depth-first search and backtracking." data-a="tree-of-thoughts">Tree of Thoughts</dfn>, <dfn class="gt" tabindex="0" data-t="Language Agent Tree Search" data-d="LATS (Zhou et al., 2023) applies Monte Carlo tree search to agent trajectories, using the LLM as action proposer, value estimator and self-reflector." data-a="language-agent-tree-search">LATS</dfn>), agent patterns (<dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn>, <dfn class="gt" tabindex="0" data-t="Plan-and-execute" data-d="An architecture that first produces an explicit multi-step plan, then executes the steps (often with a cheaper model), re-planning when results diverge." data-l="agent-architectures" data-a="plan-and-execute">plan-and-execute</dfn>, <dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-l="agent-architectures" data-a="reflexion">Reflexion</dfn>), and finally to <strong>reasoning models</strong> trained to think at length before they answer. For agents, reasoning and planning decide whether a 40-step task converges or wanders off.</p>
 <p>This lesson covers that whole arc. You&#39;ll learn what each technique actually does, when it pays for its extra tokens, how modern reasoning models expose &quot;thinking&quot; as a dial you can turn, and the critiques you should keep in mind: LLMs are still unreliable planners, and the reasoning they show you is not always the reasoning they used.</p>
-<h2 id="reasoning-vs-planning"><a class="anchor" href="#reasoning-vs-planning" aria-hidden="true">#</a>Reasoning vs. planning</h2>
+<h2 id="reasoning-vs-planning"><a class="anchor" href="#reasoning-vs-planning" aria-hidden="true" tabindex="-1">#</a>Reasoning vs. planning</h2>
 <p>The two words get used loosely, so let&#39;s pin them down.</p>
 <ul>
 <li><strong>Reasoning</strong> is deriving conclusions from information: arithmetic, logic, reading a stack trace and inferring the bug. It&#39;s mostly about <em>getting one answer right</em>.</li>
 <li><strong>Planning</strong> is choosing a <em>sequence of actions</em> that moves the world from a current state to a goal state, under constraints. It requires predicting the effects of actions you haven&#39;t taken yet.</li>
 </ul>
 <p>An agent needs both. It reasons about each observation (&quot;the test failed because the fixture is missing&quot;), and it plans the route through the task (&quot;first reproduce, then patch, then run the full suite&quot;). The techniques below sit on a spectrum from pure reasoning aids (chain-of-thought) to full planners (LLM+P, MCTS), with hybrid patterns like ReAct in the middle.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>A <dfn class="gt" tabindex="0" data-t="Transformer" data-d="The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers; in the decoder-only form LLMs use, each token draws information from every earlier token." data-l="llm-fundamentals" data-a="transformer">transformer</dfn> does a fixed amount of computation per token. Letting a model write intermediate tokens, or search over many candidate paths, buys it more computation for hard problems. Nearly every technique in this lesson is a different way to spend that extra computation well.</p>
-</div></aside>
-<h2 id="chain-of-thought-thinking-out-loud"><a class="anchor" href="#chain-of-thought-thinking-out-loud" aria-hidden="true">#</a>Chain-of-thought: thinking out loud</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>A <dfn class="gt" tabindex="0" data-t="Transformer" data-d="The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers; in the decoder-only form LLMs use, each token draws information from every earlier token." data-l="llm-fundamentals" data-a="transformer">transformer</dfn> does a fixed amount of computation per token. Letting a model write intermediate tokens, or search over many candidate paths, buys it more computation for hard problems. Nearly every technique in this lesson is a different way to spend that extra computation well.</p>
+</div></div>
+<h2 id="chain-of-thought-thinking-out-loud"><a class="anchor" href="#chain-of-thought-thinking-out-loud" aria-hidden="true" tabindex="-1">#</a>Chain-of-thought: thinking out loud</h2>
 <p><strong>Chain-of-thought (CoT) prompting</strong> (Wei et al., 2022) showed that if your few-shot examples include worked reasoning (&quot;Roger has 5 balls. 2 cans of 3 is 6. 5 + 6 = 11.&quot;) rather than bare answers, large models imitate the pattern and become much better at arithmetic, commonsense and symbolic tasks. The effect was <strong>emergent</strong>: small models gained little or even got worse, while the largest models of the time improved dramatically.</p>
 <p>A few months later, Kojima et al. found you don&#39;t even need examples. Appending <strong>&quot;Let&#39;s think step by step&quot;</strong> to the question (<strong>zero-shot CoT</strong>) produced large jumps on arithmetic benchmarks. On one benchmark, accuracy went from under 20% to nearly 80% with the same model.</p>
 <p>Why does writing reasoning down help? Three complementary explanations:</p>
@@ -163,18 +163,18 @@
 <li><strong><dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">Working memory</dfn>.</strong> Intermediate results written into the context don&#39;t have to be held implicitly in activations; the model can attend back to them.</li>
 <li><strong>Distribution matching.</strong> Training data contains worked solutions. Prompting for steps puts the model in a region of its distribution where careful, correct reasoning is more common.</li>
 </ol>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Q: A store had 23 apples. It used 20 for lunch and bought 6 more. How many now?
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Q: A store had 23 apples. It used 20 for lunch and bought 6 more. How many now?
 
 Direct answer:   27            (wrong: pattern-matched &quot;23 + ... 6&quot;)
 Chain-of-thought: Start with 23. Used 20 → 23 − 20 = 3. Bought 6 → 3 + 6 = 9.
                   Answer: 9    (right)</code></pre></div>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>With modern <strong>reasoning models</strong> (covered below), you rarely need to say &quot;think step by step&quot; since they are trained to reason before answering. The CoT idea didn&#39;t go away; it moved from the prompt into training.</p>
-</div></aside>
-<h2 id="self-consistency-sample-many-paths-vote"><a class="anchor" href="#self-consistency-sample-many-paths-vote" aria-hidden="true">#</a>Self-consistency: sample many paths, vote</h2>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>With modern <strong>reasoning models</strong> (covered below), you rarely need to say &quot;think step by step&quot; since they are trained to reason before answering. The CoT idea didn&#39;t go away; it moved from the prompt into training.</p>
+</div></div>
+<h2 id="self-consistency-sample-many-paths-vote"><a class="anchor" href="#self-consistency-sample-many-paths-vote" aria-hidden="true" tabindex="-1">#</a>Self-consistency: sample many paths, vote</h2>
 <p>A single chain of thought can go wrong at any step. <strong>Self-consistency</strong> (Wang et al., 2022) samples several independent reasoning chains (with nonzero sampling randomness) and takes the <strong>majority vote</strong> over their final answers. The intuition: there are many ways to reason correctly toward the right answer, but wrong chains tend to scatter across different wrong answers. On math word problems, this added double-digit percentage-point gains over single-chain CoT.</p>
 <p>The cost is linear: five samples cost five times as much. It only works when answers can be compared exactly (a number, a multiple-choice letter, a function&#39;s output on a test). For free-form text, variants use a model to pick the most consistent answer (&quot;universal self-consistency&quot;).</p>
 <p>Here&#39;s self-consistency with the Anthropic SDK. Each call reasons in its own thinking phase, and <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, typically via schema-constrained decoding, so responses can be parsed reliably by code. Older JSON mode guarantees only syntactically valid JSON, not the right shape." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn> keep the final answer easy to compare:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> collections
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> collections
 <span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
 
@@ -209,7 +209,7 @@ client = anthropic.Anthropic()
 answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 workers build 3 walls in 3 hours, how many hours do 9 workers need for 9 walls?&quot;</span>)
 <span class="hljs-built_in">print</span>(answer, agreement)</code></pre></div>
 <p>The agreement rate is useful on its own. If five samples split 2/2/1, the agent should escalate, gather more information, or ask a human rather than act.</p>
-<h2 id="decomposition-least-to-most-and-friends"><a class="anchor" href="#decomposition-least-to-most-and-friends" aria-hidden="true">#</a>Decomposition: least-to-most and friends</h2>
+<h2 id="decomposition-least-to-most-and-friends"><a class="anchor" href="#decomposition-least-to-most-and-friends" aria-hidden="true" tabindex="-1">#</a>Decomposition: least-to-most and friends</h2>
 <p>CoT reasons through a problem in one pass. <strong>Decomposition</strong> methods first break a problem into subproblems, then solve them in order.</p>
 <p><strong>Least-to-most prompting</strong> (Zhou et al., 2022) runs in two stages: (1) ask the model to reduce the problem to a list of simpler subquestions; (2) solve them sequentially, feeding each answer into the next. Its signature result was <strong>easy-to-hard generalization</strong>: prompted with short examples, it could solve problems longer than any in the prompt, where plain CoT broke down.</p>
 <p>Related ideas you&#39;ll meet:</p>
@@ -219,9 +219,9 @@ answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 worker
 <li>In agent systems, decomposition shows up as the <strong><dfn class="gt" tabindex="0" data-t="Orchestrator-workers" data-d="A pattern in which a central LLM dynamically decides the subtasks, delegates them to worker LLMs, and synthesizes their results; the subtasks are not known in advance." data-l="workflow-patterns" data-a="orchestrator-workers">orchestrator-workers</dfn></strong> pattern (see <a href="workflow-patterns.html">workflow patterns</a>) and as <a href="multi-agent-systems.html">multi-agent systems</a> that hand subtasks to sub-agents.</li>
 </ul>
 <p>Decomposition works when the subproblems are genuinely more independent than the original. When they&#39;re tightly coupled (changing one changes what the others should be), a fixed upfront decomposition becomes a liability, and you need replanning.</p>
-<h2 id="searching-the-space-of-thoughts"><a class="anchor" href="#searching-the-space-of-thoughts" aria-hidden="true">#</a>Searching the space of thoughts</h2>
+<h2 id="searching-the-space-of-thoughts"><a class="anchor" href="#searching-the-space-of-thoughts" aria-hidden="true" tabindex="-1">#</a>Searching the space of thoughts</h2>
 <p>CoT is a single path. Self-consistency is several independent paths. The next step is to treat reasoning as <strong>search</strong>: branch, evaluate partial progress, and backtrack from dead ends.</p>
-<h3 id="tree-of-thoughts"><a class="anchor" href="#tree-of-thoughts" aria-hidden="true">#</a>Tree of Thoughts</h3>
+<h3 id="tree-of-thoughts"><a class="anchor" href="#tree-of-thoughts" aria-hidden="true" tabindex="-1">#</a>Tree of Thoughts</h3>
 <p><strong>Tree of Thoughts (ToT)</strong> (Yao et al., 2023) frames problem solving as search over a tree where each node is a partial solution (a &quot;thought&quot;). It needs four components:</p>
 <ol>
 <li><strong>Thought decomposition</strong>: what one step looks like (an equation, a line of a plan, a paragraph).</li>
@@ -238,16 +238,16 @@ answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 worker
     B --&gt; B1[&quot;evaluator: impossible ✗&quot;]
     C --&gt; C1[&quot;evaluator: impossible ✗&quot;]</pre></figure>
 <p>On the &quot;Game of 24&quot; puzzle, the ToT paper reported GPT-4 with CoT solving 4% of problems versus 74% with ToT. The price is many more model calls per problem. ToT shines when there are few steps, many plausible branches, and a cheap reliable way to say &quot;this branch is dead.&quot;</p>
-<h3 id="graph-of-thoughts"><a class="anchor" href="#graph-of-thoughts" aria-hidden="true">#</a>Graph of Thoughts</h3>
+<h3 id="graph-of-thoughts"><a class="anchor" href="#graph-of-thoughts" aria-hidden="true" tabindex="-1">#</a>Graph of Thoughts</h3>
 <p><strong>Graph of Thoughts (GoT)</strong> (Besta et al., 2023) generalizes the tree to an arbitrary graph. Thoughts can be <strong>merged</strong> (combine the best parts of three partial solutions), <strong>refined</strong> in loops, and reused. The canonical demonstration is sorting: split a list, sort the pieces, merge them, a shape a tree can&#39;t express. GoT is more a framework for composing operations than a single algorithm. In practice the same idea shows up whenever an agent generates several drafts and synthesizes them.</p>
-<h3 id="mcts-and-lats"><a class="anchor" href="#mcts-and-lats" aria-hidden="true">#</a>MCTS and LATS</h3>
+<h3 id="mcts-and-lats"><a class="anchor" href="#mcts-and-lats" aria-hidden="true" tabindex="-1">#</a>MCTS and LATS</h3>
 <p><strong>Monte Carlo Tree Search (MCTS)</strong>, the algorithm behind AlphaGo, balances <em>exploring</em> untried branches against <em>exploiting</em> promising ones, using rollouts and backed-up value estimates. <strong>Reasoning via Planning (RAP)</strong> (Hao et al., 2023) used the LLM both as a <dfn class="gt" tabindex="0" data-t="World model" data-d="An internal model of how an environment works, used to predict the consequences of actions and plan ahead." data-l="future-of-agents" data-a="world-model">world model</dfn> (predict the next state) and as the policy inside MCTS.</p>
 <p><strong>Language Agent Tree Search (LATS)</strong> (Zhou et al., 2023) brought this to agents. It combines ReAct-style acting, MCTS, LLM-based value estimates, and Reflexion-style self-reflections on failed trajectories. Crucially, it uses <strong>real environment feedback</strong> (test results, web page contents) to score nodes. That makes it far more reliable than purely self-evaluated search, but it requires an environment you can <strong>reset or branch</strong>: you can re-run a unit test from a clean state, but you can&#39;t un-send an email.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Tree search multiplies cost and latency by the branching factor and depth, often 10–100× a single pass. In production it&#39;s mostly used offline (generating training data, hard batch problems) or where a cheap, trustworthy verifier exists, such as unit tests in coding.</p>
-</div></aside>
-<h2 id="react-reasoning-interleaved-with-acting"><a class="anchor" href="#react-reasoning-interleaved-with-acting" aria-hidden="true">#</a>ReAct: reasoning interleaved with acting</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Tree search multiplies cost and latency by the branching factor and depth, often 10–100× a single pass. In production it&#39;s mostly used offline (generating training data, hard batch problems) or where a cheap, trustworthy verifier exists, such as unit tests in coding.</p>
+</div></div>
+<h2 id="react-reasoning-interleaved-with-acting"><a class="anchor" href="#react-reasoning-interleaved-with-acting" aria-hidden="true" tabindex="-1">#</a>ReAct: reasoning interleaved with acting</h2>
 <p>Pure reasoning operates on what the model already knows, so it can confidently reason its way to a hallucinated fact. Pure acting (calling tools with no explicit reasoning) loses track of goals. <strong>ReAct</strong> (Yao et al., 2022) interleaves the two: <strong>Thought → Action → Observation</strong>, repeated. The thoughts plan and interpret; the actions ground the reasoning in real information.</p>
-<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Task: Which is older, the Eiffel Tower or the Statue of Liberty's dedication?
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Task: Which is older, the Eiffel Tower or the Statue of Liberty's dedication?
 
 <span class="tr-thought">Thought:</span> I need both dates. Search the Eiffel Tower first.
 <span class="tr-action">Action:</span> search(&quot;Eiffel Tower completion date&quot;)
@@ -258,7 +258,7 @@ answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 worker
 <span class="tr-thought">Thought:</span> 1886 is earlier than 1889, so the dedication came first.
 <span class="tr-action">Action:</span> finish(&quot;The Statue of Liberty was dedicated first (1886, vs. 1889).&quot;)</code></pre></div>
 <p>ReAct is the conceptual ancestor of essentially every modern tool-using agent. In today&#39;s APIs you don&#39;t parse &quot;Thought:/Action:&quot; strings. The model emits structured <code>tool_use</code> blocks and (with reasoning models) separate thinking blocks, but the loop is the same one you built in <a href="the-agent-loop.html">the agent loop</a>. ReAct&#39;s weakness is <strong>myopia</strong>: it decides one step at a time, so on long tasks it can drift, repeat itself, or forget the overall goal. That&#39;s what explicit planning addresses. <a href="agent-architectures.html">Agent architectures</a> compares ReAct with the other architectures in more depth.</p>
-<h2 id="plan-first-then-execute"><a class="anchor" href="#plan-first-then-execute" aria-hidden="true">#</a>Plan first, then execute</h2>
+<h2 id="plan-first-then-execute"><a class="anchor" href="#plan-first-then-execute" aria-hidden="true" tabindex="-1">#</a>Plan first, then execute</h2>
 <p><strong>Plan-and-Solve prompting</strong> (Wang et al., 2023) was a zero-shot fix for CoT&#39;s missing-step errors: &quot;Let&#39;s first understand the problem and devise a plan to solve it. Then, let&#39;s carry out the plan step by step.&quot; Agent frameworks took the idea further with <strong>plan-and-execute</strong> architectures:</p>
 <ol>
 <li>A <strong>planner</strong> writes a multi-step plan up front.</li>
@@ -274,9 +274,9 @@ answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 worker
     RP --&gt; E
     C -- &quot;goal met&quot; --&gt; F[&quot;Final answer&quot;]</pre></figure>
 <p>Benefits: the plan is an inspectable artifact (a human can approve it, see <a href="human-in-the-loop.html">human-in-the-loop</a>), steps can be parallelized, and a strong model only pays for planning while cheaper ones execute. The main risk is the <strong>stale plan</strong>. Plans are written before the agent knows what the environment will show it, so a plan without replanning is a guess you committed to too early.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Plan when the task has a recognizable structure and costly mistakes (migrations, multi-file refactors, research reports). Use plain ReAct when the next step depends heavily on what you just observed (debugging, exploratory browsing). Always allow replanning.</p>
-</div></aside>
-<h3 id="todo-lists-planning-in-practical-agents"><a class="anchor" href="#todo-lists-planning-in-practical-agents" aria-hidden="true">#</a>Todo lists: planning in practical agents</h3>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Plan when the task has a recognizable structure and costly mistakes (migrations, multi-file refactors, research reports). Use plain ReAct when the next step depends heavily on what you just observed (debugging, exploratory browsing). Always allow replanning.</p>
+</div></div>
+<h3 id="todo-lists-planning-in-practical-agents"><a class="anchor" href="#todo-lists-planning-in-practical-agents" aria-hidden="true" tabindex="-1">#</a>Todo lists: planning in practical agents</h3>
 <p>Production coding agents mostly don&#39;t use a separate planner model. They give the main model a <strong><dfn class="gt" tabindex="0" data-t="Todo-list tool" data-d="A tool that lets an agent write, update and tick off its own checklist, providing decomposition, recitation and cheap replanning in one. Claude Code's original TodoWrite tool was reworked into a set of task tools in 2026." data-a="todo-list-tool">todo-list tool</dfn></strong>. Claude Code&#39;s todo tool (originally <code>TodoWrite</code>, since reworked into a set of task tools), for example, lets the model write a checklist, mark items in progress, and tick them off. This does several jobs at once:</p>
 <ul>
 <li><strong>Decomposition</strong>: writing the list forces the model to break the task down.</li>
@@ -285,7 +285,7 @@ answer, agreement = self_consistency(<span class="hljs-string">&quot;If 3 worker
 <li><strong>Transparency</strong>: the user watches progress in real time.</li>
 </ul>
 <p>A minimal version:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
 <span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
@@ -338,7 +338,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
         <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>
     ]
     messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})</code></pre></div>
-<h2 id="reflection-and-self-critique"><a class="anchor" href="#reflection-and-self-critique" aria-hidden="true">#</a>Reflection and self-critique</h2>
+<h2 id="reflection-and-self-critique"><a class="anchor" href="#reflection-and-self-critique" aria-hidden="true" tabindex="-1">#</a>Reflection and self-critique</h2>
 <p>Humans improve by reviewing their work. Two influential papers gave agents the same loop.</p>
 <p><strong><dfn class="gt" tabindex="0" data-t="Self-Refine" data-d="An iterative loop (Madaan et al., 2023) in which the same model generates an output, critiques it, and revises it until a stopping condition." data-l="workflow-patterns" data-a="self-refine">Self-Refine</dfn></strong> (Madaan et al., 2023) uses one model in three roles: generate an output, critique it (&quot;the function doesn&#39;t handle empty input&quot;), and refine it using the critique, repeating until the critique is satisfied. It needs no training and improved results across tasks like code optimization and dialogue.</p>
 <p><strong>Reflexion</strong> (Shinn et al., 2023) works <em>across attempts</em>. After a failed trial (judged by unit tests, an environment signal, or a heuristic), the agent writes a short verbal <strong>self-reflection</strong> (&quot;I assumed the list was sorted; I should check that first&quot;) and stores it in an <dfn class="gt" tabindex="0" data-t="Episodic memory" data-d="Memory of specific past events or interactions, such as &quot;last Tuesday the deploy failed because of X&quot;, often used for few-shot recall or reflection." data-l="memory" data-a="episodic-memory">episodic memory</dfn> buffer. The next attempt sees those reflections in its context. The authors call it &quot;verbal reinforcement learning&quot;: the policy improves without any weight updates. It&#39;s an early form of the <a href="memory.html">memory</a> and <a href="self-improving-agents.html">self-improving agents</a> ideas.</p>
@@ -353,12 +353,12 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
     M--&gt;&gt;A: Reflections injected into prompt
     A-&gt;&gt;E: Attempt 2
     E--&gt;&gt;A: Pass</pre></figure>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span><dfn class="gt" tabindex="0" data-t="Self-correction" data-d="A model revising its own output. Research shows intrinsic self-correction without external feedback is unreliable; it works best with grounded signals like test results or tool errors." data-a="self-correction">Self-correction</dfn> needs a signal</div><div class="callout-body"><p>Huang et al. (2023), &quot;Large Language Models Cannot Self-Correct Reasoning Yet&quot;, found that when models critique their own reasoning <strong>without external feedback</strong>, performance often stays flat or gets worse: they talk themselves out of right answers as often as into them. Reflection works best when grounded in something outside the model: test results, a compiler, a retrieved fact, a separate verifier. The <a href="workflow-patterns.html">evaluator-optimizer pattern</a> gets its value from a good evaluator.</p>
-</div></aside>
-<h2 id="outsourcing-the-plan-llmp-and-llm-modulo"><a class="anchor" href="#outsourcing-the-plan-llmp-and-llm-modulo" aria-hidden="true">#</a>Outsourcing the plan: LLM+P and LLM-Modulo</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span><dfn class="gt" tabindex="0" data-t="Self-correction" data-d="A model revising its own output. Research shows intrinsic self-correction without external feedback is unreliable; it works best with grounded signals like test results or tool errors." data-a="self-correction">Self-correction</dfn> needs a signal</div><div class="callout-body"><p>Huang et al. (2023), &quot;Large Language Models Cannot Self-Correct Reasoning Yet&quot;, found that when models critique their own reasoning <strong>without external feedback</strong>, performance often stays flat or gets worse: they talk themselves out of right answers as often as into them. Reflection works best when grounded in something outside the model: test results, a compiler, a retrieved fact, a separate verifier. The <a href="workflow-patterns.html">evaluator-optimizer pattern</a> gets its value from a good evaluator.</p>
+</div></div>
+<h2 id="outsourcing-the-plan-llmp-and-llm-modulo"><a class="anchor" href="#outsourcing-the-plan-llmp-and-llm-modulo" aria-hidden="true" tabindex="-1">#</a>Outsourcing the plan: LLM+P and LLM-Modulo</h2>
 <p>Classical AI solved planning decades ago, for problems you can state formally. <strong>PDDL</strong> (Planning Domain Definition Language) describes a domain (object types, actions with preconditions and effects) and a problem (initial state, goal). Planners such as Fast Downward then find provably valid, often optimal, plans.</p>
 <p><strong>LLM+P</strong> (Liu et al., 2023) splits the work by strength: the LLM translates a natural-language problem into PDDL, a classical planner solves it, and the LLM translates the plan back into language. On benchmark domains, this produced correct plans far more often than asking the LLM to plan directly. The catch: you need a hand-written domain file, and the translation step itself can introduce errors.</p>
-<h3 id="kambhampatis-critique"><a class="anchor" href="#kambhampatis-critique" aria-hidden="true">#</a>Kambhampati&#39;s critique</h3>
+<h3 id="kambhampatis-critique"><a class="anchor" href="#kambhampatis-critique" aria-hidden="true" tabindex="-1">#</a>Kambhampati&#39;s critique</h3>
 <p>Subbarao Kambhampati&#39;s group has been the most persistent skeptic of LLM planning claims. Their <strong>PlanBench</strong> evaluations (Valmeekam et al.) asked models to plan in Blocksworld and similar domains. Key findings:</p>
 <ul>
 <li>Models produced valid plans much less often than headline demos suggested, and performance <strong>collapsed on &quot;Mystery Blocksworld&quot;</strong>, the same problems with actions renamed to nonsense words. That suggests pattern retrieval from training data rather than general planning.</li>
@@ -366,7 +366,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 <li>Reasoning models (o1, tested in a 2024 follow-up) improved substantially on standard problems, but still degraded on longer and obfuscated problems, at much higher cost, and without any guarantee of correctness.</li>
 </ul>
 <p>Their proposed remedy is the <strong>LLM-Modulo</strong> framework. Use LLMs as idea generators, translators and approximate knowledge sources, but put <strong>sound external verifiers</strong> (plan validators, simulators, test suites, constraint checkers) in a generate-test-critique loop. That&#39;s good engineering advice whatever you believe about LLM &quot;reasoning&quot;: <em>never let the same unverified component be both proposer and judge on high-stakes plans.</em></p>
-<h2 id="reasoning-models-and-test-time-compute"><a class="anchor" href="#reasoning-models-and-test-time-compute" aria-hidden="true">#</a>Reasoning models and test-time compute</h2>
+<h2 id="reasoning-models-and-test-time-compute"><a class="anchor" href="#reasoning-models-and-test-time-compute" aria-hidden="true" tabindex="-1">#</a>Reasoning models and test-time compute</h2>
 <p>Everything so far bolts reasoning onto a model from the outside. <strong>Reasoning models</strong> move it inside: they are trained, mostly with reinforcement learning on verifiable tasks (math, code, puzzles), to produce long internal chains of thought before answering. (How that training works is covered in <a href="training-agents.html">training agents</a>.)</p>
 <ul>
 <li><strong>OpenAI o1</strong> (September 2024) made the idea mainstream. OpenAI showed accuracy rising smoothly with both train-time RL compute and <strong><dfn class="gt" tabindex="0" data-t="Test-time compute" data-d="Extra computation spent while answering, such as longer reasoning, sampling many candidates or search, to improve accuracy without changing model weights." data-a="test-time-compute">test-time compute</dfn></strong>, the amount of thinking at inference.</li>
@@ -374,9 +374,9 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 <li>Snell et al. (2024) studied <strong>compute-optimal test-time scaling</strong>: adaptively spending inference compute (revisions, verifier-guided search) let a smaller model match a much larger one on easy-to-medium problems, though not on the hardest ones.</li>
 </ul>
 <p>As of 2026, every frontier lab ships reasoning models, and the dial is exposed directly in the API.</p>
-<h3 id="adaptive-thinking-and-effort-in-claude"><a class="anchor" href="#adaptive-thinking-and-effort-in-claude" aria-hidden="true">#</a>Adaptive thinking and effort in Claude</h3>
+<h3 id="adaptive-thinking-and-effort-in-claude"><a class="anchor" href="#adaptive-thinking-and-effort-in-claude" aria-hidden="true" tabindex="-1">#</a>Adaptive thinking and effort in Claude</h3>
 <p>Current Claude models use <strong><dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-a="extended-thinking">adaptive thinking</dfn></strong>: the model decides per request how much to think, and you set the overall trade-off with an <strong>effort</strong> level (<code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>). Defaults vary by model. Lower effort means less thinking, fewer and more consolidated tool calls, and terser output. Higher effort means more thorough work, at more tokens and latency.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
 
@@ -403,9 +403,9 @@ response = client.messages.create(
 <li><strong><dfn class="gt" tabindex="0" data-t="Interleaved thinking" data-d="Reasoning that happens between tool calls, not only before the first one, so the model can reflect on each tool result before choosing its next action." data-a="interleaved-thinking">Interleaved thinking</dfn>.</strong> With adaptive thinking, the model can think <em>between</em> tool calls: read a tool result, reason about it, then choose the next action. This is ReAct&#39;s &quot;Thought&quot; step, now native. To keep it working you must append the <strong>full</strong> <code>response.content</code>, thinking blocks included, back into <code>messages</code> unchanged. Stripping or editing them breaks the chain (and the prompt cache).</li>
 <li><strong>What you see is a summary.</strong> Many current models return summarized or omitted thinking rather than the raw chain. Treat it as a debugging aid, not a log of the computation.</li>
 </ul>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Before native interleaved thinking, Anthropic recommended a &quot;think&quot; tool: a no-op tool whose only input is a thought, giving the model a sanctioned place to reason between tool calls. It still helps with models or settings where thinking is off, and it shows how cheaply you can create &quot;reasoning space&quot; in a harness.</p>
-</div></aside>
-<h3 id="when-more-thinking-helps-and-when-it-hurts"><a class="anchor" href="#when-more-thinking-helps-and-when-it-hurts" aria-hidden="true">#</a>When more thinking helps, and when it hurts</h3>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Before native interleaved thinking, Anthropic recommended a &quot;think&quot; tool: a no-op tool whose only input is a thought, giving the model a sanctioned place to reason between tool calls. It still helps with models or settings where thinking is off, and it shows how cheaply you can create &quot;reasoning space&quot; in a harness.</p>
+</div></div>
+<h3 id="when-more-thinking-helps-and-when-it-hurts"><a class="anchor" href="#when-more-thinking-helps-and-when-it-hurts" aria-hidden="true" tabindex="-1">#</a>When more thinking helps, and when it hurts</h3>
 <p>More thinking is not free and not always better.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -433,7 +433,7 @@ response = client.messages.create(
 </tbody></table>
 </div>
 <p>Researchers have documented <strong>overthinking</strong>: reasoning models spend thousands of tokens on trivial questions. Anthropic-affiliated researchers have also reported <strong>inverse scaling in test-time compute</strong>, tasks where <em>longer</em> reasoning lowered accuracy because the model latched onto distractors or spurious patterns. The practical lesson: treat effort as a hyperparameter you <strong>evaluate per route</strong>. Measure accuracy, cost and latency at two or three levels on your own <a href="evaluating-agents.html">evals</a>, and pin the level that wins. Don&#39;t vary it randomly per request (that also invalidates prompt caches; see <a href="cost-and-latency.html">cost and latency</a>).</p>
-<h2 id="can-you-trust-the-chain-of-thought"><a class="anchor" href="#can-you-trust-the-chain-of-thought" aria-hidden="true">#</a>Can you trust the chain of thought?</h2>
+<h2 id="can-you-trust-the-chain-of-thought"><a class="anchor" href="#can-you-trust-the-chain-of-thought" aria-hidden="true" tabindex="-1">#</a>Can you trust the chain of thought?</h2>
 <p>A visible chain of thought is tempting to read as an explanation. Research says be careful.</p>
 <ul>
 <li><strong>Unfaithful CoT.</strong> Turpin et al. (2023) biased few-shot prompts (for example, always making option &quot;A&quot; correct). Models followed the bias, then wrote plausible step-by-step justifications that never mentioned it.</li>
@@ -446,7 +446,7 @@ response = client.messages.create(
 <li><strong>Debugging.</strong> Use thinking to form hypotheses, then confirm them with behavior: change the input and see if the action changes.</li>
 <li><strong>Optimization pressure.</strong> If you train or select against &quot;bad-looking&quot; reasoning, you may teach models to hide it rather than stop doing it.</li>
 </ul>
-<h2 id="choosing-a-strategy"><a class="anchor" href="#choosing-a-strategy" aria-hidden="true">#</a>Choosing a strategy</h2>
+<h2 id="choosing-a-strategy"><a class="anchor" href="#choosing-a-strategy" aria-hidden="true" tabindex="-1">#</a>Choosing a strategy</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -519,7 +519,7 @@ response = client.messages.create(
 </tbody></table>
 </div>
 <p>In practice, a modern agent usually stacks several: a reasoning model with adaptive thinking, a ReAct-style tool loop, a todo list for long tasks, and a verifier-driven retry loop where a test or grader exists.</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>Reasoning techniques are ways of spending <strong>more computation</strong> before committing to an answer: more tokens (CoT), more samples (self-consistency), or more search (ToT, LATS).</li>
 <li><strong>ReAct</strong> grounds reasoning in observations and is the core of every tool-using agent. <strong>Plan-and-execute</strong> adds foresight but must <strong>replan</strong> when reality diverges.</li>
@@ -529,7 +529,7 @@ response = client.messages.create(
 <li><strong>Reasoning models</strong> move CoT into training. In the API, thinking is a dial (adaptive thinking plus effort) that you should tune per route with evals.</li>
 <li>Visible reasoning is <strong>useful but not fully faithful</strong>. Use it for monitoring and debugging, never as proof.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Zero-shot CoT by hand.</strong> Pick five tricky word problems. Ask a small, fast model each one directly, then with &quot;Let&#39;s think step by step.&quot; Record the accuracy difference and the token cost.</li>
 <li><strong>Self-consistency with confidence.</strong> Extend the <code>self_consistency</code> function so that if agreement is below 0.6, it draws five more samples. If agreement is still low, it returns <code>&quot;UNSURE&quot;</code>. Measure how often &quot;UNSURE&quot; fires on wrong answers versus right ones.</li>
@@ -537,7 +537,7 @@ response = client.messages.create(
 <li><strong>Replanning trigger.</strong> Add a <code>replan_needed</code> signal to the todo-list agent: when a tool returns an error twice in a row on the same step, inject a message asking the model to revise the plan before continuing. Compare behavior on a task where step 2 is impossible as written.</li>
 <li><strong>LLM-Modulo mini-project (hard).</strong> Write a Blocksworld plan validator (check preconditions, apply effects, test the goal). Have a model propose plans, validate them, and feed the first violated precondition back as a critique, up to five rounds. Then rename the actions to nonsense words and compare success rates.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="reasoning-and-planning" data-total="8">
 
 <div class="quiz-q" data-correct="2">
@@ -628,7 +628,7 @@ response = client.messages.create(
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> CoT faithfulness is already imperfect. Optimizing on how reasoning looks creates pressure to obscure it rather than change the behavior, which undermines one of the best monitoring tools available. A capability drop is possible but secondary to losing the monitoring signal.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (Wei et al., 2022)</a>: the paper that started it, with clear demonstrations of emergence with scale.</li>
 <li><a href="https://arxiv.org/abs/2205.11916" target="_blank" rel="noopener">Large Language Models are Zero-Shot Reasoners (Kojima et al., 2022)</a>: &quot;Let&#39;s think step by step,&quot; and why a single sentence matters.</li>
@@ -656,7 +656,7 @@ response = client.messages.create(
     <a class="pager-next" href="memory.html"><small>Next →</small><span>Memory Systems</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#reasoning-vs-planning">Reasoning vs. planning</a></li>
 <li class="toc-h2"><a href="#chain-of-thought-thinking-out-loud">Chain-of-thought: thinking out loud</a></li>
 <li class="toc-h2"><a href="#self-consistency-sample-many-paths-vote">Self-consistency: sample many paths, vote</a></li>
@@ -687,9 +687,9 @@ response = client.messages.create(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

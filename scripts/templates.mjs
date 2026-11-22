@@ -66,9 +66,9 @@ ${body}
     <div class="footer-brand"><a class="brand" href="index.html">${ICON.logo}<span>${SITE_NAME}</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
@@ -122,7 +122,7 @@ function sidebar(site, current) {
 
 function toc(headings) {
   if (!headings.length) return "";
-  return `<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+  return `<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 ${headings.map((h) => `<li class="toc-h${h.depth}"><a href="#${h.id}">${esc(h.text)}</a></li>`).join("\n")}
 </ul></div></aside>`;
 }
@@ -139,7 +139,7 @@ export function lessonPage(site, l) {
   const body = `<div class="layout-lesson">
 ${sidebar(site, l)}
 <main id="main" class="lesson" data-slug="${l.slug}">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#${l.module.id}">Module ${modIndex}: ${esc(l.module.title)}</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#${l.module.id}">Module ${modIndex}: ${esc(l.module.title)}</a></nav>
   <header class="lesson-header">
     <h1>${esc(l.title)}</h1>
     <p class="lead">${esc(l.description)}</p>
@@ -357,10 +357,10 @@ export function glossaryPage(site) {
       const letterHead = L !== lastLetter ? `<h2 class="gl-letter" id="letter-${L === "#" ? "num" : L}">${L}</h2>` : "";
       lastLetter = L;
       const lesson = g.lesson && site.bySlug.get(g.lesson);
-      return `${letterHead}<div class="gl-item" id="${site.slugify(g.term)}"${anchor} data-text="${esc((g.term + " " + (g.aliases || []).join(" ") + " " + g.definition).toLowerCase())}">
+      return `${letterHead}<dl class="gl-item" id="${site.slugify(g.term)}"${anchor} data-text="${esc((g.term + " " + (g.aliases || []).join(" ") + " " + g.definition).toLowerCase())}">
   <dt>${esc(g.term)}${g.aliases && g.aliases.length ? ` <small>(${g.aliases.map(esc).join(", ")})</small>` : ""}</dt>
   <dd>${esc(g.definition)}${lesson ? ` <a class="gl-more" href="${lesson.slug}.html">→ ${esc(lesson.title)}</a>` : ""}</dd>
-</div>`;
+</dl>`;
     })
     .join("\n");
   const body = `<main id="main" class="page page-narrow">
@@ -368,9 +368,9 @@ export function glossaryPage(site) {
 <p class="lead">${site.glossary.length} essential terms, defined plainly. Want to memorize them? Try the <a href="flashcards.html">flashcards</a>.</p></header>
 <div class="filter-bar"><input type="search" class="gl-filter" placeholder="Filter terms…" aria-label="Filter glossary"><span class="gl-count"></span></div>
 <nav class="letter-nav">${letters.map((L) => `<a href="#letter-${L === "#" ? "num" : L}">${L}</a>`).join("")}</nav>
-<dl class="glossary">
+<div class="glossary">
 ${items}
-</dl>
+</div>
 <p class="gl-empty" hidden>No terms match your filter.</p>
 </main>`;
   return layout({ title: "Glossary", description: "Glossary of AI agent terminology.", body, page: "glossary" });
@@ -401,7 +401,7 @@ ${site.papers
     )}">
   <label class="paper-check" title="Mark as read"><input type="checkbox" data-paper="${id}"><span>${ICON.check}</span></label>
   <div class="paper-body">
-    <h3><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${p.essential ? ' <span class="star" title="Essential">⭐</span>' : ""}</h3>
+    <h2 class="paper-title"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>${p.essential ? ' <span class="star" title="Essential">⭐</span>' : ""}</h2>
     <p class="paper-meta">${esc(p.authors || "")}${p.year ? ` · ${p.year}` : ""} · <span class="paper-cat">${esc(p.category || "")}</span></p>
     <p>${esc(p.summary || "")}</p>
     ${lesson ? `<a class="paper-lesson" href="${lesson.slug}.html">Covered in: ${esc(lesson.title)} →</a>` : ""}
@@ -469,7 +469,8 @@ export function flashcardsPage(site) {
 </div>
 <div class="fc-boxes"></div>
 <div class="fc-stage">
-  <button type="button" class="fc-card" aria-live="polite"><div class="fc-face fc-front"></div><div class="fc-face fc-back"></div></button>
+  <button type="button" class="fc-card" aria-live="polite" aria-label="Flashcard — press to flip"><div class="fc-face fc-front"></div><div class="fc-face fc-back"></div></button>
+  <p class="fc-learn"></p>
 </div>
 <div class="fc-actions"><button type="button" class="btn btn-ghost fc-again">✗ Again <kbd>1</kbd></button><button type="button" class="btn btn-ghost fc-flip">Flip <kbd>Space</kbd></button><button type="button" class="btn btn-primary fc-good">✓ Got it <kbd>2</kbd></button></div>
 <p class="fc-session"></p>

@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="rag-and-retrieval">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Retrieval &amp; Agentic RAG</h1>
     <p class="lead">How agents find the right information: embeddings, chunking, vector indexes, hybrid search, reranking, contextual retrieval, agentic and graph RAG, grep-style agentic search, and how to evaluate it all.</p>
@@ -145,7 +145,7 @@
 <p>A support agent is asked: &quot;Can I get a refund on an annual plan after 45 days?&quot; The model was never trained on your refund policy, which changed last month anyway. If it answers from its weights, it will produce something plausible and probably wrong. If it can <strong>look up</strong> the current policy, quote the relevant clause and cite it, it becomes trustworthy.</p>
 <p>That&#39;s the promise of <strong><dfn class="gt" tabindex="0" data-t="Retrieval-augmented generation" data-d="Retrieving relevant documents from an external corpus at query time and placing them in the prompt so the model answers from them (Lewis et al., 2020)." data-a="retrieval-augmented-generation">retrieval-augmented generation</dfn> (RAG)</strong>: fetch relevant information at runtime and put it in the model&#39;s context so the answer is grounded in sources you control. RAG started as a fixed pipeline (embed the question, fetch the top five chunks, stuff them in the prompt). In agents it has become something more flexible: <strong>retrieval as a tool</strong> that the model calls, refines and repeats until it has what it needs.</p>
 <p>This lesson covers the whole stack: embeddings and similarity, <dfn class="gt" tabindex="0" data-t="Chunking" data-d="Splitting documents into smaller passages before embedding them. Chunk size and boundaries strongly affect retrieval quality." data-a="chunking">chunking</dfn>, vector indexes, the techniques that make retrieval actually good (<dfn class="gt" tabindex="0" data-t="Hybrid search" data-d="Combining lexical search (such as BM25) with semantic vector search and fusing the rankings, usually outperforming either alone." data-a="hybrid-search">hybrid search</dfn>, reranking, <dfn class="gt" tabindex="0" data-t="Contextual retrieval" data-d="An Anthropic technique of prepending a short, model-generated explanation of each chunk's place in its document before embedding and BM25 indexing, reducing retrieval failures." data-a="contextual-retrieval">contextual retrieval</dfn>, <dfn class="gt" tabindex="0" data-t="Query rewriting" data-d="Reformulating a user question, for example by expanding, decomposing or clarifying it, before retrieval to improve recall." data-a="query-rewriting">query rewriting</dfn>), agentic and graph-based RAG, why coding agents often skip embeddings entirely, and how to measure whether any of it works.</p>
-<h2 id="why-retrieval"><a class="anchor" href="#why-retrieval" aria-hidden="true">#</a>Why retrieval</h2>
+<h2 id="why-retrieval"><a class="anchor" href="#why-retrieval" aria-hidden="true" tabindex="-1">#</a>Why retrieval</h2>
 <p>Models have two kinds of knowledge. <strong>Parametric knowledge</strong> is baked into the weights during training. <strong>Non-parametric knowledge</strong> is supplied in the context at inference time. Retrieval adds non-parametric knowledge, which fixes four problems at once:</p>
 <ol>
 <li><strong>Freshness</strong>: weights have a training cutoff; your documents changed yesterday.</li>
@@ -154,7 +154,7 @@
 <li><strong>Provenance</strong>: retrieved passages can be cited, so users and auditors can check claims.</li>
 </ol>
 <p>The term comes from Lewis et al. (2020), who paired a dense retriever with a generator. Today &quot;RAG&quot; covers any system that retrieves before (or while) generating.</p>
-<h2 id="the-classic-pipeline"><a class="anchor" href="#the-classic-pipeline" aria-hidden="true">#</a>The classic pipeline</h2>
+<h2 id="the-classic-pipeline"><a class="anchor" href="#the-classic-pipeline" aria-hidden="true" tabindex="-1">#</a>The classic pipeline</h2>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     subgraph Ingest[&quot;Indexing (offline)&quot;]
         D[&quot;Documents&quot;] --&gt; C[&quot;Chunk&quot;] --&gt; E[&quot;Embed&quot;] --&gt; I[(&quot;Vector + keyword index&quot;)]
@@ -165,10 +165,10 @@
         R --&gt; RR[&quot;Rerank&quot;] --&gt; P[&quot;Build prompt with sources&quot;] --&gt; G[&quot;LLM answers with citations&quot;]
     end</pre></figure>
 <p>Each box is a design decision, and quality is limited by the weakest one. A perfect generator can&#39;t answer from chunks that were never retrieved, so most RAG problems are <strong>retrieval problems</strong>.</p>
-<h2 id="embeddings-and-similarity"><a class="anchor" href="#embeddings-and-similarity" aria-hidden="true">#</a>Embeddings and similarity</h2>
+<h2 id="embeddings-and-similarity"><a class="anchor" href="#embeddings-and-similarity" aria-hidden="true" tabindex="-1">#</a>Embeddings and similarity</h2>
 <p>An <strong>embedding</strong> is a vector (typically a few hundred to a few thousand dimensions) produced by a neural network so that texts with similar meaning land near each other. &quot;How do I reset my password?&quot; and &quot;Forgot login credentials&quot; end up close together even though they share no words. That&#39;s the advantage over keyword search.</p>
 <p><strong>Similarity</strong> is usually <strong>cosine similarity</strong>, the cosine of the angle between two vectors:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">cos(a, b) = (a · b) / (‖a‖ ‖b‖)       range: −1 … 1</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">cos(a, b) = (a · b) / (‖a‖ ‖b‖)       range: −1 … 1</code></pre></div>
 <p>Most embedding models output normalized vectors (length 1), in which case cosine similarity equals the plain dot product, which is faster to compute.</p>
 <p>Practical notes:</p>
 <ul>
@@ -177,9 +177,9 @@
 <li><strong>Choosing a model</strong>: options include API models (Voyage AI, which Anthropic recommends; OpenAI; Cohere; Google) and strong open models. The MTEB leaderboard compares them, but <strong>evaluate on your own data</strong>. Domain (legal, code, medical) matters more than leaderboard rank.</li>
 <li><strong>Dimensions vs. cost</strong>: bigger vectors mean more storage and slower search. Some models support truncating vectors (Matryoshka-style training) with modest quality loss.</li>
 </ul>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Similar is not the same as relevant</div><div class="callout-body"><p>Embeddings capture topical similarity. &quot;Our refund policy for annual plans&quot; and &quot;Our refund policy for monthly plans&quot; are extremely similar, and only one answers the question. Negations, numbers, dates and exact identifiers (error codes, SKUs, function names) are where dense retrieval most often fails.</p>
-</div></aside>
-<h2 id="chunking-strategies"><a class="anchor" href="#chunking-strategies" aria-hidden="true">#</a>Chunking strategies</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Similar is not the same as relevant</div><div class="callout-body"><p>Embeddings capture topical similarity. &quot;Our refund policy for annual plans&quot; and &quot;Our refund policy for monthly plans&quot; are extremely similar, and only one answers the question. Negations, numbers, dates and exact identifiers (error codes, SKUs, function names) are where dense retrieval most often fails.</p>
+</div></div>
+<h2 id="chunking-strategies"><a class="anchor" href="#chunking-strategies" aria-hidden="true" tabindex="-1">#</a>Chunking strategies</h2>
 <p>Documents are too long to embed whole (and a single vector for a 50-page PDF averages away the details), so we split them into <strong>chunks</strong>. Chunk size is a real trade-off. Small chunks are precise but lose context; large chunks keep context but dilute the embedding and waste prompt tokens.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -228,11 +228,11 @@
 </tr>
 </tbody></table>
 </div>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Start with structure-aware chunks of a few hundred tokens with modest overlap, keep metadata (title, section path, date, URL) on every chunk, and only get fancy once your evals show where retrieval fails.</p>
-</div></aside>
-<h2 id="vector-indexes-and-databases"><a class="anchor" href="#vector-indexes-and-databases" aria-hidden="true">#</a>Vector indexes and databases</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Start with structure-aware chunks of a few hundred tokens with modest overlap, keep metadata (title, section path, date, URL) on every chunk, and only get fancy once your evals show where retrieval fails.</p>
+</div></div>
+<h2 id="vector-indexes-and-databases"><a class="anchor" href="#vector-indexes-and-databases" aria-hidden="true" tabindex="-1">#</a>Vector indexes and databases</h2>
 <p>Finding the exact nearest neighbors means comparing the query to every vector. That&#39;s fine for 10,000 chunks and too slow for 100 million. <strong>Approximate nearest neighbor (ANN)</strong> indexes trade a little recall for orders-of-magnitude speedups.</p>
-<h3 id="hnsw"><a class="anchor" href="#hnsw" aria-hidden="true">#</a>HNSW</h3>
+<h3 id="hnsw"><a class="anchor" href="#hnsw" aria-hidden="true" tabindex="-1">#</a>HNSW</h3>
 <p><strong>Hierarchical Navigable Small World</strong> graphs (Malkov &amp; Yashunin, 2016) are the most widely used ANN index.</p>
 <ul>
 <li>Every vector is a node linked to its near neighbors, forming a &quot;small world&quot; graph you can traverse greedily.</li>
@@ -241,23 +241,23 @@
 </ul>
 <p>Key parameters: <code>M</code> (links per node: more means better recall and more memory), <code>efConstruction</code> (build-time effort) and <code>efSearch</code> (query-time candidate list: higher means better recall and slower queries). HNSW gives excellent recall and latency, but it&#39;s memory-hungry and deletions are awkward.</p>
 <p>Other families: <strong>IVF</strong> (cluster the vectors, search only the nearest clusters), <strong>product quantization</strong> (compress vectors to cut memory, at some accuracy cost), and disk-based indexes for very large collections. Libraries like FAISS implement many of these.</p>
-<h3 id="vector-databases"><a class="anchor" href="#vector-databases" aria-hidden="true">#</a>Vector databases</h3>
+<h3 id="vector-databases"><a class="anchor" href="#vector-databases" aria-hidden="true" tabindex="-1">#</a>Vector databases</h3>
 <p>A <strong><dfn class="gt" tabindex="0" data-t="Vector database" data-d="A datastore optimized for storing embeddings and running fast nearest-neighbor similarity queries over them." data-a="vector-database">vector database</dfn></strong> wraps an ANN index with what production needs: CRUD, metadata filtering (&quot;only docs from tenant 42 updated after March&quot;), hybrid keyword search, replication and access control. Options include dedicated systems (Pinecone, Weaviate, Qdrant, Milvus, Chroma) and vector extensions to databases you already run (pgvector for Postgres, Elasticsearch/OpenSearch, Redis). If you already run Postgres and have under a few million chunks, pgvector is often enough.</p>
-<h2 id="making-retrieval-good"><a class="anchor" href="#making-retrieval-good" aria-hidden="true">#</a>Making retrieval good</h2>
-<h3 id="hybrid-search-bm25-dense"><a class="anchor" href="#hybrid-search-bm25-dense" aria-hidden="true">#</a>Hybrid search: BM25 + dense</h3>
+<h2 id="making-retrieval-good"><a class="anchor" href="#making-retrieval-good" aria-hidden="true" tabindex="-1">#</a>Making retrieval good</h2>
+<h3 id="hybrid-search-bm25-dense"><a class="anchor" href="#hybrid-search-bm25-dense" aria-hidden="true" tabindex="-1">#</a>Hybrid search: BM25 + dense</h3>
 <p><strong><dfn class="gt" tabindex="0" data-t="BM25" data-d="A classic lexical ranking function based on term frequency and document length. Robust for exact terms, IDs and rare words that embeddings can miss." data-a="bm25">BM25</dfn></strong> is the classic keyword ranking function: it scores documents by matching query terms, weighting rare terms more (inverse document frequency) and saturating repeated terms. It&#39;s excellent at exactly what embeddings miss: identifiers, error codes, names, rare jargon.</p>
 <p><strong>Hybrid search</strong> runs both and merges the results. The simplest robust merge is <strong>Reciprocal Rank Fusion (RRF)</strong>:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">RRF(d) = Σ over rankers r of  1 / (k + rank_r(d))       (k is often 60)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">RRF(d) = Σ over rankers r of  1 / (k + rank_r(d))       (k is often 60)</code></pre></div>
 <p>RRF uses only ranks, not raw scores, so it doesn&#39;t matter that BM25 scores and cosine similarities live on different scales. A document ranked 1st by BM25 and 8th by dense retrieval beats one ranked 3rd by dense retrieval and absent from BM25.</p>
-<h3 id="reranking-with-cross-encoders"><a class="anchor" href="#reranking-with-cross-encoders" aria-hidden="true">#</a>Reranking with cross-encoders</h3>
+<h3 id="reranking-with-cross-encoders"><a class="anchor" href="#reranking-with-cross-encoders" aria-hidden="true" tabindex="-1">#</a>Reranking with cross-encoders</h3>
 <p>Retrieval casts a wide net cheaply (say, the top 100 candidates). A <strong><dfn class="gt" tabindex="0" data-t="Reranker" data-d="A model, typically a cross-encoder, that rescores a shortlist of retrieved passages against the query for higher precision than the first-stage retriever." data-a="reranker">reranker</dfn></strong> then rescores them carefully. A <strong>cross-encoder</strong> reads the query and a candidate passage <em>together</em>, so attention can compare them token by token. It&#39;s far more accurate than a bi-encoder and far too slow to run over the whole corpus, which is exactly why it runs on a shortlist. Typical setup: retrieve 50–150, rerank, keep the top 5–20. Hosted rerankers (Cohere, Voyage) and open cross-encoders are common. An LLM can also act as a reranker, at higher cost.</p>
-<h3 id="contextual-retrieval"><a class="anchor" href="#contextual-retrieval" aria-hidden="true">#</a>Contextual retrieval</h3>
+<h3 id="contextual-retrieval"><a class="anchor" href="#contextual-retrieval" aria-hidden="true" tabindex="-1">#</a>Contextual retrieval</h3>
 <p>Chunks often lose meaning when cut from their document. &quot;Revenue grew 3% over the previous quarter&quot; doesn&#39;t say <em>which company</em> or <em>which quarter</em>. Anthropic&#39;s <strong>Contextual Retrieval</strong> technique (2024) prepends a short, LLM-generated context to each chunk before embedding <em>and</em> before BM25 indexing:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Original chunk:     &quot;Revenue grew 3% over the previous quarter.&quot;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Original chunk:     &quot;Revenue grew 3% over the previous quarter.&quot;
 Contextualized:     &quot;This chunk is from ACME Corp&#x27;s Q2 2023 SEC filing, in the section
                      on financial results. Revenue grew 3% over the previous quarter.&quot;</code></pre></div>
 <p>In Anthropic&#39;s experiments, contextual embeddings cut the top-20 retrieval failure rate by 35%. Adding contextual BM25 brought the reduction to 49%, and adding reranking brought it to 67%. Generating a context for every chunk sounds expensive, but <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn></strong> makes it cheap: the full document is cached once and each chunk&#39;s request reuses it.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
 
@@ -277,7 +277,7 @@ client = anthropic.Anthropic()
     )
     context = <span class="hljs-built_in">next</span>(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
     <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">{context}</span>\n\n<span class="hljs-subst">{chunk}</span>&quot;</span>  <span class="hljs-comment"># index THIS string in both the vector and BM25 indexes</span></code></pre></div>
-<h3 id="query-transformation"><a class="anchor" href="#query-transformation" aria-hidden="true">#</a>Query transformation</h3>
+<h3 id="query-transformation"><a class="anchor" href="#query-transformation" aria-hidden="true" tabindex="-1">#</a>Query transformation</h3>
 <p>The user&#39;s words are often not the best search query.</p>
 <ul>
 <li><strong>Query rewriting</strong>: an LLM turns &quot;it&#39;s broken again after the update??&quot; (plus conversation history) into &quot;error after upgrading to v4.2 login page 500&quot;.</li>
@@ -286,7 +286,7 @@ client = anthropic.Anthropic()
 <li><strong><dfn class="gt" tabindex="0" data-t="HyDE" data-d="Hypothetical Document Embeddings: generating a hypothetical answer to a query and embedding that, instead of the query, to retrieve similar real documents." data-a="hyde">HyDE</dfn> (Hypothetical Document Embeddings)</strong> (Gao et al., 2022): ask the LLM to write a <em>hypothetical answer</em>, then embed that and search with it. A fake answer looks more like the real answer passage than the question does. The fabricated details don&#39;t matter, because only the embedding is used.</li>
 <li><strong>Step-back prompting</strong>: retrieve for a more general question (&quot;what are the principles of X?&quot;) alongside the specific one.</li>
 </ul>
-<h2 id="agentic-rag"><a class="anchor" href="#agentic-rag" aria-hidden="true">#</a>Agentic RAG</h2>
+<h2 id="agentic-rag"><a class="anchor" href="#agentic-rag" aria-hidden="true" tabindex="-1">#</a>Agentic RAG</h2>
 <p>Classic RAG retrieves <strong>once</strong>, <strong>before</strong> generation, with the <strong>user&#39;s query</strong>. Each of those is a limitation. <dfn class="gt" tabindex="0" data-t="Agentic RAG" data-d="Retrieval in which the agent decides when and what to search, issues multiple refined queries, and judges whether results suffice, rather than a single fixed retrieve-then-generate step." data-a="agentic-rag">Agentic RAG</dfn> makes retrieval a <strong>tool</strong>: the model decides <em>whether</em> to search, <em>what</em> to search for, judges the results, and searches again.</p>
 <figure class="diagram"><pre class="mermaid">flowchart TD
     Q[&quot;Question&quot;] --&gt; T{&quot;Need info?&quot;}
@@ -296,7 +296,7 @@ client = anthropic.Anthropic()
     J -- &quot;no: refine query / different source&quot; --&gt; S
     J -- &quot;partial: follow a lead (multi-hop)&quot; --&gt; S
     J -- yes --&gt; A2[&quot;Answer with citations&quot;]</pre></figure>
-<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-user">User:</span> Which of our enterprise customers are affected by the CVE in libxml we patched last week?
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text"><span class="tr-user">User:</span> Which of our enterprise customers are affected by the CVE in libxml we patched last week?
 
 <span class="tr-thought">Thought:</span> First find which CVE and which service was patched.
 <span class="tr-action">Action:</span> search_docs({&quot;query&quot;: &quot;libxml CVE patch last week&quot;})
@@ -313,9 +313,9 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li><strong>Corrective RAG (CRAG)</strong> (Yan et al., 2024) adds a lightweight evaluator that grades retrieval as correct, ambiguous or incorrect, and falls back to web search or refines the knowledge when retrieval is poor.</li>
 </ul>
 <p>With today&#39;s tool-using models you mostly get these behaviors through <strong>good tool design and instructions</strong> rather than special training. Return results with IDs and metadata, tell the model it may search several times, and tell it to say when the sources don&#39;t contain the answer. <a href="research-agents.html">Research agents</a> push this to its extreme, with hundreds of searches per report.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>In agentic RAG, retrieval stops being a preprocessing step and becomes an action. The model&#39;s reasoning (rewriting queries, judging relevance, following leads) is now part of the retrieval system, which is why a mediocre index plus a good agent often beats a great index used once.</p>
-</div></aside>
-<h2 id="graphrag"><a class="anchor" href="#graphrag" aria-hidden="true">#</a>GraphRAG</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>In agentic RAG, retrieval stops being a preprocessing step and becomes an action. The model&#39;s reasoning (rewriting queries, judging relevance, following leads) is now part of the retrieval system, which is why a mediocre index plus a good agent often beats a great index used once.</p>
+</div></div>
+<h2 id="graphrag"><a class="anchor" href="#graphrag" aria-hidden="true" tabindex="-1">#</a>GraphRAG</h2>
 <p>Some questions aren&#39;t answered by any single chunk: &quot;What are the main themes across these 2,000 customer interviews?&quot; or &quot;How are these companies connected?&quot; Similarity search returns <em>some</em> relevant fragments, but nothing sees the whole.</p>
 <p><strong><dfn class="gt" tabindex="0" data-t="GraphRAG" data-d="Retrieval over a knowledge graph extracted from the corpus, with community summaries that help answer global questions spanning many documents (Edge et al., 2024)." data-a="graphrag">GraphRAG</dfn></strong> (Edge et al., 2024, Microsoft) builds structure at indexing time:</p>
 <ol>
@@ -325,7 +325,7 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li><strong>Global queries</strong> are answered map-reduce style over community summaries. <strong>Local queries</strong> start at matching entities and expand to their neighbors.</li>
 </ol>
 <p>GraphRAG does well on &quot;sensemaking&quot; questions over a whole corpus and on multi-hop relationship questions. The costs are real: indexing requires LLM calls over the entire corpus, extraction errors become graph errors, and updates are harder. Lighter variants (and plain knowledge graphs queried by an agent with a graph-query tool) sit between full GraphRAG and vector search.</p>
-<h2 id="agentic-search-grep-glob-and-read"><a class="anchor" href="#agentic-search-grep-glob-and-read" aria-hidden="true">#</a>Agentic search: grep, glob and read</h2>
+<h2 id="agentic-search-grep-glob-and-read"><a class="anchor" href="#agentic-search-grep-glob-and-read" aria-hidden="true" tabindex="-1">#</a>Agentic search: grep, glob and read</h2>
 <p>Coding agents like Claude Code mostly <strong>don&#39;t use embeddings at all</strong>. They search code the way an engineer does, with tools such as <code>glob</code> (find files by pattern), <code>grep</code> (search contents with regex) and <code>read</code> (open a file, or part of one), iterating until they understand the code. Anthropic engineers have described trying a vector index early on and finding that agentic search worked better for code.</p>
 <p>Why this works so well for codebases:</p>
 <ul>
@@ -336,7 +336,7 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li><strong>Structure</strong>: directory names, file names and code structure are high-signal navigation aids that the model reads directly.</li>
 </ul>
 <p>The trade-offs: more tool calls and tokens per question, weaker performance on purely conceptual queries over prose (&quot;where do we discuss our pricing philosophy?&quot;), and limits at very large scale. Many teams now combine both: agentic search by default, plus a semantic index exposed as <em>one more tool</em> for large document collections.</p>
-<h2 id="rag-vs-long-context-vs-fine-tuning"><a class="anchor" href="#rag-vs-long-context-vs-fine-tuning" aria-hidden="true">#</a>RAG vs. long context vs. fine-tuning</h2>
+<h2 id="rag-vs-long-context-vs-fine-tuning"><a class="anchor" href="#rag-vs-long-context-vs-fine-tuning" aria-hidden="true" tabindex="-1">#</a>RAG vs. long context vs. fine-tuning</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -367,7 +367,7 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 </tbody></table>
 </div>
 <p>They combine well. A common rule: <strong>retrieve knowledge, fine-tune (or prompt) behavior, and use long context for what the task needs in full.</strong> Context length and retrieval are complements. Larger windows let you retrieve <em>more generously</em> and include whole sections instead of fragments.</p>
-<h2 id="citations-and-grounding"><a class="anchor" href="#citations-and-grounding" aria-hidden="true">#</a>Citations and grounding</h2>
+<h2 id="citations-and-grounding"><a class="anchor" href="#citations-and-grounding" aria-hidden="true" tabindex="-1">#</a>Citations and grounding</h2>
 <p>Grounding is only valuable if it&#39;s <strong>checkable</strong>:</p>
 <ul>
 <li>Give each chunk a stable ID and metadata (title, URL, date, section) in the prompt.</li>
@@ -376,11 +376,11 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li>Show users the quoted span, not just a link. People verify far more when the evidence is one click away.</li>
 </ul>
 <p>Some APIs build this in. The Claude API, for example, can return structured citations pointing to exact passages when documents or search results are passed in supported formats; check the current docs for details. Built-in web search tools also return cited results.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Retrieved content is <strong>untrusted input</strong>. A document can contain &quot;Ignore previous instructions and…&quot;. RAG pipelines are a main channel for <dfn class="gt" tabindex="0" data-t="Indirect prompt injection" data-d="Prompt injection delivered through content the agent reads, such as web pages, emails, documents or tool results, rather than typed by the user (Greshake et al., 2023)." data-l="agent-security" data-a="indirect-prompt-injection">indirect prompt injection</dfn>. Keep retrieved text clearly delimited as data, and don&#39;t let it trigger privileged actions without checks (see <a href="agent-security.html">agent security</a>).</p>
-</div></aside>
-<h2 id="evaluating-retrieval-and-generation"><a class="anchor" href="#evaluating-retrieval-and-generation" aria-hidden="true">#</a>Evaluating retrieval and generation</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Retrieved content is <strong>untrusted input</strong>. A document can contain &quot;Ignore previous instructions and…&quot;. RAG pipelines are a main channel for <dfn class="gt" tabindex="0" data-t="Indirect prompt injection" data-d="Prompt injection delivered through content the agent reads, such as web pages, emails, documents or tool results, rather than typed by the user (Greshake et al., 2023)." data-l="agent-security" data-a="indirect-prompt-injection">indirect prompt injection</dfn>. Keep retrieved text clearly delimited as data, and don&#39;t let it trigger privileged actions without checks (see <a href="agent-security.html">agent security</a>).</p>
+</div></div>
+<h2 id="evaluating-retrieval-and-generation"><a class="anchor" href="#evaluating-retrieval-and-generation" aria-hidden="true" tabindex="-1">#</a>Evaluating retrieval and generation</h2>
 <p>Evaluate the two halves separately, or you won&#39;t know which to fix.</p>
-<h3 id="retrieval-metrics"><a class="anchor" href="#retrieval-metrics" aria-hidden="true">#</a>Retrieval metrics</h3>
+<h3 id="retrieval-metrics"><a class="anchor" href="#retrieval-metrics" aria-hidden="true" tabindex="-1">#</a>Retrieval metrics</h3>
 <p>Build a labeled set of queries with their relevant chunk IDs (from real user questions where possible).</p>
 <ul>
 <li><strong>Recall@k</strong>: fraction of queries where a relevant chunk appears in the top <em>k</em>. This is the most important retrieval metric for RAG: if it&#39;s not retrieved, it can&#39;t be used.</li>
@@ -388,7 +388,7 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li><strong>MRR (Mean Reciprocal Rank)</strong>: average of 1/rank of the first relevant result. Example: first relevant hits at ranks 1, 3 and &quot;not found&quot; over three queries gives MRR = (1 + 1/3 + 0) / 3 ≈ 0.44.</li>
 <li><strong>nDCG</strong>: rewards putting the <em>most</em> relevant items highest, with graded relevance.</li>
 </ul>
-<h3 id="generation-metrics"><a class="anchor" href="#generation-metrics" aria-hidden="true">#</a>Generation metrics</h3>
+<h3 id="generation-metrics"><a class="anchor" href="#generation-metrics" aria-hidden="true" tabindex="-1">#</a>Generation metrics</h3>
 <ul>
 <li><strong>Faithfulness / groundedness</strong>: is every claim in the answer supported by the retrieved context? This catches hallucination <em>despite</em> retrieval.</li>
 <li><strong>Answer relevance</strong>: does it actually answer the question?</li>
@@ -396,9 +396,9 @@ Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the
 <li><strong>Citation accuracy</strong>: do cited sources support the claims they&#39;re attached to?</li>
 </ul>
 <p>These are usually scored with <strong>LLM-as-judge</strong> rubrics (frameworks such as RAGAS package common ones), calibrated against human labels on a sample. For agentic RAG, also track <strong>search efficiency</strong>: number of searches, tokens per answer, and how often the agent correctly says &quot;not found.&quot; <a href="evaluating-agents.html">Evaluating agents</a> covers judge design and eval hygiene.</p>
-<h2 id="build-it-retrieval-as-a-tool"><a class="anchor" href="#build-it-retrieval-as-a-tool" aria-hidden="true">#</a>Build it: retrieval as a tool</h2>
+<h2 id="build-it-retrieval-as-a-tool"><a class="anchor" href="#build-it-retrieval-as-a-tool" aria-hidden="true" tabindex="-1">#</a>Build it: retrieval as a tool</h2>
 <p>Here&#39;s a complete, minimal agentic RAG loop: a pure-Python BM25 index over chunked documents, exposed as a <code>search_docs</code> tool, with instructions to search iteratively and cite chunk IDs.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> math, re
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> math, re
 <span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter
 <span class="hljs-keyword">import</span> anthropic
 
@@ -477,7 +477,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 
 <span class="hljs-built_in">print</span>(<span class="hljs-built_in">next</span>((b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>), <span class="hljs-string">f&quot;[stopped: <span class="hljs-subst">{response.stop_reason}</span>]&quot;</span>))</code></pre></div>
 <p>A good run searches for annual-plan refunds, finds <code>refund-policy#0</code>, and answers &quot;No refund after 30 days, but you&#39;ll receive a prorated credit,&quot; with citations. It may also note the enterprise exception from <code>billing-faq#0</code>. To upgrade this to production quality, swap BM25 for hybrid search with a reranker, add metadata filters, and evaluate recall@k on real questions.</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>RAG adds <strong>non-parametric knowledge</strong> at runtime: fresh, private and citable. Most RAG failures are <strong>retrieval failures</strong>, so measure retrieval first.</li>
 <li>Embeddings capture meaning but miss exact identifiers, numbers and negations. <strong>Hybrid search (BM25 + dense, fused with RRF) plus a cross-encoder reranker</strong> is a strong default.</li>
@@ -487,7 +487,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 <li><strong>Coding agents often skip embeddings</strong>: grep, glob and read are exact, always fresh and need no infrastructure.</li>
 <li>Choose deliberately: <strong>long context</strong> for small stable corpora, <strong>RAG</strong> for large or changing knowledge, <strong>fine-tuning</strong> for behavior rather than facts. Evaluate retrieval (recall@k, MRR) and generation (faithfulness) separately.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Break dense retrieval.</strong> Write ten queries containing exact identifiers (error codes, SKUs, function names) and ten conceptual queries. Compare BM25 and an <dfn class="gt" tabindex="0" data-t="Embedding" data-d="A dense vector representation of text (or images), produced by an embedding model, in which semantically similar inputs are close together. Embeddings power semantic search and retrieval." data-a="embedding">embedding model</dfn> on recall@3 for each group. What pattern do you see?</li>
 <li><strong>Add RRF.</strong> Implement reciprocal rank fusion that merges the BM25 results from the example with results from any embedding search. Verify that a document ranked highly by only one retriever can still win.</li>
@@ -495,7 +495,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 <li><strong>Citation verifier.</strong> After the agent answers, parse every <code>[id]</code> citation and check it was actually returned by a <code>search_docs</code> call in this conversation. Flag answers with unsupported citations, or with factual sentences that carry no citation.</li>
 <li><strong>Agentic vs. pipeline (hard).</strong> Build two systems over the same corpus: (a) single-shot retrieval (top 5, then answer) and (b) the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agentic loop</dfn>. Write 10 multi-hop questions where the second search depends on the first result. Compare accuracy, tokens and latency, and explain where each wins.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="rag-and-retrieval" data-total="8">
 
 <div class="quiz-q" data-correct="3">
@@ -586,7 +586,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Retrieval may have been fine; the generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by the sources it cites. Retrieval metrics can&#39;t see this, and the answer may still address the question.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al., 2020)</a>: the paper that named RAG.</li>
 <li><a href="https://www.anthropic.com/news/contextual-retrieval" target="_blank" rel="noopener">Introducing Contextual Retrieval (Anthropic)</a>: contextual embeddings and BM25, reranking, results, and the case for long context with small corpora.</li>
@@ -613,7 +613,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
     <a class="pager-next" href="context-engineering.html"><small>Next →</small><span>Context Engineering</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#why-retrieval">Why retrieval</a></li>
 <li class="toc-h2"><a href="#the-classic-pipeline">The classic pipeline</a></li>
 <li class="toc-h2"><a href="#embeddings-and-similarity">Embeddings and similarity</a></li>
@@ -646,9 +646,9 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

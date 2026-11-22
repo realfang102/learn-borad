@@ -4,7 +4,7 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function head(tag, title) { return '<div class="w-head"><span class="w-tag">' + tag + "</span><h4>" + esc(title) + "</h4></div>"; }
+  function head(tag, title) { return '<div class="w-head"><span class="w-tag">' + tag + '</span><strong class="w-title">' + esc(title) + "</strong></div>"; }
   function fmt(n, d) { return Number(n).toLocaleString(undefined, { maximumFractionDigits: d === undefined ? 0 : d, minimumFractionDigits: d || 0 }); }
   function pct(x, d) { return (x * 100).toFixed(d === undefined ? 1 : d) + "%"; }
   function money(x) { return x >= 100 ? "$" + fmt(x, 0) : x >= 1 ? "$" + fmt(x, 2) : "$" + x.toFixed(x >= 0.01 ? 3 : 4); }
@@ -178,7 +178,7 @@
     el.innerHTML = head("Playground", "Anatomy of a tool call") + '<div class="w-body">' +
       '<div class="w-grid2"><div><p class="w-label">1 · Your tool definition (editable JSON)</p><textarea class="w-textarea ta-def" spellcheck="false" aria-label="Tool definition JSON"></textarea><div class="ta-err"></div></div>' +
       '<div><p class="w-label">User message</p><input class="w-input ta-q" style="width:100%" value="What should I wear in Paris today?" aria-label="User message"><p class="w-label" style="margin-top:12px">Tool definition checks</p><div class="w-box ta-lint"></div></div></div>' +
-      '<div class="ta-flow" style="margin-top:16px"><div class="ta-col"><h5>2 · Request your code sends</h5><div class="w-box w-mono ta-req"></div></div><div class="ta-col"><h5>3 · Model replies with tool_use</h5><div class="w-box w-mono ta-res"></div></div><div class="ta-col"><h5>4 · Your code runs it, returns tool_result</h5><div class="w-box w-mono ta-ret"></div></div></div>' +
+      '<div class="ta-flow" style="margin-top:16px"><div class="ta-col"><p class="ta-h">2 · Request your code sends</p><div class="w-box w-mono ta-req"></div></div><div class="ta-col"><p class="ta-h">3 · Model replies with tool_use</p><div class="w-box w-mono ta-res"></div></div><div class="ta-col"><p class="ta-h">4 · Your code runs it, returns tool_result</p><div class="w-box w-mono ta-ret"></div></div></div>' +
       '<p class="w-muted" style="margin:12px 0 0">The model output is simulated from your schema so you can see the shapes. Try removing <code>required</code>, renaming the tool, or deleting the description and watch the checks.</p></div>';
     var def = $(".ta-def", el), q = $(".ta-q", el);
     def.value = DEFAULT_TOOL;
@@ -297,7 +297,7 @@
         svg += '<g class="n ' + n[4] + '" data-id="' + n[0] + '"><rect x="' + (n[1] - w / 2) + '" y="' + (n[2] - 18) + '" width="' + w + '" height="36" rx="10"/><text x="' + n[1] + '" y="' + n[2] + '">' + esc(n[3]) + "</text></g>";
       });
       $(".pe-stage", el).innerHTML = svg + "</svg>";
-      $(".pe-info", el).innerHTML = "<h5>" + esc(P.name) + "</h5><p>" + esc(P.info[0]) + "</p><p><strong>Use when:</strong> " + esc(P.info[1]) + "</p><p><strong>Example:</strong> " + esc(P.info[2]) + "</p>";
+      $(".pe-info", el).innerHTML = "<p class=\"pe-h\">" + esc(P.name) + "</p><p>" + esc(P.info[0]) + "</p><p><strong>Use when:</strong> " + esc(P.info[1]) + "</p><p><strong>Example:</strong> " + esc(P.info[2]) + "</p>";
       $$(".pe-tabs .w-btn", el).forEach(function (b) { b.classList.toggle("active", b.dataset.p === cur); });
     }
     function play() {
@@ -505,10 +505,14 @@
     renderPage(); trifecta(sel());
   };
 
+  function label(el) {
+    var t = $(".w-title", el); el.setAttribute("role", "region"); if (t) el.setAttribute("aria-label", t.textContent);
+    $$(".w-range", el).forEach(function (r) { var l = $("label", r), c = $("input,select", r); if (l && c && !c.getAttribute("aria-label")) c.setAttribute("aria-label", l.textContent); });
+  }
   function init() {
     $$(".widget[data-widget]").forEach(function (el) {
       var fn = W[el.dataset.widget];
-      if (fn && !el.dataset.ready) { el.dataset.ready = "1"; try { fn(el); } catch (e) { el.innerHTML = '<div class="w-body w-muted">This interactive widget failed to load.</div>'; console.error(e); } }
+      if (fn && !el.dataset.ready) { el.dataset.ready = "1"; try { fn(el); label(el); } catch (e) { el.innerHTML = '<div class="w-body w-muted">This interactive widget failed to load.</div>'; console.error(e); } }
     });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();

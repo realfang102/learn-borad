@@ -160,7 +160,7 @@ function makeMarkdown(ctx) {
         while (ctx.ids.has(id)) id = `${base}-${n++}`;
         ctx.ids.add(id);
         if (depth === 2 || depth === 3) ctx.headings.push({ depth, text: stripHtml(text), id });
-        return `<h${depth} id="${id}"><a class="anchor" href="#${id}" aria-hidden="true">#</a>${text}</h${depth}>\n`;
+        return `<h${depth} id="${id}"><a class="anchor" href="#${id}" aria-hidden="true" tabindex="-1">#</a>${text}</h${depth}>\n`;
       },
       code({ text, lang }) {
         const language = (lang || "").trim().split(/\s+/)[0].toLowerCase();
@@ -189,7 +189,7 @@ function makeMarkdown(ctx) {
         }
         return `<div class="code-block${isTrace ? " trace" : ""}"><div class="code-head"><span class="code-lang">${esc(
           isTrace ? "agent trace" : label
-        )}</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-${esc(
+        )}</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-${esc(
           label
         )}">${html}</code></pre></div>\n`;
       },
@@ -202,7 +202,7 @@ function makeMarkdown(ctx) {
           let rest = body.slice(m[0].length);
           if (m[0].endsWith("\n")) rest = "<p>" + rest;
           rest = rest.replace(/^<p>\s*<\/p>/, "");
-          return `<aside class="callout callout-${kind.toLowerCase()}"><div class="callout-title"><span class="callout-icon" aria-hidden="true">${CALLOUTS[kind].icon}</span>${title}</div><div class="callout-body">${rest}</div></aside>\n`;
+          return `<div class="callout callout-${kind.toLowerCase()}" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">${CALLOUTS[kind].icon}</span>${title}</div><div class="callout-body">${rest}</div></div>\n`;
         }
         return `<blockquote>${body}</blockquote>\n`;
       },
@@ -227,7 +227,7 @@ function makeMarkdown(ctx) {
 function renderMarkdown(md, slug) {
   const ctx = { slug, headings: [], ids: new Set(), hasMermaid: false, quiz: [], links: [] };
   const { marked, inline } = makeMarkdown(ctx);
-  const html = marked.parse(md);
+  const html = marked.parse(md).replace(/<input (checked="" )?disabled="" type="checkbox">/g, (m, c) => `<input ${c || ""}disabled="" type="checkbox" aria-hidden="true">`);
   return { html, ...ctx, inline };
 }
 

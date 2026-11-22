@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="memory">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Memory Systems</h1>
     <p class="lead">How agents remember: working vs. long-term memory, episodic, semantic and procedural stores, memory operations, MemGPT and Generative Agents, file-based memory, and the failure modes that make memory hard.</p>
@@ -145,7 +145,7 @@
 <p>A language model has no memory. Every API call starts from nothing: the model sees the tokens you send, produces tokens back, and forgets everything. When a chatbot &quot;remembers&quot; your name from three messages ago, it&#39;s because the application re-sent those three messages. When an agent &quot;remembers&quot; that your team uses <code>pnpm</code>, not <code>npm</code>, someone wrote that fact down and put it back in the prompt.</p>
 <p>So <strong>memory, for an agent, is a systems problem</strong>: deciding what to write down, where to store it, how to find it again, when to update it, and when to throw it away. Get it right and an agent picks up where it left off, stops repeating mistakes, and feels like a colleague who knows you. Get it wrong and it confidently applies last quarter&#39;s pricing, leaks one user&#39;s details to another, or gets permanently hijacked by a poisoned note.</p>
 <p>This lesson builds a mental model from cognitive science, walks through the landmark designs (<dfn class="gt" tabindex="0" data-t="Virtual context management" data-d="The MemGPT idea (Packer et al., 2023) of treating the context window like RAM and external storage like disk, with the agent paging information in and out via function calls." data-a="virtual-context-management">MemGPT</dfn>, Generative Agents, <dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-l="agent-architectures" data-a="reflexion">Reflexion</dfn>), covers the file-based memory that production agents increasingly use, and ends with a working scored memory store and a design checklist.</p>
-<h2 id="why-agents-need-memory"><a class="anchor" href="#why-agents-need-memory" aria-hidden="true">#</a>Why agents need memory</h2>
+<h2 id="why-agents-need-memory"><a class="anchor" href="#why-agents-need-memory" aria-hidden="true" tabindex="-1">#</a>Why agents need memory</h2>
 <p>Three different problems hide under the word &quot;memory&quot;:</p>
 <ol>
 <li><strong>Within a task</strong>: a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> 200 tool calls into a migration must remember which files it already changed and why. The <a href="context-engineering.html">context window</a> holds this, until it fills up.</li>
@@ -153,7 +153,7 @@
 <li><strong>About people</strong>: an assistant should remember that you&#39;re vegetarian, prefer concise answers, and that &quot;the Q3 deck&quot; means a specific file.</li>
 </ol>
 <p>Bigger context windows help with the first problem but not the other two. Even within a task, stuffing everything into context degrades performance (see <em><dfn class="gt" tabindex="0" data-t="Context rot" data-d="The degradation of a model's recall and reasoning as its context grows longer, even well within the advertised window limit." data-l="context-engineering" data-a="context-rot">context rot</dfn></em> in <a href="context-engineering.html">context engineering</a>) and gets expensive. Memory is about putting the <strong>right</strong> information in front of the model at the right time, not <em>all</em> of it.</p>
-<h2 id="a-taxonomy-borrowed-from-cognitive-science"><a class="anchor" href="#a-taxonomy-borrowed-from-cognitive-science" aria-hidden="true">#</a>A taxonomy borrowed from cognitive science</h2>
+<h2 id="a-taxonomy-borrowed-from-cognitive-science"><a class="anchor" href="#a-taxonomy-borrowed-from-cognitive-science" aria-hidden="true" tabindex="-1">#</a>A taxonomy borrowed from cognitive science</h2>
 <p>Cognitive psychology gives us a useful vocabulary. The <strong>Atkinson–Shiffrin</strong> model separated short-term from <dfn class="gt" tabindex="0" data-t="Long-term memory" data-d="Information persisted outside the context window, in files, databases or vector stores, and retrieved into context when relevant across sessions." data-a="long-term-memory">long-term memory</dfn>. Baddeley refined <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-a="short-term-memory">short-term memory</dfn> into an active <strong>working memory</strong>. Tulving split long-term memory into <strong>episodic</strong> (personal experiences) and <strong>semantic</strong> (facts), and researchers distinguished <strong>procedural</strong> memory (skills, how to do things).</p>
 <p>The <strong><dfn class="gt" tabindex="0" data-t="CoALA" data-d="Cognitive Architectures for Language Agents (Sumers et al., 2023): a framework that organizes agents by modular memory (working, episodic, semantic, procedural), internal and external actions, and a decision loop." data-l="agent-architectures" data-a="coala">CoALA</dfn></strong> framework (Cognitive Architectures for Language Agents, Sumers et al., 2023) maps these onto LLM agents:</p>
 <div class="table-wrap"><table>
@@ -206,27 +206,27 @@
     WM -- &quot;learn: write / update&quot; --&gt; LTM
     WM -- act --&gt; ENV
     ENV -- observe --&gt; WM</pre></figure>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Everything an agent &quot;knows&quot; at decision time must be in working memory, meaning the context window. Long-term memory is only useful through <strong>retrieval</strong>: a memory that&#39;s stored but never surfaced at the right moment might as well not exist.</p>
-</div></aside>
-<h2 id="the-four-memory-operations"><a class="anchor" href="#the-four-memory-operations" aria-hidden="true">#</a>The four memory operations</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Everything an agent &quot;knows&quot; at decision time must be in working memory, meaning the context window. Long-term memory is only useful through <strong>retrieval</strong>: a memory that&#39;s stored but never surfaced at the right moment might as well not exist.</p>
+</div></div>
+<h2 id="the-four-memory-operations"><a class="anchor" href="#the-four-memory-operations" aria-hidden="true" tabindex="-1">#</a>The four memory operations</h2>
 <p>Every memory system, however fancy, implements four operations. Most of the design difficulty lives in the details of each.</p>
-<h3 id="1-write-encode"><a class="anchor" href="#1-write-encode" aria-hidden="true">#</a>1. Write (encode)</h3>
+<h3 id="1-write-encode"><a class="anchor" href="#1-write-encode" aria-hidden="true" tabindex="-1">#</a>1. Write (encode)</h3>
 <p><em>What</em> gets stored and <em>when</em>:</p>
 <ul>
 <li><strong>Hot-path writes</strong>: the agent decides mid-conversation to save something, usually via a tool (&quot;remember that…&quot;). This is transparent and immediate, but adds latency and depends on the model&#39;s judgment.</li>
 <li><strong>Background writes</strong>: after a session (or periodically), a separate process extracts memories from the transcript. This is cheaper per turn and can be more thorough, but delayed. Letta calls agents that do this asynchronously &quot;sleep-time&quot; agents.</li>
 <li><strong>Raw vs. distilled</strong>: store the full transcript (cheap to write, expensive to search), or extracted facts and summaries (expensive to write, cheap to use). Many systems store both: raw episodes as ground truth, distilled facts for retrieval.</li>
 </ul>
-<h3 id="2-read-retrieve"><a class="anchor" href="#2-read-retrieve" aria-hidden="true">#</a>2. Read (retrieve)</h3>
+<h3 id="2-read-retrieve"><a class="anchor" href="#2-read-retrieve" aria-hidden="true" tabindex="-1">#</a>2. Read (retrieve)</h3>
 <p>How the right memory reaches the context:</p>
 <ul>
 <li><strong>Always-loaded</strong>: a small core (user profile, project conventions) is injected into every prompt.</li>
 <li><strong>Query-based retrieval</strong>: embed the current situation and search a vector index, keyword index or graph (the same machinery as <a href="rag-and-retrieval.html">RAG</a>).</li>
 <li><strong>Agent-directed</strong>: the agent browses its memory with tools (<code>view /memories</code>, <code>grep notes/</code>) when it decides it needs to.</li>
 </ul>
-<h3 id="3-update-consolidate"><a class="anchor" href="#3-update-consolidate" aria-hidden="true">#</a>3. Update (consolidate)</h3>
+<h3 id="3-update-consolidate"><a class="anchor" href="#3-update-consolidate" aria-hidden="true" tabindex="-1">#</a>3. Update (consolidate)</h3>
 <p>New information conflicts with old. &quot;User lives in Berlin&quot; plus &quot;I just moved to Lisbon&quot; should yield one current fact, not two contradictory ones. Production systems such as Mem0 run an explicit consolidation step: for each new candidate fact, retrieve similar existing memories and have an LLM choose <strong>ADD</strong>, <strong>UPDATE</strong>, <strong>DELETE</strong> or <strong>NO-OP</strong>. Consolidation also means <em>abstraction</em>: turning twenty episodes of &quot;user rejected verbose answer&quot; into one semantic fact, &quot;user prefers concise answers.&quot;</p>
-<h3 id="4-forget"><a class="anchor" href="#4-forget" aria-hidden="true">#</a>4. Forget</h3>
+<h3 id="4-forget"><a class="anchor" href="#4-forget" aria-hidden="true" tabindex="-1">#</a>4. Forget</h3>
 <p>Forgetting is a feature. Without it, memory grows until retrieval returns noise. Strategies:</p>
 <ul>
 <li><strong>Time decay</strong>: older, unaccessed memories lose retrieval weight. MemoryBank (Zhong et al., 2023) modeled this on the Ebbinghaus forgetting curve.</li>
@@ -234,7 +234,7 @@
 <li><strong>TTL and explicit deletion</strong>: facts expire (a meeting next Tuesday), and users must be able to delete memories, which privacy law often requires.</li>
 <li><strong>Supersession</strong>: mark facts invalid rather than deleting them, preserving history. Temporal knowledge graphs such as Zep&#39;s attach validity intervals to edges.</li>
 </ul>
-<h2 id="where-memories-live-storage-backends"><a class="anchor" href="#where-memories-live-storage-backends" aria-hidden="true">#</a>Where memories live: storage backends</h2>
+<h2 id="where-memories-live-storage-backends"><a class="anchor" href="#where-memories-live-storage-backends" aria-hidden="true" tabindex="-1">#</a>Where memories live: storage backends</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -277,8 +277,8 @@
 </tbody></table>
 </div>
 <p>Real systems are hybrids. A common shape is a small always-loaded profile (files or KV) plus a searchable episodic archive (vector or hybrid index) plus structured facts (SQL or graph). Start with the simplest backend that works. Many excellent agents use nothing but a folder of Markdown files.</p>
-<h2 id="landmark-designs"><a class="anchor" href="#landmark-designs" aria-hidden="true">#</a>Landmark designs</h2>
-<h3 id="generative-agents-the-memory-stream"><a class="anchor" href="#generative-agents-the-memory-stream" aria-hidden="true">#</a>Generative Agents: the memory stream</h3>
+<h2 id="landmark-designs"><a class="anchor" href="#landmark-designs" aria-hidden="true" tabindex="-1">#</a>Landmark designs</h2>
+<h3 id="generative-agents-the-memory-stream"><a class="anchor" href="#generative-agents-the-memory-stream" aria-hidden="true" tabindex="-1">#</a>Generative Agents: the memory stream</h3>
 <p>Park et al.&#39;s <strong>Generative Agents</strong> (2023) populated a sandbox town, &quot;Smallville&quot;, with 25 LLM-driven characters who woke up, went to work, gossiped, and (famously) organized a Valentine&#39;s Day party, with the invitation spreading from a single seeded intention. The memory architecture is the most-cited design in the field.</p>
 <p>Every observation goes into a <strong>memory stream</strong>, a time-stamped list of natural-language records. When the agent needs context, each memory gets a retrieval score built from three components:</p>
 <ul>
@@ -287,10 +287,10 @@
 <li><strong>Relevance</strong>: cosine similarity between the memory&#39;s embedding and the current query.</li>
 </ul>
 <p>It&#39;s often summarized as &quot;recency × importance × relevance,&quot; but the paper actually uses a <strong>weighted sum</strong> of the three, each min-max normalized to [0, 1]:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">score = α_recency · recency + α_importance · importance + α_relevance · relevance</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">score = α_recency · recency + α_importance · importance + α_relevance · relevance</code></pre></div>
 <p>(All the α weights were 1 in the paper&#39;s implementation.) A sum lets a very important memory surface even if it&#39;s old. A product would let any single near-zero factor veto it.</p>
 <p>The second key idea is <strong>reflection</strong>. When the summed importance of recent memories passes a threshold, the agent asks itself what the most salient high-level questions about its recent experiences are, retrieves relevant memories, and writes <strong>insights</strong> back into the stream (&quot;Klaus is dedicated to his research&quot;), with pointers to the evidence. Reflections can reflect on reflections, forming a tree of increasingly abstract beliefs. Ablations showed that removing observation, planning or reflection each made the agents&#39; behavior less believable.</p>
-<h3 id="memgpt-letta-virtual-context-management"><a class="anchor" href="#memgpt-letta-virtual-context-management" aria-hidden="true">#</a>MemGPT / Letta: virtual context management</h3>
+<h3 id="memgpt-letta-virtual-context-management"><a class="anchor" href="#memgpt-letta-virtual-context-management" aria-hidden="true" tabindex="-1">#</a>MemGPT / Letta: virtual context management</h3>
 <p><strong>MemGPT</strong> (Packer et al., 2023) borrowed an analogy from operating systems: the context window is like RAM (small and fast), and external storage is like disk (large and slow). Just as an OS pages memory in and out to give programs the illusion of more RAM, MemGPT lets the <strong>LLM itself</strong> page information between tiers using function calls.</p>
 <figure class="diagram"><pre class="mermaid">flowchart TB
     subgraph MAIN[&quot;Main context (in the window)&quot;]
@@ -313,9 +313,9 @@
 <li><strong>Chained function calls</strong>: the agent can request another step after a function returns (&quot;heartbeat&quot;), so it can search memory several times before replying.</li>
 </ul>
 <p>The MemGPT authors went on to found <strong>Letta</strong>, whose framework develops these ideas (memory blocks, archival memory, sleep-time agents that consolidate memory in the background). The lasting contribution is the reframing: <strong>memory management is something the agent does, with tools</strong>, not just something done to it.</p>
-<h3 id="reflexion-and-skill-libraries-procedural-memory"><a class="anchor" href="#reflexion-and-skill-libraries-procedural-memory" aria-hidden="true">#</a>Reflexion and skill libraries: procedural memory</h3>
+<h3 id="reflexion-and-skill-libraries-procedural-memory"><a class="anchor" href="#reflexion-and-skill-libraries-procedural-memory" aria-hidden="true" tabindex="-1">#</a>Reflexion and skill libraries: procedural memory</h3>
 <p><dfn class="gt" tabindex="0" data-t="Episodic memory" data-d="Memory of specific past events or interactions, such as &quot;last Tuesday the deploy failed because of X&quot;, often used for few-shot recall or reflection." data-a="episodic-memory">Episodic memory</dfn> can store <em>lessons</em>, not just events. <strong>Reflexion</strong> (see <a href="reasoning-and-planning.html">reasoning and planning</a>) stores verbal self-reflections after failed attempts and feeds them into the next try. <strong><dfn class="gt" tabindex="0" data-t="Voyager" data-d="A lifelong-learning Minecraft agent (Wang et al., 2023) with an automatic curriculum, an iterative prompting loop and a skill library of executable code." data-l="self-improving-agents" data-a="voyager">Voyager</dfn></strong> (Wang et al., 2023), a Minecraft agent, stored successful behaviors as executable code in a <strong><dfn class="gt" tabindex="0" data-t="Skill library" data-d="A growing store of reusable, verified programs or procedures an agent has learned, retrieved for new tasks, as in Voyager." data-l="self-improving-agents" data-a="skill-library">skill library</dfn></strong> indexed by description, then retrieved and composed them for new tasks. That&#39;s <dfn class="gt" tabindex="0" data-t="Procedural memory" data-d="Memory of how to do things: skills, routines and instructions. In LLM agents it lives in model weights, system prompts, skill files and code." data-a="procedural-memory">procedural memory</dfn> made explicit. Today&#39;s <strong><dfn class="gt" tabindex="0" data-t="Agent Skills" data-d="Packaged folders of instructions (a SKILL.md file), scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge. Introduced by Anthropic in 2025 and published as an open standard, it joined the Agentic AI Foundation in October 2026." data-l="context-engineering" data-a="agent-skills">Agent Skills</dfn></strong> (folders of instructions and scripts loaded on demand) are the production descendant. <a href="self-improving-agents.html">Self-improving agents</a> pursues this thread further.</p>
-<h2 id="working-memory-summarization-and-compaction"><a class="anchor" href="#working-memory-summarization-and-compaction" aria-hidden="true">#</a>Working memory: summarization and compaction</h2>
+<h2 id="working-memory-summarization-and-compaction"><a class="anchor" href="#working-memory-summarization-and-compaction" aria-hidden="true" tabindex="-1">#</a>Working memory: summarization and compaction</h2>
 <p>Inside a single long task, the main memory technique is managing the context window itself:</p>
 <ul>
 <li><strong>Sliding window</strong>: keep the last N turns. Simple, but it forgets the original goal.</li>
@@ -324,11 +324,11 @@
 <li><strong>Offloading to notes</strong>: write progress to a file and re-read it later. This is &quot;external working memory.&quot;</li>
 </ul>
 <p>These are covered in depth in <a href="context-engineering.html">context engineering</a>. The memory-design point is that <strong>summaries are lossy, and they lose exactly what the summarizer didn&#39;t think was important.</strong> Anything that must survive (decisions, constraints, open bugs) should be written to durable memory <em>before</em> compaction, not entrusted to it.</p>
-<h2 id="file-based-memory"><a class="anchor" href="#file-based-memory" aria-hidden="true">#</a>File-based memory</h2>
+<h2 id="file-based-memory"><a class="anchor" href="#file-based-memory" aria-hidden="true" tabindex="-1">#</a>File-based memory</h2>
 <p>A striking 2025–2026 trend: many of the most capable agents use <strong>plain files</strong> as memory. Files are human-readable, diffable, editable by both people and agents, version-controllable, and navigable with tools models already use well (<code>ls</code>, <code>cat</code>, <code>grep</code>).</p>
-<h3 id="anthropics-memory-tool"><a class="anchor" href="#anthropics-memory-tool" aria-hidden="true">#</a>Anthropic&#39;s memory tool</h3>
+<h3 id="anthropics-memory-tool"><a class="anchor" href="#anthropics-memory-tool" aria-hidden="true" tabindex="-1">#</a>Anthropic&#39;s memory tool</h3>
 <p>The Claude API offers a client-side <strong>memory tool</strong> (<code>{&quot;type&quot;: &quot;memory_20250818&quot;, &quot;name&quot;: &quot;memory&quot;}</code>). Claude issues file commands (<code>view</code>, <code>create</code>, <code>str_replace</code>, <code>insert</code>, <code>delete</code>, <code>rename</code>) against a <code>/memories</code> directory, and <em>your</em> application executes them against storage you control: local disk, a database, a per-user bucket. When the tool is present, the API adds an instruction telling Claude to view its memory directory before starting and to record progress as it works, assuming its context could be reset at any moment.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> anthropic.tools <span class="hljs-keyword">import</span> BetaLocalFilesystemMemoryTool
 
 client = anthropic.Anthropic()
@@ -344,21 +344,21 @@ runner = client.beta.messages.tool_runner(
 final = runner.until_done()
 <span class="hljs-built_in">print</span>(<span class="hljs-built_in">next</span>((b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> final.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>), <span class="hljs-string">&quot;&quot;</span>))  <span class="hljs-comment"># check final.stop_reason in production</span></code></pre></div>
 <p>A later session that sends the same tool and points at the same store starts by viewing <code>/memories</code>, finds the note, and uses it. For a custom backend, subclass <code>BetaAbstractMemoryTool</code> and implement the six commands.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Validate every path</div><div class="callout-body"><p>The memory tool hands you paths chosen by the model, and the model may be influenced by injected content. A path like <code>/memories/../../.env</code> must be rejected. Resolve to a canonical path and check it stays inside the memory root, and give each user their own root.</p>
-</div></aside>
-<h3 id="project-memory-claudemd-and-agentsmd"><a class="anchor" href="#project-memory-claudemd-and-agentsmd" aria-hidden="true">#</a>Project memory: CLAUDE.md and AGENTS.md</h3>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Validate every path</div><div class="callout-body"><p>The memory tool hands you paths chosen by the model, and the model may be influenced by injected content. A path like <code>/memories/../../.env</code> must be rejected. Resolve to a canonical path and check it stays inside the memory root, and give each user their own root.</p>
+</div></div>
+<h3 id="project-memory-claudemd-and-agentsmd"><a class="anchor" href="#project-memory-claudemd-and-agentsmd" aria-hidden="true" tabindex="-1">#</a>Project memory: CLAUDE.md and AGENTS.md</h3>
 <p>Coding agents popularized a simpler pattern: a <strong>Markdown file in the repository</strong> that is loaded automatically at session start.</p>
 <ul>
 <li><strong>CLAUDE.md</strong>: Claude Code loads these from the project (checked into git and shared with the team), from the user&#39;s home config (personal preferences across projects), and from subdirectories when it works in them. It&#39;s the place for build commands, conventions, architecture notes and &quot;gotchas.&quot; Claude Code can also keep its own auto-written notes from your corrections (as of 2026).</li>
 <li><strong><dfn class="gt" tabindex="0" data-t="AGENTS.md" data-d="A Markdown file of project instructions (build and test commands, conventions, gotchas) placed in a repository for coding agents to read. Released by OpenAI in August 2025, it became a founding Agentic AI Foundation project; CLAUDE.md is the Claude Code equivalent, and Claude Code can also read AGENTS.md." data-l="coding-agents" data-a="agentsmd">AGENTS.md</dfn></strong>: an open convention for the same idea, read by many different coding agents.</li>
 </ul>
-<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-markdown"><span class="hljs-section"># CLAUDE.md</span>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-markdown"><span class="hljs-section"># CLAUDE.md</span>
 <span class="hljs-bullet">-</span> Package manager: pnpm (never npm). Run tests with <span class="hljs-code">`pnpm test -- --run`</span>.
 <span class="hljs-bullet">-</span> API handlers live in src/routes/<span class="hljs-emphasis">*; each must validate input with zod.
 - Don&#x27;t edit generated files in src/gen/; run `pnpm codegen` instead.
 - Flaky: tests/e2e/upload.spec.ts fails ~1 in 10 on CI; rerun before debugging.</span></code></pre></div>
 <p>This is <strong>semantic and procedural memory curated by humans and agents together</strong>. Its power comes from being small, always loaded, and reviewed in code review like any other file.</p>
-<h2 id="user-memory-in-assistants"><a class="anchor" href="#user-memory-in-assistants" aria-hidden="true">#</a>User memory in assistants</h2>
+<h2 id="user-memory-in-assistants"><a class="anchor" href="#user-memory-in-assistants" aria-hidden="true" tabindex="-1">#</a>User memory in assistants</h2>
 <p>Consumer assistants (ChatGPT, Claude, Gemini and others, as of 2026) offer long-term <strong>user memory</strong>: saved facts, and in some products retrieval over past conversations. The design patterns are consistent:</p>
 <ul>
 <li><strong>Explicit and implicit capture</strong>: &quot;remember that I…&quot; plus automatic extraction of durable preferences.</li>
@@ -367,7 +367,7 @@ final = runner.until_done()
 <li><strong>Restraint</strong>: the hard product problem is <em>not</em> bringing up a remembered detail when it would feel intrusive or irrelevant.</li>
 </ul>
 <p>If you build user memory, assume people will ask: &quot;What do you know about me, where did you learn it, and how do I make you forget it?&quot; Design so you can answer all three.</p>
-<h2 id="whats-worth-remembering"><a class="anchor" href="#whats-worth-remembering" aria-hidden="true">#</a>What&#39;s worth remembering</h2>
+<h2 id="whats-worth-remembering"><a class="anchor" href="#whats-worth-remembering" aria-hidden="true" tabindex="-1">#</a>What&#39;s worth remembering</h2>
 <p>Salience is the heart of memory design. Good candidates:</p>
 <ul>
 <li><strong>Stable preferences and constraints</strong>: &quot;Prefers metric units,&quot; &quot;Must not deploy on Fridays.&quot;</li>
@@ -383,11 +383,11 @@ final = runner.until_done()
 <li>Sensitive data with no clear need (health details, credentials, other people&#39;s personal information).</li>
 <li>Unverified claims from untrusted content: a web page saying &quot;the admin password policy changed&quot; isn&#39;t a fact.</li>
 </ul>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Before saving a memory, ask: <em>Will this still be true and useful in a month? Would I be comfortable if the user read it? Where did it come from?</em> If the answers are no, no, and &quot;a tool result I don&#39;t trust,&quot; don&#39;t save it.</p>
-</div></aside>
-<h2 id="build-it-a-scored-memory-store"><a class="anchor" href="#build-it-a-scored-memory-store" aria-hidden="true">#</a>Build it: a scored memory store</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Before saving a memory, ask: <em>Will this still be true and useful in a month? Would I be comfortable if the user read it? Where did it come from?</em> If the answers are no, no, and &quot;a tool result I don&#39;t trust,&quot; don&#39;t save it.</p>
+</div></div>
+<h2 id="build-it-a-scored-memory-store"><a class="anchor" href="#build-it-a-scored-memory-store" aria-hidden="true" tabindex="-1">#</a>Build it: a scored memory store</h2>
 <p>Here is a compact, dependency-light implementation of a Generative-Agents-style store: weighted recency + importance + relevance, LLM-rated importance, access-refreshed recency, and capacity-based forgetting. Relevance uses a bag-of-words cosine so it runs anywhere; swap in a real <dfn class="gt" tabindex="0" data-t="Embedding" data-d="A dense vector representation of text (or images), produced by an embedding model, in which semantically similar inputs are close together. Embeddings power semantic search and retrieval." data-l="rag-and-retrieval" data-a="embedding">embedding model</dfn> for production.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> math, re, time
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> math, re, time
 <span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter
 <span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass, field
 <span class="hljs-keyword">import</span> anthropic
@@ -467,7 +467,7 @@ client = anthropic.Anthropic()
         <span class="hljs-variable language_">self</span>.items.sort(key=<span class="hljs-keyword">lambda</span> m: (m.importance / <span class="hljs-number">10</span>) * <span class="hljs-variable language_">self</span>._recency(m, now))
         <span class="hljs-keyword">del</span> <span class="hljs-variable language_">self</span>.items[: <span class="hljs-built_in">max</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.items) // <span class="hljs-number">10</span>)]</code></pre></div>
 <p>Using it in an agent is a matter of retrieving before each model call and rendering the results into the prompt:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">store = MemoryStore()
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">store = MemoryStore()
 store.add(<span class="hljs-string">&quot;User is allergic to peanuts.&quot;</span>, importance=<span class="hljs-number">10</span>)
 store.add(<span class="hljs-string">&quot;User said the weather was nice today.&quot;</span>, importance=<span class="hljs-number">2</span>)
 store.add(<span class="hljs-string">&quot;User&#x27;s team ships releases on Thursdays.&quot;</span>, importance=<span class="hljs-number">6</span>)
@@ -476,7 +476,7 @@ query = <span class="hljs-string">&quot;Suggest a snack for the team&#x27;s rele
 context = <span class="hljs-string">&quot;\n&quot;</span>.join(<span class="hljs-string">f&quot;- <span class="hljs-subst">{m.text}</span>&quot;</span> <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> store.retrieve(query, k=<span class="hljs-number">3</span>))
 prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<span class="hljs-subst">{context}</span>\n\nRequest: <span class="hljs-subst">{query}</span>&quot;</span></code></pre></div>
 <p>Notice what this toy store does <em>not</em> do: deduplicate, resolve contradictions, track provenance, or scope by user. Those are exercises below, and they&#39;re where real systems spend most of their effort.</p>
-<h2 id="failure-modes"><a class="anchor" href="#failure-modes" aria-hidden="true">#</a>Failure modes</h2>
+<h2 id="failure-modes"><a class="anchor" href="#failure-modes" aria-hidden="true" tabindex="-1">#</a>Failure modes</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -522,9 +522,9 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
 </tr>
 </tbody></table>
 </div>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Memory makes <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> persistent</div><div class="callout-body"><p>Without memory, a successful injection affects one session. With memory, it can survive forever. Security researchers demonstrated in 2024 that injected instructions could plant persistent false memories in a commercial assistant. Treat memory writes as a privileged action. See <a href="agent-security.html">agent security</a>.</p>
-</div></aside>
-<h2 id="design-checklist"><a class="anchor" href="#design-checklist" aria-hidden="true">#</a>Design checklist</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Memory makes <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> persistent</div><div class="callout-body"><p>Without memory, a successful injection affects one session. With memory, it can survive forever. Security researchers demonstrated in 2024 that injected instructions could plant persistent false memories in a commercial assistant. Treat memory writes as a privileged action. See <a href="agent-security.html">agent security</a>.</p>
+</div></div>
+<h2 id="design-checklist"><a class="anchor" href="#design-checklist" aria-hidden="true" tabindex="-1">#</a>Design checklist</h2>
 <p>Before shipping memory, answer these:</p>
 <ol>
 <li><strong>Scope</strong>: What problem is memory solving here: within-task, cross-session, or user personalization? Do you need all three?</li>
@@ -538,7 +538,7 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
 <li><strong>Transparency</strong>: Can users and operators inspect and edit memory?</li>
 <li><strong>Evaluation</strong>: Do you test that memory <em>improves</em> outcomes? Include cases where old memories should be ignored or overridden. (See <a href="evaluating-agents.html">evaluating agents</a>.)</li>
 </ol>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>LLMs are stateless. <strong>All agent memory is engineered</strong>: write, retrieve, consolidate, forget.</li>
 <li>The cognitive taxonomy maps cleanly onto agents: <strong>working</strong> (context window), <strong>episodic</strong> (past events), <strong>semantic</strong> (facts), <strong>procedural</strong> (skills, prompts, code). CoALA turns memory reads and writes into actions the agent chooses.</li>
@@ -548,7 +548,7 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
 <li>Salience matters more than storage: remember stable preferences, hard-won facts, corrections and decisions; skip the re-derivable and the untrusted.</li>
 <li>Memory brings its own failure modes: <strong>staleness, contradictions, poisoning, privacy leaks, bloat</strong>. Design provenance, isolation and forgetting in from the start.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Audit a CLAUDE.md.</strong> Write a CLAUDE.md (or AGENTS.md) for a project you know, with at most 20 lines. For each line, label it semantic or procedural, and explain why an agent couldn&#39;t cheaply rediscover it.</li>
 <li><strong>Tune the weights.</strong> Using <code>MemoryStore</code>, create 30 memories with varied ages and importance. Find queries where weights <code>(1, 1, 1)</code> surface the wrong memory, and adjust the weights to fix them. What breaks when you switch from a weighted sum to a product?</li>
@@ -556,7 +556,7 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
 <li><strong>Provenance and poisoning.</strong> Add <code>source</code> and <code>trust</code> fields to <code>Memory</code>. Refuse to store instruction-like text (&quot;always…&quot;, &quot;never…&quot;, &quot;send…&quot;) from <code>trust=&quot;untrusted&quot;</code> sources unless a human approves. Write three adversarial test inputs.</li>
 <li><strong>Custom memory backend (hard).</strong> Implement a <code>BetaAbstractMemoryTool</code> subclass backed by SQLite, with per-user roots, path-traversal protection, a per-file size cap, and a <code>last_accessed</code> column that a nightly job uses to expire files unused for 90 days.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="memory" data-total="7">
 
 <div class="quiz-q" data-correct="1">
@@ -636,7 +636,7 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Good memories are durable, useful and expensive to rediscover; the env-var fact cost an hour of debugging. The config file can simply be re-read, the build wait is transient, and a one-off request about today goes stale by tomorrow.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://arxiv.org/abs/2309.02427" target="_blank" rel="noopener">Cognitive Architectures for Language Agents (CoALA) (Sumers et al., 2023)</a>: the framework that maps working, episodic, semantic and procedural memory onto LLM agents.</li>
 <li><a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener">Generative Agents: Interactive Simulacra of Human Behavior (Park et al., 2023)</a>: the memory stream, retrieval scoring and reflection, with ablations.</li>
@@ -663,7 +663,7 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
     <a class="pager-next" href="rag-and-retrieval.html"><small>Next →</small><span>Retrieval &amp; Agentic RAG</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#why-agents-need-memory">Why agents need memory</a></li>
 <li class="toc-h2"><a href="#a-taxonomy-borrowed-from-cognitive-science">A taxonomy borrowed from cognitive science</a></li>
 <li class="toc-h2"><a href="#the-four-memory-operations">The four memory operations</a></li>
@@ -696,9 +696,9 @@ prompt = <span class="hljs-string">f&quot;Relevant memories about the user:\n<sp
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

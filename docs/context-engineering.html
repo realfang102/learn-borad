@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="context-engineering">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Context Engineering</h1>
     <p class="lead">Curating the smallest set of high-signal tokens for every model call: the attention budget, context rot, system prompt altitude, just-in-time loading, compaction, context editing, note-taking, sub-agents and KV-cache-friendly design.</p>
@@ -145,7 +145,7 @@
 <p>Watch a capable agent fail on a long task and the cause is rarely &quot;the model isn&#39;t smart enough.&quot; More often the model is smart enough but is looking at the wrong things. The original goal is buried under 80,000 tokens of old grep output. Three near-identical tool descriptions blur together. A stale plan from an hour ago contradicts the current one. The one critical constraint sits in the middle of a giant <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> where attention is weakest.</p>
 <p><strong><dfn class="gt" tabindex="0" data-t="Context engineering" data-d="The discipline of curating the smallest high-signal set of tokens (instructions, tools, examples, history, retrieved data) for each model call, across the many turns of an agent run." data-a="context-engineering">Context engineering</dfn></strong> is the discipline of deciding what goes into the model&#39;s <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> at each step of an agent&#39;s run, and just as importantly what stays out. Anthropic&#39;s framing is that the job is to find <em>the smallest possible set of high-signal tokens that maximize the likelihood of the desired outcome</em>. For a chatbot that&#39;s mostly prompt writing. For an agent that loops through dozens or hundreds of model calls, each assembling a fresh context from instructions, tools, history, tool results, memory and retrieved documents, it&#39;s a systems design problem, and it largely decides whether long tasks succeed and what they cost.</p>
 <p>This lesson covers why context is a scarce resource, what goes into it, and the toolkit practitioners use to keep it sharp: right-altitude prompts, just-in-time loading, <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-a="compaction">compaction</dfn>, <dfn class="gt" tabindex="0" data-t="Context editing" data-d="Selectively removing stale content from the context, such as old tool results or thinking blocks, while keeping the rest of the conversation intact." data-a="context-editing">context editing</dfn>, external notes, sub-agents, and designing for the <dfn class="gt" tabindex="0" data-t="KV cache" data-d="Stored attention keys and values for tokens already processed, so they need not be recomputed. Reusing it across requests is the mechanism behind prompt caching." data-l="cost-and-latency" data-a="kv-cache">KV cache</dfn>.</p>
-<h2 id="from-prompt-engineering-to-context-engineering"><a class="anchor" href="#from-prompt-engineering-to-context-engineering" aria-hidden="true">#</a>From prompt engineering to context engineering</h2>
+<h2 id="from-prompt-engineering-to-context-engineering"><a class="anchor" href="#from-prompt-engineering-to-context-engineering" aria-hidden="true" tabindex="-1">#</a>From prompt engineering to context engineering</h2>
 <p><strong><dfn class="gt" tabindex="0" data-t="Prompt engineering" data-d="The practice of writing and iterating on instructions, examples and structure to get reliable model behavior. In agents it is a subset of context engineering." data-l="prompting-for-agents" data-a="prompt-engineering">Prompt engineering</dfn></strong> focused on wording a single instruction well: clear task, good examples, the right format. It still matters (see <a href="prompting-for-agents.html">prompting for agents</a>), but agents changed the problem in three ways:</p>
 <ol>
 <li><strong>The context is assembled, not written.</strong> Most tokens in an agent&#39;s context come from tool results, retrieved documents and history, not from anything a human typed.</li>
@@ -153,9 +153,9 @@
 <li><strong>It&#39;s iterated many times.</strong> A small inefficiency in context assembly is paid on every one of 50–500 calls per task, in cost, latency and quality.</li>
 </ol>
 <p>During 2025 the industry converged on &quot;context engineering&quot; as the name for this broader job. Practitioners like Andrej Karpathy and Shopify&#39;s Tobi Lütke popularized the term, and Anthropic, Manus, LangChain and others published guides. The shift is from <em>&quot;what&#39;s the perfect wording?&quot;</em> to <em>&quot;what configuration of context, at each step, most reliably produces the behavior I want?&quot;</em></p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>The context window is the model&#39;s entire world at decision time. Context engineering treats it as a <strong>finite budget</strong> to be spent deliberately on every call, not a bucket to fill.</p>
-</div></aside>
-<h2 id="context-is-a-finite-attention-budget"><a class="anchor" href="#context-is-a-finite-attention-budget" aria-hidden="true">#</a>Context is a finite attention budget</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>The context window is the model&#39;s entire world at decision time. Context engineering treats it as a <strong>finite budget</strong> to be spent deliberately on every call, not a bucket to fill.</p>
+</div></div>
+<h2 id="context-is-a-finite-attention-budget"><a class="anchor" href="#context-is-a-finite-attention-budget" aria-hidden="true" tabindex="-1">#</a>Context is a finite attention budget</h2>
 <p>Why not just use the whole million-token window? Because more context is not free, even when it fits.</p>
 <ul>
 <li><strong>Attention is spread thin.</strong> In a <dfn class="gt" tabindex="0" data-t="Transformer" data-d="The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers; in the decoder-only form LLMs use, each token draws information from every earlier token." data-l="llm-fundamentals" data-a="transformer">transformer</dfn> every token attends to every other token, so n tokens create n² pairwise relationships. As context grows, the model&#39;s capacity to track any particular relationship is stretched. Models also see far fewer very long sequences during training than short ones.</li>
@@ -165,7 +165,7 @@
 <li><strong>Cost and latency.</strong> Input tokens are billed on every call, and prefill time grows with context length. An agent re-sending 150K tokens 100 times processes 15M input tokens per task (caching changes the price, not the attention problem).</li>
 </ul>
 <p>The consequence: <strong>every token you add should earn its place</strong>. Irrelevant tokens aren&#39;t neutral. They&#39;re distractors that consume attention and money.</p>
-<h2 id="anatomy-of-an-agents-context"><a class="anchor" href="#anatomy-of-an-agents-context" aria-hidden="true">#</a>Anatomy of an agent&#39;s context</h2>
+<h2 id="anatomy-of-an-agents-context"><a class="anchor" href="#anatomy-of-an-agents-context" aria-hidden="true" tabindex="-1">#</a>Anatomy of an agent&#39;s context</h2>
 <p>A typical request in an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> contains:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -230,14 +230,14 @@
 <div class="widget" data-widget="context-window"></div>
 
 <p>In most real agents, <strong>tool results dominate</strong> after a few dozen steps. That&#39;s why so many of the techniques below target them.</p>
-<h2 id="the-system-prompt-at-the-right-altitude"><a class="anchor" href="#the-system-prompt-at-the-right-altitude" aria-hidden="true">#</a>The system prompt at the right altitude</h2>
+<h2 id="the-system-prompt-at-the-right-altitude"><a class="anchor" href="#the-system-prompt-at-the-right-altitude" aria-hidden="true" tabindex="-1">#</a>The system prompt at the right altitude</h2>
 <p>Anthropic describes a &quot;Goldilocks zone&quot; for system prompts, between two failure modes:</p>
 <ul>
 <li><strong>Too low (brittle):</strong> hard-coded if-else logic in prose. &quot;If the user mentions billing and the account is older than 30 days and they say &#39;refund&#39;, then…&quot; It&#39;s fragile, hard to maintain, and breaks on the first case you didn&#39;t anticipate.</li>
 <li><strong>Too high (vague):</strong> &quot;You are a helpful support agent. Be accurate.&quot; It assumes shared context the model doesn&#39;t have and gives no concrete signals.</li>
 <li><strong>Right altitude:</strong> specific enough to guide behavior, flexible enough to let the model use judgment. Explain the <em>why</em> behind rules so the model can generalize.</li>
 </ul>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Too low:   &quot;If the ticket contains &#x27;refund&#x27; AND plan == &#x27;annual&#x27; AND days &gt; 30, reply with template R7.&quot;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Too low:   &quot;If the ticket contains &#x27;refund&#x27; AND plan == &#x27;annual&#x27; AND days &gt; 30, reply with template R7.&quot;
 Too high:  &quot;Handle refunds appropriately.&quot;
 Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annual within 30. After that,
             offer a prorated credit; we do this because annual customers often churn over a lost
@@ -250,7 +250,7 @@ Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annu
 <li><strong>Start minimal, then add based on observed failures.</strong> Test the bare prompt with your best model, then add instructions that fix specific failures seen in <a href="evaluating-agents.html">evals</a>. Minimal doesn&#39;t mean short. It means nothing that isn&#39;t pulling its weight.</li>
 <li><strong>Don&#39;t keep stale instructions.</strong> Prompts accrete rules for problems that no longer exist, and every rule competes for attention.</li>
 </ul>
-<h2 id="tools-and-examples-are-context-too"><a class="anchor" href="#tools-and-examples-are-context-too" aria-hidden="true">#</a>Tools and examples are context too</h2>
+<h2 id="tools-and-examples-are-context-too"><a class="anchor" href="#tools-and-examples-are-context-too" aria-hidden="true" tabindex="-1">#</a>Tools and examples are context too</h2>
 <p><strong>Tool definitions</strong> are often the second-largest fixed cost, and a major source of confusion.</p>
 <ul>
 <li><strong>Minimal, non-overlapping tool set.</strong> Anthropic&#39;s test: <em>if a human engineer can&#39;t say definitively which tool should be used in a given situation, an agent can&#39;t be expected to do better.</em> Three tools that all &quot;search&quot; invite wrong choices.</li>
@@ -259,11 +259,11 @@ Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annu
 <li><strong>Keep bulky intermediate data out.</strong> <strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-l="designing-tools" data-a="programmatic-tool-calling">Programmatic tool calling</dfn></strong> lets the model write a script that calls tools and filters their outputs in a sandbox, so only the final result enters context, not every intermediate row.</li>
 </ul>
 <p><strong>Examples</strong> are powerful and easy to overdo. Rather than stuffing in every edge case, curate a few <strong>diverse, canonical</strong> examples that show the expected behavior. Manus adds a warning from production: <strong>don&#39;t get few-shotted by your own history</strong>. When the context is full of near-identical action-observation pairs (reviewing resume 1, resume 2, resume 3...), the model starts imitating the pattern, drifting and over-generalizing. Introducing small structured variation (different phrasing and ordering in serialized results) breaks the rut.</p>
-<h2 id="just-in-time-loading-and-progressive-disclosure"><a class="anchor" href="#just-in-time-loading-and-progressive-disclosure" aria-hidden="true">#</a>Just-in-time loading and progressive disclosure</h2>
+<h2 id="just-in-time-loading-and-progressive-disclosure"><a class="anchor" href="#just-in-time-loading-and-progressive-disclosure" aria-hidden="true" tabindex="-1">#</a>Just-in-time loading and progressive disclosure</h2>
 <p>The traditional approach preloads everything possibly relevant: embed the codebase, retrieve the top 20 chunks, put them all up front. The agentic alternative is <strong>just-in-time context</strong>. The agent keeps lightweight <strong>references</strong> (file paths, URLs, query names, IDs) and loads the content behind them only when it decides it needs it, using tools.</p>
 <p>This mirrors how people work. You don&#39;t memorize a codebase; you know where things are and open files as needed. Metadata carries signal too: a file at <code>tests/integration/test_billing.py</code> tells you something before you open it, and so do file sizes, names and timestamps.</p>
 <p>Claude Code takes a <strong>hybrid</strong> approach. CLAUDE.md files are loaded up front (small, always relevant), while <code>glob</code>, <code>grep</code> and ranged file reads pull in everything else on demand. The model can <code>head</code> a huge log file instead of loading it whole. The trade-off is speed: runtime exploration takes more steps than having the data preloaded, so preload what is small and almost always needed, and let the agent fetch the rest.</p>
-<h3 id="progressive-disclosure-with-agent-skills"><a class="anchor" href="#progressive-disclosure-with-agent-skills" aria-hidden="true">#</a>Progressive disclosure with Agent Skills</h3>
+<h3 id="progressive-disclosure-with-agent-skills"><a class="anchor" href="#progressive-disclosure-with-agent-skills" aria-hidden="true" tabindex="-1">#</a>Progressive disclosure with Agent Skills</h3>
 <p><strong><dfn class="gt" tabindex="0" data-t="Agent Skills" data-d="Packaged folders of instructions (a SKILL.md file), scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge. Introduced by Anthropic in 2025 and published as an open standard, it joined the Agentic AI Foundation in October 2026." data-a="agent-skills">Agent Skills</dfn></strong> apply this idea to <em>instructions and procedures</em>. A skill is a folder containing a <code>SKILL.md</code> (and optionally scripts and reference files). Disclosure happens in layers:</p>
 <ol>
 <li><strong>Always in context:</strong> just each skill&#39;s name and one-line description, a few dozen tokens per skill.</li>
@@ -281,13 +281,13 @@ Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annu
     M -- &quot;read on demand&quot; --&gt; B[&quot;pdf/SKILL.md body&quot;]
     B -- &quot;only if needed&quot; --&gt; F[&quot;pdf/forms.md, fill_form.py&quot;]</pre></figure>
 <p>The result is that an agent can have hundreds of skills &quot;installed&quot; while paying context for only the few it uses.</p>
-<h2 id="long-horizon-techniques"><a class="anchor" href="#long-horizon-techniques" aria-hidden="true">#</a>Long-horizon techniques</h2>
+<h2 id="long-horizon-techniques"><a class="anchor" href="#long-horizon-techniques" aria-hidden="true" tabindex="-1">#</a>Long-horizon techniques</h2>
 <p>Some tasks run far longer than any context window: a multi-hour refactor, a research report across hundreds of sources. Three families of techniques keep these going, and production agents use all of them.</p>
-<h3 id="compaction"><a class="anchor" href="#compaction" aria-hidden="true">#</a>Compaction</h3>
+<h3 id="compaction"><a class="anchor" href="#compaction" aria-hidden="true" tabindex="-1">#</a>Compaction</h3>
 <p><strong>Compaction</strong> summarizes the conversation when it nears the limit and continues in a fresh context seeded with the summary. Done well, it preserves what matters (the goal, architectural decisions, unresolved bugs, current state, next steps) and discards what doesn&#39;t (redundant tool output, superseded attempts). Claude Code, for example, compacts by having the model summarize the history and then continues with that summary plus the most recently accessed files.</p>
 <p>The art is choosing what to keep. <strong>Over-aggressive compaction loses subtle details whose importance only becomes clear later.</strong> Tune your compaction prompt for recall first (capture everything that might matter), then trim.</p>
 <p>The Claude API offers server-side compaction as a beta:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
 messages = []
@@ -304,9 +304,9 @@ messages = []
     <span class="hljs-comment"># Append the FULL content: it may contain a compaction block that must be sent back.</span>
     messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: response.content})
     <span class="hljs-keyword">return</span> <span class="hljs-built_in">next</span>((b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>), <span class="hljs-string">&quot;&quot;</span>)</code></pre></div>
-<h3 id="context-editing-clearing-old-tool-results"><a class="anchor" href="#context-editing-clearing-old-tool-results" aria-hidden="true">#</a>Context editing: clearing old tool results</h3>
+<h3 id="context-editing-clearing-old-tool-results"><a class="anchor" href="#context-editing-clearing-old-tool-results" aria-hidden="true" tabindex="-1">#</a>Context editing: clearing old tool results</h3>
 <p>The lightest-touch form of compaction is <strong>tool result clearing</strong>. Once a tool was called long ago and its output has been acted on, the agent rarely needs the raw output again. Clearing old results (replacing them with a short placeholder) keeps the transcript&#39;s <em>structure</em> (what was done, in what order) while removing the bulk.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">response = client.beta.messages.create(
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">response = client.beta.messages.create(
     betas=[<span class="hljs-string">&quot;context-management-2025-06-27&quot;</span>],
     model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
     max_tokens=<span class="hljs-number">16000</span>,
@@ -321,9 +321,9 @@ messages = []
     }]},
 )</code></pre></div>
 <p>Note <code>clear_at_least</code>. Every clearing edit changes the prefix and so <strong>invalidates the prompt cache</strong> from that point on. Clear in large, infrequent batches rather than a little on every turn.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Prefer <strong>restorable</strong> compression. If a tool result can be re-fetched from a path or URL, you can drop its content and keep the reference, so nothing is truly lost. Manus applies this deliberately: drop a web page&#39;s content but keep its URL; drop a file&#39;s contents but keep its path.</p>
-</div></aside>
-<h3 id="structured-note-taking-and-recitation"><a class="anchor" href="#structured-note-taking-and-recitation" aria-hidden="true">#</a>Structured note-taking and recitation</h3>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Prefer <strong>restorable</strong> compression. If a tool result can be re-fetched from a path or URL, you can drop its content and keep the reference, so nothing is truly lost. Manus applies this deliberately: drop a web page&#39;s content but keep its URL; drop a file&#39;s contents but keep its path.</p>
+</div></div>
+<h3 id="structured-note-taking-and-recitation"><a class="anchor" href="#structured-note-taking-and-recitation" aria-hidden="true" tabindex="-1">#</a>Structured note-taking and recitation</h3>
 <p><strong><dfn class="gt" tabindex="0" data-t="Structured note-taking" data-d="Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions." data-a="structured-note-taking">Structured note-taking</dfn></strong> (sometimes called agentic memory) means the agent regularly writes notes to storage <em>outside</em> the context window (a <code>NOTES.md</code>, a progress file, a todo list, the memory tool) and reads them back later. Notes survive compaction, context resets and even new sessions.</p>
 <ul>
 <li>Anthropic gave an example of Claude playing Pokémon: across thousands of game steps it kept precise running notes, such as tallies of training progress, maps of explored regions, and which strategies worked against which opponents, which let it continue coherently after context resets.</li>
@@ -331,7 +331,7 @@ messages = []
 <li><strong><dfn class="gt" tabindex="0" data-t="Recitation" data-d="Having the agent rewrite its plan or to-do list as it works, which pushes the global goal into the most recent part of the context where attention is strongest, countering lost-in-the-middle drift." data-a="recitation">Recitation</dfn></strong>: Manus observed that its agent, over a typical task of around 50 tool calls, would rewrite a <code>todo.md</code> file as it worked, checking off items. Rewriting the plan pushes the global goal into the most recent part of the context, where attention is strongest, countering lost-in-the-middle drift. Todo-list tools in coding agents do the same (see <a href="reasoning-and-planning.html">reasoning and planning</a>).</li>
 </ul>
 <p>See <a href="memory.html">memory</a> for the cross-session side of this. Within a long task, notes are <em>external <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn></em>.</p>
-<h3 id="sub-agent-context-isolation"><a class="anchor" href="#sub-agent-context-isolation" aria-hidden="true">#</a>Sub-agent context isolation</h3>
+<h3 id="sub-agent-context-isolation"><a class="anchor" href="#sub-agent-context-isolation" aria-hidden="true" tabindex="-1">#</a>Sub-agent context isolation</h3>
 <p>A <strong>sub-agent</strong> gets a fresh, clean context window for a focused subtask: &quot;search the codebase for every caller of <code>parse_config</code> and report which pass a path vs. a dict.&quot; It might burn 40K tokens exploring, then return a condensed summary of perhaps 1–2K tokens. The lead agent&#39;s context only ever sees the summary.</p>
 <figure class="diagram"><pre class="mermaid">sequenceDiagram
     participant L as Lead agent (context: 30K)
@@ -392,7 +392,7 @@ messages = []
 </tr>
 </tbody></table>
 </div>
-<h2 id="designing-for-the-kv-cache"><a class="anchor" href="#designing-for-the-kv-cache" aria-hidden="true">#</a>Designing for the KV cache</h2>
+<h2 id="designing-for-the-kv-cache"><a class="anchor" href="#designing-for-the-kv-cache" aria-hidden="true" tabindex="-1">#</a>Designing for the KV cache</h2>
 <p>When a model processes a prompt, it computes key/value tensors for every token (the <strong>KV cache</strong>). If the next request starts with <strong>exactly the same prefix</strong>, a provider can reuse that work: <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn></strong>. For agents this matters enormously, because each step re-sends everything before it with a little appended.</p>
 <p>Manus called KV-cache hit rate <em>the single most important metric</em> for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time (on current Claude models in 2026, a cache read costs about 5% of the base input price, and a 5-minute cache write 1.25×), but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.</p>
 <p>Caching is a <strong>prefix match</strong>: change one byte early and everything after it is recomputed. Render order is tools, then system, then messages. That gives a set of design rules:</p>
@@ -404,7 +404,7 @@ messages = []
 <li><strong>Inject dynamic instructions late.</strong> Mode switches (&quot;plan mode on&quot;), reminders and state updates belong at the end of the context, not in an edited system prompt. On Claude models that support it, a <code>{&quot;role&quot;: &quot;system&quot;, ...}</code> message appended to <code>messages</code> carries operator authority without touching the cached prefix.</li>
 <li><strong>Don&#39;t switch models mid-session.</strong> Caches are per model. Use a sub-agent if you need a cheaper model for a subtask.</li>
 </ol>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
 <span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()
@@ -431,7 +431,7 @@ TOOLS = <span class="hljs-built_in">sorted</span>(load_tool_definitions(), key=<
 <span class="hljs-comment"># A mid-session mode switch goes at the END, leaving the cached prefix intact:</span>
 <span class="hljs-comment"># messages.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;Plan mode: propose changes, do not edit files.&quot;})</span></code></pre></div>
 <p>In a healthy loop, <code>cache_read_input_tokens</code> grows turn over turn and covers nearly the whole prompt, while writes stay small. If reads collapse to zero, diff two consecutive request payloads to find the invalidator. <a href="cost-and-latency.html">Cost and latency</a> goes deeper on caching economics.</p>
-<h2 id="keep-the-errors-in"><a class="anchor" href="#keep-the-errors-in" aria-hidden="true">#</a>Keep the errors in</h2>
+<h2 id="keep-the-errors-in"><a class="anchor" href="#keep-the-errors-in" aria-hidden="true" tabindex="-1">#</a>Keep the errors in</h2>
 <p>A natural instinct is to tidy the transcript: delete the failed tool call, retry silently, hide the stack trace. Manus argues the opposite: <strong>leave the wrong turns in the context.</strong> When the model sees a failed action and its error, it implicitly updates its beliefs and becomes less likely to repeat the mistake. Erasing failures removes the evidence it needs to adapt, and it rewrites history, which also breaks the cache.</p>
 <p>Practical version:</p>
 <ul>
@@ -440,9 +440,9 @@ TOOLS = <span class="hljs-built_in">sorted</span>(load_tool_definitions(), key=<
 <li>If errors accumulate (the same failure ten times), that&#39;s a signal to intervene, for example by injecting a reminder or replanning, not to silently delete them.</li>
 </ul>
 <p>Error recovery is a sign of genuinely agentic behavior. Context that hides errors trains the model, within the session, to repeat them.</p>
-<h2 id="putting-it-together-a-context-budget"><a class="anchor" href="#putting-it-together-a-context-budget" aria-hidden="true">#</a>Putting it together: a context budget</h2>
+<h2 id="putting-it-together-a-context-budget"><a class="anchor" href="#putting-it-together-a-context-budget" aria-hidden="true" tabindex="-1">#</a>Putting it together: a context budget</h2>
 <p>Here&#39;s an illustrative budget for a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> on a 200K-token window. The numbers are an example, not a standard:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Fixed prefix (cached)                       ~18K
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">Fixed prefix (cached)                       ~18K
   System prompt (right altitude)              4K
   Tool definitions (12 tools, concise)        6K
   Skill descriptions (40 skills)              2K
@@ -458,9 +458,9 @@ Headroom for retrieval and output         remaining
 Triggers: clear tool results at 100K input tokens (≥20K at a time);
           compact at 150K; write NOTES.md before compaction.</code></pre></div>
 <p>The process matters more than the specific numbers: <strong>measure</strong> what fills your context (log token counts per component), <strong>set budgets</strong>, <strong>choose triggers</strong> for clearing and compaction, and <strong>evaluate</strong> whether changes improve task success, not just token counts.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Context engineering optimizations can silently hurt quality. Clearing tool results the model still needed, or compaction that drops a constraint, shows up as subtle failures 50 steps later. Every change to context assembly deserves an eval run, and a check of cache hit rate.</p>
-</div></aside>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Context engineering optimizations can silently hurt quality. Clearing tool results the model still needed, or compaction that drops a constraint, shows up as subtle failures 50 steps later. Every change to context assembly deserves an eval run, and a check of cache hit rate.</p>
+</div></div>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li><strong>Context engineering</strong> is choosing, at every step, the smallest set of high-signal tokens for the model. For agents it has largely replaced &quot;prompt engineering&quot; as the core discipline.</li>
 <li>Context is a <strong>finite attention budget</strong>. Lost-in-the-middle and <strong>context rot</strong> mean that more tokens can mean worse answers, well before the window is full.</li>
@@ -470,7 +470,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
 <li><strong>Design for the KV cache</strong>: stable prefix, append-only history, deterministic serialization, mask rather than remove tools, inject dynamic content late.</li>
 <li><strong>Keep errors in context</strong> so the model can learn from them within the session. Measure, budget and evaluate every context change.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Context audit.</strong> Instrument an agent you&#39;ve built (or the one from <a href="build-agent-from-scratch.html">build an agent from scratch</a>) to log token counts per component (system, tools, history, tool results) on every call. Run a long task and identify the biggest consumer by the final step.</li>
 <li><strong>Altitude rewrite.</strong> Take a system prompt you&#39;ve written and rewrite it at the right altitude: remove if-else rules, add the <em>why</em> behind the important constraints, and add section structure. Compare the two on 10 test tasks.</li>
@@ -478,7 +478,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
 <li><strong>Clearing vs. compaction.</strong> On a tool-heavy task (e.g., 40+ file reads), compare three configurations: no management, <code>clear_tool_uses_20250919</code> with <code>keep=5</code>, and server-side compaction. Measure success rate, total input tokens and cache hit rate.</li>
 <li><strong>Sub-agent design (hard).</strong> Build a <code>delegate(task: str) -&gt; str</code> tool that runs a sub-agent in a fresh context with read-only tools and returns a summary under 300 words. Use it for codebase exploration, and compare the lead agent&#39;s context size and success rate against a single agent doing everything. Identify one task where delegation hurts, and explain why.</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="context-engineering" data-total="8">
 
 <div class="quiz-q" data-correct="3">
@@ -569,7 +569,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Clearing trades a cache rebuild for a smaller context, so a minimum amount ensures each edit is worth that cost; batch it into large, infrequent clears. The number of recent results kept is the separate keep setting, and the trigger, not clear_at_least, decides when clearing starts.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Effective context engineering for AI agents (Anthropic)</a>: the attention budget, right-altitude prompts, just-in-time context, compaction, note-taking and sub-agents.</li>
 <li><a href="https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus" target="_blank" rel="noopener">Context Engineering for AI Agents: Lessons from Building Manus</a>: KV-cache-first design, masking tools, the file system as context, recitation and keeping errors in.</li>
@@ -597,7 +597,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
     <a class="pager-next" href="workflow-patterns.html"><small>Next →</small><span>Workflow Patterns</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#from-prompt-engineering-to-context-engineering">From prompt engineering to context engineering</a></li>
 <li class="toc-h2"><a href="#context-is-a-finite-attention-budget">Context is a finite attention budget</a></li>
 <li class="toc-h2"><a href="#anatomy-of-an-agents-context">Anatomy of an agent's context</a></li>
@@ -624,9 +624,9 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

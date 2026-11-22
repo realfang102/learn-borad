@@ -127,9 +127,9 @@
   <header class="lesson-header"><p class="eyebrow">Reference</p><h1>Agent Builder's Cheat Sheet</h1><p class="lead">Everything essential on one page: patterns, loop code, tool design, context, evals, security, cost.</p>
   <div class="lesson-meta"><button type="button" class="btn btn-ghost print-btn">🖨️ Print / save as PDF</button></div></header>
   <article class="prose cheatsheet"><p>The whole course on one page. Each section links to the lesson that explains it in depth. Model names, prices and feature flags change fast; the principles here don&#39;t. Check current docs for exact values as of 2026.</p>
-<h2 id="the-agent-loop-in-25-lines"><a class="anchor" href="#the-agent-loop-in-25-lines" aria-hidden="true">#</a>The agent loop in 25 lines</h2>
+<h2 id="the-agent-loop-in-25-lines"><a class="anchor" href="#the-agent-loop-in-25-lines" aria-hidden="true" tabindex="-1">#</a>The agent loop in 25 lines</h2>
 <p>A manual loop with the Anthropic Python SDK (<code>pip install anthropic</code>). In production, consider the SDK&#39;s Tool Runner, which handles this loop for you. Details: <a href="the-agent-loop.html">the agent loop</a>, <a href="tool-use.html">tool use</a>, <a href="build-agent-from-scratch.html">build an agent from scratch</a>.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
 client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">run_agent</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span>, tools: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>], run_tool, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">20</span></span>) -&gt; <span class="hljs-built_in">str</span>:
@@ -155,7 +155,7 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
         messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})  <span class="hljs-comment"># ALL results in ONE message</span>
     <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&quot;Step budget exhausted&quot;</span>)</code></pre></div>
 <p>Current-API rules: no <code>temperature</code>/<code>top_p</code>/<code>top_k</code>, no assistant prefill, thinking via <code>thinking={&quot;type&quot;: &quot;adaptive&quot;}</code> plus <code>output_config={&quot;effort&quot;: ...}</code>, and <code>tool_choice</code> limited to <code>auto</code> or <code>none</code>.</p>
-<h2 id="choosing-an-architecture"><a class="anchor" href="#choosing-an-architecture" aria-hidden="true">#</a>Choosing an architecture</h2>
+<h2 id="choosing-an-architecture"><a class="anchor" href="#choosing-an-architecture" aria-hidden="true" tabindex="-1">#</a>Choosing an architecture</h2>
 <p>Start with the simplest thing that could work, and add autonomy only when evals show you need it. See <a href="when-to-use-agents.html">when to use agents</a> and <a href="agent-architectures.html">agent architectures</a>.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -198,7 +198,7 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>Agent go/no-go: is the task complex enough? Is it valuable enough to pay for the tokens? Are the needed capabilities reliable? How costly is an undetected error?</p>
-<h2 id="workflow-patterns-at-a-glance"><a class="anchor" href="#workflow-patterns-at-a-glance" aria-hidden="true">#</a>Workflow patterns at a glance</h2>
+<h2 id="workflow-patterns-at-a-glance"><a class="anchor" href="#workflow-patterns-at-a-glance" aria-hidden="true" tabindex="-1">#</a>Workflow patterns at a glance</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -253,36 +253,36 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>More: <a href="workflow-patterns.html">workflow patterns</a>.</p>
-<h2 id="tool-design-checklist"><a class="anchor" href="#tool-design-checklist" aria-hidden="true">#</a>Tool design checklist</h2>
+<h2 id="tool-design-checklist"><a class="anchor" href="#tool-design-checklist" aria-hidden="true" tabindex="-1">#</a>Tool design checklist</h2>
 <p>Details: <a href="designing-tools.html">designing tools</a>, <a href="structured-outputs.html">structured outputs</a>, <a href="protocols-mcp-a2a.html">MCP and A2A</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Few, high-level tools</strong> that match real workflows (<code>schedule_meeting</code>, not <code>list_users</code> + <code>list_events</code> + <code>create_event</code>).</li>
-<li><input disabled="" type="checkbox"> <strong>Unambiguous names</strong>, namespaced by service or resource (<code>github_create_issue</code>, <code>jira_search</code>).</li>
-<li><input disabled="" type="checkbox"> <strong>Descriptions written like docs for a new hire</strong>: what it does, when to use it (and when not to), formats, limits, an example.</li>
-<li><input disabled="" type="checkbox"> <strong>Strict input schema</strong>: typed params, enums over free text, <code>required</code> fields, <code>additionalProperties: false</code>; consider <code>strict: true</code>.</li>
-<li><input disabled="" type="checkbox"> <strong>Poka-yoke</strong>: make misuse hard (absolute paths, IDs from previous results, validated ranges).</li>
-<li><input disabled="" type="checkbox"> <strong>Token-efficient output</strong>: return meaningful fields and human-readable names rather than raw UUID dumps; paginate, filter and truncate with a clear note.</li>
-<li><input disabled="" type="checkbox"> <strong>Helpful errors</strong>: say what was wrong and how to fix it, returned as <code>is_error: true</code> results.</li>
-<li><input disabled="" type="checkbox"> <strong>Idempotent or guarded side effects</strong>: safe to retry; destructive actions need confirmation.</li>
-<li><input disabled="" type="checkbox"> <strong>Few overlapping tools</strong>: if a human can&#39;t say which tool to use, neither can the model.</li>
-<li><input disabled="" type="checkbox"> <strong>Evaluate tools with realistic multi-step tasks</strong>, then read the transcripts and iterate.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Few, high-level tools</strong> that match real workflows (<code>schedule_meeting</code>, not <code>list_users</code> + <code>list_events</code> + <code>create_event</code>).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Unambiguous names</strong>, namespaced by service or resource (<code>github_create_issue</code>, <code>jira_search</code>).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Descriptions written like docs for a new hire</strong>: what it does, when to use it (and when not to), formats, limits, an example.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Strict input schema</strong>: typed params, enums over free text, <code>required</code> fields, <code>additionalProperties: false</code>; consider <code>strict: true</code>.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Poka-yoke</strong>: make misuse hard (absolute paths, IDs from previous results, validated ranges).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Token-efficient output</strong>: return meaningful fields and human-readable names rather than raw UUID dumps; paginate, filter and truncate with a clear note.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Helpful errors</strong>: say what was wrong and how to fix it, returned as <code>is_error: true</code> results.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Idempotent or guarded side effects</strong>: safe to retry; destructive actions need confirmation.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Few overlapping tools</strong>: if a human can&#39;t say which tool to use, neither can the model.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Evaluate tools with realistic multi-step tasks</strong>, then read the transcripts and iterate.</li>
 </ul>
-<h2 id="prompt-and-system-prompt-checklist"><a class="anchor" href="#prompt-and-system-prompt-checklist" aria-hidden="true">#</a>Prompt and system-prompt checklist</h2>
+<h2 id="prompt-and-system-prompt-checklist"><a class="anchor" href="#prompt-and-system-prompt-checklist" aria-hidden="true" tabindex="-1">#</a>Prompt and system-prompt checklist</h2>
 <p>Details: <a href="prompting-for-agents.html">prompting for agents</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Role and goal</strong>: who the agent is, what success looks like, who it serves.</li>
-<li><input disabled="" type="checkbox"> <strong>Right altitude</strong>: specific enough to steer, general enough to leave room for judgment. Avoid brittle if-else rule lists and vague platitudes alike.</li>
-<li><input disabled="" type="checkbox"> <strong>Context the model can&#39;t infer</strong>: domain facts, user situation, why constraints exist.</li>
-<li><input disabled="" type="checkbox"> <strong>Tool guidance</strong>: when to use which tool, in what order, what to do with failures.</li>
-<li><input disabled="" type="checkbox"> <strong>Boundaries</strong>: what never to do, what needs confirmation, when to stop and ask.</li>
-<li><input disabled="" type="checkbox"> <strong>Done criteria</strong>: how to verify the work before finishing.</li>
-<li><input disabled="" type="checkbox"> <strong>Output format</strong>: structure, length, and where final answers go; use structured outputs when code consumes them.</li>
-<li><input disabled="" type="checkbox"> <strong>Clear sections</strong>: Markdown headers or XML tags separating instructions, context and data.</li>
-<li><input disabled="" type="checkbox"> <strong>A few diverse, canonical examples</strong> rather than an exhaustive list of edge cases.</li>
-<li><input disabled="" type="checkbox"> <strong>Stable prefix</strong>: static content first and dynamic content (dates, user data) last, to maximize cache hits.</li>
-<li><input disabled="" type="checkbox"> <strong>Version-controlled and evaluated</strong>: every prompt change runs the eval suite.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Role and goal</strong>: who the agent is, what success looks like, who it serves.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Right altitude</strong>: specific enough to steer, general enough to leave room for judgment. Avoid brittle if-else rule lists and vague platitudes alike.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Context the model can&#39;t infer</strong>: domain facts, user situation, why constraints exist.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Tool guidance</strong>: when to use which tool, in what order, what to do with failures.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Boundaries</strong>: what never to do, what needs confirmation, when to stop and ask.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Done criteria</strong>: how to verify the work before finishing.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Output format</strong>: structure, length, and where final answers go; use structured outputs when code consumes them.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Clear sections</strong>: Markdown headers or XML tags separating instructions, context and data.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>A few diverse, canonical examples</strong> rather than an exhaustive list of edge cases.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Stable prefix</strong>: static content first and dynamic content (dates, user data) last, to maximize cache hits.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Version-controlled and evaluated</strong>: every prompt change runs the eval suite.</li>
 </ul>
-<h2 id="context-engineering-moves"><a class="anchor" href="#context-engineering-moves" aria-hidden="true">#</a>Context engineering moves</h2>
+<h2 id="context-engineering-moves"><a class="anchor" href="#context-engineering-moves" aria-hidden="true" tabindex="-1">#</a>Context engineering moves</h2>
 <p>Details: <a href="context-engineering.html">context engineering</a>.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -337,7 +337,7 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tr>
 </tbody></table>
 </div>
-<h2 id="memory-types"><a class="anchor" href="#memory-types" aria-hidden="true">#</a>Memory types</h2>
+<h2 id="memory-types"><a class="anchor" href="#memory-types" aria-hidden="true" tabindex="-1">#</a>Memory types</h2>
 <p>Details: <a href="memory.html">memory</a>, <a href="rag-and-retrieval.html">RAG and retrieval</a>.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -381,7 +381,7 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>Memory ops to design: <strong>write</strong> (what is worth saving, and who decides), <strong>retrieve</strong> (recency, relevance, importance), <strong>update/forget</strong> (contradictions, staleness), <strong>scope</strong> (per user, per project, global). Treat stored memory as untrusted input, since it can be poisoned.</p>
-<h2 id="stop-reasons-and-how-to-handle-them"><a class="anchor" href="#stop-reasons-and-how-to-handle-them" aria-hidden="true">#</a>Stop reasons and how to handle them</h2>
+<h2 id="stop-reasons-and-how-to-handle-them"><a class="anchor" href="#stop-reasons-and-how-to-handle-them" aria-hidden="true" tabindex="-1">#</a>Stop reasons and how to handle them</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -423,19 +423,19 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>Also handle API errors separately: 429 rate limits and 5xx/overloaded errors → retry with exponential backoff and jitter; 400s → fix the request, don&#39;t retry.</p>
-<h2 id="evaluation-checklist-and-passk-passk"><a class="anchor" href="#evaluation-checklist-and-passk-passk" aria-hidden="true">#</a>Evaluation checklist and pass@k / pass^k</h2>
+<h2 id="evaluation-checklist-and-passk-passk"><a class="anchor" href="#evaluation-checklist-and-passk-passk" aria-hidden="true" tabindex="-1">#</a>Evaluation checklist and pass@k / pass^k</h2>
 <p>Details: <a href="evaluating-agents.html">evaluating agents</a>, <a href="benchmarks.html">benchmarks</a>, <a href="observability.html">observability</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> Start early with <strong>20–50 real tasks</strong> drawn from actual failures and usage; grow from there.</li>
-<li><input disabled="" type="checkbox"> Each task has an unambiguous success criterion that a domain expert would agree with.</li>
-<li><input disabled="" type="checkbox"> Prefer <strong>code-based graders</strong> (tests, state checks); use <strong>LLM judges</strong> with rubrics where needed and calibrate them against human labels.</li>
-<li><input disabled="" type="checkbox"> <strong>Grade outcomes</strong>, not exact tool sequences; check trajectories for policy violations and waste.</li>
-<li><input disabled="" type="checkbox"> Run <strong>multiple trials</strong> per task; report the mean and variance, not one lucky run.</li>
-<li><input disabled="" type="checkbox"> Keep separate suites for <strong>capability</strong> (hard, low pass rate) and <strong>regression</strong> (should stay near 100%).</li>
-<li><input disabled="" type="checkbox"> Isolate trials: clean environment, no shared state or leaked answers.</li>
-<li><input disabled="" type="checkbox"> <strong>Read transcripts</strong> and do error analysis; label failure modes and count them.</li>
-<li><input disabled="" type="checkbox"> Track cost, latency, steps and tokens per task alongside success.</li>
-<li><input disabled="" type="checkbox"> Run evals in CI on every prompt, tool or model change.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Start early with <strong>20–50 real tasks</strong> drawn from actual failures and usage; grow from there.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Each task has an unambiguous success criterion that a domain expert would agree with.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Prefer <strong>code-based graders</strong> (tests, state checks); use <strong>LLM judges</strong> with rubrics where needed and calibrate them against human labels.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Grade outcomes</strong>, not exact tool sequences; check trajectories for policy violations and waste.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Run <strong>multiple trials</strong> per task; report the mean and variance, not one lucky run.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Keep separate suites for <strong>capability</strong> (hard, low pass rate) and <strong>regression</strong> (should stay near 100%).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Isolate trials: clean environment, no shared state or leaked answers.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Read transcripts</strong> and do error analysis; label failure modes and count them.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Track cost, latency, steps and tokens per task alongside success.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Run evals in CI on every prompt, tool or model change.</li>
 </ul>
 <p>With per-trial success probability <em>p</em> and <em>k</em> trials:</p>
 <div class="table-wrap"><table>
@@ -462,28 +462,28 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>Unbiased estimators from <em>n</em> trials with <em>c</em> successes: pass@k = 1 − C(n−c, k) / C(n, k); pass^k = C(c, k) / C(n, k). Use pass@k when a human or verifier can pick the best attempt; use <strong>pass^k for customer-facing reliability</strong>.</p>
-<h2 id="reliability-checklist"><a class="anchor" href="#reliability-checklist" aria-hidden="true">#</a>Reliability checklist</h2>
+<h2 id="reliability-checklist"><a class="anchor" href="#reliability-checklist" aria-hidden="true" tabindex="-1">#</a>Reliability checklist</h2>
 <p>Details: <a href="reliability.html">reliability</a>, <a href="deployment.html">deployment</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Budgets</strong> on steps, tokens, wall-clock time and dollars per run.</li>
-<li><input disabled="" type="checkbox"> <strong>Retries with exponential backoff + jitter</strong> for transient errors; timeouts on every model and tool call.</li>
-<li><input disabled="" type="checkbox"> <strong>Idempotent tools</strong> (or idempotency keys) so retries don&#39;t double-charge or double-send.</li>
-<li><input disabled="" type="checkbox"> <strong>Tool errors returned to the model</strong> as <code>is_error</code> results, so it can self-correct.</li>
-<li><input disabled="" type="checkbox"> <strong>Validation</strong> of tool inputs and of final outputs (schemas, tests, business rules).</li>
-<li><input disabled="" type="checkbox"> <strong>Loop detection</strong>: same call repeated with no progress → nudge, stop or escalate.</li>
-<li><input disabled="" type="checkbox"> <strong>Verification step</strong> before declaring done (run tests, re-read requirements).</li>
-<li><input disabled="" type="checkbox"> <strong>Checkpointing / durable execution</strong> for long runs; resume rather than restart.</li>
-<li><input disabled="" type="checkbox"> <strong>Fallbacks</strong>: alternate model, simpler workflow, or human handoff.</li>
-<li><input disabled="" type="checkbox"> <strong>Compounding math</strong>: per-step reliability r over n steps ≈ rⁿ, so shorten chains and add checkpoints.</li>
-<li><input disabled="" type="checkbox"> <strong>Full tracing</strong> of every run (inputs, outputs, tool calls, tokens, latency, cost).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Budgets</strong> on steps, tokens, wall-clock time and dollars per run.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Retries with exponential backoff + jitter</strong> for transient errors; timeouts on every model and tool call.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Idempotent tools</strong> (or idempotency keys) so retries don&#39;t double-charge or double-send.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Tool errors returned to the model</strong> as <code>is_error</code> results, so it can self-correct.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Validation</strong> of tool inputs and of final outputs (schemas, tests, business rules).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Loop detection</strong>: same call repeated with no progress → nudge, stop or escalate.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Verification step</strong> before declaring done (run tests, re-read requirements).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Checkpointing / durable execution</strong> for long runs; resume rather than restart.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Fallbacks</strong>: alternate model, simpler workflow, or human handoff.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Compounding math</strong>: per-step reliability r over n steps ≈ rⁿ, so shorten chains and add checkpoints.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Full tracing</strong> of every run (inputs, outputs, tool calls, tokens, latency, cost).</li>
 </ul>
-<h2 id="cost-formulas-and-levers"><a class="anchor" href="#cost-formulas-and-levers" aria-hidden="true">#</a>Cost formulas and levers</h2>
+<h2 id="cost-formulas-and-levers"><a class="anchor" href="#cost-formulas-and-levers" aria-hidden="true" tabindex="-1">#</a>Cost formulas and levers</h2>
 <p>Details: <a href="cost-and-latency.html">cost and latency</a>.</p>
 <p><strong>Per call</strong></p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">cost = (uncached_in × P_in + cache_write × P_in × 1.25 + cache_read × P_in × r + out × P_out) / 1,000,000</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">cost = (uncached_in × P_in + cache_write × P_in × 1.25 + cache_read × P_in × r + out × P_out) / 1,000,000</code></pre></div>
 <p><code>P_in</code>/<code>P_out</code> are prices per million tokens. Cache writes cost 1.25× base input for the 5-minute TTL (2× for 1-hour). Cache reads (r) cost 0.1× base input historically (still so on Haiku 5.5), but less on the newest models: 0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2. Output tokens typically cost several times more than input (5× on Claude models).</p>
 <p><strong>Per agent run</strong>: context grows each turn, so input tokens grow roughly quadratically:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">total_input ≈ n × S + T × n(n−1)/2</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">total_input ≈ n × S + T × n(n−1)/2</code></pre></div>
 <p>Here <em>n</em> is the number of model calls, <em>S</em> the static prefix (system prompt + tools) and <em>T</em> the tokens added per turn. This is why caching and compaction matter.</p>
 <p><strong>Caching example</strong> (Opus 5.5, r = 0.05): a 50K-token prefix reused across 20 calls costs 1,000K input-token-equivalents uncached. Cached, it costs 1.25 × 50K + 19 × 0.05 × 50K = 110K, <strong>about 89% less</strong> on that prefix (about 84% at the older r = 0.1), and time to first token drops too. With a 5-minute TTL, caching pays off from the first reuse (1.25 + 0.05 = 1.3 vs 2.0).</p>
 <div class="table-wrap"><table>
@@ -537,37 +537,37 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </tbody></table>
 </div>
 <p>Measure <strong>cost per successful task</strong>, not cost per call.</p>
-<h2 id="security-checklist"><a class="anchor" href="#security-checklist" aria-hidden="true">#</a>Security checklist</h2>
+<h2 id="security-checklist"><a class="anchor" href="#security-checklist" aria-hidden="true" tabindex="-1">#</a>Security checklist</h2>
 <p>Details: <a href="agent-security.html">agent security</a>, <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Assume prompt injection will succeed</strong> sometimes. Any text the agent reads (web, email, docs, tool output, memory) can carry instructions.</li>
-<li><input disabled="" type="checkbox"> <strong>Break the lethal trifecta</strong>: never give one agent all three of private data access, exposure to untrusted content, and an external communication channel. Removing exfiltration paths is usually easiest.</li>
-<li><input disabled="" type="checkbox"> <strong>Least privilege</strong>: minimal tools, scoped and short-lived credentials, read-only by default, per-user authorization enforced in the tool, never by the model.</li>
-<li><input disabled="" type="checkbox"> <strong>Permission rules with deny-first precedence</strong>: allow / ask / deny rules per tool call (e.g. ask on <code>Bash(git push *)</code> in Claude Code), where <strong>deny &gt; ask &gt; allow</strong> regardless of specificity and anything unmatched is asked about or denied, never allowed.</li>
-<li><input disabled="" type="checkbox"> <strong>Human confirmation</strong> for irreversible, financial or external-facing actions, showing exactly what will happen.</li>
-<li><input disabled="" type="checkbox"> <strong>Egress control</strong>: network allowlists; block rendering of untrusted URLs and images in output (a common exfiltration channel).</li>
-<li><input disabled="" type="checkbox"> <strong>Sandbox code execution</strong> (container or microVM, no host secrets, resource limits).</li>
-<li><input disabled="" type="checkbox"> <strong>Design patterns over filters</strong>: plan-then-execute, dual LLM / quarantined LLM, CaMeL-style data-flow control. Classifiers and spotlighting help, but they are not guarantees.</li>
-<li><input disabled="" type="checkbox"> <strong>Vet MCP servers and tools</strong>: pin versions, review descriptions for hidden instructions, watch for changes after approval.</li>
-<li><input disabled="" type="checkbox"> <strong>Treat model output as untrusted</strong> before it reaches shells, SQL, HTML or other agents.</li>
-<li><input disabled="" type="checkbox"> <strong>Log and audit</strong> every tool call; alert on anomalies; red-team with injection suites such as AgentDojo.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Assume prompt injection will succeed</strong> sometimes. Any text the agent reads (web, email, docs, tool output, memory) can carry instructions.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Break the lethal trifecta</strong>: never give one agent all three of private data access, exposure to untrusted content, and an external communication channel. Removing exfiltration paths is usually easiest.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Least privilege</strong>: minimal tools, scoped and short-lived credentials, read-only by default, per-user authorization enforced in the tool, never by the model.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Permission rules with deny-first precedence</strong>: allow / ask / deny rules per tool call (e.g. ask on <code>Bash(git push *)</code> in Claude Code), where <strong>deny &gt; ask &gt; allow</strong> regardless of specificity and anything unmatched is asked about or denied, never allowed.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Human confirmation</strong> for irreversible, financial or external-facing actions, showing exactly what will happen.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Egress control</strong>: network allowlists; block rendering of untrusted URLs and images in output (a common exfiltration channel).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Sandbox code execution</strong> (container or microVM, no host secrets, resource limits).</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Design patterns over filters</strong>: plan-then-execute, dual LLM / quarantined LLM, CaMeL-style data-flow control. Classifiers and spotlighting help, but they are not guarantees.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Vet MCP servers and tools</strong>: pin versions, review descriptions for hidden instructions, watch for changes after approval.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Treat model output as untrusted</strong> before it reaches shells, SQL, HTML or other agents.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Log and audit</strong> every tool call; alert on anomalies; red-team with injection suites such as AgentDojo.</li>
 </ul>
-<h2 id="production-readiness-checklist"><a class="anchor" href="#production-readiness-checklist" aria-hidden="true">#</a>Production readiness checklist</h2>
+<h2 id="production-readiness-checklist"><a class="anchor" href="#production-readiness-checklist" aria-hidden="true" tabindex="-1">#</a>Production readiness checklist</h2>
 <p>Details: <a href="deployment.html">deployment</a>, <a href="observability.html">observability</a>, <a href="human-in-the-loop.html">human in the loop</a>.</p>
 <ul>
-<li><input disabled="" type="checkbox"> Clear scope, success metric and <strong>owner</strong>; a simpler non-agent baseline measured for comparison.</li>
-<li><input disabled="" type="checkbox"> <strong>Eval suite</strong> passing at agreed thresholds (including pass^k for consistency) and wired into CI.</li>
-<li><input disabled="" type="checkbox"> <strong>Tracing and dashboards</strong>: success rate, cost per task, latency (p50/p95), step counts, error and refusal rates.</li>
-<li><input disabled="" type="checkbox"> <strong>Budgets, rate-limit handling, timeouts and fallbacks</strong> configured and tested.</li>
-<li><input disabled="" type="checkbox"> <strong>Security review</strong> done: trifecta analysis, permissions, sandbox, egress, secrets handling.</li>
-<li><input disabled="" type="checkbox"> <strong>Human escalation path</strong> and approval gates for risky actions.</li>
-<li><input disabled="" type="checkbox"> <strong>Graceful failure UX</strong>: the agent says what it couldn&#39;t do rather than inventing success.</li>
-<li><input disabled="" type="checkbox"> <strong>Staged rollout</strong> (internal → beta → GA) with kill switch and the ability to roll back prompts and models.</li>
-<li><input disabled="" type="checkbox"> <strong>Online evaluation</strong>: sampled transcript review, user feedback, drift monitoring.</li>
-<li><input disabled="" type="checkbox"> <strong>Versioned</strong> prompts, tools, models and configs, so every run is reproducible.</li>
-<li><input disabled="" type="checkbox"> Data retention, privacy and compliance requirements reviewed.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Clear scope, success metric and <strong>owner</strong>; a simpler non-agent baseline measured for comparison.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Eval suite</strong> passing at agreed thresholds (including pass^k for consistency) and wired into CI.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Tracing and dashboards</strong>: success rate, cost per task, latency (p50/p95), step counts, error and refusal rates.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Budgets, rate-limit handling, timeouts and fallbacks</strong> configured and tested.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Security review</strong> done: trifecta analysis, permissions, sandbox, egress, secrets handling.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Human escalation path</strong> and approval gates for risky actions.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Graceful failure UX</strong>: the agent says what it couldn&#39;t do rather than inventing success.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Staged rollout</strong> (internal → beta → GA) with kill switch and the ability to roll back prompts and models.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Online evaluation</strong>: sampled transcript review, user feedback, drift monitoring.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> <strong>Versioned</strong> prompts, tools, models and configs, so every run is reproducible.</li>
+<li><input disabled="" type="checkbox" aria-hidden="true"> Data retention, privacy and compliance requirements reviewed.</li>
 </ul>
-<h2 id="key-numbers-to-remember"><a class="anchor" href="#key-numbers-to-remember" aria-hidden="true">#</a>Key numbers to remember</h2>
+<h2 id="key-numbers-to-remember"><a class="anchor" href="#key-numbers-to-remember" aria-hidden="true" tabindex="-1">#</a>Key numbers to remember</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -635,7 +635,7 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
 </div>
 </article>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#the-agent-loop-in-25-lines">The agent loop in 25 lines</a></li>
 <li class="toc-h2"><a href="#choosing-an-architecture">Choosing an architecture</a></li>
 <li class="toc-h2"><a href="#workflow-patterns-at-a-glance">Workflow patterns at a glance</a></li>
@@ -657,9 +657,9 @@ client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>

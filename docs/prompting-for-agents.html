@@ -124,7 +124,7 @@
   </div>
 </aside>
 <main id="main" class="lesson" data-slug="prompting-for-agents">
-  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
   <header class="lesson-header">
     <h1>Prompt Engineering for Agents</h1>
     <p class="lead">How to write system prompts that make agents act well over hundreds of steps: structure, altitude, autonomy, long-horizon state, and testing prompts like code.</p>
@@ -145,7 +145,7 @@
 <p>Give the same model the same tools and the same bug report, and swap only the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-a="system-prompt">system prompt</dfn>. With the first prompt, the agent reads one file, guesses at a fix, sees a failing test and asks you what to do. With the second, it reproduces the bug, reads the surrounding code, fixes the root cause, runs the full test suite, notices it broke an unrelated snapshot test, fixes that too, and reports back in three sentences. Nothing about the model changed. What changed was the <strong>system prompt</strong>: the standing instructions that frame every step the agent takes.</p>
 <p>Prompting a chatbot is about getting one good answer. Prompting an <strong>agent</strong> is closer to writing a job description, an onboarding document and an operating manual at once, for a colleague who will read it once and then work alone for hundreds of steps, with nobody to ask. Mistakes compound: a vague instruction that produces a slightly-off chat answer can produce a deleted directory or a refund the business never authorized when an agent acts on it.</p>
 <p>This lesson covers what goes into an agent prompt, how specific to be, how to steer autonomy and persistence, how to prompt for tasks that outlive a single <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and how to treat prompts as versioned, tested code. It ends with two complete, annotated system prompts: one for a customer-support agent and one for a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn>.</p>
-<h2 id="why-agent-prompts-are-different"><a class="anchor" href="#why-agent-prompts-are-different" aria-hidden="true">#</a>Why Agent Prompts Are Different</h2>
+<h2 id="why-agent-prompts-are-different"><a class="anchor" href="#why-agent-prompts-are-different" aria-hidden="true" tabindex="-1">#</a>Why Agent Prompts Are Different</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -182,9 +182,9 @@
 </tbody></table>
 </div>
 <p>A useful mental model, which Anthropic&#39;s own prompting guidance uses, is a <strong>brilliant new hire with zero context</strong>. They are fast, knowledgeable and eager, but they don&#39;t know your customers, your codebase&#39;s conventions, which actions are reversible, or what &quot;done&quot; means here. Anything that lives only in your head, they will fill with safe, generic defaults. A practical test: hand your prompt to a smart colleague who has never seen the project. If they would have to ask questions before starting, the agent will too — or worse, it will guess.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>A system prompt&#39;s job is to transfer the context only you have: the goal, the audience, the environment, the quality bar, the constraints and <em>why</em> they exist. The model already knows how to be helpful, thorough and careful. It does not know your situation.</p>
-</div></aside>
-<h2 id="anatomy-of-an-agent-system-prompt"><a class="anchor" href="#anatomy-of-an-agent-system-prompt" aria-hidden="true">#</a>Anatomy of an Agent System Prompt</h2>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>A system prompt&#39;s job is to transfer the context only you have: the goal, the audience, the environment, the quality bar, the constraints and <em>why</em> they exist. The model already knows how to be helpful, thorough and careful. It does not know your situation.</p>
+</div></div>
+<h2 id="anatomy-of-an-agent-system-prompt"><a class="anchor" href="#anatomy-of-an-agent-system-prompt" aria-hidden="true" tabindex="-1">#</a>Anatomy of an Agent System Prompt</h2>
 <p>Most strong agent prompts contain the same handful of parts. Not every agent needs every part, and the order is flexible, but checking a draft against this list catches most gaps.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -239,14 +239,14 @@
     R[&quot;Tool results so far&quot;] --&gt; M
     M --&gt; A[&quot;Next action or final answer&quot;]
     A --&gt;|&quot;tool call&quot;| R</pre></figure>
-<h3 id="explain-the-why"><a class="anchor" href="#explain-the-why" aria-hidden="true">#</a>Explain the why</h3>
+<h3 id="explain-the-why"><a class="anchor" href="#explain-the-why" aria-hidden="true" tabindex="-1">#</a>Explain the why</h3>
 <p>The single highest-leverage habit is attaching a reason to each constraint. Compare:</p>
 <ul>
 <li>&quot;NEVER use ellipses.&quot;</li>
 <li>&quot;Your reply will be read aloud by a text-to-speech engine, so never use ellipses — it can&#39;t pronounce them.&quot;</li>
 </ul>
 <p>The second version lets the model <strong>generalize</strong>: it will also avoid emoji, tables and URLs that a speech engine would mangle, none of which you listed. A bare rule covers the cases you thought of; a rule with its reason covers the ones you didn&#39;t, and helps the model weigh conflicting rules sensibly.</p>
-<h3 id="find-the-right-altitude"><a class="anchor" href="#find-the-right-altitude" aria-hidden="true">#</a>Find the right altitude</h3>
+<h3 id="find-the-right-altitude"><a class="anchor" href="#find-the-right-altitude" aria-hidden="true" tabindex="-1">#</a>Find the right altitude</h3>
 <p>Instructions can fail in two opposite directions, a framing Anthropic&#39;s context-engineering guidance calls finding the <strong>right altitude</strong>:</p>
 <ul>
 <li><strong>Too low (over-specified):</strong> hardcoded if-then logic, scripts of exact steps, enumerations of every edge case. It&#39;s brittle — the world presents a case you didn&#39;t script and the agent either follows the script into a wall or freezes.</li>
@@ -274,9 +274,9 @@
 </tbody></table>
 </div>
 <p>The right-altitude version states the goal (retain the customer), the facts to gather, the bounds of authority, and the principle for using it. It leaves the conversation itself to the model.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Match specificity to fragility. Use prose heuristics where many paths are fine (how to talk to a customer). Use exact, step-by-step instructions only where exactly one sequence is safe (a database migration, an authentication flow, a compliance disclosure).</p>
-</div></aside>
-<h2 id="structure-xml-tags-and-sections"><a class="anchor" href="#structure-xml-tags-and-sections" aria-hidden="true">#</a>Structure: XML Tags and Sections</h2>
+<div class="callout callout-tip" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Match specificity to fragility. Use prose heuristics where many paths are fine (how to talk to a customer). Use exact, step-by-step instructions only where exactly one sequence is safe (a database migration, an authentication flow, a compliance disclosure).</p>
+</div></div>
+<h2 id="structure-xml-tags-and-sections"><a class="anchor" href="#structure-xml-tags-and-sections" aria-hidden="true" tabindex="-1">#</a>Structure: XML Tags and Sections</h2>
 <p>Long agent prompts mix instructions, reference material, policies and examples. Delimiting them helps the model keep track of what is what. <strong>XML tags</strong> such as <code>&lt;role&gt;</code>, <code>&lt;policies&gt;</code> or <code>&lt;customer_record&gt;</code> are a common, well-supported convention, particularly with Claude models; the two complete prompts at the end of this lesson use them throughout.</p>
 <p>Tags make boundaries unambiguous, let you refer to sections by name, and keep injected data (a retrieved document, a customer record) separate from instructions. Markdown headings work too; consistency and descriptive names matter more than the syntax.</p>
 <p>A few structural guidelines that hold up across models:</p>
@@ -285,7 +285,7 @@
 <li><strong>Use prose for behavior, structure for reference data.</strong> A wall of bullets flattens priorities and separates rules from their reasons; tables and lists are great for catalogs, price limits and status codes.</li>
 <li><strong>Tags are not a security boundary.</strong> Wrapping untrusted text in <code>&lt;customer_email&gt;</code> helps the model treat it as data, but a determined <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> can still work. Defend with permissions and sandboxing, not formatting (see <a href="agent-security.html">agent security</a>).</li>
 </ul>
-<h2 id="examples-and-few-shot-prompting"><a class="anchor" href="#examples-and-few-shot-prompting" aria-hidden="true">#</a>Examples and Few-Shot Prompting</h2>
+<h2 id="examples-and-few-shot-prompting"><a class="anchor" href="#examples-and-few-shot-prompting" aria-hidden="true" tabindex="-1">#</a>Examples and Few-Shot Prompting</h2>
 <p>Examples are the strongest signal in a prompt. Models match their length, tone, structure and even their specific values. That makes them powerful for pinning a format — and dangerous for agents.</p>
 <p>Common failure modes when you add examples to an agent prompt:</p>
 <ol>
@@ -301,9 +301,9 @@
 <li>Use examples mainly for things that are genuinely <strong>format-sensitive</strong> (a ticket summary a downstream parser reads, a commit message convention). For judgment the model already has, describe the goal instead.</li>
 <li>If you need guaranteed structure, use <a href="structured-outputs.html">structured outputs</a> instead of trying to coax it via examples.</li>
 </ul>
-<h2 id="steering-autonomy-persistence-and-initiative"><a class="anchor" href="#steering-autonomy-persistence-and-initiative" aria-hidden="true">#</a>Steering Autonomy, Persistence and Initiative</h2>
+<h2 id="steering-autonomy-persistence-and-initiative"><a class="anchor" href="#steering-autonomy-persistence-and-initiative" aria-hidden="true" tabindex="-1">#</a>Steering Autonomy, Persistence and Initiative</h2>
 <p>Every agent prompt implicitly answers a question: <strong>when should the agent act on its own, and when should it stop and check in?</strong> Get it wrong in one direction and the agent nags the user for permission to read a file; in the other, it emails a customer a draft you never approved.</p>
-<h3 id="when-to-ask-vs-act"><a class="anchor" href="#when-to-ask-vs-act" aria-hidden="true">#</a>When to ask vs act</h3>
+<h3 id="when-to-ask-vs-act"><a class="anchor" href="#when-to-ask-vs-act" aria-hidden="true" tabindex="-1">#</a>When to ask vs act</h3>
 <p>Write the policy in terms of properties of actions, not a list of specific actions, so it generalizes:</p>
 <ul>
 <li><strong>Reversibility.</strong> Reading, searching and drafting are freely reversible. Sending, deleting, paying and deploying are not.</li>
@@ -312,7 +312,7 @@
 <li><strong>Who is watching.</strong> In an interactive session, a quick question is cheap. In an unattended pipeline, a question blocks the run until someone notices.</li>
 </ul>
 <p>A compact version you can adapt:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&lt;autonomy&gt;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&lt;autonomy&gt;
 You are working unattended; nobody will see questions until the run ends.
 For reversible steps that follow from the request (reading, searching,
 editing files in the working tree, running tests), proceed without asking.
@@ -322,7 +322,7 @@ the request has two plausible readings that lead to different results.
 When you stop, say exactly what you need decided.
 &lt;/autonomy&gt;</code></pre></div>
 <p>Pair autonomy with <strong>scope</strong>: capable agents sometimes &quot;help&quot; by refactoring code or adding features nobody asked for. A line like &quot;Do what was asked. If you see a worthwhile improvement outside that scope, mention it at the end rather than doing it&quot; keeps initiative pointed in the right direction. The deeper design question of where humans belong in the loop is covered in <a href="human-in-the-loop.html">human-in-the-loop</a>.</p>
-<h3 id="persistence"><a class="anchor" href="#persistence" aria-hidden="true">#</a>Persistence</h3>
+<h3 id="persistence"><a class="anchor" href="#persistence" aria-hidden="true" tabindex="-1">#</a>Persistence</h3>
 <p>Earlier models often quit early, ending a turn with &quot;I&#39;ll now run the tests&quot; without running them. Prompting guides from that era recommended explicit reminders; OpenAI&#39;s GPT-4.1 guide, for example, suggested telling agents to keep going until the query is fully resolved, use tools rather than guess, and plan between calls.</p>
 <p>Current frontier models are much more proactive by default, and that changes the advice:</p>
 <ul>
@@ -331,9 +331,9 @@ When you stop, say exactly what you need decided.
 <li><strong>A definition of done helps most.</strong> &quot;The task is complete when the new endpoint is implemented, its tests pass and the full suite passes&quot; gives the agent a clear stopping criterion in both directions: don&#39;t stop before, don&#39;t keep polishing after.</li>
 </ul>
 <p>If a specific model still stops early in your harness (some do at low effort settings or deep into long runs), add a targeted fix and verify it on your evals. For example: &quot;Before ending your turn, check whether your last paragraph is a plan or a promise about work you haven&#39;t done. If it is, do that work now.&quot;</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Pressure language over-triggers modern models</div><div class="callout-body"><p>ALL-CAPS &quot;CRITICAL&quot; and &quot;MUST&quot; were tuned for older models that under-followed instructions. Current models are highly responsive to the system prompt, so the same emphasis now causes over-application — a tool marked &quot;you MUST use this&quot; gets called when it&#39;s useless. When several instructions are all &quot;critical,&quot; the marker carries no information. State the constraint plainly, with its reason.</p>
-</div></aside>
-<h2 id="planning-reflection-and-verification"><a class="anchor" href="#planning-reflection-and-verification" aria-hidden="true">#</a>Planning, Reflection and Verification</h2>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Pressure language over-triggers modern models</div><div class="callout-body"><p>ALL-CAPS &quot;CRITICAL&quot; and &quot;MUST&quot; were tuned for older models that under-followed instructions. Current models are highly responsive to the system prompt, so the same emphasis now causes over-application — a tool marked &quot;you MUST use this&quot; gets called when it&#39;s useless. When several instructions are all &quot;critical,&quot; the marker carries no information. State the constraint plainly, with its reason.</p>
+</div></div>
+<h2 id="planning-reflection-and-verification"><a class="anchor" href="#planning-reflection-and-verification" aria-hidden="true" tabindex="-1">#</a>Planning, Reflection and Verification</h2>
 <p>There is a long tradition of prompts that elicit reasoning: &quot;think step by step,&quot; <code>&lt;scratchpad&gt;</code> tags, &quot;plan before you act,&quot; &quot;reflect on the tool result before continuing.&quot; These techniques were important when models only reasoned if you made room for it in the visible output. (The research behind them, from <dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer. Wei et al. (2022) elicited it with few-shot worked examples, markedly improving multi-step reasoning; the zero-shot &quot;Let's think step by step&quot; variant is Kojima et al. (2022)." data-l="reasoning-and-planning" data-a="chain-of-thought">chain-of-thought</dfn> to <dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn> and <dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-l="agent-architectures" data-a="reflexion">Reflexion</dfn>, is covered in <a href="reasoning-and-planning.html">reasoning and planning</a>.)</p>
 <p>With models that have native, trained-in reasoning — <strong>extended or <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">adaptive thinking</dfn></strong>, including thinking interleaved between tool calls — much of that prose is redundant. Worse, it can cause over-planning on easy steps. The modern division of labor:</p>
 <div class="table-wrap"><table>
@@ -367,7 +367,7 @@ When you stop, say exactly what you need decided.
 </tbody></table>
 </div>
 <p>The last row is where prompts still add real value. The model knows how to double-check; it doesn&#39;t know that in your repository <code>make check</code> runs the linters and type checker, or that support answers must cite a policy section. <strong>Tell it how success is verified, not that it should be careful.</strong></p>
-<h2 id="prompting-for-long-horizon-tasks"><a class="anchor" href="#prompting-for-long-horizon-tasks" aria-hidden="true">#</a>Prompting for Long-Horizon Tasks</h2>
+<h2 id="prompting-for-long-horizon-tasks"><a class="anchor" href="#prompting-for-long-horizon-tasks" aria-hidden="true" tabindex="-1">#</a>Prompting for Long-Horizon Tasks</h2>
 <p>Some tasks take hours and outlive a single context window: migrating a codebase, building an app feature by feature. Each new context window (after <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, a crash or a restart) begins with partial amnesia, so prompting for these tasks is largely about making the agent <strong>leave itself good notes</strong>. The mechanics of compaction and context budgets belong to <a href="context-engineering.html">context engineering</a> and <a href="memory.html">memory</a>; here we focus on what to put in the prompt.</p>
 <p>Three scaffolds recur:</p>
 <ol>
@@ -377,7 +377,7 @@ When you stop, say exactly what you need decided.
 </ol>
 <p>Anthropic&#39;s write-up on harnesses for long-running agents describes this pattern: a first session sets up the environment, a feature list and a progress log; each later session reads the log and recent commits, completes and verifies one item, commits, and updates the log.</p>
 <p>A prompt section for this might read:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&lt;long_running_work&gt;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&lt;long_running_work&gt;
 This task will span multiple sessions, and your context may be reset.
 At the start of each session: read PROGRESS.md and `git log --oneline -20`
 to see where things stand, then run the test suite before changing anything.
@@ -388,14 +388,14 @@ with: what you finished, what you tried that didn&#x27;t work, and the next step
 Write notes for a capable engineer who has never seen this session.
 &lt;/long_running_work&gt;</code></pre></div>
 <p>And the resulting file, a few sessions in:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">PROGRESS.md
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">PROGRESS.md
 DONE:        Auth signup/login/logout (features 1-4), verified via Playwright
 IN PROGRESS: Feature 5 (password reset): email sends; expiry not enforced yet
 DEAD ENDS:   Tried storing tokens in Redis; test env has no Redis. Using a
              Postgres table instead.
 NEXT:        Enforce 30-min expiry in reset_password(); test expired token</code></pre></div>
 <p>Notice the dead-ends entry. Without it, a fresh session will cheerfully rediscover and retry the Redis approach.</p>
-<h2 id="tools-in-the-prompt-vs-tool-descriptions"><a class="anchor" href="#tools-in-the-prompt-vs-tool-descriptions" aria-hidden="true">#</a>Tools in the Prompt vs Tool Descriptions</h2>
+<h2 id="tools-in-the-prompt-vs-tool-descriptions"><a class="anchor" href="#tools-in-the-prompt-vs-tool-descriptions" aria-hidden="true" tabindex="-1">#</a>Tools in the Prompt vs Tool Descriptions</h2>
 <p>Agents get instructions from two places: the system prompt and each tool&#39;s definition. Deciding what goes where avoids duplication and contradictions.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -427,7 +427,7 @@ NEXT:        Enforce 30-min expiry in reset_password(); test expired token</code
 <li><strong>Keep the tool contract in the tool.</strong> If the fact that <code>search_orders</code> only covers the last 18 months lives in the system prompt, it gets lost when someone reuses the tool in another agent. Tool descriptions are prompts too, and the next lesson, <a href="designing-tools.html">designing tools</a>, is about writing them well.</li>
 <li><strong>Avoid hard-coding tool names in the system prompt where you can.</strong> Toolsets change: tools get renamed, disabled or loaded on demand, and &quot;always call <code>lookup_customer_v2</code> first&quot; dangles when that tool is gone. Describe the strategy (&quot;identify the customer before discussing their account&quot;) and let the descriptions handle the mapping.</li>
 </ul>
-<h2 id="avoiding-over-prescription"><a class="anchor" href="#avoiding-over-prescription" aria-hidden="true">#</a>Avoiding Over-Prescription</h2>
+<h2 id="avoiding-over-prescription"><a class="anchor" href="#avoiding-over-prescription" aria-hidden="true" tabindex="-1">#</a>Avoiding Over-Prescription</h2>
 <p>Prompts accumulate. Each incident adds a line — a booster here, a prohibition there — and nobody removes the lines when the model that needed them is retired. With modern, highly steerable models, that accumulated text isn&#39;t just wasted tokens; specific outdated instructions actively degrade behavior.</p>
 <p>Patterns worth auditing for:</p>
 <div class="table-wrap"><table>
@@ -476,9 +476,9 @@ NEXT:        Enforce 30-min expiry in reset_password(); test expired token</code
 </tbody></table>
 </div>
 <p>The discriminator for keeping a line is <strong>provenance</strong>: which failure, on which model, does this prevent, and does it still reproduce? A prohibition encoding a real business constraint (&quot;never promise delivery dates; carriers don&#39;t guarantee them&quot;) stays forever. A prohibition against a habit of a model you no longer use goes. And note the asymmetry: context is never cruft. Cutting audience, environment and reasons to make a prompt &quot;shorter&quot; deletes exactly the highest-value words.</p>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>This works in both directions. Moving to a new model sometimes means <em>adding</em> guidance for its particular tendencies. The goal is fit, not brevity.</p>
-</div></aside>
-<h2 id="testing-versioning-and-meta-prompting"><a class="anchor" href="#testing-versioning-and-meta-prompting" aria-hidden="true">#</a>Testing, Versioning and Meta-Prompting</h2>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>This works in both directions. Moving to a new model sometimes means <em>adding</em> guidance for its particular tendencies. The goal is fit, not brevity.</p>
+</div></div>
+<h2 id="testing-versioning-and-meta-prompting"><a class="anchor" href="#testing-versioning-and-meta-prompting" aria-hidden="true" tabindex="-1">#</a>Testing, Versioning and Meta-Prompting</h2>
 <p>A system prompt is code. It determines production behavior, it has bugs, and changes to it cause regressions. Treat it accordingly.</p>
 <p><strong>Version it.</strong> Keep prompts in files under version control, and record which model each version was tuned for — moving to a new model is a prompt change too. Keep the system prompt stable within a session: it&#39;s the front of the cache prefix, so editing it mid-run invalidates <a href="cost-and-latency.html">prompt caching</a>; dynamic values like timestamps belong later in the context.</p>
 <p><strong>Test it against evals.</strong> Build a set of representative tasks — common cases, hard cases, and every incident that prompted a prompt change — and run every prompt revision against them (see <a href="evaluating-agents.html">evaluating agents</a>). Agent runs are stochastic, so look at pass rates over several trials, not a single run.</p>
@@ -498,9 +498,9 @@ NEXT:        Enforce 30-min expiry in reset_password(); test expired token</code
 <li><strong>Audit:</strong> ask a model to flag instructions that conflict, lack reasons, or look like workarounds for a specific old model.</li>
 </ul>
 <p>The <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> is the same as for any change: every meta-prompted edit gets run through the eval suite before it ships. A model asked to &quot;improve&quot; a prompt tends to make it longer and more emphatic, which is often the opposite of what helps.</p>
-<h2 id="worked-example-customer-support-agent"><a class="anchor" href="#worked-example-customer-support-agent" aria-hidden="true">#</a>Worked Example: Customer-Support Agent</h2>
+<h2 id="worked-example-customer-support-agent"><a class="anchor" href="#worked-example-customer-support-agent" aria-hidden="true" tabindex="-1">#</a>Worked Example: Customer-Support Agent</h2>
 <p>Here is a complete system prompt for a fictional outdoor retailer&#39;s order-support agent. Numbers in brackets refer to the annotations below.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&lt;role&gt;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&lt;role&gt;
 You are the order-support agent for Trailhead Gear, an online outdoor
 retailer. You help customers by chat with orders, shipping, returns and
 exchanges. Your goal is to resolve their issue in this conversation
@@ -569,9 +569,9 @@ re-asking the customer anything. [10]
 <li><strong>Done criteria</strong> that also define what a good handoff contains.</li>
 </ol>
 <p>What&#39;s <em>not</em> there matters too: no &quot;be helpful and empathetic&quot; (the model&#39;s default), no capitalized warnings, no conversation script. And the refund limit is also enforced in the refund tool&#39;s code, because a prompt is guidance, not a security control (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</p>
-<h2 id="worked-example-coding-agent"><a class="anchor" href="#worked-example-coding-agent" aria-hidden="true">#</a>Worked Example: Coding Agent</h2>
+<h2 id="worked-example-coding-agent"><a class="anchor" href="#worked-example-coding-agent" aria-hidden="true" tabindex="-1">#</a>Worked Example: Coding Agent</h2>
 <p>Coding agents work in a repository with a shell and file-editing tools, often unattended. Their prompts emphasize environment facts, verification and scope.</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&lt;role&gt;
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">&lt;role&gt;
 You are a software engineering agent working in the repository mounted at
 /workspace. You receive one task per run, usually a GitHub issue, and your
 output is a working change on a new branch plus a short report. [1]
@@ -632,7 +632,7 @@ closely. Lead with the outcome. [9]
 <li><strong>Communication</strong>: what the reviewer needs, outcome first.</li>
 </ol>
 <p>Loading a versioned prompt and running it is straightforward. Keep the prompt in a file, tag the version, and mark it cacheable since it&#39;s identical across runs:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
 <span class="hljs-keyword">import</span> anthropic
 
 client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
@@ -654,7 +654,7 @@ response = client.messages.create(
     messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: issue_text}],
 )</code></pre></div>
 <p>The tool loop around this call is covered in <a href="tool-use.html">tool use</a> and <a href="build-agent-from-scratch.html">building an agent from scratch</a>.</p>
-<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
 <ul>
 <li>An agent&#39;s system prompt transfers the context only you have — goal, audience, environment, quality bar, constraints and their reasons. The model already knows how to be helpful.</li>
 <li>Attach a reason to every constraint; reasons let the model generalize to cases you didn&#39;t list and resolve conflicts sensibly.</li>
@@ -665,7 +665,7 @@ response = client.messages.create(
 <li>Keep tool contracts in tool descriptions and cross-tool strategy in the system prompt; avoid hard-coding tool names.</li>
 <li>Version prompts, tie them to a model, test every change against an eval suite over multiple trials, and read the transcripts.</li>
 </ul>
-<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
 <ol>
 <li><strong>Add the why.</strong> Take three bare rules from a prompt you&#39;ve written or seen (&quot;Always respond in English&quot;, &quot;Never mention competitors&quot;, &quot;Keep answers short&quot;) and rewrite each with its real reason. For each, name one case the rewritten version would handle that the bare rule wouldn&#39;t.</li>
 <li><strong>Altitude ladder.</strong> Write the &quot;too low,&quot; &quot;too high&quot; and &quot;right altitude&quot; versions of an instruction for a research agent deciding when it has gathered enough sources. Explain what failure each wrong version would produce.</li>
@@ -673,7 +673,7 @@ response = client.messages.create(
 <li><strong>Build a prompt eval.</strong> Write five test tasks for the customer-support agent above, including one that should trigger a handoff and one where the customer misremembers their order. Run the prompt against them with a real model three times each, then make one prompt change and measure whether the pass rate moved.</li>
 <li><strong>Long-horizon scaffold.</strong> Give a coding agent a task too large for one session (e.g., &quot;add type hints to every module in this package&quot;). Add the <code>&lt;long_running_work&gt;</code> section from this lesson, deliberately restart the session halfway, and evaluate how well the progress file let it resume. What did the notes miss?</li>
 </ol>
-<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="prompting-for-agents" data-total="8">
 
 <div class="quiz-q" data-correct="1">
@@ -764,7 +764,7 @@ response = client.messages.create(
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt is code; every change needs regression testing on realistic tasks before it reaches users. A model&#39;s opinion or a text diff can&#39;t tell you how behavior changed, and complaint rates are a slow, noisy signal. Model-improved prompts often become longer and more emphatic, which can degrade behavior on capable models.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
-</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
 <ul>
 <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic: Prompt engineering overview</a> — official guide to clarity, examples, XML tags and model-specific best practices.</li>
 <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic: Effective context engineering for AI agents</a> — source of the &quot;right altitude&quot; framing and advice on canonical examples.</li>
@@ -789,7 +789,7 @@ response = client.messages.create(
     <a class="pager-next" href="tool-use.html"><small>Next →</small><span>Tool Use &amp; Function Calling</span></a>
   </nav>
 </main>
-<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
 <li class="toc-h2"><a href="#why-agent-prompts-are-different">Why Agent Prompts Are Different</a></li>
 <li class="toc-h2"><a href="#anatomy-of-an-agent-system-prompt">Anatomy of an Agent System Prompt</a></li>
 <li class="toc-h3"><a href="#explain-the-why">Explain the why</a></li>
@@ -817,9 +817,9 @@ response = client.messages.create(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
-      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
-      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
   <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
