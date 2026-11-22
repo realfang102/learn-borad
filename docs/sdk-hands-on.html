@@ -334,8 +334,8 @@ SYSTEM = (
     },
 </span>)</span>
 <span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">file_ticket</span>(<span class="hljs-params">args: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]</span>) -&gt; <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]:
-    ticket_id = repo_tools.file_ticket(args[<span class="hljs-string">&quot;title&quot;</span>], args[<span class="hljs-string">&quot;body&quot;</span>], args[<span class="hljs-string">&quot;severity&quot;</span>])
-    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">f&quot;Filed <span class="hljs-subst">{ticket_id}</span>&quot;</span>}]}
+    receipt = repo_tools.file_ticket(args[<span class="hljs-string">&quot;title&quot;</span>], args[<span class="hljs-string">&quot;body&quot;</span>], args[<span class="hljs-string">&quot;severity&quot;</span>])  <span class="hljs-comment"># &quot;Filed TKT-...&quot;</span>
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: receipt}]}
 
 
 tickets_server = create_sdk_mcp_server(name=<span class="hljs-string">&quot;tickets&quot;</span>, version=<span class="hljs-string">&quot;1.0.0&quot;</span>, tools=[file_ticket])
@@ -510,8 +510,8 @@ investigator = Agent(
                     <span class="hljs-keyword">if</span> <span class="hljs-built_in">input</span>(<span class="hljs-string">f&quot;Approve <span class="hljs-subst">{item.name}</span>(<span class="hljs-subst">{item.arguments}</span>)? [y/N] &quot;</span>).strip().lower() == <span class="hljs-string">&quot;y&quot;</span>:
                         state.approve(item)
                     <span class="hljs-keyword">else</span>:
-                        state.reject(item)
-                result = <span class="hljs-keyword">await</span> Runner.run(investigator, state, session=session)
+                        state.reject(item, rejection_message=<span class="hljs-string">&quot;A human declined. Do not retry; summarize instead.&quot;</span>)
+                result = <span class="hljs-keyword">await</span> Runner.run(investigator, state, session=session, max_turns=<span class="hljs-number">20</span>)
     <span class="hljs-keyword">except</span> InputGuardrailTripwireTriggered:
         <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Request blocked by guardrail.&quot;</span>)
         <span class="hljs-keyword">return</span>
@@ -746,67 +746,67 @@ agent = create_agent(
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">1</span><div>In the Claude Agent SDK, what is the difference between the tools and allowed_tools options?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>tools controls which built-in tools exist in the agent&#39;s context; allowed_tools pre-approves calls so they skip the permission flow</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>tools lists MCP tools; allowed_tools lists built-in tools</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>allowed_tools limits subagents; tools limits the main agent</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They are aliases kept for backward compatibility</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>tools sets which built-ins exist; allowed_tools pre-approves calls</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>tools lists the MCP tools; allowed_tools lists the built-in tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>allowed_tools limits the subagents; tools limits the main agent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>allowed_tools is a legacy alias of tools, kept for compatibility</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Availability and permission are separate layers. A tool can exist but still need approval, which is how file_ticket reaches the can_use_tool callback while Read, Grep and Glob run without prompts.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Availability and permission are separate layers. Leaving Bash out of allowed_tools does not remove it; it only means calls go through the permission flow. A tool can exist but still need approval, which is how file_ticket reaches the can_use_tool callback while Read, Grep and Glob run without prompts.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">2</span><div>An in-process MCP server named &quot;tickets&quot; exposes a tool &quot;file_ticket&quot;. What name do you put in a hook matcher or allowed_tools to target it?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>file_ticket</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>mcp:file_ticket</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>tickets__file_ticket</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>mcp__sdk__tickets__file_ticket</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>mcp__tickets__file_ticket</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>tickets.file_ticket</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>mcp__file_ticket__tickets</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> MCP tools are namespaced as mcp__{server_key}__{tool_name}, where the server key is the name you give the server in mcp_servers.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> MCP tools are namespaced as mcp__{server_key}__{tool_name}, where the server key is the name you give the server in mcp_servers. In-process servers get no extra &quot;sdk&quot; segment, and the server comes before the tool.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>In the OpenAI Agents SDK, a tool has needs_approval=True and the model calls it. What happens?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent hands off to a human agent defined in handoffs</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The run pauses and returns interruptions; you approve or reject them on result.to_state() and pass the state back to Runner.run</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The tool runs and the approval is logged for audit</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The SDK raises an exception that ends the run</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The call is skipped and the model is told that approval is still pending</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The run pauses with interruptions you approve or reject, then resume</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The tool runs at once, and the approval is recorded in the trace for audit</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The SDK hands control to a human-review agent you must list in handoffs</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approvals surface as interruptions on the result. The RunState carries the paused run (and can be serialized), so the decision can arrive later.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approvals surface as result.interruptions. You approve or reject each on result.to_state() and pass the state back to Runner.run; because the RunState serializes, the decision can arrive later. Handoffs are agent-to-agent transfers, not an approval mechanism.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>A LangGraph tool sends an email and then calls interrupt() to ask for approval of a follow-up. After resuming, the user reports two identical emails. Why?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Command(resume=...) always runs the tool twice for verification</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The checkpointer replays every tool call in the thread on resume</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Resuming re-executes the interrupted node from the beginning, so the side effect before interrupt() ran again</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>ToolNode retries tools that raise GraphInterrupt</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Command(resume=...) runs the tool a second time to verify the answer</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The checkpointer replays every tool call in the thread when you resume</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Resuming re-runs the interrupted node from the top, so the send repeats</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>ToolNode retries any tool that raises GraphInterrupt, resending the email</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> interrupt() resumes by re-running the node; code before it executes again. Put side effects after the interrupt or make them idempotent.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> interrupt() resumes by re-executing the node that paused; code before it runs again. The checkpointer restores saved state, it does not replay completed steps. Put side effects after the interrupt or make them idempotent.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why does the LangGraph version pass handle_tool_errors=True to ToolNode?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It makes ToolNode retry failed tools automatically</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Without it, current versions re-raise ordinary tool exceptions, crashing the run instead of returning an error message to the model</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It is required for interrupt() to work inside tools</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It enables parallel tool execution</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It makes ToolNode retry a failed tool until it finally succeeds</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Otherwise ordinary tool exceptions are re-raised and crash the run</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It is needed for interrupt() to pause the graph from inside a tool</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It lets ToolNode run several tool calls from one message in parallel</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The default handler only converts tool-invocation (argument validation) errors. Setting True turns any exception into an error ToolMessage the model can react to, matching the is_error pattern of the other SDKs.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The default handler only converts argument-validation errors into error messages. Setting True turns any exception into an error ToolMessage the model can react to, matching the is_error pattern of the other SDKs. interrupt() works without it, and ToolNode runs parallel calls either way.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which statement best captures the trade-off between the Claude Agent SDK and LangGraph for this task?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The Agent SDK supplies tuned file and search tools and a ready-made loop; LangGraph makes you wire the loop but gives explicit, checkpointed control over every step</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>They are equivalent; only the syntax differs</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>LangGraph cannot use Claude models</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The Claude Agent SDK cannot pause for human approval</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The Agent SDK ships tools and a loop; LangGraph gives explicit control</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>They are equivalent underneath, and only the API syntax differs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>LangGraph cannot call Claude, so the real choice is about the model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The Agent SDK cannot pause for human approval, while LangGraph can</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both support Claude and human approval. The difference is batteries and opinionated runtime versus explicit graph and durable state.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both run Claude and both support approval (can_use_tool versus interrupt()). The difference is batteries and an opinionated runtime versus an explicit graph with checkpointed, durable state.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>

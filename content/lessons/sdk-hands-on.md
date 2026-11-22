@@ -230,8 +230,8 @@ SYSTEM = (
     },
 )
 async def file_ticket(args: dict[str, Any]) -> dict[str, Any]:
-    ticket_id = repo_tools.file_ticket(args["title"], args["body"], args["severity"])
-    return {"content": [{"type": "text", "text": f"Filed {ticket_id}"}]}
+    receipt = repo_tools.file_ticket(args["title"], args["body"], args["severity"])  # "Filed TKT-..."
+    return {"content": [{"type": "text", "text": receipt}]}
 
 
 tickets_server = create_sdk_mcp_server(name="tickets", version="1.0.0", tools=[file_ticket])
@@ -412,8 +412,8 @@ async def main() -> None:
                     if input(f"Approve {item.name}({item.arguments})? [y/N] ").strip().lower() == "y":
                         state.approve(item)
                     else:
-                        state.reject(item)
-                result = await Runner.run(investigator, state, session=session)
+                        state.reject(item, rejection_message="A human declined. Do not retry; summarize instead.")
+                result = await Runner.run(investigator, state, session=session, max_turns=20)
     except InputGuardrailTripwireTriggered:
         print("Request blocked by guardrail.")
         return
@@ -587,46 +587,46 @@ Whatever you choose, keep tool logic in plain functions (as `repo_tools.py` does
 
 ```quiz
 Q: In the Claude Agent SDK, what is the difference between the tools and allowed_tools options?
-- [ ] tools lists MCP tools; allowed_tools lists built-in tools
-- [x] tools controls which built-in tools exist in the agent's context; allowed_tools pre-approves calls so they skip the permission flow
-- [ ] They are aliases kept for backward compatibility
-- [ ] allowed_tools limits subagents; tools limits the main agent
-E: Availability and permission are separate layers. A tool can exist but still need approval, which is how file_ticket reaches the can_use_tool callback while Read, Grep and Glob run without prompts.
+- [ ] tools lists the MCP tools; allowed_tools lists the built-in tools
+- [x] tools sets which built-ins exist; allowed_tools pre-approves calls
+- [ ] allowed_tools is a legacy alias of tools, kept for backward compatibility
+- [ ] allowed_tools limits the subagents; tools limits the main agent
+E: Availability and permission are separate layers. Leaving Bash out of allowed_tools does not remove it; it only means calls go through the permission flow. A tool can exist but still need approval, which is how file_ticket reaches the can_use_tool callback while Read, Grep and Glob run without prompts.
 
 Q: An in-process MCP server named "tickets" exposes a tool "file_ticket". What name do you put in a hook matcher or allowed_tools to target it?
-- [ ] file_ticket
-- [ ] tickets.file_ticket
+- [ ] tickets__file_ticket
+- [ ] mcp__file_ticket__tickets
 - [x] mcp__tickets__file_ticket
-- [ ] mcp:file_ticket
-E: MCP tools are namespaced as mcp__{server_key}__{tool_name}, where the server key is the name you give the server in mcp_servers.
+- [ ] mcp__sdk__tickets__file_ticket
+E: MCP tools are namespaced as mcp__{server_key}__{tool_name}, where the server key is the name you give the server in mcp_servers. In-process servers get no extra "sdk" segment, and the server comes before the tool.
 
 Q: In the OpenAI Agents SDK, a tool has needs_approval=True and the model calls it. What happens?
-- [ ] The tool runs and the approval is logged for audit
-- [ ] The SDK raises an exception that ends the run
-- [x] The run pauses and returns interruptions; you approve or reject them on result.to_state() and pass the state back to Runner.run
-- [ ] The agent hands off to a human agent defined in handoffs
-E: Approvals surface as interruptions on the result. The RunState carries the paused run (and can be serialized), so the decision can arrive later.
+- [ ] The tool runs at once, and the approval is recorded in the trace for audit
+- [ ] The SDK hands control to a human-review agent you must list in handoffs
+- [x] The run pauses with interruptions you approve or reject, then resume
+- [ ] The call is skipped and the model is told that approval is still pending
+E: Approvals surface as result.interruptions. You approve or reject each on result.to_state() and pass the state back to Runner.run; because the RunState serializes, the decision can arrive later. Handoffs are agent-to-agent transfers, not an approval mechanism.
 
 Q: A LangGraph tool sends an email and then calls interrupt() to ask for approval of a follow-up. After resuming, the user reports two identical emails. Why?
-- [ ] The checkpointer replays every tool call in the thread on resume
-- [x] Resuming re-executes the interrupted node from the beginning, so the side effect before interrupt() ran again
-- [ ] Command(resume=...) always runs the tool twice for verification
-- [ ] ToolNode retries tools that raise GraphInterrupt
-E: interrupt() resumes by re-running the node; code before it executes again. Put side effects after the interrupt or make them idempotent.
+- [ ] The checkpointer replays every tool call in the thread when you resume
+- [x] Resuming re-runs the interrupted node from the top, so the send repeats
+- [ ] Command(resume=...) runs the tool a second time to verify the answer
+- [ ] ToolNode retries any tool that raises GraphInterrupt, resending the email
+E: interrupt() resumes by re-executing the node that paused; code before it runs again. The checkpointer restores saved state, it does not replay completed steps. Put side effects after the interrupt or make them idempotent.
 
 Q: Why does the LangGraph version pass handle_tool_errors=True to ToolNode?
-- [ ] It enables parallel tool execution
-- [ ] It is required for interrupt() to work inside tools
-- [x] Without it, current versions re-raise ordinary tool exceptions, crashing the run instead of returning an error message to the model
-- [ ] It makes ToolNode retry failed tools automatically
-E: The default handler only converts tool-invocation (argument validation) errors. Setting True turns any exception into an error ToolMessage the model can react to, matching the is_error pattern of the other SDKs.
+- [ ] It lets ToolNode run several tool calls from one message in parallel
+- [ ] It is needed for interrupt() to pause the graph from inside a tool
+- [x] Otherwise ordinary tool exceptions are re-raised and crash the run
+- [ ] It makes ToolNode retry a failed tool until it finally succeeds
+E: The default handler only converts argument-validation errors into error messages. Setting True turns any exception into an error ToolMessage the model can react to, matching the is_error pattern of the other SDKs. interrupt() works without it, and ToolNode runs parallel calls either way.
 
 Q: Which statement best captures the trade-off between the Claude Agent SDK and LangGraph for this task?
-- [ ] LangGraph cannot use Claude models
-- [ ] The Claude Agent SDK cannot pause for human approval
-- [x] The Agent SDK supplies tuned file and search tools and a ready-made loop; LangGraph makes you wire the loop but gives explicit, checkpointed control over every step
-- [ ] They are equivalent; only the syntax differs
-E: Both support Claude and human approval. The difference is batteries and opinionated runtime versus explicit graph and durable state.
+- [ ] LangGraph cannot call Claude, so the real choice is about the model
+- [ ] The Agent SDK cannot pause for human approval, while LangGraph can
+- [x] The Agent SDK ships tools and a loop; LangGraph gives explicit control
+- [ ] They are equivalent underneath, and only the surface API syntax differs
+E: Both run Claude and both support approval (can_use_tool versus interrupt()). The difference is batteries and an opinionated runtime versus an explicit graph with checkpointed, durable state.
 ```
 
 ## Further Reading
