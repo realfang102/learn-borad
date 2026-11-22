@@ -174,7 +174,7 @@ Strengths: you can choose best-in-class components, inspect the text at every st
 
 ### Speech-to-speech (realtime) models
 
-**Speech-to-speech** models take audio in and produce audio out directly, with a single model handling understanding and generation. OpenAI's Realtime API (launched October 2024, with the `gpt-realtime` model in 2025) and Google's Gemini Live API are prominent examples, and research systems such as Kyutai's Moshi explored **full-duplex** models that listen and speak simultaneously.
+**Speech-to-speech** models take audio in and produce audio out directly, with a single model handling understanding and generation. OpenAI's Realtime API (launched in beta October 2024, generally available with the `gpt-realtime` model in August 2025) and Google's Gemini Live API are prominent examples, and research systems such as Kyutai's Moshi explored **full-duplex** models that listen and speak simultaneously.
 
 Strengths: lower latency, more natural prosody, and awareness of tone and interruptions. Weaknesses: less control and observability (you can transcribe, but the model reasons over audio), typically weaker tool-calling and instruction-following than the best text models, fewer choices of voice and vendor, and harder guardrails because there is no text checkpoint before speech.
 

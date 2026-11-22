@@ -496,9 +496,9 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
   <div class="quiz-question"><span class="quiz-num">2</span><div>Which system prompt instruction is at the &quot;right altitude&quot;?</div></div>
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>&quot;If message contains &#39;cancel&#39;, plan is &#39;pro&#39; and tenure &lt; 90 days, use template C3.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Follow the retention playbook carefully, and use good judgment on edge cases.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;Act as a world-class retention specialist and always put the customer first.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;Offer discounts only if price is why they&#39;re leaving; ask if unsure. Discounts don&#39;t retain others.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Follow the retention playbook carefully, and use your good judgment on any edge cases.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;Act as a world-class retention specialist who puts the customer&#39;s needs first.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;Offer discounts only when price is why they&#39;re leaving; they rarely keep anyone else.&quot;</span></button>
   </div>
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The right altitude gives concrete guidance plus the reason behind it, so the model can generalize to cases the author didn&#39;t anticipate. The template rule is too low (brittle if-else logic); the persona and &quot;use good judgment&quot; lines are too high, since they assume context the model doesn&#39;t have.</div>
 </div>
@@ -518,7 +518,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
   <div class="quiz-question"><span class="quiz-num">4</span><div>Your agent&#39;s cache_read_input_tokens is zero on every request despite cache_control markers. Which of these is the most likely culprit?</div></div>
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The tools array is sorted alphabetically by name before every request</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The system prompt begins with &quot;Current time: {now}&quot; accurate to the second</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The system prompt begins with &quot;Current time: {now}&quot; to the second</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A mode-switch reminder is appended as a system message at the very end</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The newest tool result is appended to the end of the history each turn</span></button>
   </div>
@@ -550,7 +550,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>A teammate proposes deleting failed tool calls from the history so the transcript stays &quot;clean.&quot; What&#39;s the strongest argument against it?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model learns from visible failures, and edits break the prompt cache</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model learns from seen failures, and edits break the prompt cache</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Leaving failures in lets you skip is_error flags on later tool results</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Failed calls hold the tool_use IDs needed to match later tool results</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Deleting turns makes the model re-plan from scratch on the next request</span></button>
@@ -563,7 +563,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To set how many of the most recent tool results are kept untouched</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To cap the context size, clearing whatever is needed to stay under it</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each clear rebuilds the cache, so tiny clears can cost more than they save</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each clear forces a cache rebuild, so tiny clears may not pay off</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>To make sure no tool result stays in context longer than a set token span</span></button>
   </div>
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Clearing trades a cache rebuild for a smaller context, so a minimum amount ensures each edit is worth that cost; batch it into large, infrequent clears. The number of recent results kept is the separate keep setting, and the trigger, not clear_at_least, decides when clearing starts.</div>

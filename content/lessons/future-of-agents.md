@@ -228,46 +228,46 @@ Stretch variants: make it a [coding agent](coding-agents.html) for your repo, a 
 
 ```quiz
 Q: What does METR's "50% time horizon" measure?
-- [ ] The number of hours an agent can run before crashing
-- [x] The length of tasks (measured by how long skilled humans take) that an AI agent completes successfully about half the time
-- [ ] The time it takes an agent to answer a question correctly
-- [ ] The percentage of tasks completed within 50 minutes
-E: It measures task difficulty by human completion time and finds where the agent's success rate crosses 50%. Horizons at higher reliability levels are much shorter.
+- [ ] How long an agent can run autonomously before it needs a human to step in
+- [x] The human-expert task length at which an agent succeeds about half the time
+- [ ] The share of a benchmark's tasks an agent finishes within its time limit
+- [ ] How long an agent takes to finish a task that a human expert does in an hour
+E: Task difficulty is measured by how long skilled humans take; the horizon is the length at which the agent's success rate crosses 50%. It says nothing about how long the agent itself runs or how fast it is. Horizons at higher reliability (say 80%) are much shorter.
 
 Q: A vendor says "our agent completes week-long tasks." Which question best tests the claim?
-- [ ] Which programming language is it written in?
-- [x] At what success rate, on whose tasks, at what cost, and compared to what baseline?
-- [ ] How many parameters does the model have?
-- [ ] Is it built on an open-source framework?
-E: Capability claims are meaningless without reliability, task realism, cost and a baseline. This is the hype filter in practice.
+- [ ] Which frontier model powers it, and how large is that model?
+- [x] At what success rate and cost, on whose tasks, versus what baseline?
+- [ ] How many tools does it have access to while it works on the task?
+- [ ] Does it keep working after the user closes the browser tab for the night?
+E: Capability claims are meaningless without reliability, task realism, cost and a baseline — the hype filter in practice. The model, tool count and whether it runs unattended describe the product, not whether it actually succeeds at week-long tasks.
 
 Q: Why is prompt injection considered an open problem rather than a solved one?
-- [ ] Models cannot read web pages
-- [ ] It only affects open-source models
-- [x] No model-level defense is reliable enough, so robust protection relies on system design such as restricted permissions, data-flow separation and approvals
-- [ ] It was fixed by structured outputs
-E: Models have improved but can still be manipulated by content they read; the dependable defenses limit what a hijacked agent can do.
+- [ ] Newer models resist it, but older models still in use remain exposed
+- [x] No model-level defense is reliable, so protection rests on system design
+- [ ] Injection classifiers catch it, but are too slow to run on every tool call
+- [ ] It's solved for text, but images and audio can still carry injections
+E: Even the most resistant current models can still be manipulated by content they read, so dependable defenses limit what a hijacked agent can do: restricted permissions, data-flow separation and approvals. Classifiers are probabilistic regardless of speed, and text-only injection is not solved either.
 
 Q: What is the core idea behind AP2's "mandates"?
-- [ ] They let agents bypass payment networks
-- [x] Cryptographically signed records that prove what a user authorized an agent to buy, such as the intent and the exact cart
-- [ ] They are legal contracts between AI companies
-- [ ] They rank merchants by price
-E: Mandates provide verifiable delegation: evidence that a specific human approved a specific purchase within specific limits.
+- [ ] Merchant-signed price guarantees an agent can enforce at checkout
+- [x] Signed records of what a user authorized, from intent to cart
+- [ ] A shared wallet that agents draw on without per-purchase approval
+- [ ] Card-network rules that make the agent's vendor liable for errors
+E: Mandates provide verifiable delegation: an intent mandate captures what the user asked for and a cart mandate the exact items and price they approved. The signatures come from the user's side of the transaction, not the merchant's, and the protocol doesn't assign liability by itself.
 
 Q: Which statement about AI and developer productivity is best supported by the evidence in this lesson?
-- [ ] AI tools always make developers faster
-- [ ] AI tools always make developers slower
-- [x] Effects depend on context; one 2025 RCT found experienced developers were slower in their own mature repos despite believing they were faster
-- [ ] No studies have measured it
-E: Evidence is mixed: large gains in some settings (like support work for less-experienced staff), slowdowns in others. Perception is not a reliable measurement.
+- [ ] Gains are largest for senior developers, who know what to ask for
+- [ ] Self-reports are reliable, so surveys are enough to measure speed-ups
+- [x] Effects vary; a 2025 RCT found experts slower despite feeling faster
+- [ ] Measured gains are consistent at around 14% across most kinds of work
+E: Evidence is mixed: the support-agent study found about 14% average gains, concentrated among less-experienced workers, while METR's 2025 RCT found experienced developers in their own repos about 19% slower while believing they were faster. That gap is exactly why self-reports aren't enough.
 
 Q: What did the formation of the Agentic AI Foundation in December 2025 signal?
-- [ ] That MCP was being deprecated
-- [x] That competing AI companies chose shared, vendor-neutral governance for core agent standards like MCP and AGENTS.md
-- [ ] That agents must now be licensed by the Linux Foundation
-- [ ] That llms.txt became a formal web standard
-E: Placing MCP, AGENTS.md and goose under a neutral foundation, with competitors as members, mirrors how the web standardized shared protocols.
+- [ ] That MCP was merging with A2A into a single agent-protocol standard
+- [x] That rival AI firms chose neutral governance for shared standards
+- [ ] That llms.txt and AGENTS.md were formally standardized by the W3C
+- [ ] That agent frameworks would need Linux Foundation certification
+E: Placing MCP, AGENTS.md and goose under a vendor-neutral foundation, with competitors as members, mirrors how the web standardized shared protocols. A2A is a separate Linux Foundation project, and llms.txt remains an informal proposal.
 ```
 
 ## Further Reading

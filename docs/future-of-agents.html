@@ -358,67 +358,67 @@
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What does METR&#39;s &quot;50% time horizon&quot; measure?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The length of tasks (measured by how long skilled humans take) that an AI agent completes successfully about half the time</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The time it takes an agent to answer a question correctly</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of hours an agent can run before crashing</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The percentage of tasks completed within 50 minutes</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The human-expert task length at which an agent succeeds about half the time</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The share of a benchmark&#39;s tasks an agent finishes within its time limit</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>How long an agent can run autonomously before it needs a human to step in</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>How long an agent takes to finish a task that a human expert does in an hour</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> It measures task difficulty by human completion time and finds where the agent&#39;s success rate crosses 50%. Horizons at higher reliability levels are much shorter.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Task difficulty is measured by how long skilled humans take; the horizon is the length at which the agent&#39;s success rate crosses 50%. It says nothing about how long the agent itself runs or how fast it is. Horizons at higher reliability (say 80%) are much shorter.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A vendor says &quot;our agent completes week-long tasks.&quot; Which question best tests the claim?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>How many parameters does the model have?</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>At what success rate, on whose tasks, at what cost, and compared to what baseline?</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Is it built on an open-source framework?</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Which programming language is it written in?</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>How many tools does it have access to while it works on the task?</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>At what success rate and cost, on whose tasks, versus what baseline?</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Does it keep working after the user closes the browser tab for the night?</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Which frontier model powers it, and how large is that model?</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Capability claims are meaningless without reliability, task realism, cost and a baseline. This is the hype filter in practice.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Capability claims are meaningless without reliability, task realism, cost and a baseline — the hype filter in practice. The model, tool count and whether it runs unattended describe the product, not whether it actually succeeds at week-long tasks.</div>
 </div>
 
-<div class="quiz-q" data-correct="2">
+<div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Why is prompt injection considered an open problem rather than a solved one?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It was fixed by structured outputs</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Models cannot read web pages</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>No model-level defense is reliable enough, so robust protection relies on system design such as restricted permissions, data-flow separation and approvals</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It only affects open-source models</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It&#39;s solved for text, but images and audio can still carry injections</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Newer models resist it, but older models still in use remain exposed</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Injection classifiers catch it, but are too slow to run on every tool call</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>No model-level defense is reliable, so protection rests on system design</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Models have improved but can still be manipulated by content they read; the dependable defenses limit what a hijacked agent can do.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Even the most resistant current models can still be manipulated by content they read, so dependable defenses limit what a hijacked agent can do: restricted permissions, data-flow separation and approvals. Classifiers are probabilistic regardless of speed, and text-only injection is not solved either.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">4</span><div>What is the core idea behind AP2&#39;s &quot;mandates&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Cryptographically signed records that prove what a user authorized an agent to buy, such as the intent and the exact cart</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>They are legal contracts between AI companies</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They let agents bypass payment networks</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They rank merchants by price</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Signed records of what a user authorized, from intent to cart</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A shared wallet that agents draw on without per-purchase approval</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Merchant-signed price guarantees an agent can enforce at checkout</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Card-network rules that make the agent&#39;s vendor liable for errors</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mandates provide verifiable delegation: evidence that a specific human approved a specific purchase within specific limits.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mandates provide verifiable delegation: an intent mandate captures what the user asked for and a cart mandate the exact items and price they approved. The signatures come from the user&#39;s side of the transaction, not the merchant&#39;s, and the protocol doesn&#39;t assign liability by itself.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Which statement about AI and developer productivity is best supported by the evidence in this lesson?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>No studies have measured it</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>AI tools always make developers faster</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>AI tools always make developers slower</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Effects depend on context; one 2025 RCT found experienced developers were slower in their own mature repos despite believing they were faster</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Measured gains are consistent at around 14% across most kinds of work</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Gains are largest for senior developers, who know what to ask for</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Self-reports are reliable, so surveys are enough to measure speed-ups</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Effects vary; a 2025 RCT found experts slower despite feeling faster</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Evidence is mixed: large gains in some settings (like support work for less-experienced staff), slowdowns in others. Perception is not a reliable measurement.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Evidence is mixed: the support-agent study found about 14% average gains, concentrated among less-experienced workers, while METR&#39;s 2025 RCT found experienced developers in their own repos about 19% slower while believing they were faster. That gap is exactly why self-reports aren&#39;t enough.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>What did the formation of the Agentic AI Foundation in December 2025 signal?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That llms.txt became a formal web standard</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That competing AI companies chose shared, vendor-neutral governance for core agent standards like MCP and AGENTS.md</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That MCP was being deprecated</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That agents must now be licensed by the Linux Foundation</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That agent frameworks would need Linux Foundation certification</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That rival AI firms chose neutral governance for shared standards</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That MCP was merging with A2A into a single agent-protocol standard</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That llms.txt and AGENTS.md were formally standardized by the W3C</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Placing MCP, AGENTS.md and goose under a neutral foundation, with competitors as members, mirrors how the web standardized shared protocols.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Placing MCP, AGENTS.md and goose under a vendor-neutral foundation, with competitors as members, mirrors how the web standardized shared protocols. A2A is a separate Linux Foundation project, and llms.txt remains an informal proposal.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>

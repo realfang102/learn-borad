@@ -342,7 +342,7 @@ E: Autonomy should expand category by category as evidence accumulates, with sam
 Q: Which item is most often missing from overly optimistic agent ROI estimates?
 - [ ] Per-task model and infrastructure costs
 - [x] Human review time and errors that slip through
-- [ ] The number of tasks eligible for the agent
+- [ ] The total number of tasks eligible for the agent
 - [ ] The loaded labor cost of the human baseline
 E: Token and infrastructure costs are visible and usually small, and task volume and labor cost are the inputs every estimate starts from. Review time, remediation of errors and maintenance are larger and often ignored.
 ```

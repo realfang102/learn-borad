@@ -341,10 +341,10 @@ Q: A team upgrades to a model with a 1M-token window and starts putting the enti
 E: Fitting in the window isn't the same as being used well: lost-in-the-middle and context-rot studies show degradation with length, especially with similar-but-irrelevant content. A cache miss would raise cost and latency, not lower quality.
 
 Q: Which system prompt instruction is at the "right altitude"?
-- [ ] "Act as a world-class retention specialist and always put the customer first."
+- [ ] "Act as a world-class retention specialist who puts the customer's needs first."
 - [ ] "If message contains 'cancel', plan is 'pro' and tenure < 90 days, use template C3."
-- [x] "Offer discounts only if price is why they're leaving; ask if unsure. Discounts don't retain others."
-- [ ] "Follow the retention playbook carefully, and use good judgment on edge cases."
+- [x] "Offer discounts only when price is why they're leaving; they rarely keep anyone else."
+- [ ] "Follow the retention playbook carefully, and use your good judgment on any edge cases."
 E: The right altitude gives concrete guidance plus the reason behind it, so the model can generalize to cases the author didn't anticipate. The template rule is too low (brittle if-else logic); the persona and "use good judgment" lines are too high, since they assume context the model doesn't have.
 
 Q: How do Agent Skills implement progressive disclosure?
@@ -357,7 +357,7 @@ E: Layered loading means hundreds of skills cost a few dozen tokens each until o
 Q: Your agent's cache_read_input_tokens is zero on every request despite cache_control markers. Which of these is the most likely culprit?
 - [ ] The newest tool result is appended to the end of the history each turn
 - [ ] The tools array is sorted alphabetically by name before every request
-- [x] The system prompt begins with "Current time: {now}" accurate to the second
+- [x] The system prompt begins with "Current time: {now}" to the second
 - [ ] A mode-switch reminder is appended as a system message at the very end
 E: Caching is a prefix match, and render order is tools, then system, then messages. A per-request timestamp near the front changes early bytes on every call and invalidates everything after it. Appending at the end, and sorting deterministically, are exactly what keeps the prefix stable.
 
@@ -377,7 +377,7 @@ E: Sub-agents isolate exploration noise and return compact results. Cutting tota
 
 Q: A teammate proposes deleting failed tool calls from the history so the transcript stays "clean." What's the strongest argument against it?
 - [ ] Failed calls hold the tool_use IDs needed to match later tool results
-- [x] The model learns from visible failures, and edits break the prompt cache
+- [x] The model learns from seen failures, and edits break the prompt cache
 - [ ] Leaving failures in lets you skip is_error flags on later tool results
 - [ ] Deleting turns makes the model re-plan from scratch on the next request
 E: Errors are evidence: seeing a failed action and its message makes the model less likely to repeat it, and append-only history keeps caching effective. A deleted turn doesn't trigger a fresh plan; the model simply loses information it needed.
@@ -385,7 +385,7 @@ E: Errors are evidence: seeing a failed action and its message makes the model l
 Q: Why does the context-editing config include clear_at_least?
 - [ ] To make sure no tool result stays in context longer than a set token span
 - [ ] To set how many of the most recent tool results are kept untouched
-- [x] Each clear rebuilds the cache, so tiny clears can cost more than they save
+- [x] Each clear forces a cache rebuild, so tiny clears may not pay off
 - [ ] To cap the context size, clearing whatever is needed to stay under it
 E: Clearing trades a cache rebuild for a smaller context, so a minimum amount ensures each edit is worth that cost; batch it into large, infrequent clears. The number of recent results kept is the separate keep setting, and the trigger, not clear_at_least, decides when clearing starts.
 ```

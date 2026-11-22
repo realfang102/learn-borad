@@ -448,78 +448,78 @@ Done. 1 item needs your decision: admin/refund.py uses legacy_charge().</code></
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>Which action most clearly warrants a mandatory approval gate?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Running a search query</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reading a configuration file</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Editing a file on a git branch</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Posting a status update to an internal channel</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Bulk-editing 40 files on a working git branch</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Reading a production database&#39;s config file</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Sending an email to an external customer</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> External emails are high-impact and irreversible once sent, the top-right corner of the risk × reversibility matrix. File edits on a branch are easily reverted.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> External emails are high-impact and irreversible once sent: the gated corner of the risk × reversibility matrix. A bulk edit sounds big, but on a branch it is trivially reverted; reading config is read-only; an internal post is low-impact (act, log and notify).</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Why should approval policies be functions of tool arguments, not just tool names?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It reduces token usage</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API requires argument-level policies</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Tool names are not available to the harness</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The same tool can be safe or risky depending on its arguments, such as an email to a colleague versus a customer</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Gating by name alone would block every call to read-only tools</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Argument-level policies cut the tokens spent on approval prompts</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The harness sees only arguments, since tool names are model-chosen</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>One tool can be safe or risky depending on, say, the recipient</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Risk often lives in the arguments: recipient, amount, environment, path. Name-only policies either over-gate safe calls or under-gate dangerous ones.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Risk often lives in the arguments: recipient, amount, environment, path. Name-only policies either over-gate safe calls (every email) or under-gate dangerous ones. The harness sees both name and arguments; the point is which one carries the risk.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">3</span><div>A user declines an agent&#39;s proposed action. What should the harness send back to the model?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A success result, so the agent continues smoothly</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The same tool_use block again</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An error tool_result explaining the action was declined, including the user&#39;s feedback, so the agent can adapt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Nothing; just stop the agent</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A success result, so the agent carries on without derailing</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The same tool_use block, flagged so that the agent will rephrase it</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An error tool_result saying it was declined, plus the feedback</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Nothing: end the run, since the user has rejected the plan</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A decline is information. Returning it as an error result with feedback lets the agent revise its approach instead of retrying the same action or failing opaquely.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A decline is information. Returning it as an error result with the user&#39;s feedback lets the agent revise its approach instead of retrying the same action or failing opaquely. A fake success result is the dangerous choice: the agent would believe the email was sent.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">4</span><div>What is approval fatigue, and why is it dangerous?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Models refusing to act after being declined</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>API rate limits triggered by approval requests</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agents becoming slower after many approvals</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Humans approving reflexively after many routine prompts, so the rare dangerous request slips through</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Models growing timid and refusing to act after several declines</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reviewers rejecting too much, so the agent stalls on safe work</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agents slowing down as approval history fills their context</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>People approving by reflex, so the rare risky request slips by</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Too many low-value prompts train humans to stop reading. Gating less but better, and making dangerous prompts distinctive, keeps attention where it matters.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Too many low-value prompts train humans to stop reading, so the hundredth (dangerous) request is approved like the other ninety-nine. Over-rejection is a real cost too, but fatigue is about attention eroding into rubber-stamping. Gating less but better keeps attention where it matters.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>An agent waiting for approval resumes six hours later. What should it do before executing the approved action?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Start the task over from scratch</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask for approval again unconditionally</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Execute immediately; it was approved</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Re-validate that the world still matches what was approved (files, prices, state), since things may have changed while it waited</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Restart the task from scratch, as its earlier plan may be stale</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask the human to approve again, whatever has or hasn&#39;t changed</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Execute right away, since the human has already approved it</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Check the world still matches the approved snapshot, then act</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approvals are given against a snapshot. Long pauses require checking that preconditions still hold, or the approved action may now be wrong.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approvals are given against a snapshot: a file may have been edited or a price may have moved. Re-validating preconditions is cheap; unconditional re-approval feeds approval fatigue, and restarting throws away valid work.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Why does making actions reversible reduce the need for approval gates?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Reversible actions can&#39;t be prompt-injected</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reversible actions are always low-impact</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Undo removes the need for logging</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>If mistakes can be cheaply undone, monitoring plus undo gives safety without pre-approval friction</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Reversible actions can&#39;t be triggered by a prompt injection</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reversible actions are by definition low-impact actions</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An undo button removes the need for audit logs and alerts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Cheap undo lets monitoring replace approval before acting</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reversibility lowers the cost of errors, so oversight can shift from in-the-loop (approve first) to on-the-loop (monitor and roll back).</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reversibility lowers the cost of errors, so oversight can shift from in-the-loop (approve first) to on-the-loop (monitor and roll back). It does not make an action low-impact (a bulk edit can be big) and does nothing to stop injection.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">7</span><div>For a background coding agent, what typically serves as the primary approval gate?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A phone call to the developer</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A pull request with diff, description and test results, reviewed before merge</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>There is no gate; background agents are fully autonomous</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A popup for every file edit</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A live chat session where the developer steers each step</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The pull request: diff, description, tests, pre-merge</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A classifier that approves every action, with no human</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A push notification asking to approve each file edit</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With no human watching live, the review artifact becomes the gate. The agent acts freely in a sandbox, and humans approve the result.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With no human watching live, the review artifact becomes the gate. The agent acts freely in a sandbox with constrained credentials, and humans approve the result before it merges. Per-edit prompts and live steering assume someone is watching.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>

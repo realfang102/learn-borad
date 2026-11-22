@@ -318,53 +318,53 @@ Every human interaction with an agent is a data point. Capture it:
 
 ```quiz
 Q: Which action most clearly warrants a mandatory approval gate?
-- [ ] Reading a configuration file
-- [ ] Editing a file on a git branch
+- [ ] Bulk-editing 40 files on a working git branch
+- [ ] Reading a production database's config file
 - [x] Sending an email to an external customer
-- [ ] Running a search query
-E: External emails are high-impact and irreversible once sent, the top-right corner of the risk × reversibility matrix. File edits on a branch are easily reverted.
+- [ ] Posting a status update to an internal channel
+E: External emails are high-impact and irreversible once sent: the gated corner of the risk × reversibility matrix. A bulk edit sounds big, but on a branch it is trivially reverted; reading config is read-only; an internal post is low-impact (act, log and notify).
 
 Q: Why should approval policies be functions of tool arguments, not just tool names?
-- [ ] Tool names are not available to the harness
-- [x] The same tool can be safe or risky depending on its arguments, such as an email to a colleague versus a customer
-- [ ] The API requires argument-level policies
-- [ ] It reduces token usage
-E: Risk often lives in the arguments: recipient, amount, environment, path. Name-only policies either over-gate safe calls or under-gate dangerous ones.
+- [ ] The harness sees only arguments, since tool names are model-chosen
+- [x] One tool can be safe or risky depending on, say, the recipient
+- [ ] Argument-level policies cut the tokens spent on approval prompts
+- [ ] Gating by name alone would block every call to read-only tools
+E: Risk often lives in the arguments: recipient, amount, environment, path. Name-only policies either over-gate safe calls (every email) or under-gate dangerous ones. The harness sees both name and arguments; the point is which one carries the risk.
 
 Q: A user declines an agent's proposed action. What should the harness send back to the model?
-- [ ] Nothing; just stop the agent
-- [ ] A success result, so the agent continues smoothly
-- [x] An error tool_result explaining the action was declined, including the user's feedback, so the agent can adapt
-- [ ] The same tool_use block again
-E: A decline is information. Returning it as an error result with feedback lets the agent revise its approach instead of retrying the same action or failing opaquely.
+- [ ] Nothing: end the run, since the user has rejected the plan
+- [ ] A success result, so the agent carries on without derailing
+- [x] An error tool_result saying it was declined, plus the feedback
+- [ ] The same tool_use block, flagged so that the agent will rephrase it
+E: A decline is information. Returning it as an error result with the user's feedback lets the agent revise its approach instead of retrying the same action or failing opaquely. A fake success result is the dangerous choice: the agent would believe the email was sent.
 
 Q: What is approval fatigue, and why is it dangerous?
-- [ ] Agents becoming slower after many approvals
-- [x] Humans approving reflexively after many routine prompts, so the rare dangerous request slips through
-- [ ] API rate limits triggered by approval requests
-- [ ] Models refusing to act after being declined
-E: Too many low-value prompts train humans to stop reading. Gating less but better, and making dangerous prompts distinctive, keeps attention where it matters.
+- [ ] Agents slowing down as approval history fills their context
+- [x] People approving by reflex, so the rare risky request slips by
+- [ ] Reviewers rejecting too much, so the agent stalls on safe work
+- [ ] Models growing timid and refusing to act after several declines
+E: Too many low-value prompts train humans to stop reading, so the hundredth (dangerous) request is approved like the other ninety-nine. Over-rejection is a real cost too, but fatigue is about attention eroding into rubber-stamping. Gating less but better keeps attention where it matters.
 
 Q: An agent waiting for approval resumes six hours later. What should it do before executing the approved action?
-- [ ] Execute immediately; it was approved
-- [x] Re-validate that the world still matches what was approved (files, prices, state), since things may have changed while it waited
-- [ ] Ask for approval again unconditionally
-- [ ] Start the task over from scratch
-E: Approvals are given against a snapshot. Long pauses require checking that preconditions still hold, or the approved action may now be wrong.
+- [ ] Execute right away, since the human has already approved it
+- [x] Check the world still matches the approved snapshot, then act
+- [ ] Ask the human to approve again, whatever has or hasn't changed
+- [ ] Restart the task from scratch, as its earlier plan may be stale
+E: Approvals are given against a snapshot: a file may have been edited or a price may have moved. Re-validating preconditions is cheap; unconditional re-approval feeds approval fatigue, and restarting throws away valid work.
 
 Q: Why does making actions reversible reduce the need for approval gates?
-- [ ] Reversible actions are always low-impact
-- [x] If mistakes can be cheaply undone, monitoring plus undo gives safety without pre-approval friction
-- [ ] Reversible actions can't be prompt-injected
-- [ ] Undo removes the need for logging
-E: Reversibility lowers the cost of errors, so oversight can shift from in-the-loop (approve first) to on-the-loop (monitor and roll back).
+- [ ] Reversible actions are by definition low-impact actions
+- [x] Cheap undo lets monitoring replace approval before acting
+- [ ] Reversible actions can't be triggered by a prompt injection
+- [ ] An undo button removes the need for audit logs and alerts
+E: Reversibility lowers the cost of errors, so oversight can shift from in-the-loop (approve first) to on-the-loop (monitor and roll back). It does not make an action low-impact (a bulk edit can be big) and does nothing to stop injection.
 
 Q: For a background coding agent, what typically serves as the primary approval gate?
-- [ ] A popup for every file edit
-- [x] A pull request with diff, description and test results, reviewed before merge
-- [ ] A phone call to the developer
-- [ ] There is no gate; background agents are fully autonomous
-E: With no human watching live, the review artifact becomes the gate. The agent acts freely in a sandbox, and humans approve the result.
+- [ ] A push notification asking to approve each file edit
+- [x] The pull request: diff, description, tests, pre-merge
+- [ ] A live chat session where the developer steers each step
+- [ ] A classifier that approves every action, with no human
+E: With no human watching live, the review artifact becomes the gate. The agent acts freely in a sandbox with constrained credentials, and humans approve the result before it merges. Per-edit prompts and live steering assume someone is watching.
 ```
 
 ## Further Reading
