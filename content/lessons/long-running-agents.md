@@ -26,7 +26,7 @@ Some definitions first. A **session** is one run of the agent loop with one cont
 
 Those are two separate axes, and they cause different problems:
 
-| | Minutes-long task | Hours-long task | Days-long task |
+| Dimension | Minutes-long task | Hours-long task | Days-long task |
 |---|---|---|---|
 | Fits in one context? | Usually | Rarely, even with compaction | Never |
 | Process lifetime | One request or worker | Must survive restarts and deploys | Must survive outages and model upgrades |
