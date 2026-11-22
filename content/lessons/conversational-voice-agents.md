@@ -401,7 +401,7 @@ E: Post-call redaction is too late: the number already passed through STT and th
 
 - [τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains (Yao et al., 2024)](https://arxiv.org/abs/2406.12045) — simulated users, policy documents, end-state grading and pass^k.
 - [τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment (Barres et al., 2025)](https://arxiv.org/abs/2506.07982) — extends τ-bench to settings where users act on their own devices.
-- [Universals and cultural variation in turn-taking in conversation (Stivers et al., PNAS 2009)](https://www.pnas.org/doi/10.1073/pnas.0903616106) — the cross-language study behind the roughly 200 ms turn-gap figure.
+- [Universals and cultural variation in turn-taking in conversation (Stivers et al., PNAS 2009)](https://doi.org/10.1073/pnas.0903616106) — the cross-language study behind the roughly 200 ms turn-gap figure.
 - [LiveKit Agents documentation](https://docs.livekit.io/agents/) — a production framework for realtime voice agents, including turn detection and telephony.
 - [Pipecat (GitHub)](https://github.com/pipecat-ai/pipecat) — open-source pipeline framework for voice and multimodal agents.
 - [OpenAI Realtime API guide](https://platform.openai.com/docs/guides/realtime) — speech-to-speech interaction, sessions and turn detection.
