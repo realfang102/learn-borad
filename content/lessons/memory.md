@@ -415,28 +415,24 @@ Before shipping memory, answer these:
 
     class Decision(BaseModel):
         action: Literal["ADD", "UPDATE", "DELETE", "NOOP"]
-        target: int | None = None  # index of the candidate to update/delete
+        target: int | None = None  # candidate index for UPDATE / DELETE
         text: str | None = None    # merged text for UPDATE
 
     def add_consolidated(store: MemoryStore, text: str) -> None:
         q = embed(text)
         cands = sorted(store.items, key=lambda m: cosine(q, m.vec), reverse=True)[:3]
         listing = "\n".join(f"[{i}] {m.text}" for i, m in enumerate(cands)) or "(none)"
-        d = client.messages.parse(
-            model="claude-haiku-5-5", max_tokens=1000, output_format=Decision,
+        d = client.messages.parse(model="claude-haiku-5-5", max_tokens=1000, output_format=Decision,
             messages=[{"role": "user", "content": f"Existing memories:\n{listing}\n\nNew fact: {text}\n"
-                "Choose ADD (new info), UPDATE target (give merged text), DELETE target "
-                "(new fact makes it false), or NOOP (already known)."}],
+                "Choose ADD, UPDATE target (give merged text), DELETE target (new fact makes it false) or NOOP."}],
         ).parsed_output
-        if d.action in ("UPDATE", "DELETE") and (d.target is None or not 0 <= d.target < len(cands)):
-            d.action = "ADD"  # never trust an out-of-range index from the model
-        if d.action == "UPDATE":
-            cands[d.target].text = d.text or text
-            cands[d.target].vec = embed(cands[d.target].text)
-        elif d.action == "DELETE":
-            store.items.remove(cands[d.target])
-            store.add(text)
-        elif d.action == "ADD":
+        t = cands[d.target] if d.target is not None and 0 <= d.target < len(cands) else None  # validate the index
+        if d.action == "UPDATE" and t is not None:
+            t.text = d.text or text
+            t.vec = embed(t.text)
+        elif d.action != "NOOP":  # ADD, DELETE, or an UPDATE with a bad index
+            if d.action == "DELETE" and t is not None:
+                store.items.remove(t)
             store.add(text)
     ```
 

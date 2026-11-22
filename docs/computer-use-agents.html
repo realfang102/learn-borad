@@ -451,6 +451,83 @@ Step 12 screenshot -&gt; &quot;Are you sure you want to cancel your 3:30 PM chec
 <li><strong>Browser agent build.</strong> Using Playwright and an LLM, build an agent that searches a documentation site and returns the URL of the page that answers a question. Give it an accessibility snapshot plus a screenshot each step. Add a domain allowlist and a 25-step budget.</li>
 <li><strong>Injection red team.</strong> Create a local HTML page with a hidden instruction (for example, in white text) telling the agent to navigate to another domain. Run your browser agent against it with and without the domain allowlist. Document what happened and which layer stopped the attack.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> &quot;Second product&quot; is a <em>visual</em> notion (the second card on screen), while &quot;add to cart&quot; needs a <em>unique</em> target. Ask, for each representation, whether it gives you both. <strong>Sketch:</strong> (a) A <em>screenshot</em> shows the visual order, but every &quot;Add to cart&quot; button looks the same, so the model must hit the right one by coordinates, which is risky on dense grids. (b) The <em>full DOM</em> is huge and noisy: hidden mobile and desktop duplicates of each button, sponsored tiles, and a source order that may not match the visual order. (c) The <em>accessibility tree</em> is compact, but if the buttons are all just <code>button &quot;Add to cart&quot;</code>, the product they belong to and the &quot;second&quot; position are unclear, unless the site gives them labels like &quot;Add Widget Pro to cart&quot;. (d) <em>Set-of-marks</em> is usually the least ambiguous: the marks sit on the screenshot, so the model judges &quot;second&quot; visually and answers with a unique number. In practice the best combination is the one the lesson recommends: a screenshot to decide, plus a structured element reference to act.</p>
+</li>
+<li><p><strong>Hint:</strong> If each step succeeds independently with probability p, an n-step task succeeds with probability pⁿ. <strong>Sketch:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Per-step</th>
+<th>10 steps</th>
+<th>30 steps</th>
+<th>60 steps</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>95%</td>
+<td>0.95¹⁰ ≈ 59.9%</td>
+<td>≈ 21.5%</td>
+<td>≈ 4.6%</td>
+</tr>
+<tr>
+<td>98%</td>
+<td>≈ 81.7%</td>
+<td>≈ 54.5%</td>
+<td>≈ 29.8%</td>
+</tr>
+<tr>
+<td>99.5%</td>
+<td>≈ 95.1%</td>
+<td>≈ 86.0%</td>
+<td>≈ 74.0%</td>
+</tr>
+</tbody></table>
+</div>
+<p> Implications: keep each autonomous stretch short (split tasks into checkpointed subtasks that verify state); script the stable parts deterministically, so they don&#39;t spend the <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">step budget</dfn> (hybrid automation); and invest in <strong>recovery</strong>. The formula assumes every error is fatal, and an agent that notices and undoes mistakes (like the trace&#39;s &quot;wrong row, click No&quot;) has a much better effective per-step rate than its raw click accuracy.</p>
+</li>
+<li><p><strong>Hint:</strong> Click actions carry only coordinates, so the harness has to find out <em>what is there</em>: hit-test the point against the DOM (<code>document.elementFromPoint</code>) or the OS accessibility tree, and check the focused field before any <code>type</code>. Don&#39;t trust the model&#39;s description of its own action. <strong>Sketch:</strong> Gate clicks on elements whose label matches submit, send, pay, delete or approve; gate typing into fields that look like payment or credential fields (label, <code>autocomplete=&quot;cc-number&quot;</code>, <code>type=&quot;password&quot;</code>) or text that looks like a card number; gate Enter, which can submit a form; and fail closed on actions you don&#39;t recognize. For robustness, labels are page-controlled (a hostile page can call its Pay button &quot;Next&quot;), so also gate on the URL (any click on a checkout or payment path) and keep a domain allowlist. The snippet assumes the action inputs carry fields like <code>coordinate</code> and <code>text</code> (check the computer-use docs) and that <code>element_at</code>, <code>focused_element</code> and <code>looks_like_card_number</code> are your harness helpers.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> re
+
+SAFE = {<span class="hljs-string">&quot;screenshot&quot;</span>, <span class="hljs-string">&quot;zoom&quot;</span>, <span class="hljs-string">&quot;mouse_move&quot;</span>, <span class="hljs-string">&quot;scroll&quot;</span>, <span class="hljs-string">&quot;wait&quot;</span>}
+RISKY_TARGET = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;submit|send|pay|purchase|confirm|delete|approve&quot;</span>, re.I)
+SENSITIVE_FIELD = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;card|cvv|cvc|iban|account number|password&quot;</span>, re.I)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">needs_confirmation</span>(<span class="hljs-params">name: <span class="hljs-built_in">str</span>, inp: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    <span class="hljs-keyword">if</span> name <span class="hljs-keyword">in</span> SAFE:
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
+    <span class="hljs-keyword">if</span> name <span class="hljs-keyword">in</span> {<span class="hljs-string">&quot;left_click&quot;</span>, <span class="hljs-string">&quot;double_click&quot;</span>}:
+        target = element_at(*inp[<span class="hljs-string">&quot;coordinate&quot;</span>])  <span class="hljs-comment"># hit-test via DOM or accessibility API</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">bool</span>(RISKY_TARGET.search(target.label <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>)) <span class="hljs-keyword">or</span> is_checkout_url(target.page_url)
+    <span class="hljs-keyword">if</span> name == <span class="hljs-string">&quot;type&quot;</span>:
+        field = focused_element()
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">bool</span>(SENSITIVE_FIELD.search(field.label <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>)) <span class="hljs-keyword">or</span> looks_like_card_number(inp.get(<span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;&quot;</span>))
+    <span class="hljs-keyword">if</span> name == <span class="hljs-string">&quot;key&quot;</span>:
+        <span class="hljs-keyword">return</span> inp.get(<span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).lower() <span class="hljs-keyword">in</span> {<span class="hljs-string">&quot;return&quot;</span>, <span class="hljs-string">&quot;enter&quot;</span>}  <span class="hljs-comment"># Enter can submit a form</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>  <span class="hljs-comment"># unknown actions: fail closed</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> In Playwright, <code>page.locator(&quot;body&quot;).aria_snapshot()</code> gives a compact accessibility snapshot and <code>page.screenshot()</code> gives the image. Enforce the allowlist with <code>page.route</code>, not just in your <code>navigate</code> tool, because clicks and redirects can also leave the site. <strong>Sketch:</strong> Tools: <code>navigate(url)</code>, <code>click(role, name)</code> (implemented with <code>page.get_by_role(role, name=name).first.click()</code>), <code>scroll()</code>, and <code>answer(url)</code>. Each step, send the aria snapshot as text and the screenshot as an image block. Stop at 25 steps or when <code>answer</code> is called, and verify that the returned URL is on an allowed domain and was actually visited. Blocking <em>all</em> non-allowlisted requests also blocks CDNs and fonts, so pages may render imperfectly; either allowlist specific asset hosts or block only navigations (<code>route.request.is_navigation_request()</code>). Blocking all requests is the stricter choice, because it also stops exfiltration through image or script URLs.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> urllib.parse <span class="hljs-keyword">import</span> urlparse
+
+ALLOWED_HOSTS = {<span class="hljs-string">&quot;docs.python.org&quot;</span>}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">enforce_allowlist</span>(<span class="hljs-params">route</span>) -&gt; <span class="hljs-literal">None</span>:
+    host = urlparse(route.request.url).hostname <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>
+    <span class="hljs-keyword">if</span> host <span class="hljs-keyword">in</span> ALLOWED_HOSTS <span class="hljs-keyword">or</span> <span class="hljs-built_in">any</span>(host.endswith(<span class="hljs-string">&quot;.&quot;</span> + h) <span class="hljs-keyword">for</span> h <span class="hljs-keyword">in</span> ALLOWED_HOSTS):
+        route.continue_()
+    <span class="hljs-keyword">else</span>:
+        route.abort()  <span class="hljs-comment"># the agent sees a failed load instead of reaching the site</span>
+
+page.route(<span class="hljs-string">&quot;**/*&quot;</span>, enforce_allowlist)  <span class="hljs-comment"># covers clicks, redirects and subresources, not just navigate()</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Serve the test page and the &quot;attacker&quot; page on different <em>hostnames</em> (e.g. <code>localhost</code> vs. <code>127.0.0.1</code>), not just different ports, since a hostname-based allowlist ignores ports. Also note which channel carries the injection: white text is invisible in the screenshot but present in the accessibility snapshot. <strong>Sketch:</strong> Run several trials of each configuration and record two things separately: did the model <em>try</em> to follow the instruction (model-level resistance), and did it <em>reach</em> the other domain (harness-level containment)? Without the allowlist, any success comes down to the model&#39;s injection resistance, which varies from run to run. With it, the navigation is aborted, whatever the model decided, and your log should show the blocked request. That&#39;s the lesson&#39;s point that safety lives in the harness. A pixel-only agent may never &quot;see&quot; white text at all; to red-team it, use tiny or low-contrast text instead. A strong write-up has a table of runs with attempt/blocked counts and names the layer that stopped each attack.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="computer-use-agents" data-total="6">
 

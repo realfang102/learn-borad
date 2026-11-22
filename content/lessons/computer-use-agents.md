@@ -242,6 +242,64 @@ A sensible path: start with APIs and MCP for systems that offer them, use a GUI 
 4. **Browser agent build.** Using Playwright and an LLM, build an agent that searches a documentation site and returns the URL of the page that answers a question. Give it an accessibility snapshot plus a screenshot each step. Add a domain allowlist and a 25-step budget.
 5. **Injection red team.** Create a local HTML page with a hidden instruction (for example, in white text) telling the agent to navigate to another domain. Run your browser agent against it with and without the domain allowlist. Document what happened and which layer stopped the attack.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** "Second product" is a *visual* notion (the second card on screen), while "add to cart" needs a *unique* target. Ask, for each representation, whether it gives you both. **Sketch:** (a) A *screenshot* shows the visual order, but every "Add to cart" button looks the same, so the model must hit the right one by coordinates, which is risky on dense grids. (b) The *full DOM* is huge and noisy: hidden mobile and desktop duplicates of each button, sponsored tiles, and a source order that may not match the visual order. (c) The *accessibility tree* is compact, but if the buttons are all just `button "Add to cart"`, the product they belong to and the "second" position are unclear, unless the site gives them labels like "Add Widget Pro to cart". (d) *Set-of-marks* is usually the least ambiguous: the marks sit on the screenshot, so the model judges "second" visually and answers with a unique number. In practice the best combination is the one the lesson recommends: a screenshot to decide, plus a structured element reference to act.
+2. **Hint:** If each step succeeds independently with probability p, an n-step task succeeds with probability pⁿ. **Sketch:**
+
+    | Per-step | 10 steps | 30 steps | 60 steps |
+    |---|---|---|---|
+    | 95% | 0.95¹⁰ ≈ 59.9% | ≈ 21.5% | ≈ 4.6% |
+    | 98% | ≈ 81.7% | ≈ 54.5% | ≈ 29.8% |
+    | 99.5% | ≈ 95.1% | ≈ 86.0% | ≈ 74.0% |
+
+    Implications: keep each autonomous stretch short (split tasks into checkpointed subtasks that verify state); script the stable parts deterministically, so they don't spend the step budget (hybrid automation); and invest in **recovery**. The formula assumes every error is fatal, and an agent that notices and undoes mistakes (like the trace's "wrong row, click No") has a much better effective per-step rate than its raw click accuracy.
+
+3. **Hint:** Click actions carry only coordinates, so the harness has to find out *what is there*: hit-test the point against the DOM (`document.elementFromPoint`) or the OS accessibility tree, and check the focused field before any `type`. Don't trust the model's description of its own action. **Sketch:** Gate clicks on elements whose label matches submit, send, pay, delete or approve; gate typing into fields that look like payment or credential fields (label, `autocomplete="cc-number"`, `type="password"`) or text that looks like a card number; gate Enter, which can submit a form; and fail closed on actions you don't recognize. For robustness, labels are page-controlled (a hostile page can call its Pay button "Next"), so also gate on the URL (any click on a checkout or payment path) and keep a domain allowlist. The snippet assumes the action inputs carry fields like `coordinate` and `text` (check the computer-use docs) and that `element_at`, `focused_element` and `looks_like_card_number` are your harness helpers.
+
+    ```python
+    import re
+
+    SAFE = {"screenshot", "zoom", "mouse_move", "scroll", "wait"}
+    RISKY_TARGET = re.compile(r"submit|send|pay|purchase|confirm|delete|approve", re.I)
+    SENSITIVE_FIELD = re.compile(r"card|cvv|cvc|iban|account number|password", re.I)
+
+    def needs_confirmation(name: str, inp: dict) -> bool:
+        if name in SAFE:
+            return False
+        if name in {"left_click", "double_click"}:
+            target = element_at(*inp["coordinate"])  # hit-test via DOM or accessibility API
+            return bool(RISKY_TARGET.search(target.label or "")) or is_checkout_url(target.page_url)
+        if name == "type":
+            field = focused_element()
+            return bool(SENSITIVE_FIELD.search(field.label or "")) or looks_like_card_number(inp.get("text", ""))
+        if name == "key":
+            return inp.get("text", "").lower() in {"return", "enter"}  # Enter can submit a form
+        return True  # unknown actions: fail closed
+    ```
+
+4. **Hint:** In Playwright, `page.locator("body").aria_snapshot()` gives a compact accessibility snapshot and `page.screenshot()` gives the image. Enforce the allowlist with `page.route`, not just in your `navigate` tool, because clicks and redirects can also leave the site. **Sketch:** Tools: `navigate(url)`, `click(role, name)` (implemented with `page.get_by_role(role, name=name).first.click()`), `scroll()`, and `answer(url)`. Each step, send the aria snapshot as text and the screenshot as an image block. Stop at 25 steps or when `answer` is called, and verify that the returned URL is on an allowed domain and was actually visited. Blocking *all* non-allowlisted requests also blocks CDNs and fonts, so pages may render imperfectly; either allowlist specific asset hosts or block only navigations (`route.request.is_navigation_request()`). Blocking all requests is the stricter choice, because it also stops exfiltration through image or script URLs.
+
+    ```python
+    from urllib.parse import urlparse
+
+    ALLOWED_HOSTS = {"docs.python.org"}
+
+    def enforce_allowlist(route) -> None:
+        host = urlparse(route.request.url).hostname or ""
+        if host in ALLOWED_HOSTS or any(host.endswith("." + h) for h in ALLOWED_HOSTS):
+            route.continue_()
+        else:
+            route.abort()  # the agent sees a failed load instead of reaching the site
+
+    page.route("**/*", enforce_allowlist)  # covers clicks, redirects and subresources, not just navigate()
+    ```
+
+5. **Hint:** Serve the test page and the "attacker" page on different *hostnames* (e.g. `localhost` vs. `127.0.0.1`), not just different ports, since a hostname-based allowlist ignores ports. Also note which channel carries the injection: white text is invisible in the screenshot but present in the accessibility snapshot. **Sketch:** Run several trials of each configuration and record two things separately: did the model *try* to follow the instruction (model-level resistance), and did it *reach* the other domain (harness-level containment)? Without the allowlist, any success comes down to the model's injection resistance, which varies from run to run. With it, the navigation is aborted, whatever the model decided, and your log should show the blocked request. That's the lesson's point that safety lives in the harness. A pixel-only agent may never "see" white text at all; to red-team it, use tiny or low-contrast text instead. A strong write-up has a table of runs with attempt/blocked counts and names the layer that stopped each attack.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz
