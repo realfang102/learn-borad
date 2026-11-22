@@ -279,6 +279,10 @@ For agent UIs, stream progress as well as the final answer ("Searching orders…
 
 **Fast mode** runs the *same* model with substantially faster output, at a premium. As of November 2026 it's available on Claude Opus 5.5 (and a few other models) by setting `speed="fast"` on a request; on Opus 5.5 it costs 2× the standard price ($8 / $40 per MTok), and availability varies by platform. Because the model doesn't change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.
 
+### Message threads: stop re-uploading the transcript
+
+Every turn of a plain agent loop re-sends the whole conversation, which the API must re-upload, validate and tokenize before generating. **Message threads** (beta as of late 2026) let the API keep the conversation for a few minutes: the first request creates the thread, and each later request sends only the new messages plus the previous response's ID. Requests stay small and time to first token stays lower and steadier as the transcript grows. Threads don't change pricing or rate limits and don't cache anything for you (keep your cache breakpoints), they are best-effort (a thread expires after a few minutes idle, so your code must be able to replay the full conversation), and `system`, `tools` and `model` are fixed for the thread's lifetime. The SDKs' thread helper and recent tool runners handle create, continue and replay for you. Check the docs for current availability.
+
 ### Tail latency
 
 Users feel the p95, not the mean, and agent tails are long: one slow tool, one backed-off retry, one long reasoning step. Find out why the slow tasks are slow before tuning. Remedies include tool timeouts, **hedged requests** (after a deadline, send a duplicate and take the first reply, which costs money and is only safe on idempotent paths), and rate-limit headroom so 429 retries don't land on interactive traffic.

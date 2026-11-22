@@ -324,7 +324,9 @@ import anthropic
 
 client = anthropic.Anthropic()
 
-response = client.messages.create(
+# Large max_tokens + long thinking: stream, or the SDK refuses the request up front
+# (non-streaming calls that could exceed ~10 minutes raise an error before sending).
+with client.messages.stream(
     model="claude-opus-5-5",
     max_tokens=32000,
     thinking={"type": "adaptive", "display": "summarized"},  # opt in to see a thinking summary
@@ -334,7 +336,8 @@ response = client.messages.create(
         "content": "Design a schedule for 6 talks across 2 rooms and 4 slots so that no speaker overlaps "
                    "with talks they must attend: A must attend C, D must attend B and F, E must attend A.",
     }],
-)
+) as stream:
+    response = stream.get_final_message()  # same Message object as messages.create returns
 
 for block in response.content:
     if block.type == "thinking":

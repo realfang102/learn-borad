@@ -435,6 +435,9 @@ for message in runner:   # yields each assistant message as the loop runs
 
 The runner calls the API, executes requested tools, sends results back and stops when the model stops calling tools. It isn't a black box: each iteration yields the assistant message before its tools run, so you can log, inspect or intercept calls (for example, to require human approval). Reach for the manual loop when you need control the runner doesn't expose or want to avoid a beta dependency. The [SDK hands-on](sdk-hands-on.html) lesson covers the runner and agent SDKs in depth.
 
+> [!NOTE] The runner and message threads
+> In recent SDK releases (Python `anthropic` 2.2.0 and later), the tool runner uses **message threads** by default where the platform supports them: the API keeps the conversation for a few minutes, so each follow-up request sends only the new `tool_result` blocks instead of the whole transcript. This keeps requests small and time to first token steady; it doesn't change pricing. Two consequences: `system` and `tools` can't change mid-run (create a new runner instead), and if you inspect raw requests you'll see a `thread` field and only the newest messages. Pass `thread=False` to `tool_runner(...)` to turn it off. Your manual loop needs none of this — it re-sends the full history, which is always valid.
+
 ## The Same Idea Across Providers
 
 Every major model provider implements the same handshake with different field names. Learn the concept once and the rest is vocabulary:

@@ -251,13 +251,14 @@ def deep_research(question: str) -> str:
     subqs = plan(question)
     with ThreadPoolExecutor(max_workers=5) as pool:  # subagents run in parallel
         findings = list(pool.map(research, subqs))
-    resp = client.messages.create(
+    with client.messages.stream(  # long report + large max_tokens: stream (the SDK requires it)
         model="claude-opus-5-5", max_tokens=32000,
         messages=[{"role": "user", "content":
             f"Question: {question}\n\nFindings:\n" + "\n\n".join(findings) +
             "\n\nWrite a structured report. Cite only URLs listed in the findings. "
             "Flag conflicts between sources and explain them. State uncertainty."}],
-    )
+    ) as stream:
+        resp = stream.get_final_message()
     return "".join(b.text for b in resp.content if b.type == "text")
 
 print(deep_research("How do costs of grid-scale storage technologies compare today?"))

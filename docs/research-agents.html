@@ -394,13 +394,14 @@ WEB_TOOLS = [
     subqs = plan(question)
     <span class="hljs-keyword">with</span> ThreadPoolExecutor(max_workers=<span class="hljs-number">5</span>) <span class="hljs-keyword">as</span> pool:  <span class="hljs-comment"># subagents run in parallel</span>
         findings = <span class="hljs-built_in">list</span>(pool.<span class="hljs-built_in">map</span>(research, subqs))
-    resp = client.messages.create(
+    <span class="hljs-keyword">with</span> client.messages.stream(  <span class="hljs-comment"># long report + large max_tokens: stream (the SDK requires it)</span>
         model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">32000</span>,
         messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>:
             <span class="hljs-string">f&quot;Question: <span class="hljs-subst">{question}</span>\n\nFindings:\n&quot;</span> + <span class="hljs-string">&quot;\n\n&quot;</span>.join(findings) +
             <span class="hljs-string">&quot;\n\nWrite a structured report. Cite only URLs listed in the findings. &quot;</span>
             <span class="hljs-string">&quot;Flag conflicts between sources and explain them. State uncertainty.&quot;</span>}],
-    )
+    ) <span class="hljs-keyword">as</span> stream:
+        resp = stream.get_final_message()
     <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
 
 <span class="hljs-built_in">print</span>(deep_research(<span class="hljs-string">&quot;How do costs of grid-scale storage technologies compare today?&quot;</span>))</code></pre></div>
