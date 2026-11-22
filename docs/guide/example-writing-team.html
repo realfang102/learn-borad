@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The writing team (writer + editor) · Agents Made Simple</title><meta name="description" content="Watch a writer agent and an editor agent improve a newsletter in rounds, while a fact-checker catches an invented statistic."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="example">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html" aria-current="page">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page example" data-slug="example-writing-team">
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">🎬 Agents in action</a><div class="ch-hero-emoji">✍️</div><p class="eyebrow">Writing · Intermediate</p><h1>The writing team (writer + editor)</h1><p class="lead">Watch a writer agent and an editor agent improve a newsletter in rounds, while a fact-checker catches an invented statistic.</p>
+<p class="concepts">Uses ideas from: <a class="chip" href="agent-teams.html">🤝 Teams of agents</a> <a class="chip" href="reliable-agents.html">🎯 Making agents reliable</a> <a class="chip" href="great-instructions.html">🎯 Giving great instructions</a></p></div>
+<article class="prose wide"><p>Ask an AI to write something and you&#39;ll get a fluent first draft in seconds. Fluent, though, isn&#39;t the same as <em>good</em>. First drafts ramble, miss details from the brief, slip into a salesy tone, and sometimes include &quot;facts&quot; that were never true. Human writers deal with this by working with an editor. AI can work the same way.</p>
+<p>In this example, Nadia runs a small tea shop and needs her December newsletter. Her setup uses a small <strong>team of agents</strong>: a <strong>writer</strong> that drafts, an <strong>editor</strong> that grades each draft against a checklist, and a <strong>fact-checker</strong> that verifies every claim. Watch the draft improve over two rounds, and look for the moment the fact-checker discovers the writer made up a statistic.</p>
+<div class="sim" data-sim="writing-team"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Compare the drafts</div><p>Use <strong>Step ⏭</strong> and pause on draft 1. Before the editor speaks, see how many problems you can find by checking it against the <strong>Editor&#39;s checklist</strong>. Then watch whether the editor catches the same ones and whether it catches the one problem a checklist alone can&#39;t.</p>
+</div>
+<h2 id="how-it-works">How it works</h2>
+<div class="steps-strip">
+<div><strong>Brief → checklist</strong>Turn the request into clear pass/fail criteria.</div>
+<div><strong>Draft</strong>The writer produces a complete first version.</div>
+<div><strong>Critique</strong>The editor grades it item by item with specific notes.</div>
+<div><strong>Revise</strong>The writer fixes exactly what was flagged.</div>
+<div><strong>Verify facts</strong>A fact-checker searches for evidence for each claim.</div>
+<div><strong>Human sign-off</strong>The owner approves before anything is sent.</div>
+</div>
+
+<p>This pattern, where one agent generates and another evaluates and the loop repeats until the work passes, is often called an <strong>evaluator-optimizer</strong> loop. It works for the same reason human editing works: <strong>judging is easier than creating</strong>. It&#39;s hard to write a perfect paragraph in one go, but it&#39;s easy to check &quot;is this under 350 words?&quot; or &quot;does it mention the event time?&quot; A separate editor also has no attachment to the draft, so it&#39;s more willing to say &quot;cut this.&quot;</p>
+<p>The checklist is what makes the critique useful. Vague feedback (&quot;make it better&quot;) leads to random changes. Specific feedback (&quot;add the time: 2–4 pm&quot;; &quot;keep ONE call to action&quot;) leads to targeted fixes. And notice that the checklist came straight from Nadia&#39;s brief. That&#39;s why <a href="great-instructions.html">great instructions</a> matter so much. Your request becomes the test the work has to pass.</p>
+<div class="detail">
+
+<p><strong>The real technology, as of 2026.</strong> &quot;Evaluator-optimizer&quot; is one of the common agent workflow patterns described in Anthropic&#39;s guide <em>Building effective agents</em> (December 2024). The general idea of a model grading another model&#39;s output is often called <strong>LLM-as-a-judge</strong>. Developers build these teams with frameworks such as the Claude Agent SDK (which supports subagents), the OpenAI Agents SDK, LangGraph and CrewAI. The writer, editor and fact-checker might even be the same underlying model with different instructions. What makes them a team is their separate roles.</p>
+<p>The fact-checker relies on <strong>web search</strong> (or a company&#39;s own documents), so its claims are grounded in sources rather than memory. This helps a lot, but it isn&#39;t perfect: search results can be wrong too, which is why a human still signs off. See <a href="agent-teams.html">agent teams</a> and <a href="reliable-agents.html">reliable agents</a>.</p>
+</div>
+
+<h2 id="why-this-works">Why this works</h2>
+<ul>
+<li><strong>Separate roles catch different problems.</strong> The editor caught length, tone and missing details. Only the fact-checker, which actually <em>searched</em>, could catch the invented survey.</li>
+<li><strong>A checklist makes &quot;done&quot; clear.</strong> The loop stops when every item passes, not when the writer feels finished.</li>
+<li><strong>Rounds are cheap.</strong> Two extra rounds take an AI team seconds. Repeat the loop a few times and you get noticeably better work.</li>
+<li><strong>The human sees the change log.</strong> Nadia learns what was fixed, including the fake statistic, so she can judge how much to trust the result.</li>
+</ul>
+<p>The invented statistic deserves a closer look. &quot;A 2025 survey found 8 in 10 tea drinkers brew green tea too hot&quot; sounds exactly like a real fact, and that&#39;s the danger. Language models sometimes produce plausible details that have no source, which is called <strong>hallucination</strong>. The editor checked it against the checklist and couldn&#39;t tell it was false. Only <em>looking for evidence</em> revealed it. The fix was simple and honest: drop the number and keep the useful point.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
+<ul>
+<li><strong>The editor agrees too easily.</strong> An AI critic can be too generous, especially if it&#39;s the same model judging its own style. Give it a strict checklist and ask it to find at least one problem.</li>
+<li><strong>Endless polishing.</strong> Without a clear finish line, loops can keep making tiny changes (or make things worse). Set a maximum number of rounds.</li>
+<li><strong>Fact-checks that &quot;find&quot; a source.</strong> A weak checker might cite something that doesn&#39;t really support the claim. Ask for links and spot-check them yourself.</li>
+<li><strong>Everything sounds the same.</strong> AI-polished writing can lose your voice. Give the team samples of your own writing to match.</li>
+</ul>
+</div>
+<h2 id="try-it-yourself">Try it yourself</h2>
+<p>You can run a simple version of this in one chat with any capable AI assistant:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need [type of writing, e.g. a newsletter] about [topic] for [audience].
+Must include: [key details, e.g. event date and time]. Tone: [tone]. Length: under [N] words.
+Work in three roles, and show each step:
+1. EDITOR: turn my brief into a pass/fail checklist (5–7 items).
+2. WRITER: write draft 1.
+3. EDITOR: grade draft 1 against the checklist, item by item, with specific fixes.
+4. WRITER: revise. Repeat steps 3–4 at most twice.
+5. FACT-CHECKER: list every factual claim (numbers, dates, studies). Mark each as verified, needs a source, or remove. Never invent sources.
+Finish with the final draft and a short change log.</pre></div>
+<div class="quiz" data-quiz="example-writing-team">
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>Why does splitting the work into a writer and an editor tend to give better results?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The editor knows facts the writer doesn&#39;t</button><button type="button" class="quiz-opt" data-i="1">Editors are always a more powerful AI model</button><button type="button" class="quiz-opt" data-i="2">Checking work against criteria is easier than writing it perfectly at once</button><button type="button" class="quiz-opt" data-i="3">Two agents always type twice as fast as one</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Judging (&quot;is it under 350 words? is the time included?&quot;) is easier than creating perfect text in one try. A separate critic with a clear checklist turns that into specific fixes. The roles can even use the same model.</div></div>
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>Which problem could only the fact-checker catch?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The draft was 412 words, over the limit</button><button type="button" class="quiz-opt" data-i="1">The tasting time was missing</button><button type="button" class="quiz-opt" data-i="2">The &quot;2025 survey&quot; statistic had no real source</button><button type="button" class="quiz-opt" data-i="3">There were three calls to action instead of one</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Length, missing details and tone can all be checked by reading. A made-up statistic looks just like a real one, so only searching for evidence revealed it was invented.</div></div>
+<div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">3</span>What did the team do when it couldn&#39;t find the survey?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">It searched until something similar turned up</button><button type="button" class="quiz-opt" data-i="1">It kept the claim because it sounded believable</button><button type="button" class="quiz-opt" data-i="2">It asked the writer to invent a citation</button><button type="button" class="quiz-opt" data-i="3">It removed the number and rewrote the line honestly</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> When a claim can&#39;t be backed up, the honest fixes are to remove it or reword it so it doesn&#39;t claim more than you know. Hunting for a &quot;similar&quot; source to fit a claim you already believe is how misinformation spreads.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+</article>
+<nav class="pager"><a href="example-meeting-assistant.html"><small>← Previous example</small>📝 The meeting assistant</a><a class="next" href="example-incident-responder.html"><small>Next example →</small>🚨 The on-call incident responder</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/writing-team.js"></script>
+</body></html>

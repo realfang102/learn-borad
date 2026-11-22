@@ -113,24 +113,24 @@ Then merge the results into one comparison table, point out any places where the
 
 ```quiz
 Q: Which task is the best fit for a team of agents working in parallel?
-- [ ] Polishing the wording of one short email
-- [x] Researching twelve different suppliers and comparing them
+- [ ] Polishing the wording of one short, important email
+- [x] Researching and comparing twelve different suppliers
 - [ ] Doing a calculation where each step needs the last result
-- [ ] Answering a quick question about a single fact
+- [ ] Answering a quick question about one fact
 E: Researching many suppliers splits naturally into independent pieces, so helpers can work at the same time. Editing one email or a chain of dependent steps leaves nothing to do in parallel — one agent is better.
 
 Q: Besides speed, why does giving each helper its own fresh context help?
-- [ ] Fresh helpers are smarter than the lead agent
-- [ ] It means nobody needs to check the final result
-- [x] Each helper reads only what its task needs, so no single memory overflows
-- [ ] It makes the whole team use fewer tokens in total
+- [ ] Fresh helpers are always smarter than the lead agent is
+- [ ] It means that nobody needs to check the final result
+- [x] No single agent's memory gets stuffed full of pages
+- [ ] It makes the whole team use far fewer tokens in total
 E: Each helper starts with an empty "backpack" and returns just a short summary, keeping the lead focused. But it doesn't reduce total tokens — the team as a whole usually uses many more.
 
 Q: In the product-launch run, what job could only the lead agent do?
-- [ ] Reading the product specification
-- [ ] Searching rival companies' websites
-- [ ] Writing the launch-week timeline
-- [x] Spotting that the timeline and the FAQ contradicted each other
+- [ ] Reading the twelve-page product specification
+- [ ] Searching rival companies' websites for prices
+- [ ] Writing the first draft of the launch-week timeline
+- [x] Noticing that the timeline and the FAQ disagreed
 E: Each helper only saw its own piece. Only the lead, comparing all the pieces side by side, could notice the shipping-date clash — that's why the merge-and-check step matters so much.
 ```
 

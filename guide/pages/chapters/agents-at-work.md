@@ -58,6 +58,16 @@ Keep it under one page.
 
 Notice the line *"don't guess"*. Agents try hard to be helpful, and sometimes that means filling gaps with plausible inventions. Telling it what to do when information is missing is one of the most useful habits you can build.
 
+Customer replies follow the same idea: the agent drafts from facts you trust, and you send.
+
+```prompt
+Draft a reply to this customer message: [paste message].
+Use only the information in our help articles / policy: [paste or attach them].
+Tone: warm, clear, no jargon, under 150 words.
+If the policy doesn't cover their situation, don't promise anything — write "[NEEDS HUMAN DECISION]" and explain why in one line.
+Don't send anything; I'll review and send it myself.
+```
+
 ## A simple workflow for delegating
 
 Good delegation to an agent looks a lot like good delegation to a person. It has four steps:

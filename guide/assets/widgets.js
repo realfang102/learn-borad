@@ -458,12 +458,22 @@
   W["mcp-plugs"] = function (el) {
     var body = frame(el, "Playground", "Plug in apps with MCP — like USB-C for AI");
     var S = [["📁", "Google Drive", ["search_files", "read_document"], false], ["🐙", "GitHub", ["list_issues", "create_pull_request"], true], ["💬", "Slack", ["read_channel", "post_message"], true], ["📅", "Calendar", ["find_free_time", "create_event"], true], ["🗄️", "Company database", ["run_read_only_query"], false]], on = {};
-    body.innerHTML = '<p class="w-note">Each <b>MCP server</b> is a plug-in that gives an agent new tools. One standard plug works with many AI apps — no custom wiring per app.</p><div class="w-grid2"><div><p class="w-label">Available MCP servers (click to connect)</p><div class="mp-s"></div></div><div><p class="w-label">🤖 Your agent\'s tools</p><div class="w-box mp-t" style="min-height:170px"></div></div></div>';
+    body.innerHTML = '<p class="w-note">Each <b>MCP server</b> is a plug-in that gives an agent new tools. One standard plug works with many AI apps — no custom wiring per app.</p><div class="approval mp-ask" hidden></div><div class="w-grid2"><div><p class="w-label">Available MCP servers (click to connect)</p><div class="mp-s"></div></div><div><p class="w-label">🤖 Your agent\'s tools</p><div class="w-box mp-t" style="min-height:170px"></div></div></div>';
     function draw() {
       $(".mp-s", body).innerHTML = S.map(function (s, i) { return '<button type="button" class="w-btn' + (on[i] ? " on" : "") + '" data-i="' + i + '" style="display:flex;width:100%;justify-content:space-between;margin:6px 0"><span>' + s[0] + " " + s[1] + "</span><span>" + (on[i] ? "🔌 connected" : "＋ connect") + "</span></button>"; }).join("");
       var tools = []; S.forEach(function (s, i) { if (on[i]) s[2].forEach(function (t) { tools.push([s[0], t, s[3]]); }); });
       $(".mp-t", body).innerHTML = tools.length ? tools.map(function (t) { return '<div class="tool-card" style="margin:5px 0">' + t[0] + " <b>" + t[1] + "</b>" + (t[2] && /create|post/.test(t[1]) ? ' <span class="tag amber">can change things</span>' : "") + "</div>"; }).join("") : '<span class="w-note">No tools yet — the agent can only talk.</span>';
-      $$(".mp-s .w-btn", body).forEach(function (b) { b.addEventListener("click", function () { var i = +b.dataset.i; if (!on[i] && S[i][3] && !confirm("Allow the agent to use " + S[i][1] + "? It will be able to: " + S[i][2].join(", ") + ".")) return; on[i] = !on[i]; draw(); }); });
+      $$(".mp-s .w-btn", body).forEach(function (b) { b.addEventListener("click", function () {
+        var i = +b.dataset.i;
+        if (!on[i] && S[i][3]) { // ask permission inline before connecting a server that can change things
+          var ask = $(".mp-ask", body); ask.hidden = false;
+          ask.innerHTML = '<div class="aq">🙋 Allow the agent to use ' + esc(S[i][1]) + '?</div><div class="ad">It will be able to: ' + esc(S[i][2].join(", ")) + ' (including actions that change things).</div><div class="w-row"><button type="button" class="w-btn good mp-yes">Allow</button><button type="button" class="w-btn bad mp-no">Don&#39;t allow</button></div>';
+          $(".mp-yes", ask).addEventListener("click", function () { ask.hidden = true; on[i] = true; draw(); });
+          $(".mp-no", ask).addEventListener("click", function () { ask.hidden = true; A.toast("Not connected: the agent can't use " + S[i][1]); });
+          return;
+        }
+        on[i] = !on[i]; draw();
+      }); });
     }
     draw();
   };
@@ -478,7 +488,8 @@
       var html = ""; for (var k = 1; k <= n; k++) { var s = Math.pow(pe, k); html += '<span title="after step ' + k + ": " + Math.round(s * 100) + '%" style="width:22px;height:22px;border-radius:50%;display:inline-block;background:hsl(' + Math.round(s * 120) + ',70%,50%);transition:background .3s"></span>'; }
       $(".ec-dots", body).innerHTML = html;
       var tot = Math.pow(pe, n); $(".ec-out", body).innerHTML = "Chance the whole task goes right: <span style=\"color:" + (tot > 0.8 ? "var(--green)" : tot > 0.5 ? "#d97706" : "var(--red)") + '">' + Math.round(tot * 100) + "%</span>";
-      $(".ec-note", body).innerHTML = v ? "With checking, small mistakes get caught before they snowball. That's why good agents <b>run tests, re-read sources and verify results</b>." : "Even 95% per step means a 20-step task fails most of the time! Small errors add up. Turn on checking to see the difference.";
+      var raw = Math.pow(p, n);
+      $(".ec-note", body).innerHTML = v ? "With checking, small mistakes get caught before they snowball (without checking it would be " + Math.round(raw * 100) + "%). That's why good agents <b>run tests, re-read sources and verify results</b>." : (raw < 0.5 ? "Even with " + (p * 100).toFixed(1) + "% per step, a " + n + "-step task fails more often than it succeeds! " : raw < 0.8 ? "Small per-step errors already add up over " + n + " steps. " : "Short tasks with reliable steps usually go fine — try more steps. ") + "Turn on checking to see the difference.";
     }
     $$("input", body).forEach(function (i) { i.addEventListener("input", draw); }); draw();
   };
@@ -498,7 +509,7 @@
   W["horizon-chart"] = function (el) {
     var body = frame(el, "Chart", "How long a task can AI agents complete on their own?");
     var P = [["2019", "a few seconds", 0.05], ["2021", "~10 seconds", 0.15], ["2023", "a few minutes", 4], ["Early 2025", "~1 hour", 55], ["2026", "several hours", 300]];
-    body.innerHTML = '<div class="hc-bars" style="display:flex;align-items:flex-end;gap:14px;height:230px;padding:10px 4px 0;border-bottom:3px solid var(--line2)"></div><div class="hc-lbl" style="display:flex;gap:14px"></div><div class="w-row" style="margin-top:12px"><button type="button" class="w-btn primary hc-go">▶ Animate</button></div><p class="w-note">Based on <a href="https://metr.org/" target="_blank" rel="noopener">METR</a>\'s measurements of the length of software tasks (measured by how long they take skilled humans) that leading AI agents can complete about half the time. The trend has roughly <b>doubled every ~7 months</b> since 2019, and faster since 2023. Values are approximate and shown on a log scale.</p>';
+    body.innerHTML = '<div class="hc-bars" style="display:flex;align-items:flex-end;gap:14px;height:230px;padding:10px 4px 0;border-bottom:3px solid var(--line2)"></div><div class="hc-lbl" style="display:flex;gap:14px"></div><div class="w-row" style="margin-top:12px"><button type="button" class="w-btn primary hc-go">▶ Animate</button></div><p class="w-note">Based on <a href="https://metr.org/" target="_blank" rel="noopener">METR</a>\'s measurements of the length of software tasks (measured by how long they take skilled humans) that leading AI agents can complete about half the time. The trend has roughly <b>doubled every ~7 months</b> since 2019, and faster in recent years. Values are approximate and shown on a log scale.</p>';
     var bars = $(".hc-bars", body), lbl = $(".hc-lbl", body);
     bars.innerHTML = P.map(function (p) { return '<div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center"><b style="font-size:13px;text-align:center">' + p[1] + '</b><i style="display:block;width:100%;height:0;border-radius:10px 10px 0 0;background:linear-gradient(#f472b6,#6d28d9);transition:height 1s cubic-bezier(.2,.8,.2,1)"></i></div>'; }).join("");
     lbl.innerHTML = P.map(function (p) { return '<span style="flex:1;text-align:center;font-weight:900;font-size:14px">' + p[0] + "</span>"; }).join("");

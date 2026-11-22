@@ -122,24 +122,24 @@ Then wait for my OK before starting. If a step fails while you're working, tell 
 
 ```quiz
 Q: Why do agents break a big goal into smaller steps before acting?
-- [ ] Because language models can only read short sentences
-- [x] Small steps are easier to do, check and fix, and they keep the agent on track
+- [ ] Because language models can only read very short sentences at a time
+- [x] Small steps are easier to do, check and fix along the way
 - [ ] Because it makes the agent's final answer longer and more detailed
-- [ ] So the agent never has to change its plan later
+- [ ] So the agent never needs to change its plan
 E: Decomposition turns a vague goal into concrete, checkable steps. It doesn't mean the plan never changes — good agents replan whenever a step fails or they learn something new.
 
 Q: In the planning playground, a step failed (for example, the venue was fully booked). What did the agent do?
-- [ ] It stopped and told the user the goal was impossible
-- [ ] It skipped the step and pretended it had succeeded
-- [x] It marked the failure and added a new step to work around it
+- [ ] It told the user the goal was impossible
+- [ ] It quietly skipped the step and pretended it had succeeded
+- [x] It marked the failure and added a workaround step
 - [ ] It started the whole plan again from the very beginning
 E: That's replanning: notice the failure honestly, adapt the plan with a new step, and keep going with everything else. Restarting from scratch would waste all the work already done.
 
 Q: Which kind of self-check is hardest for an agent to fool itself with?
-- [ ] Re-reading its own answer and deciding it looks fine
-- [ ] Asking itself whether it feels confident
-- [ ] Writing a longer explanation of its reasoning
-- [x] Checking against an outside signal, like a test result or the real web page
+- [ ] Re-reading its own answer carefully and deciding it looks fine
+- [ ] Asking itself how confident it feels
+- [ ] Writing out a much longer explanation of its own reasoning
+- [x] Comparing against an outside result, like a test
 E: Re-reading your own work misses your own blind spots. An outside check — a test that passes or fails, a calculator, the actual source — tells the agent the truth even when it's confident and wrong.
 ```
 

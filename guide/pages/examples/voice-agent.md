@@ -77,23 +77,23 @@ Keep it to one page in plain language.
 
 ```quiz
 Q: Why did the agent read the new appointment back before changing it?
-- [ ] To fill the silence while the calendar loaded
-- [x] Speech can be misheard, so a confirmed "yes" prevents mix-ups
-- [ ] Because the calendar tool needs the details spoken aloud
-- [ ] So the call recording would be longer
+- [ ] To fill the awkward silence while the calendar tool was loading
+- [x] Speech can be misheard, so a clear "yes" prevents mix-ups
+- [ ] Because the calendar tool only accepts details that are spoken aloud
+- [ ] So the call recording would be long enough to keep for training
 E: Voice agents work by ear, and "eight" or "fifteen" can easily be misheard. Repeating the details and waiting for a clear yes catches mistakes before they affect a real booking.
 
 Q: Tomás interrupted with "Oh wait — no". What did the agent do?
-- [ ] Finished its sentence and booked Tuesday anyway
-- [ ] Ended the call and asked him to call back later
-- [ ] Booked both Tuesday and Friday to be safe
+- [ ] Finished its sentence and booked Tuesday anyway, as he'd first agreed
+- [ ] Ended the call politely and asked him to call back when he'd decided
+- [ ] Booked both Tuesday and Friday so he'd have a backup either way
 - [x] Stopped talking, dropped Tuesday, and searched for Friday
 E: This is called barge-in: good voice agents stop speaking the moment the caller does. Because nothing was booked yet, there was nothing to undo — it simply searched again.
 
 Q: Why did the agent hand the insurance question to Maria?
-- [x] Coverage depends on his exact plan, and a guess could cost him money
-- [ ] Voice agents can only ever do one task per call
-- [ ] The agent had already run out of time for the call
-- [ ] Insurance questions can only be asked in writing
+- [x] Coverage depends on his plan, and a wrong guess could cost him money
+- [ ] Voice agents are only able to complete one single task during each call
+- [ ] The agent had already used up all of the time allowed for one phone call
+- [ ] Insurance questions can only ever be answered in writing, never by phone
 E: Knowing its limits is a feature, not a failure. The agent passed along a summary so Tomás didn't have to repeat himself — a "warm" handoff.
 ```

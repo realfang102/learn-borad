@@ -80,23 +80,23 @@ If I ask something my notes don't cover, say so instead of answering from genera
 
 ```quiz
 Q: Why does a knowledge-base agent search documents instead of answering from its training?
-- [ ] Searching is always faster than thinking
+- [ ] Searching documents is always faster than answering from memory
 - [x] The model was never trained on the company's private policies
-- [ ] Models are not allowed to use their training at work
-- [ ] Search results don't need to be checked afterwards
+- [ ] Company rules forbid AI models from using their training at work
+- [ ] Search results are always correct, so they never need checking
 E: A language model learns from public text, not your company's handbook. Retrieval brings the right passages in at question time, so the answer can be specific and cited.
 
 Q: Two documents gave different carry-over rules. What did the agent do?
-- [ ] Averaged them and said about 7 days
-- [ ] Used the one with the higher relevance score
-- [x] Checked their status and used the one that replaced the other
-- [ ] Gave both rules and let Jordan choose
+- [ ] Averaged the two rules and told Jordan it was about 7 days
+- [ ] Used whichever document had the higher relevance score
+- [x] Checked which one was current and used that one
+- [ ] Gave Jordan both rules and let them pick the one they liked
 E: The higher-scoring result happened to be right here, but relevance only measures how well text matches the question — not whether it's current. Checking status and dates is what settled it.
 
 Q: The second search only found weak matches. What was the right response?
-- [ ] Answer from the travel policy, since it was the closest
+- [ ] Answer from the travel policy anyway, since it was the closest match
 - [x] Say the documents don't cover it and point Jordan to HR
-- [ ] Search the public internet for Portugal's rules instead
-- [ ] Keep rephrasing the search until a match appears
+- [ ] Search the public internet for Portugal's remote-work rules instead
+- [ ] Keep rephrasing the search over and over until a strong match appears
 E: Weak matches are a signal that the answer isn't there. Working abroad involves tax and visa rules, so a guess could cause real problems — "I don't know, ask HR" is the helpful answer.
 ```

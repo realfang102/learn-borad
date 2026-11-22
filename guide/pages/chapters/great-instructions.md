@@ -143,24 +143,24 @@ You'll find lots of ready-made, fill-in-the-blanks instructions on the [prompts 
 
 ```quiz
 Q: Which addition would most improve the instruction "Summarize this report"?
-- [ ] "Please do a really good job on this"
-- [x] "…so I can decide whether to read it all before tomorrow's meeting"
+- [ ] "Please do a really, really good job on this one for me"
+- [x] "…so I can decide if I need to read it all"
 - [ ] "You are the world's best summarizer"
-- [ ] "Use your intelligence and think hard"
+- [ ] "Use all of your intelligence and think very hard"
 E: Telling the agent *why* you want the summary lets it decide what to keep, how long to make it and what to highlight. Flattery and "try harder" add no information it can use.
 
 Q: You want an agent to tidy a spreadsheet. Which instruction best protects you from mistakes?
-- [ ] "Clean this up however you think is best"
-- [ ] "Delete anything that looks wrong"
-- [ ] "Be careful and don't make mistakes"
-- [x] "Work on a copy, and list odd rows instead of deleting them"
+- [ ] "Clean this whole thing up however you think is best"
+- [ ] "Delete any rows or cells that look wrong to you"
+- [ ] "Be extremely careful and please don't make mistakes"
+- [x] "Work on a copy; list odd rows, don't delete"
 E: Working on a copy and flagging uncertain rows means nothing is lost if the agent misjudges something. "Be careful" sounds nice but gives the agent no concrete rule to follow.
 
 Q: The agent's draft is close but not right. What's the most useful reply?
-- [ ] "No. Try again."
-- [ ] "That's terrible, start over completely"
-- [x] "Keep the structure, but make it friendlier and half as long"
-- [ ] "Make it better"
+- [ ] "No, that's not it. Try again."
+- [ ] "That's terrible, start over completely from scratch"
+- [x] "Same structure, but friendlier and half as long"
+- [ ] "Make it better, please, it's not quite there yet"
 E: Specific feedback — what to keep, what to change and how — gives the agent something to act on. "Try again" or "make it better" leaves it guessing just as much as before.
 ```
 

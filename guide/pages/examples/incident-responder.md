@@ -80,23 +80,23 @@ Keep it under 200 words, use plain language, and mark anything you're unsure abo
 
 ```quiz
 Q: Why did the agent list several hypotheses instead of acting on its first idea?
-- [ ] Listing more ideas uses more tokens, which makes the agent smarter
+- [ ] Listing more ideas burns more tokens, and more tokens always make an agent smarter
 - [x] So it could test each one and rule out wrong causes before changing anything
-- [ ] Because the alert told it exactly which three causes to check
-- [ ] So it could apply three fixes at once and see which one worked
+- [ ] Because the alert message told it exactly which three causes it had to check
+- [ ] So it could apply all three fixes at once and keep whichever one happened to work
 E: Testing hypotheses one at a time is how good investigators avoid jumping to conclusions. Applying several fixes at once is tempting, but it makes things riskier and hides which change actually helped.
 
 Q: The logs blamed the payments database. What did the agent do next?
-- [ ] Restarted the database straight away to be safe
-- [ ] Reported the database as the cause and stopped
+- [ ] Restarted the database straight away, just to be on the safe side
+- [ ] Reported the database as the cause to Sam and stopped investigating
 - [x] Checked the database directly — and found it was healthy
-- [ ] Asked Sam to read the logs himself
+- [ ] Asked Sam to wake up and read through all the logs himself
 E: The first clue can mislead. By checking the database directly, the agent discovered the real bottleneck was checkout's own connection limit — saving it from "fixing" something that wasn't broken.
 
 Q: The rollback command reported success. Why wasn't the agent finished yet?
-- [ ] It still needed to roll back the code deploy as well
-- [x] A successful command doesn't prove the problem is gone, so it verified the fix
-- [ ] It had to wait for Sam to approve the command a second time
-- [ ] The summary has to be written before the error rate can drop
+- [ ] It still needed to roll back yesterday's code deploy as well, just in case
+- [x] A successful command doesn't prove the fix worked, so it checked
+- [ ] It had to wait for Sam to approve the very same command a second time
+- [ ] The incident summary has to be written before the error rate can drop
 E: "The command worked" and "customers can check out again" are different things. The agent watched the error rate drop and ran 20 test checkouts before calling it resolved.
 ```

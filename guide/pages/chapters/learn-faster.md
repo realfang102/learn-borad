@@ -141,22 +141,22 @@ So build a few habits:
 Q: The night before an exam, which study method is research most likely to support?
 - [ ] Rereading your notes several times until they feel familiar
 - [ ] Highlighting the key sentences in bright colours
-- [x] Closing your notes and answering practice questions from memory
-- [ ] Copying your notes out again neatly by hand
+- [x] Answering practice questions from memory, notes closed
+- [ ] Copying all of your notes out again neatly by hand
 E: Practice testing (active recall) is one of the best-supported techniques. Rereading and highlighting feel productive because the material becomes familiar — but familiar isn't the same as being able to recall it.
 
 Q: Which way of using an AI tutor builds the most lasting understanding?
 - [ ] Asking it for model answers and reading them carefully
-- [x] Explaining the idea yourself and letting it question your gaps
-- [ ] Having it summarize each chapter into short bullet points
+- [x] Explaining it yourself while the AI probes gaps
+- [ ] Having it summarize each chapter for you
 - [ ] Asking it to rewrite your notes so they're clearer
 E: Explaining in your own words forces you to produce the idea, which reveals and fixes gaps. Reading answers or summaries is useful for a first look, but on its own it's mostly passive.
 
 Q: Your AI tutor confidently tells you a date that differs from your textbook. What should you do?
 - [ ] Trust the AI, because it has read more than your textbook
 - [ ] Trust whichever answer sounds more detailed
-- [ ] Ignore the difference, since dates rarely matter
-- [x] Check a trusted source or ask your teacher before relying on it
+- [ ] Ignore the difference, since dates rarely matter much
+- [x] Check a trusted source or ask your teacher first
 E: AI can state wrong facts with confidence, and as a learner you're not yet in a position to tell. Checking a trusted source — or asking your teacher — settles it.
 ```
 
