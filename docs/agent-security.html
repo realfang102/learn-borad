@@ -586,6 +586,86 @@ VAULT: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</
 <li><strong>Build an injection regression suite (medium–hard).</strong> Using any <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> from <a href="build-agent-from-scratch.html">Build an Agent from Scratch</a>, give it a <code>read_file</code> tool and a mock <code>http_get</code> tool that logs URLs. Write 10 files containing different injection techniques (plain instruction, fake delimiter, markdown image exfil, Unicode-hidden text, instruction to write memory). Measure how many cause an <code>http_get</code> to an unexpected domain, then add spotlighting and an egress allowlist and measure again.</li>
 <li><strong>Design a capability policy (hard).</strong> In the spirit of CaMeL, write a policy language (as Python functions) that tags each value with its sources and allowed readers, and checks every tool call. Express: &quot;data from a document shared by an external user may be summarized to the current user but never sent to any email address not already in the document&#39;s share list.&quot; What utility do you lose?</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Many tools fill several legs at once. Reading your inbox is <em>private data</em> and <em>untrusted content</em> in a single call, because anyone can email you.</p>
+<p> <strong>Sketch:</strong> Make a table with one row per tool and three columns. Typical result for an assistant with email, Drive and web connectors: <code>read_inbox</code> (private + untrusted), <code>search_drive</code> (private, plus untrusted for externally shared docs), <code>web_fetch</code> (untrusted + external, since the URL itself carries data out), <code>send_email</code> (external), and a chat UI that renders markdown images (external). With all connectors on, a single session has the full trifecta. The cheapest leg to remove is usually <strong>external communication</strong>: turn off image rendering from arbitrary domains, put <code>web_fetch</code> behind a domain allowlist, and require confirmation (showing the exact recipient) on <code>send_email</code>. Removing private data or untrusted content usually destroys the agent&#39;s purpose.</p>
+</li>
+<li><p><strong>Hint:</strong> The person typing (a customer) is not the party whose privileges the agent holds (the company), so direct injection matters here as well as indirect.</p>
+<p> <strong>Sketch:</strong> A strong one-pager covers the following.</p>
+<ul>
+<li><strong>Assets:</strong> customer PII and order history, the refund capability, the system prompt and policies, compute spend.</li>
+<li><strong>Principals:</strong> the company (operator), the authenticated customer (untrusted input, limited rights), help-center authors, and attackers posing as customers.</li>
+<li><strong>Untrusted channels:</strong> chat messages, free-text order fields (gift notes, addresses), help-center pages, any user comments on them, and tool outputs.</li>
+<li><strong>Top five threats and mitigations:</strong><ul>
+<li>Talked into an unwarranted refund (LLM01 / ASI01 goal hijack): eligibility checked in code (order delivered, not already refunded, belongs to this customer), and the $50 cap enforced in the tool, not the prompt.</li>
+<li>Another customer&#39;s order data (LLM02 / ASI03 privilege abuse): tools scoped to the <em>session&#39;s</em> authenticated customer ID, never a model-supplied one.</li>
+<li>Many small refunds (LLM06 excessive agency / ASI02 tool misuse): one refund per order via an <dfn class="gt" tabindex="0" data-t="Idempotency" data-d="The property that repeating an operation has the same effect as doing it once. Idempotent tools make retries after timeouts safe." data-l="reliability" data-a="idempotency">idempotency</dfn> key, per-customer daily caps, anomaly alerts.</li>
+<li>Injection planted in order notes or help-center content (LLM01): delimiting, a domain allowlist for browsing, an injection classifier as a tripwire.</li>
+<li>Leaking via rendered links or images, or revealing the system prompt (LLM05 / LLM07): no secrets in the prompt, output rendered as plain text, unknown URLs stripped.</li>
+</ul>
+</li>
+</ul>
+<p> Add rate limits for unbounded consumption (LLM10).</p>
+</li>
+<li><p><strong>Hint:</strong> Neither model should produce the address. The quarantined model could be injected into emitting any address, so parse it in code from authenticated metadata. Watch out for the <code>Reply-To</code> header, which lets a sender redirect your reply anywhere.</p>
+<p> <strong>Sketch:</strong> Add a <code>reply_to_sender</code> action. The privileged model writes the body from the <em>user&#39;s</em> instruction only (or skip the model and use a template), so no tainted text reaches it. Plain code parses the address from the <code>From</code> header and checks the <code>Authentication-Results</code> header <em>added by your own mail server</em> for DMARC pass. If authentication fails, the address isn&#39;t in the user&#39;s contacts, or <code>Reply-To</code> differs from <code>From</code>, require confirmation that shows the exact recipient and body. Residual risk: a spoofed sender receives &quot;I&#39;ll review it next week.&quot; That is low harm, because the body carries no private data and the <dfn class="gt" tabindex="0" data-t="Approval gate" data-d="A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation." data-l="human-in-the-loop" data-a="approval-gate">confirmation step</dfn> covers unknown recipients.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> email.message <span class="hljs-keyword">import</span> EmailMessage
+<span class="hljs-keyword">from</span> email.utils <span class="hljs-keyword">import</span> parseaddr
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">reply_recipient</span>(<span class="hljs-params">msg: EmailMessage, contacts: <span class="hljs-built_in">set</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">bool</span>]:
+    <span class="hljs-string">&quot;&quot;&quot;Return (address, needs_confirmation). Parsed by code, never by a model.&quot;&quot;&quot;</span>
+    _, sender = parseaddr(msg[<span class="hljs-string">&quot;From&quot;</span>] <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>)
+    _, reply_to = parseaddr(msg[<span class="hljs-string">&quot;Reply-To&quot;</span>] <span class="hljs-keyword">or</span> msg[<span class="hljs-string">&quot;From&quot;</span>] <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;&quot;</span>)
+    auth = msg.get(<span class="hljs-string">&quot;Authentication-Results&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)  <span class="hljs-comment"># trust only the header YOUR server adds</span>
+    risky = (<span class="hljs-string">&quot;dmarc=pass&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> auth <span class="hljs-keyword">or</span> sender.lower() <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> contacts
+             <span class="hljs-keyword">or</span> reply_to.lower() != sender.lower())
+    <span class="hljs-keyword">return</span> sender.lower(), risky</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Give each payload file its own canary domain (<code>attacker-1.example</code>, <code>attacker-2.example</code>, …) so every hit can be attributed. Log every <code>http_get</code> <em>attempt</em>, not only the ones that succeed, and run each file several times, since one run says little about a nondeterministic agent.</p>
+<p> <strong>Sketch:</strong> Attack success = any attempted fetch to a non-allowlisted host, a markdown image or link to an attacker domain in the final answer, or a memory write. Also record utility: did the summary still get produced? Typical pattern: spotlighting lowers attempts but doesn&#39;t reach zero, especially for the fake-delimiter and hidden-Unicode files. Strip delimiter strings and invisible characters such as zero-width and Unicode tag characters before wrapping. The egress allowlist drives <em>successful</em> <code>http_get</code> exfiltration to zero even when attempts continue, but markdown-image exfiltration in the final text needs an output-side fix (no image rendering, stripping unknown URLs).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> urllib.parse <span class="hljs-keyword">import</span> urlparse
+
+ALLOWED = {<span class="hljs-string">&quot;docs.python.org&quot;</span>}
+ATTEMPTS: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>] = []
+SENT: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>] = []
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">http_get</span>(<span class="hljs-params">url: <span class="hljs-built_in">str</span>, enforce_allowlist: <span class="hljs-built_in">bool</span> = <span class="hljs-literal">False</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    ATTEMPTS.append(url)                     <span class="hljs-comment"># the hijack happened, even if blocked</span>
+    <span class="hljs-keyword">if</span> enforce_allowlist <span class="hljs-keyword">and</span> urlparse(url).hostname <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> ALLOWED:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;ERROR: egress to this host is blocked by policy&quot;</span>
+    SENT.append(url)                         <span class="hljs-comment"># data actually left the boundary</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;200 OK (mock)&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">spotlight</span>(<span class="hljs-params">text: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    text = text.replace(<span class="hljs-string">&quot;&lt;untrusted_document&gt;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).replace(<span class="hljs-string">&quot;&lt;/untrusted_document&gt;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;&lt;untrusted_document&gt;\n<span class="hljs-subst">{text}</span>\n&lt;/untrusted_document&gt;&quot;</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Every value carries two labels: where it came from (sources) and who may ever receive it (readers). Anything derived from tagged values inherits the union of their sources and the <em>intersection</em> of their readers, and the check runs in code before every tool call.</p>
+<p> <strong>Sketch:</strong> Tag an external user&#39;s document as <code>Tagged(text, {&quot;doc:42&quot;, &quot;external&quot;}, {current_user, *share_list})</code>. A quarantined summary of it goes through <code>derive</code>, so it keeps those readers. Showing it to the current user passes, and <code>send_email</code> to anyone outside the share list fails, however the summary was worded. <strong>Utility lost:</strong> you can&#39;t email a partner document&#39;s summary to a colleague who isn&#39;t on the share list (even legitimately), you can&#39;t let document content choose recipients, and taint spreads, so values that touch many sources become nearly unsendable. You need an explicit, confirmed user override, and someone has to write and maintain the policies.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
+
+<span class="hljs-meta">@dataclass(<span class="hljs-params">frozen=<span class="hljs-literal">True</span></span>)</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Tagged</span>:
+    value: <span class="hljs-built_in">object</span>
+    sources: <span class="hljs-built_in">frozenset</span>   <span class="hljs-comment"># provenance, e.g. {&quot;doc:42&quot;, &quot;external&quot;}</span>
+    readers: <span class="hljs-built_in">frozenset</span>   <span class="hljs-comment"># who may ever receive it; {&quot;*&quot;} = anyone</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">derive</span>(<span class="hljs-params">value: <span class="hljs-built_in">object</span>, *inputs: Tagged</span>) -&gt; Tagged:  <span class="hljs-comment"># taint flows through transformations</span>
+    restricted = [i.readers <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> inputs <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;*&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> i.readers]
+    readers = <span class="hljs-built_in">frozenset</span>.intersection(*restricted) <span class="hljs-keyword">if</span> restricted <span class="hljs-keyword">else</span> <span class="hljs-built_in">frozenset</span>({<span class="hljs-string">&quot;*&quot;</span>})
+    <span class="hljs-keyword">return</span> Tagged(value, <span class="hljs-built_in">frozenset</span>().union(*(i.sources <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> inputs)), readers)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">check_send_email</span>(<span class="hljs-params">to: Tagged, body: Tagged</span>) -&gt; <span class="hljs-literal">None</span>:
+    <span class="hljs-keyword">for</span> arg <span class="hljs-keyword">in</span> (to, body):
+        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;*&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> arg.readers <span class="hljs-keyword">and</span> to.value <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> arg.readers:
+            <span class="hljs-keyword">raise</span> PermissionError(<span class="hljs-string">f&quot;<span class="hljs-subst">{to.value}</span> may not receive data from <span class="hljs-subst">{<span class="hljs-built_in">sorted</span>(arg.sources)}</span>&quot;</span>)</code></pre></div>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="agent-security" data-total="7">
 

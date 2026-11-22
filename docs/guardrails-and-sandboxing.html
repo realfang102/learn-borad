@@ -573,6 +573,110 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li><strong>Build an egress-proxied sandbox (medium–hard).</strong> Using Docker, create an internal network, a small forward proxy that allows only <code>pypi.org</code> and <code>files.pythonhosted.org</code>, and a sandbox container that can <code>pip install requests</code> but cannot <code>curl https://example.com</code>. Then add header injection for one API so the sandbox can call it without ever holding the key.</li>
 <li><strong>Evaluate a guardrail (hard).</strong> Assemble 200 benign tool outputs from your domain (including some that <em>discuss</em> prompt injection) and 100 injection attempts. Measure an open injection classifier&#39;s precision and recall at three thresholds. Decide which threshold you&#39;d ship and what action (log, flag, block, ask) each score band triggers.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> For each call, ask whether it can be undone, who outside the company could see the effect, and how many people or systems it touches. Admin actions on a Workspace domain have a very large blast radius.</p>
+<p> <strong>Sketch:</strong> One reasonable split:</p>
+<ul>
+<li><strong>Allow:</strong> search Drive, read a doc, list calendar events, read the inbox (but treat its content as untrusted), create a draft email, create a doc in the user&#39;s own folder, add an event to the user&#39;s own calendar.</li>
+<li><strong>Ask:</strong> send an email, share a doc outside the domain, create a user account, reset a user&#39;s password, add someone to a group, delete an event with external attendees.</li>
+<li><strong>Deny</strong> (or out-of-band approval): delete a user, grant admin roles, disable 2-step verification for a user, change domain-wide sharing settings, permanently empty the Drive trash.</li>
+</ul>
+<p> Common changes of mind: &quot;send internal email&quot; feels harmless but can&#39;t be unsent (ask, or allow with a rate limit); &quot;read inbox&quot; is read-only but is the main injection channel; &quot;reset password&quot; is reversible but locks a person out and is a classic social-engineering target.</p>
+</li>
+<li><p><strong>Hint:</strong> Look for gaps between what the executor <em>checks</em> and what actually <em>runs</em>: the tool receives <code>args</code>, not the canonical path; allowed commands like <code>pytest</code> execute repository code; and <code>fnmatch</code> patterns match more than you think.</p>
+<p> <strong>Sketch:</strong> Bypasses you&#39;re likely to find:</p>
+<ul>
+<li>(a) <code>run</code> passes the <em>raw</em> <code>args</code> to the tool, so a tool that resolves paths against its own working directory reads a different file than the one checked. There&#39;s also a check-then-open race in which a symlink is swapped after <code>realpath</code>. <strong>Executor fix:</strong> pass the canonical path and open it without following links.</li>
+<li>(b) A hard link (<code>ln .env notes.txt</code>) isn&#39;t resolved by <code>realpath</code>.</li>
+<li>(c) On a case-insensitive filesystem (default macOS), <code>.ENV</code> opens <code>.env</code> but misses the case-sensitive deny rule.</li>
+<li>(d) <code>pytest*</code> also matches <code>pytestx</code>, and allowed <code>pytest</code> runs any <code>conftest.py</code> or test file, which can print <code>os.environ</code> or read <code>.env</code>. A <code>Makefile</code> or <code>npm test</code> target does the same. <strong>Executor fix:</strong> match parsed argv, for example the exact executable plus subcommand, rather than string prefixes.</li>
+<li>(e) <code>curl *</code> doesn&#39;t match <code>/usr/bin/curl …</code> or <code>python -c &quot;import urllib…&quot;</code>. These fall to the default &quot;ask&quot;, but a broader allow rule would let them through.</li>
+</ul>
+<p> The bypasses in (d) and (e) can&#39;t be fixed by string rules. <strong>Sandbox fixes:</strong> a clean environment with no secrets, no <code>.env</code> in the mounted workspace, no network, and read-only mounts. Allowed commands run arbitrary code, so only the sandbox contains them.</p>
+</li>
+<li><p><strong>Hint:</strong> Override <code>run</code> so the caps are checked before the normal policy, and audit cap events through the same <code>audit</code> method so they join the chain. To verify, recompute each line&#39;s SHA-256 and compare it with the next line&#39;s <code>prev</code>.</p>
+<p> <strong>Sketch:</strong> The sliding window is a deque of timestamps per tool. The token budget is fed from <code>response.usage</code> after each model call. In production, keep counters in a shared store so restarts and parallel workers can&#39;t reset them. Verification limits: editing or deleting the <em>last</em> line, or rewriting the whole file with a recomputed chain, goes undetected unless you periodically anchor the latest hash somewhere the agent can&#39;t write (write-once storage). Also make a restarted executor resume <code>prev_hash</code> from the file&#39;s last line, or it starts a fresh chain that <code>verify_chain</code> reports as broken.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> collections
+<span class="hljs-keyword">import</span> time
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CappedExecutor</span>(<span class="hljs-title class_ inherited__">PolicyExecutor</span>):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, *args, rate_limits: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">float</span>]], token_budget: <span class="hljs-built_in">int</span>, **kw</span>):
+        <span class="hljs-built_in">super</span>().__init__(*args, **kw)
+        <span class="hljs-variable language_">self</span>.rate_limits, <span class="hljs-variable language_">self</span>.token_budget, <span class="hljs-variable language_">self</span>.tokens_used = rate_limits, token_budget, <span class="hljs-number">0</span>
+        <span class="hljs-variable language_">self</span>.recent = collections.defaultdict(collections.deque)  <span class="hljs-comment"># tool -&gt; call timestamps</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self, tool, args</span>):
+        now, (limit, window) = time.time(), <span class="hljs-variable language_">self</span>.rate_limits.get(tool, (<span class="hljs-literal">None</span>, <span class="hljs-number">0.0</span>))
+        q = <span class="hljs-variable language_">self</span>.recent[tool]
+        <span class="hljs-keyword">while</span> q <span class="hljs-keyword">and</span> q[<span class="hljs-number">0</span>] &lt;= now - window:
+            q.popleft()
+        cap = (<span class="hljs-string">&quot;token_budget&quot;</span> <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.tokens_used &gt;= <span class="hljs-variable language_">self</span>.token_budget
+               <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;rate_limit&quot;</span> <span class="hljs-keyword">if</span> limit <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">len</span>(q) &gt;= limit <span class="hljs-keyword">else</span> <span class="hljs-literal">None</span>)
+        <span class="hljs-keyword">if</span> cap:
+            <span class="hljs-variable language_">self</span>.audit(tool=tool, verdict=<span class="hljs-string">&quot;deny&quot;</span>, cap=cap, tokens_used=<span class="hljs-variable language_">self</span>.tokens_used)
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Blocked by <span class="hljs-subst">{cap}</span> for <span class="hljs-subst">{tool}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+        q.append(now)
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">super</span>().run(tool, args)</code></pre></div>
+<p> Construct it as <code>CappedExecutor(rules, tools=..., approve=..., workspace=..., audit_path=..., rate_limits={&quot;send_email&quot;: (5, 3600)}, token_budget=500_000)</code>, and after each model call add <code>executor.tokens_used += u.input_tokens + u.output_tokens</code>. Then the tamper check:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> json
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">verify_chain</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">int</span> | <span class="hljs-literal">None</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Return the first line number whose `prev` link is broken, or None if intact.&quot;&quot;&quot;</span>
+    prev = <span class="hljs-string">&quot;0&quot;</span> * <span class="hljs-number">64</span>
+    <span class="hljs-keyword">for</span> n, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-built_in">open</span>(path), start=<span class="hljs-number">1</span>):
+        line = line.rstrip(<span class="hljs-string">&quot;\n&quot;</span>)
+        <span class="hljs-keyword">if</span> json.loads(line)[<span class="hljs-string">&quot;prev&quot;</span>] != prev:
+            <span class="hljs-keyword">return</span> n
+        prev = hashlib.sha256(line.encode()).hexdigest()
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> A plain CONNECT proxy sees the destination hostname without decrypting HTTPS, which is enough for an allowlist. Injecting a header into an HTTPS request, though, means terminating TLS for that one host, so the sandbox must trust the proxy&#39;s CA for it.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li>Run <code>docker network create --internal agent-net</code> (no route out).</li>
+<li>Start a proxy container (here <code>mitmdump -s addon.py</code> from the mitmproxy image) on <code>agent-net</code>, then <code>docker network connect</code> it to a normal network too.</li>
+<li>Run the sandbox only on <code>agent-net</code>, with <code>HTTPS_PROXY=http://egress:8080</code>.</li>
+<li>Pass through TLS for the PyPI hosts (mitmproxy&#39;s <code>ignore_hosts</code> option) so pip needs no extra CA. Intercept only the API host, and mount the proxy&#39;s CA certificate into the sandbox for it (<code>SSL_CERT_FILE</code> / <code>REQUESTS_CA_BUNDLE</code>).</li>
+<li>Tests: <code>pip install requests</code> works; <code>curl https://example.com</code> gets 403; <code>curl --noproxy &#39;*&#39; https://example.com</code> fails with no route, which proves the proxy can&#39;t be bypassed; and <code>env</code> inside the sandbox shows no key.</li>
+</ul>
+<p> The key lives only in the proxy container&#39;s environment. mitmproxy&#39;s API changes between versions, so check its current docs.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-comment"># addon.py, run with: mitmdump -s addon.py</span>
+<span class="hljs-keyword">import</span> os
+
+<span class="hljs-keyword">from</span> mitmproxy <span class="hljs-keyword">import</span> http
+
+ALLOWED = {<span class="hljs-string">&quot;pypi.org&quot;</span>, <span class="hljs-string">&quot;files.pythonhosted.org&quot;</span>, <span class="hljs-string">&quot;api.example.com&quot;</span>}
+INJECT = {<span class="hljs-string">&quot;api.example.com&quot;</span>: (<span class="hljs-string">&quot;Authorization&quot;</span>, <span class="hljs-string">f&quot;Bearer <span class="hljs-subst">{os.environ[<span class="hljs-string">&#x27;EXAMPLE_API_KEY&#x27;</span>]}</span>&quot;</span>)}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">http_connect</span>(<span class="hljs-params">flow: http.HTTPFlow</span>) -&gt; <span class="hljs-literal">None</span>:   <span class="hljs-comment"># HTTPS: decide on the CONNECT host</span>
+    <span class="hljs-keyword">if</span> flow.request.host <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> ALLOWED:
+        flow.response = http.Response.make(<span class="hljs-number">403</span>, <span class="hljs-string">b&quot;egress blocked&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">request</span>(<span class="hljs-params">flow: http.HTTPFlow</span>) -&gt; <span class="hljs-literal">None</span>:        <span class="hljs-comment"># plain HTTP and intercepted HTTPS</span>
+    host = flow.request.pretty_host
+    <span class="hljs-keyword">if</span> host <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> ALLOWED:
+        flow.response = http.Response.make(<span class="hljs-number">403</span>, <span class="hljs-string">b&quot;egress blocked&quot;</span>)
+    <span class="hljs-keyword">elif</span> host <span class="hljs-keyword">in</span> INJECT:
+        name, value = INJECT[host]
+        flow.request.headers[name] = value       <span class="hljs-comment"># the sandbox never sees the key</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Precision on your test set (a 1:2 attack-to-benign ratio) is far higher than in production, where attacks are rare. Recompute precision at a realistic base rate before you pick an action.</p>
+<p> <strong>Sketch:</strong> For each threshold, compute precision = TP / (TP + FP) and recall = TP / (TP + FN), and inspect the false positives separately (expect them to cluster in benign docs that <em>discuss</em> injection). Worked example: at a threshold with 90% recall and 2% false-positive rate (4 of 200 benign), test precision is 90 / 94 ≈ 96%. At a production base rate of 1 injection per 1,000 tool outputs, though, you&#39;d see about 0.9 true hits against 999 × 0.02 ≈ 20 false alarms, so precision is about <strong>4%</strong>. Blocking at that threshold mostly blocks legitimate content. Ship score <em>bands</em>: low → allow; middle → log and add a &quot;flagged as possible injection&quot; note in context; high → quarantine or ask a human, and fail closed (block) on agents that hold payment or send tools. Re-tune on real traffic.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">precision_recall</span>(<span class="hljs-params">scores: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">float</span>], labels: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>], threshold: <span class="hljs-built_in">float</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">float</span>, <span class="hljs-built_in">float</span>]:
+    tp = <span class="hljs-built_in">sum</span>(s &gt;= threshold <span class="hljs-keyword">and</span> y <span class="hljs-keyword">for</span> s, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(scores, labels))
+    fp = <span class="hljs-built_in">sum</span>(s &gt;= threshold <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> y <span class="hljs-keyword">for</span> s, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(scores, labels))
+    fn = <span class="hljs-built_in">sum</span>(s &lt; threshold <span class="hljs-keyword">and</span> y <span class="hljs-keyword">for</span> s, y <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(scores, labels))
+    precision = tp / (tp + fp) <span class="hljs-keyword">if</span> tp + fp <span class="hljs-keyword">else</span> <span class="hljs-number">1.0</span>
+    recall = tp / (tp + fn) <span class="hljs-keyword">if</span> tp + fn <span class="hljs-keyword">else</span> <span class="hljs-number">0.0</span>
+    <span class="hljs-keyword">return</span> precision, recall</code></pre></div>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="guardrails-and-sandboxing" data-total="6">
 

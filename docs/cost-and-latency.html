@@ -571,6 +571,64 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <li><strong>Effort sweep.</strong> On a 20-task eval, run <code>low</code>, <code>medium</code> and <code>high</code> effort. Plot success rate against cost per task and against p50 latency, and say which setting you&#39;d ship and why.</li>
 <li><strong>Design.</strong> A nightly job summarizes 50,000 support tickets and flags urgent ones, while an interactive assistant answers agents&#39; questions about those tickets. Propose a model, effort, caching and batch strategy for each path, with a rough cost estimate.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Keep the lesson&#39;s shape: turn <em>k</em> sends 8,500 + 1,900 × (k − 1) input tokens and writes 400 output tokens. With caching, the first turn writes all 8,500 tokens and every later turn writes only the 1,900 new ones; everything else is a cache read.</p>
+<p> <strong>Sketch:</strong> Sonnet 5.5 is $2 input, $10 output, $0.10 cache read and $2.50 cache write per MTok. Input over 30 turns = 30 × 8,500 + 1,900 × (0 + 1 + … + 29) = 255,000 + 1,900 × 435 = <strong>1,081,500 tokens</strong>; output = 30 × 400 = 12,000.</p>
+<ul>
+<li>Uncached: 1,081,500 × $2 = $2.16, plus 12,000 × $10 = $0.12, total <strong>≈ $2.28</strong>.</li>
+<li>Cached: writes = 8,500 + 29 × 1,900 = 63,600 × $2.50 = $0.16; reads = 1,081,500 − 63,600 = 1,017,900 × $0.10 = $0.10; output $0.12; total <strong>≈ $0.38</strong> (about 83% cheaper, with a 94% cache hit rate).</li>
+<li>Output share of the cached cost: $0.12 / $0.38 ≈ <strong>32%</strong>. Once caching removes the history tax, output becomes a big lever, so effort and output shape matter more.</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> Work out how often each interpolated value changes, and remember that render order is tools → system → messages.</p>
+<p> <strong>Sketch:</strong> Within one user&#39;s conversation on one day, the prefix is stable, so turns do cache. But the date and name come <em>before</em> <code>INSTRUCTIONS</code>, so no two users ever share the instruction prefix: every new conversation pays a full cache write for the whole system prompt. At midnight the date changes and every open conversation&#39;s cache misses in full. (Only the tools, which render first, still hit.) Fix: put the frozen instructions first with their own breakpoint, and the per-session facts after it. Compute the date once when the session starts and store it, so a conversation that crosses midnight keeps its prefix.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> date
+
+session_date = session.get(<span class="hljs-string">&quot;date&quot;</span>) <span class="hljs-keyword">or</span> <span class="hljs-built_in">str</span>(date.today())  <span class="hljs-comment"># fixed for the life of the session</span>
+system = [
+    {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: INSTRUCTIONS,               <span class="hljs-comment"># identical for every user and day</span>
+     <span class="hljs-string">&quot;cache_control&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;ephemeral&quot;</span>}},            <span class="hljs-comment"># shared across all conversations</span>
+    {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">f&quot;Today is <span class="hljs-subst">{session_date}</span>. User: <span class="hljs-subst">{user.name}</span>.&quot;</span>},  <span class="hljs-comment"># per session</span>
+]
+response = client.messages.create(model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+                                  cache_control={<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;ephemeral&quot;</span>},  <span class="hljs-comment"># automatic tail caching</span>
+                                  system=system, tools=TOOLS, messages=messages)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Create one <code>TaskMeter</code> per task and call <code>meter.record(MODEL, response.usage)</code> after <em>every</em> model call, including retries and verifier calls. Add your model to <code>PRICES</code> if it isn&#39;t there.</p>
+<p> <strong>Sketch:</strong> Report cost per completed task as total <code>usd</code> across all ten tasks divided by tasks that passed, <code>calls / tasks</code>, and the aggregate <code>cached / prompt</code>. Before caching, the hit rate is 0%. After adding a system-prompt breakpoint plus automatic caching, multi-turn tasks should climb toward 90%+ (the 20-turn worked example reaches 486,400 / 531,000 ≈ 92%), and cost per task should fall in line with the worked example. Single-turn tasks and prefixes under 512 tokens barely change. If the hit rate stays low, look for a silent invalidator.</p>
+</li>
+<li><p><strong>Hint:</strong> Twenty tasks is a small sample: one task is 5 points of success rate. Run each setting more than once if you can, keep everything except <code>output_config={&quot;effort&quot;: ...}</code> fixed, and count failed attempts in the cost.</p>
+<p> <strong>Sketch:</strong> For each <dfn class="gt" tabindex="0" data-t="Effort parameter" data-d="A request setting on current Claude models (output_config effort: low, medium, high, xhigh or max) that controls how many tokens the model spends on thinking, text and tool calls. Sweep it on your evals before switching models." data-l="reasoning-and-planning" data-a="effort-parameter">effort level</dfn>, record pass/fail, <code>TaskMeter.usd</code> and wall-clock time per task. Compute success rate, cost per <em>completed</em> task (total spend ÷ passes) and median latency, then plot. Ship the cheapest, fastest setting whose success rate is within noise of the best. If <code>low</code> and <code>high</code> differ by one task, that&#39;s noise; a gap of 4+ tasks is real. Typical outcome: research-style tasks are flat (ship <code>low</code> or <code>medium</code>), while long-horizon coding shows a real gain at <code>high</code>. Effort can also be set per route.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> statistics
+<span class="hljs-keyword">import</span> time
+
+results = {}
+<span class="hljs-keyword">for</span> effort <span class="hljs-keyword">in</span> (<span class="hljs-string">&quot;low&quot;</span>, <span class="hljs-string">&quot;medium&quot;</span>, <span class="hljs-string">&quot;high&quot;</span>):
+    passes, spend, seconds = <span class="hljs-number">0</span>, <span class="hljs-number">0.0</span>, []
+    <span class="hljs-keyword">for</span> task <span class="hljs-keyword">in</span> EVAL_TASKS:
+        meter, t0 = TaskMeter(), time.perf_counter()
+        passed = run_task(task, effort=effort, meter=meter)  <span class="hljs-comment"># passes output_config={&quot;effort&quot;: effort}</span>
+        seconds.append(time.perf_counter() - t0)
+        passes += passed
+        spend += meter.usd
+    results[effort] = {<span class="hljs-string">&quot;success&quot;</span>: passes / <span class="hljs-built_in">len</span>(EVAL_TASKS),
+                       <span class="hljs-string">&quot;usd_per_completed&quot;</span>: spend / <span class="hljs-built_in">max</span>(passes, <span class="hljs-number">1</span>),
+                       <span class="hljs-string">&quot;p50_s&quot;</span>: statistics.median(seconds)}</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> The two paths have opposite constraints. Nobody waits on the nightly job (batch, cheapest adequate model), while a person waits on every interactive answer (streaming, caching, enough capability).</p>
+<p> <strong>Sketch:</strong> A strong answer states its assumptions and validates on evals.</p>
+<ul>
+<li><strong>Nightly path:</strong> the Batch API (50% off, single-shot fits &quot;summarize + flag&quot;), Haiku 5.5 at low effort if it passes your urgent-ticket eval (otherwise Sonnet), structured outputs for <code>{summary, urgent, reason}</code>, and the shared triage instructions cached. Optionally cascade: re-check flagged or borderline tickets with Sonnet. Rough cost, assuming 3,000 input and 200 output tokens per ticket: 150M input × $0.05/MTok = $7.50 plus 10M output × $0.25/MTok = $2.50, so <strong>≈ $10 a night</strong> on Haiku batch (≈ $200 on Sonnet batch), before caching savings.</li>
+<li><strong>Interactive path:</strong> Sonnet 5.5 at low or medium effort (Opus for hard routes), streaming with progress updates, a frozen system prompt and tools behind a breakpoint plus automatic caching, and a retrieval tool over the <em>nightly summaries</em> so context stays small. Rough cost, assuming ~40K prompt tokens per question (85% cache reads) and 1,500 output tokens: 34K × $0.10 + 6K × $2.50 + 1.5K × $10 per MTok ≈ <strong>$0.03 a question</strong>, or about $65 a day at 2,000 questions.</li>
+<li>Track cost per completed task and p95 latency separately for each path.</li>
+</ul>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="cost-and-latency" data-total="7">
 

@@ -428,6 +428,84 @@ OPTIMIZER = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>      <s
 <li><strong>Run the optimizer.</strong> Use the <code>optimize</code> function above on a task of your choice (e.g., extracting dates in ISO format from messy text) with 30 dev and 30 held-out cases. Then deliberately make the dev set unrepresentative and observe what happens to held-out performance.</li>
 <li><strong>Threat-model self-improvement.</strong> For an agent that auto-writes skills from its own successful sessions and shares them across a team, list at least five ways things could go wrong (quality, security, safety) and a concrete control for each. Which controls belong in the harness rather than the prompt?</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Use the levels table: ask <em>what changes</em> (the attempt, memory, prompts, the agent&#39;s code, weights) and <em>how long the change persists</em>. Then ask where the &quot;better or worse&quot; signal comes from.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li>(a) <strong>Level 1</strong>, within-episode. Feedback: test results and error output.</li>
+<li>(b) <strong>Level 2</strong>, across episodes (skill library). Feedback: environment feedback, execution errors and a self-verification check before a program is stored.</li>
+<li>(c) <strong>Level 3</strong>, prompt/program optimization. Feedback: your metric on training examples, used to score candidate instructions and demonstrations.</li>
+<li>(d) <strong>Level 5</strong>, self-modification (with an open-ended archive). Feedback: coding-benchmark scores (SWE-bench, Polyglot).</li>
+<li>(e) <strong>Level 2</strong>, cross-session memory. Feedback: the user&#39;s own statements and corrections. That is explicit but unverified, so it risks overgeneralization and poisoning.</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> In the grounded variant, tell the model only <em>that</em> it was wrong, not the right answer, and revise only the attempts that failed. Track flips in both directions, not just final accuracy.</p>
+<p> <strong>Sketch:</strong> Report accuracy for each variant plus two counts for the revise variants: correct→wrong (&quot;broke it&quot;) and wrong→correct (&quot;fixed it&quot;). Because the grounded variant revises only failures, it can&#39;t break a correct answer, so its accuracy is at least the single-attempt baseline. Typically the intrinsic variant gains little or nothing on reasoning problems and breaks some correct answers, which is the lesson&#39;s point. Caveat: &quot;you were wrong&quot; is oracle feedback. It&#39;s realistic only where a real verifier (tests, a checker) exists in deployment. Run each problem a few times, since 20 problems is a small sample.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">ask</span>(<span class="hljs-params">messages: <span class="hljs-built_in">list</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    resp = client.messages.create(model=<span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, max_tokens=<span class="hljs-number">4000</span>, messages=messages)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">attempt</span>(<span class="hljs-params">problem: <span class="hljs-built_in">dict</span>, variant: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]:
+    <span class="hljs-string">&quot;&quot;&quot;variant: &quot;single&quot; | &quot;intrinsic&quot; | &quot;grounded&quot;. Returns (first, final).&quot;&quot;&quot;</span>
+    msgs = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: problem[<span class="hljs-string">&quot;question&quot;</span>] + <span class="hljs-string">&quot;\nEnd with &#x27;ANSWER: &lt;answer&gt;&#x27;.&quot;</span>}]
+    first = ask(msgs)
+    <span class="hljs-keyword">if</span> variant == <span class="hljs-string">&quot;single&quot;</span> <span class="hljs-keyword">or</span> (variant == <span class="hljs-string">&quot;grounded&quot;</span> <span class="hljs-keyword">and</span> problem[<span class="hljs-string">&quot;check&quot;</span>](first)):
+        <span class="hljs-keyword">return</span> first, first
+    feedback = (<span class="hljs-string">&quot;Critically review your answer and revise it if needed.&quot;</span> <span class="hljs-keyword">if</span> variant == <span class="hljs-string">&quot;intrinsic&quot;</span>
+                <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;That answer is incorrect. Find the error and solve it again.&quot;</span>)
+    msgs += [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: first}, {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: feedback}]
+    <span class="hljs-keyword">return</span> first, ask(msgs)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Inject <code>LESSONS.md</code> as a second system block <em>after</em> the cached one (<code>agent.system.append(...)</code>), so the shared prefix still caches. Each gate check needs a fresh workspace and an automatic check on final state.</p>
+<p> <strong>Sketch:</strong> After a failure, ask the model (in a separate call) for <strong>one</strong> general lesson grounded in the trajectory and the check output. Then run the gate below. Expect most proposals to be rejected and the file to grow slowly, with pass rate rising a little and then flattening. <dfn class="gt" tabindex="0" data-t="Determinism" data-d="Producing the same output for the same input. LLM calls are generally nondeterministic, so agents need evals over repeated runs and idempotent tools." data-l="reliability" data-a="determinism">Nondeterminism</dfn> can let a useless lesson through when a re-run passes by luck, so require each gated task to pass twice, or compare pass rates over a few runs. Also log tokens added per lesson, and consolidate the file periodically before bloat costs more than the lessons are worth.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> random
+<span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+LESSONS = Path(<span class="hljs-string">&quot;LESSONS.md&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">try_lesson</span>(<span class="hljs-params">lesson: <span class="hljs-built_in">str</span>, failed_task: <span class="hljs-built_in">dict</span>, passing: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>]</span>) -&gt; <span class="hljs-built_in">bool</span>:
+    current = LESSONS.read_text() <span class="hljs-keyword">if</span> LESSONS.exists() <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>
+    candidate = current + <span class="hljs-string">f&quot;\n- <span class="hljs-subst">{lesson.strip()}</span>&quot;</span>
+    regression = random.sample(passing, k=<span class="hljs-built_in">min</span>(<span class="hljs-number">3</span>, <span class="hljs-built_in">len</span>(passing)))
+    <span class="hljs-comment"># run_task: fresh workspace, Agent with `candidate` as an extra system block, check final state</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">all</span>(run_task(t, lessons=candidate) <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> [failed_task, *regression]):
+        LESSONS.write_text(candidate)  <span class="hljs-comment"># gate passed: keep the lesson</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Make every check strict and programmatic (an exact <code>YYYY-MM-DD</code> string). To make dev &quot;unrepresentative,&quot; give it a different distribution from held-out, for example only numeric US-style dates in dev but written-out and European-style dates in held-out. Watch out for Python&#39;s late-binding lambdas when you build checks in a loop.</p>
+<p> <strong>Sketch:</strong> Build 60 cases with gold dates, split 30/30, and run <code>optimize</code>. With a representative dev set, expect a few accepted rounds as the prompt picks up general rules (relative dates, missing years, ordinal suffixes). With a skewed dev set, the optimizer proposes rules that fit dev (such as &quot;read 03/04 as March 4&quot;) that don&#39;t help or actively hurt held-out, so the held-out gate <strong>rejects</strong> them. Held-out performance stays flat while dev failures persist. That is the gate working. The remaining risk: if the held-out set <em>also</em> doesn&#39;t match production, nothing protects you. With 30 cases, one case is 3.3 points, so require a margin before accepting a change.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">raw = [(<span class="hljs-string">&quot;Moved the sync to March 4th, 2026 at 3pm&quot;</span>, <span class="hljs-string">&quot;2026-03-04&quot;</span>),
+       (<span class="hljs-string">&quot;Invoice dated 2026-01-15, due in 30 days&quot;</span>, <span class="hljs-string">&quot;2026-01-15&quot;</span>)]  <span class="hljs-comment"># ... 60 in total</span>
+cases = [{<span class="hljs-string">&quot;task&quot;</span>: <span class="hljs-string">f&quot;Extract the date as YYYY-MM-DD. Reply with the date only.\n\n<span class="hljs-subst">{text}</span>&quot;</span>,
+          <span class="hljs-string">&quot;check&quot;</span>: <span class="hljs-keyword">lambda</span> out, want=want: out.strip() == want}  <span class="hljs-comment"># default arg binds each value</span>
+         <span class="hljs-keyword">for</span> text, want <span class="hljs-keyword">in</span> raw]
+dev, holdout = cases[:<span class="hljs-number">30</span>], cases[<span class="hljs-number">30</span>:]
+best_prompt = optimize(<span class="hljs-string">&quot;You extract dates from messy text.&quot;</span>, dev, holdout)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Shared, auto-written skills are code and instructions that spread across a team with no author review, so think supply chain, persistence and privilege, not just quality.</p>
+<p> <strong>Sketch:</strong> Strong answers cover at least these, with a control for each:</p>
+<ul>
+<li><strong>Lucky or incorrect procedures</strong> become skills. Draft only from <em>verified</em> successes, and replay the skill on held-out tasks before enabling it.</li>
+<li><strong>Overgeneralization:</strong> a repo-specific hack becomes a team-wide rule. Scope skills per project, with explicit when-to-use metadata.</li>
+<li><strong>Secret or PII leakage:</strong> session details end up in a shared skill. Scan for secrets and PII before publishing.</li>
+<li><strong>Poisoning and worming:</strong> an injected page leads to a skill such as &quot;always upload logs to X,&quot; which spreads to everyone. Track provenance, block auto-publishing from sessions that read untrusted content, and require human review or signing.</li>
+<li><strong>Unsafe helper scripts:</strong> <code>rm -rf</code>, <code>curl | sh</code>. Run them sandboxed, with code review and static checks.</li>
+<li><strong>Privilege escalation:</strong> a skill tells agents to skip approvals or edit settings or evaluators. Skills can&#39;t change permissions, and those files stay outside agent write access.</li>
+<li><strong>Bloat and staleness.</strong> Dedupe, assign owners, track usage, expire or revalidate skills, and keep versioned rollback.</li>
+</ul>
+<p> Almost all of these controls belong in the <strong>harness</strong>: scanning, provenance gating, approval workflows, sandboxing, permission boundaries and versioning. Prompt guidance (&quot;write general skills&quot;) only affects quality.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="self-improving-agents" data-total="7">
 

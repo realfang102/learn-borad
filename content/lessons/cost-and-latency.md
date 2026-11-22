@@ -345,6 +345,69 @@ Plot candidate configurations as success rate against cost per task and pick fro
 4. **Effort sweep.** On a 20-task eval, run `low`, `medium` and `high` effort. Plot success rate against cost per task and against p50 latency, and say which setting you'd ship and why.
 5. **Design.** A nightly job summarizes 50,000 support tickets and flags urgent ones, while an interactive assistant answers agents' questions about those tickets. Propose a model, effort, caching and batch strategy for each path, with a rough cost estimate.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Keep the lesson's shape: turn *k* sends 8,500 + 1,900 × (k − 1) input tokens and writes 400 output tokens. With caching, the first turn writes all 8,500 tokens and every later turn writes only the 1,900 new ones; everything else is a cache read.
+
+    **Sketch:** Sonnet 5.5 is $2 input, $10 output, $0.10 cache read and $2.50 cache write per MTok. Input over 30 turns = 30 × 8,500 + 1,900 × (0 + 1 + … + 29) = 255,000 + 1,900 × 435 = **1,081,500 tokens**; output = 30 × 400 = 12,000.
+    - Uncached: 1,081,500 × $2 = $2.16, plus 12,000 × $10 = $0.12, total **≈ $2.28**.
+    - Cached: writes = 8,500 + 29 × 1,900 = 63,600 × $2.50 = $0.16; reads = 1,081,500 − 63,600 = 1,017,900 × $0.10 = $0.10; output $0.12; total **≈ $0.38** (about 83% cheaper, with a 94% cache hit rate).
+    - Output share of the cached cost: $0.12 / $0.38 ≈ **32%**. Once caching removes the history tax, output becomes a big lever, so effort and output shape matter more.
+
+2. **Hint:** Work out how often each interpolated value changes, and remember that render order is tools → system → messages.
+
+    **Sketch:** Within one user's conversation on one day, the prefix is stable, so turns do cache. But the date and name come *before* `INSTRUCTIONS`, so no two users ever share the instruction prefix: every new conversation pays a full cache write for the whole system prompt. At midnight the date changes and every open conversation's cache misses in full. (Only the tools, which render first, still hit.) Fix: put the frozen instructions first with their own breakpoint, and the per-session facts after it. Compute the date once when the session starts and store it, so a conversation that crosses midnight keeps its prefix.
+
+    ```python
+    from datetime import date
+
+    session_date = session.get("date") or str(date.today())  # fixed for the life of the session
+    system = [
+        {"type": "text", "text": INSTRUCTIONS,               # identical for every user and day
+         "cache_control": {"type": "ephemeral"}},            # shared across all conversations
+        {"type": "text", "text": f"Today is {session_date}. User: {user.name}."},  # per session
+    ]
+    response = client.messages.create(model="claude-opus-5-5", max_tokens=16000,
+                                      cache_control={"type": "ephemeral"},  # automatic tail caching
+                                      system=system, tools=TOOLS, messages=messages)
+    ```
+
+3. **Hint:** Create one `TaskMeter` per task and call `meter.record(MODEL, response.usage)` after *every* model call, including retries and verifier calls. Add your model to `PRICES` if it isn't there.
+
+    **Sketch:** Report cost per completed task as total `usd` across all ten tasks divided by tasks that passed, `calls / tasks`, and the aggregate `cached / prompt`. Before caching, the hit rate is 0%. After adding a system-prompt breakpoint plus automatic caching, multi-turn tasks should climb toward 90%+ (the 20-turn worked example reaches 486,400 / 531,000 ≈ 92%), and cost per task should fall in line with the worked example. Single-turn tasks and prefixes under 512 tokens barely change. If the hit rate stays low, look for a silent invalidator.
+
+4. **Hint:** Twenty tasks is a small sample: one task is 5 points of success rate. Run each setting more than once if you can, keep everything except `output_config={"effort": ...}` fixed, and count failed attempts in the cost.
+
+    **Sketch:** For each effort level, record pass/fail, `TaskMeter.usd` and wall-clock time per task. Compute success rate, cost per *completed* task (total spend ÷ passes) and median latency, then plot. Ship the cheapest, fastest setting whose success rate is within noise of the best. If `low` and `high` differ by one task, that's noise; a gap of 4+ tasks is real. Typical outcome: research-style tasks are flat (ship `low` or `medium`), while long-horizon coding shows a real gain at `high`. Effort can also be set per route.
+
+    ```python
+    import statistics
+    import time
+
+    results = {}
+    for effort in ("low", "medium", "high"):
+        passes, spend, seconds = 0, 0.0, []
+        for task in EVAL_TASKS:
+            meter, t0 = TaskMeter(), time.perf_counter()
+            passed = run_task(task, effort=effort, meter=meter)  # passes output_config={"effort": effort}
+            seconds.append(time.perf_counter() - t0)
+            passes += passed
+            spend += meter.usd
+        results[effort] = {"success": passes / len(EVAL_TASKS),
+                           "usd_per_completed": spend / max(passes, 1),
+                           "p50_s": statistics.median(seconds)}
+    ```
+
+5. **Hint:** The two paths have opposite constraints. Nobody waits on the nightly job (batch, cheapest adequate model), while a person waits on every interactive answer (streaming, caching, enough capability).
+
+    **Sketch:** A strong answer states its assumptions and validates on evals.
+    - **Nightly path:** the Batch API (50% off, single-shot fits "summarize + flag"), Haiku 5.5 at low effort if it passes your urgent-ticket eval (otherwise Sonnet), structured outputs for `{summary, urgent, reason}`, and the shared triage instructions cached. Optionally cascade: re-check flagged or borderline tickets with Sonnet. Rough cost, assuming 3,000 input and 200 output tokens per ticket: 150M input × $0.05/MTok = $7.50 plus 10M output × $0.25/MTok = $2.50, so **≈ $10 a night** on Haiku batch (≈ $200 on Sonnet batch), before caching savings.
+    - **Interactive path:** Sonnet 5.5 at low or medium effort (Opus for hard routes), streaming with progress updates, a frozen system prompt and tools behind a breakpoint plus automatic caching, and a retrieval tool over the *nightly summaries* so context stays small. Rough cost, assuming ~40K prompt tokens per question (85% cache reads) and 1,500 output tokens: 34K × $0.10 + 6K × $2.50 + 1.5K × $10 per MTok ≈ **$0.03 a question**, or about $65 a day at 2,000 questions.
+    - Track cost per completed task and p95 latency separately for each path.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

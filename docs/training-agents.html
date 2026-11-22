@@ -580,6 +580,92 @@ trainer.train()</code></pre></div>
 <li><strong>Design an environment.</strong> Specify a training environment for an agent that triages support tickets using three tools. Define: the reset state, the tools, the outcome reward, any shaping rewards, and at least four reward-hacking vectors with a defense for each.</li>
 <li><strong>Fine-tune or not?</strong> A team runs a frontier model for invoice extraction (200k documents/day, 96% accuracy on their eval, latency acceptable, cost too high). Write a one-page recommendation: which approach from the decision table, what data you&#39;d generate, how you&#39;d evaluate, and what result would make you abandon the plan.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Choose a family whose report discloses a lot. AI2&#39;s Tülu 3 / OLMo reports publish data and recipes, and DeepSeek-R1&#39;s report describes its post-training stages. Expect &quot;undisclosed&quot; for some boxes, especially data mixtures and agentic RL.</p>
+<p> <strong>Sketch:</strong> Make a table with one row per stage: pretraining, SFT, preference optimization, RLVR, agentic RL, evals/red-teaming. For each, write one sentence or &quot;not disclosed.&quot; For example, from the lesson, DeepSeek-R1 used DeepSeek-V3-Base for <strong>pretraining</strong>, a small cold-start long-reasoning set plus a large rejection-sampled set for <strong>SFT</strong>, <strong>RLVR</strong> with GRPO on rule-based accuracy and format rewards, and a final RL stage for helpfulness and harmlessness that plays the role of <strong>preference optimization</strong>. Its report describes no multi-turn <strong>agentic RL</strong>. Tülu 3 is the cleanest example of SFT → DPO → RLVR. The point of the exercise is noticing <em>which</em> stages labs disclose and which they keep private.</p>
+</li>
+<li><p><strong>Hint:</strong> Look at what earns <em>partial</em> credit without being a usable call, and at what the exact-match check ignores, such as extra keys.</p>
+<p> <strong>Sketch:</strong> Three loophole completions:</p>
+<ul>
+<li><code>null</code> (or <code>&quot;ok&quot;</code>): valid JSON but not a call, and it still earns <strong>0.1</strong>.</li>
+<li><code>{&quot;tool&quot;: &quot;convert_currency&quot;, &quot;args&quot;: {}}</code>: the right tool with no arguments earns <strong>0.5</strong>. A policy can farm this by always guessing the most common tool.</li>
+<li><code>{&quot;tool&quot;: &quot;convert_currency&quot;, &quot;args&quot;: {...correct...}, &quot;also&quot;: &quot;delete_account&quot;}</code>: extra top-level keys are ignored, so a call with smuggled junk earns <strong>1.0</strong>.</li>
+</ul>
+<p> The reward also never asks whether a tool call was appropriate at all, so the dataset needs rows where the right answer is a clarifying question. Revised reward: no credit unless the output is a dict with exactly the keys <code>tool</code> and <code>args</code>, the argument names match the schema exactly, and most of the credit depends on correct values. Keep only a tiny format credit, so early training still gets some gradient.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">tool_call_reward_v2</span>(<span class="hljs-params">completions, expected, **kwargs</span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">float</span>]:
+    rewards = []
+    <span class="hljs-keyword">for</span> completion, exp <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(completions, expected):
+        target = json.loads(exp)
+        <span class="hljs-keyword">try</span>:
+            call = json.loads(_text(completion).strip())
+        <span class="hljs-keyword">except</span> json.JSONDecodeError:
+            call = <span class="hljs-literal">None</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (<span class="hljs-built_in">isinstance</span>(call, <span class="hljs-built_in">dict</span>) <span class="hljs-keyword">and</span> <span class="hljs-built_in">set</span>(call) == {<span class="hljs-string">&quot;tool&quot;</span>, <span class="hljs-string">&quot;args&quot;</span>} <span class="hljs-keyword">and</span> <span class="hljs-built_in">isinstance</span>(call[<span class="hljs-string">&quot;args&quot;</span>], <span class="hljs-built_in">dict</span>)):
+            rewards.append(<span class="hljs-number">0.0</span>)               <span class="hljs-comment"># not a well-formed call: nothing</span>
+        <span class="hljs-keyword">elif</span> call[<span class="hljs-string">&quot;tool&quot;</span>] != target[<span class="hljs-string">&quot;tool&quot;</span>] <span class="hljs-keyword">or</span> <span class="hljs-built_in">set</span>(call[<span class="hljs-string">&quot;args&quot;</span>]) != <span class="hljs-built_in">set</span>(target[<span class="hljs-string">&quot;args&quot;</span>]):
+            rewards.append(<span class="hljs-number">0.05</span>)              <span class="hljs-comment"># well-formed, but wrong tool or wrong/extra arg names</span>
+        <span class="hljs-keyword">else</span>:
+            right = <span class="hljs-built_in">sum</span>(call[<span class="hljs-string">&quot;args&quot;</span>][k] == v <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">in</span> target[<span class="hljs-string">&quot;args&quot;</span>].items())
+            rewards.append(<span class="hljs-number">0.2</span> + <span class="hljs-number">0.8</span> * right / <span class="hljs-built_in">max</span>(<span class="hljs-number">1</span>, <span class="hljs-built_in">len</span>(target[<span class="hljs-string">&quot;args&quot;</span>])))
+    <span class="hljs-keyword">return</span> rewards</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Give each attempt a <em>fresh copy</em> of the task&#39;s starting workspace, and judge success with a checker on the final state, not on the agent&#39;s last message. Run it in a sandbox, since <code>auto_approve=True</code> skips the approval prompts.</p>
+<p> <strong>Sketch:</strong> Convert the SDK content blocks with <code>model_dump</code> (via <code>json.dumps(default=...)</code>) so the history is plain JSON. Store the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> and tool definitions with each trajectory, and convert to your trainer&#39;s chat template later. Consider dropping thinking blocks. The tasks that give <strong>zero GRPO signal</strong> are the ones at 5/5 (too easy) or 0/5 (too hard), because every sample in the group gets the same reward and so every advantage is zero. For the SFT set, cap trajectories per task so easy tasks don&#39;t dominate. Get data for 0/5 tasks some other way: a stronger model, hints (STaR-style rationalization), or easier sub-tasks.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> shutil
+<span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter
+<span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">to_json</span>(<span class="hljs-params">block</span>):  <span class="hljs-comment"># json.dumps calls this for SDK content blocks it can&#x27;t serialize</span>
+    <span class="hljs-keyword">return</span> block.model_dump(mode=<span class="hljs-string">&quot;json&quot;</span>, exclude_none=<span class="hljs-literal">True</span>)
+
+wins = Counter()
+<span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;sft.jsonl&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> out:
+    <span class="hljs-keyword">for</span> task <span class="hljs-keyword">in</span> TASKS:  <span class="hljs-comment"># each: {&quot;id&quot;, &quot;prompt&quot;, &quot;start_dir&quot;, &quot;check&quot;: fn(workspace) -&gt; bool}</span>
+        <span class="hljs-keyword">for</span> attempt <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>):
+            ws = Path(<span class="hljs-string">f&quot;runs/<span class="hljs-subst">{task[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>-<span class="hljs-subst">{attempt}</span>&quot;</span>)
+            shutil.rmtree(ws, ignore_errors=<span class="hljs-literal">True</span>)
+            shutil.copytree(task[<span class="hljs-string">&quot;start_dir&quot;</span>], ws)
+            agent = Agent(ws, auto_approve=<span class="hljs-literal">True</span>)
+            agent.run_turn(task[<span class="hljs-string">&quot;prompt&quot;</span>])
+            <span class="hljs-keyword">if</span> task[<span class="hljs-string">&quot;check&quot;</span>](ws):
+                wins[task[<span class="hljs-string">&quot;id&quot;</span>]] += <span class="hljs-number">1</span>
+                out.write(json.dumps({<span class="hljs-string">&quot;system&quot;</span>: SYSTEM_PROMPT, <span class="hljs-string">&quot;tools&quot;</span>: TOOLS,
+                                      <span class="hljs-string">&quot;messages&quot;</span>: agent.messages}, default=to_json) + <span class="hljs-string">&quot;\n&quot;</span>)
+<span class="hljs-built_in">print</span>({t[<span class="hljs-string">&quot;id&quot;</span>]: <span class="hljs-string">f&quot;<span class="hljs-subst">{wins[t[<span class="hljs-string">&#x27;id&#x27;</span>]]}</span>/5&quot;</span> <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> TASKS})</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Decide which tool call <em>is</em> the outcome (for example, the routing call) and grade the resulting state against a gold label. Then, for every reward term, ask, &quot;What&#39;s the laziest way to get this?&quot;</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li><strong>Reset:</strong> sample a ticket from a labeled pool (historical plus synthetic) with gold <code>queue</code> and <code>priority</code>, load a fresh snapshot of the mock CRM and the knowledge-base index, and strip resolution fields from the ticket under test.</li>
+<li><strong>Tools:</strong> <code>search_kb(query)</code>, <code>get_customer(customer_id)</code> and <code>route_ticket(ticket_id, queue, priority)</code>. The last is terminal.</li>
+<li><strong>Outcome reward:</strong> 0.7 × [queue correct] + 0.3 × [priority correct], read from the routing system&#39;s record, with 0 if no route is made before the step limit.</li>
+<li><strong>Shaping:</strong> a small penalty for malformed calls and for steps beyond about 6, kept much smaller than the accuracy reward.</li>
+<li><strong>Hacking vectors and defenses:</strong><ul>
+<li>Calling <code>route_ticket</code> repeatedly with different queues: only the first route counts, since it ends the episode.</li>
+<li>Always predicting the majority queue: balance sampling or weight rewards by class, and track macro-F1.</li>
+<li>Label leakage through tools (the CRM shows the ticket&#39;s final queue, or a KB article names it): audit tool outputs for gold fields.</li>
+<li>Routing instantly to dodge the step penalty: keep the penalty tiny and the reward dominated by correctness.</li>
+<li>Over-prioritizing everything: score priority with an asymmetric cost matrix.</li>
+<li>If a judge grades a rationale: grade state, not narration.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> Before reaching for the &quot;distill&quot; row of the decision table, check the cheaper levers: <dfn class="gt" tabindex="0" data-t="Batch API" data-d="An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs." data-l="cost-and-latency" data-a="batch-api">Batch API</dfn>, caching, and a smaller hosted model with the same prompt. Then define in advance the result that would make you stop.</p>
+<p> <strong>Sketch:</strong> Assume about 3,000 input and 500 output tokens per invoice (scanned PDFs may cost more).</p>
+<ul>
+<li><strong>The numbers:</strong> Opus 5.5 costs about 3,000 × $4 + 500 × $20 per MTok ≈ $0.022 per document, or <strong>≈ $4,400 a day</strong>. The Batch API halves that if turnaround of up to a day is acceptable, and Haiku 5.5 with the same prompt would be about $110 a day <em>if</em> it clears the eval.</li>
+<li><strong>Plan:</strong> (1) Run the eval on smaller models and batch first. (2) If they fall short, distill: run the frontier model on 20–50k diverse invoices, keep outputs that pass validators (line items sum to the total, VAT math, dates parse, vendor matches master data), send disagreements to humans, and fine-tune a smaller model with LoRA/QLoRA or a provider fine-tuning API. (3) Evaluate on a held-out set with unseen vendors and layouts, reporting per-field accuracy (especially totals and bank details) and cost per document including hosting. (4) Deploy in shadow mode, then as a cascade that sends low-confidence or validator-failing documents to the frontier model.</li>
+<li><strong>Abandon if:</strong> the student falls below about 95% overall, or below the frontier model on high-value fields; total cost (GPU, engineering, retraining as formats drift) doesn&#39;t clearly beat a cheaper hosted model; or errors concentrate on new layouts.</li>
+</ul>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="training-agents" data-total="7">
 

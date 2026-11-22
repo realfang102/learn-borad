@@ -424,6 +424,95 @@ Security for agents is a moving target. Models get more robust; attackers get mo
 4. **Build an injection regression suite (medium–hard).** Using any agent loop from [Build an Agent from Scratch](build-agent-from-scratch.html), give it a `read_file` tool and a mock `http_get` tool that logs URLs. Write 10 files containing different injection techniques (plain instruction, fake delimiter, markdown image exfil, Unicode-hidden text, instruction to write memory). Measure how many cause an `http_get` to an unexpected domain, then add spotlighting and an egress allowlist and measure again.
 5. **Design a capability policy (hard).** In the spirit of CaMeL, write a policy language (as Python functions) that tags each value with its sources and allowed readers, and checks every tool call. Express: "data from a document shared by an external user may be summarized to the current user but never sent to any email address not already in the document's share list." What utility do you lose?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Many tools fill several legs at once. Reading your inbox is *private data* and *untrusted content* in a single call, because anyone can email you.
+
+    **Sketch:** Make a table with one row per tool and three columns. Typical result for an assistant with email, Drive and web connectors: `read_inbox` (private + untrusted), `search_drive` (private, plus untrusted for externally shared docs), `web_fetch` (untrusted + external, since the URL itself carries data out), `send_email` (external), and a chat UI that renders markdown images (external). With all connectors on, a single session has the full trifecta. The cheapest leg to remove is usually **external communication**: turn off image rendering from arbitrary domains, put `web_fetch` behind a domain allowlist, and require confirmation (showing the exact recipient) on `send_email`. Removing private data or untrusted content usually destroys the agent's purpose.
+
+2. **Hint:** The person typing (a customer) is not the party whose privileges the agent holds (the company), so direct injection matters here as well as indirect.
+
+    **Sketch:** A strong one-pager covers the following.
+    - **Assets:** customer PII and order history, the refund capability, the system prompt and policies, compute spend.
+    - **Principals:** the company (operator), the authenticated customer (untrusted input, limited rights), help-center authors, and attackers posing as customers.
+    - **Untrusted channels:** chat messages, free-text order fields (gift notes, addresses), help-center pages, any user comments on them, and tool outputs.
+    - **Top five threats and mitigations:**
+        - Talked into an unwarranted refund (LLM01 / ASI01 goal hijack): eligibility checked in code (order delivered, not already refunded, belongs to this customer), and the $50 cap enforced in the tool, not the prompt.
+        - Another customer's order data (LLM02 / ASI03 privilege abuse): tools scoped to the *session's* authenticated customer ID, never a model-supplied one.
+        - Many small refunds (LLM06 excessive agency / ASI02 tool misuse): one refund per order via an idempotency key, per-customer daily caps, anomaly alerts.
+        - Injection planted in order notes or help-center content (LLM01): delimiting, a domain allowlist for browsing, an injection classifier as a tripwire.
+        - Leaking via rendered links or images, or revealing the system prompt (LLM05 / LLM07): no secrets in the prompt, output rendered as plain text, unknown URLs stripped.
+
+    Add rate limits for unbounded consumption (LLM10).
+
+3. **Hint:** Neither model should produce the address. The quarantined model could be injected into emitting any address, so parse it in code from authenticated metadata. Watch out for the `Reply-To` header, which lets a sender redirect your reply anywhere.
+
+    **Sketch:** Add a `reply_to_sender` action. The privileged model writes the body from the *user's* instruction only (or skip the model and use a template), so no tainted text reaches it. Plain code parses the address from the `From` header and checks the `Authentication-Results` header *added by your own mail server* for DMARC pass. If authentication fails, the address isn't in the user's contacts, or `Reply-To` differs from `From`, require confirmation that shows the exact recipient and body. Residual risk: a spoofed sender receives "I'll review it next week." That is low harm, because the body carries no private data and the confirmation step covers unknown recipients.
+
+    ```python
+    from email.message import EmailMessage
+    from email.utils import parseaddr
+
+    def reply_recipient(msg: EmailMessage, contacts: set[str]) -> tuple[str, bool]:
+        """Return (address, needs_confirmation). Parsed by code, never by a model."""
+        _, sender = parseaddr(msg["From"] or "")
+        _, reply_to = parseaddr(msg["Reply-To"] or msg["From"] or "")
+        auth = msg.get("Authentication-Results", "")  # trust only the header YOUR server adds
+        risky = ("dmarc=pass" not in auth or sender.lower() not in contacts
+                 or reply_to.lower() != sender.lower())
+        return sender.lower(), risky
+    ```
+
+4. **Hint:** Give each payload file its own canary domain (`attacker-1.example`, `attacker-2.example`, …) so every hit can be attributed. Log every `http_get` *attempt*, not only the ones that succeed, and run each file several times, since one run says little about a nondeterministic agent.
+
+    **Sketch:** Attack success = any attempted fetch to a non-allowlisted host, a markdown image or link to an attacker domain in the final answer, or a memory write. Also record utility: did the summary still get produced? Typical pattern: spotlighting lowers attempts but doesn't reach zero, especially for the fake-delimiter and hidden-Unicode files. Strip delimiter strings and invisible characters such as zero-width and Unicode tag characters before wrapping. The egress allowlist drives *successful* `http_get` exfiltration to zero even when attempts continue, but markdown-image exfiltration in the final text needs an output-side fix (no image rendering, stripping unknown URLs).
+
+    ```python
+    from urllib.parse import urlparse
+
+    ALLOWED = {"docs.python.org"}
+    ATTEMPTS: list[str] = []
+    SENT: list[str] = []
+
+    def http_get(url: str, enforce_allowlist: bool = False) -> str:
+        ATTEMPTS.append(url)                     # the hijack happened, even if blocked
+        if enforce_allowlist and urlparse(url).hostname not in ALLOWED:
+            return "ERROR: egress to this host is blocked by policy"
+        SENT.append(url)                         # data actually left the boundary
+        return "200 OK (mock)"
+
+    def spotlight(text: str) -> str:
+        text = text.replace("<untrusted_document>", "").replace("</untrusted_document>", "")
+        return f"<untrusted_document>\n{text}\n</untrusted_document>"
+    ```
+
+5. **Hint:** Every value carries two labels: where it came from (sources) and who may ever receive it (readers). Anything derived from tagged values inherits the union of their sources and the *intersection* of their readers, and the check runs in code before every tool call.
+
+    **Sketch:** Tag an external user's document as `Tagged(text, {"doc:42", "external"}, {current_user, *share_list})`. A quarantined summary of it goes through `derive`, so it keeps those readers. Showing it to the current user passes, and `send_email` to anyone outside the share list fails, however the summary was worded. **Utility lost:** you can't email a partner document's summary to a colleague who isn't on the share list (even legitimately), you can't let document content choose recipients, and taint spreads, so values that touch many sources become nearly unsendable. You need an explicit, confirmed user override, and someone has to write and maintain the policies.
+
+    ```python
+    from dataclasses import dataclass
+
+    @dataclass(frozen=True)
+    class Tagged:
+        value: object
+        sources: frozenset   # provenance, e.g. {"doc:42", "external"}
+        readers: frozenset   # who may ever receive it; {"*"} = anyone
+
+    def derive(value: object, *inputs: Tagged) -> Tagged:  # taint flows through transformations
+        restricted = [i.readers for i in inputs if "*" not in i.readers]
+        readers = frozenset.intersection(*restricted) if restricted else frozenset({"*"})
+        return Tagged(value, frozenset().union(*(i.sources for i in inputs)), readers)
+
+    def check_send_email(to: Tagged, body: Tagged) -> None:
+        for arg in (to, body):
+            if "*" not in arg.readers and to.value not in arg.readers:
+                raise PermissionError(f"{to.value} may not receive data from {sorted(arg.sources)}")
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

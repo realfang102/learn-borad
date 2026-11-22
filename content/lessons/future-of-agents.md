@@ -224,6 +224,54 @@ Stretch variants: make it a [coding agent](coding-agents.html) for your repo, a 
 4. **Delegation design.** Design the authorization flow for an agent that buys office supplies under $200 without asking, and asks for anything above. What does the user sign? What does the merchant verify? What gets logged? Compare your design to AP2's mandates.
 5. **Capstone.** Complete milestones 1–6 of the capstone project and publish your eval results — including the failures.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Answer each of the five questions literally, quoting the source where you can. A question the source can't answer is itself a finding.
+
+    **Sketch:** A strong paragraph names the exact metric (for example, "pass rate on a public coding benchmark with the vendor's own scaffold"). It notes whether results are a single run or best of several, and whether cost was reported. It says whether the tasks are a benchmark (possibly contaminated, well-specified) or real work, and identifies the baseline (usually the previous model, rarely a human with good tools). It closes with what would refute the claim: a drop on fresh held-out tasks, or failure on your own eval. Typical conclusion: "evidence of benchmark progress at an unknown reliability and cost, not evidence it will work on our tasks."
+
+2. **Hint:** Each prediction needs a named source, a metric, a threshold, a reliability level and a date. If a reasonable person could argue about whether it came true, rewrite it.
+
+    **Sketch:** Use a template like "By ‹date›, ‹public source› will report ‹metric› ≥ ‹threshold› at ‹reliability›." Examples of the *shape* (not forecasts):
+    - "By next November, METR's published 50% time horizon for the best model will be at least double today's."
+    - "At least half of the 20 open-source repos I depend on will contain an `AGENTS.md`."
+    - "Our coding agent will pass ≥ 80% of my 30-task eval on all of 3 runs per task."
+
+    Add a confidence (say 60%) to each, and note what you'd conclude if it fails. "Agents will be much better" is unfalsifiable and doesn't count. Then set the reminder and grade honestly, partial misses included.
+
+3. **Hint:** Write down what a new teammate would need on day one: exact build, test and lint commands, conventions, layout, and what not to touch. To test it, run the *same* tasks with and without the file.
+
+    **Sketch:**
+    - **`AGENTS.md`:** a one-line project overview, setup and build commands, the exact test command (including how to run a single test), lint and format commands, code style and naming conventions, a directory map, commit and PR rules, and gotchas (generated files, slow tests, required environment variables).
+    - **`llms.txt`:** follow the proposal's shape: an H1 with the project name, a one-paragraph blockquote summary, then H2 sections listing links to LLM-friendly Markdown docs with a short note each.
+    - **Evaluation:** pick 5–10 representative tasks, run each in a fresh session two or three times with and without the file, and compare pass rate, steps, tokens and wrong-command attempts (for example, calling `pytest` directly when the repo needs `make test`). A typical result is fewer wasted steps rather than a dramatic jump in pass rate.
+
+4. **Hint:** Separate three things: the *standing* authorization the user signs once, the *per-purchase* record, and the limits enforced outside the agent (on the payment credential), so a hijacked agent can't exceed them.
+
+    **Sketch:**
+    - **User signs once:** a standing mandate saying agent X may buy office supplies, ≤ $200 per order, ≤ a monthly cap, shipping only to the office address, valid until a date, revocable. It's signed with the user's key, such as a passkey.
+    - **Under $200:** the agent builds the cart and submits it with the standing mandate.
+    - **Over $200:** the user reviews and signs that specific cart (items, merchant, total) before checkout.
+    - **Merchant verifies:** the signature chain, that the mandate is current and not revoked, that the agent's identity matches the delegate named in it, the total against the limit, the category and shipping address, and that the payment credential is scoped. Back the limits up on the payment side too, for example a virtual card with a per-transaction limit, a monthly cap and merchant-category restrictions. An aggregate cap stops the agent splitting a big order into several under $200.
+    - **Logged:** mandates, carts, prices, merchant, agent identity and version, the user's approvals with timestamps, a link to the agent's trace, and the payment outcome, so disputes can be resolved.
+    - **Comparison with AP2:** the standing authorization plays the role of AP2's *intent mandate*, and the user-signed cart above $200 corresponds to its *cart mandate*. Both give verifiable delegation of what the user authorized.
+
+5. **Hint:** Keep the scope small enough to finish (one domain, 3–6 tools), and build the 30-task eval with automatic checks *early*, since it drives every later decision.
+
+    **Sketch:** A strong submission contains:
+    - A one-page brief covering the task, why it needs an agent rather than a workflow, and what "done" means.
+    - A from-scratch loop, plus a note on whether a framework would help.
+    - 3–6 tools with schemas and actionable errors, one exposed over MCP.
+    - Context work: system prompt, retrieval and session memory.
+    - A planning step and verification grounded in real feedback.
+    - A results table: pass@1, consistency (pass^3 from three runs per task), mean and p95 cost, and latency.
+    - Failures published with traces, each classified as prompt, tool, context or model ([observability](observability.html)), and a short list of what you'd fix next.
+
+    Common pitfalls: checks that grade the agent's narration instead of the final state, no repeated runs, and scope creep.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

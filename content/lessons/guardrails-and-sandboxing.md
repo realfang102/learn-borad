@@ -406,6 +406,123 @@ flowchart TD
 4. **Build an egress-proxied sandbox (medium–hard).** Using Docker, create an internal network, a small forward proxy that allows only `pypi.org` and `files.pythonhosted.org`, and a sandbox container that can `pip install requests` but cannot `curl https://example.com`. Then add header injection for one API so the sandbox can call it without ever holding the key.
 5. **Evaluate a guardrail (hard).** Assemble 200 benign tool outputs from your domain (including some that *discuss* prompt injection) and 100 injection attempts. Measure an open injection classifier's precision and recall at three thresholds. Decide which threshold you'd ship and what action (log, flag, block, ask) each score band triggers.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** For each call, ask whether it can be undone, who outside the company could see the effect, and how many people or systems it touches. Admin actions on a Workspace domain have a very large blast radius.
+
+    **Sketch:** One reasonable split:
+    - **Allow:** search Drive, read a doc, list calendar events, read the inbox (but treat its content as untrusted), create a draft email, create a doc in the user's own folder, add an event to the user's own calendar.
+    - **Ask:** send an email, share a doc outside the domain, create a user account, reset a user's password, add someone to a group, delete an event with external attendees.
+    - **Deny** (or out-of-band approval): delete a user, grant admin roles, disable 2-step verification for a user, change domain-wide sharing settings, permanently empty the Drive trash.
+
+    Common changes of mind: "send internal email" feels harmless but can't be unsent (ask, or allow with a rate limit); "read inbox" is read-only but is the main injection channel; "reset password" is reversible but locks a person out and is a classic social-engineering target.
+
+2. **Hint:** Look for gaps between what the executor *checks* and what actually *runs*: the tool receives `args`, not the canonical path; allowed commands like `pytest` execute repository code; and `fnmatch` patterns match more than you think.
+
+    **Sketch:** Bypasses you're likely to find:
+    - (a) `run` passes the *raw* `args` to the tool, so a tool that resolves paths against its own working directory reads a different file than the one checked. There's also a check-then-open race in which a symlink is swapped after `realpath`. **Executor fix:** pass the canonical path and open it without following links.
+    - (b) A hard link (`ln .env notes.txt`) isn't resolved by `realpath`.
+    - (c) On a case-insensitive filesystem (default macOS), `.ENV` opens `.env` but misses the case-sensitive deny rule.
+    - (d) `pytest*` also matches `pytestx`, and allowed `pytest` runs any `conftest.py` or test file, which can print `os.environ` or read `.env`. A `Makefile` or `npm test` target does the same. **Executor fix:** match parsed argv, for example the exact executable plus subcommand, rather than string prefixes.
+    - (e) `curl *` doesn't match `/usr/bin/curl …` or `python -c "import urllib…"`. These fall to the default "ask", but a broader allow rule would let them through.
+
+    The bypasses in (d) and (e) can't be fixed by string rules. **Sandbox fixes:** a clean environment with no secrets, no `.env` in the mounted workspace, no network, and read-only mounts. Allowed commands run arbitrary code, so only the sandbox contains them.
+
+3. **Hint:** Override `run` so the caps are checked before the normal policy, and audit cap events through the same `audit` method so they join the chain. To verify, recompute each line's SHA-256 and compare it with the next line's `prev`.
+
+    **Sketch:** The sliding window is a deque of timestamps per tool. The token budget is fed from `response.usage` after each model call. In production, keep counters in a shared store so restarts and parallel workers can't reset them. Verification limits: editing or deleting the *last* line, or rewriting the whole file with a recomputed chain, goes undetected unless you periodically anchor the latest hash somewhere the agent can't write (write-once storage). Also make a restarted executor resume `prev_hash` from the file's last line, or it starts a fresh chain that `verify_chain` reports as broken.
+
+    ```python
+    import collections
+    import time
+
+    class CappedExecutor(PolicyExecutor):
+        def __init__(self, *args, rate_limits: dict[str, tuple[int, float]], token_budget: int, **kw):
+            super().__init__(*args, **kw)
+            self.rate_limits, self.token_budget, self.tokens_used = rate_limits, token_budget, 0
+            self.recent = collections.defaultdict(collections.deque)  # tool -> call timestamps
+
+        def run(self, tool, args):
+            now, (limit, window) = time.time(), self.rate_limits.get(tool, (None, 0.0))
+            q = self.recent[tool]
+            while q and q[0] <= now - window:
+                q.popleft()
+            cap = ("token_budget" if self.tokens_used >= self.token_budget
+                   else "rate_limit" if limit is not None and len(q) >= limit else None)
+            if cap:
+                self.audit(tool=tool, verdict="deny", cap=cap, tokens_used=self.tokens_used)
+                return {"content": f"Blocked by {cap} for {tool}", "is_error": True}
+            q.append(now)
+            return super().run(tool, args)
+    ```
+
+    Construct it as `CappedExecutor(rules, tools=..., approve=..., workspace=..., audit_path=..., rate_limits={"send_email": (5, 3600)}, token_budget=500_000)`, and after each model call add `executor.tokens_used += u.input_tokens + u.output_tokens`. Then the tamper check:
+
+    ```python
+    import hashlib
+    import json
+
+    def verify_chain(path: str) -> int | None:
+        """Return the first line number whose `prev` link is broken, or None if intact."""
+        prev = "0" * 64
+        for n, line in enumerate(open(path), start=1):
+            line = line.rstrip("\n")
+            if json.loads(line)["prev"] != prev:
+                return n
+            prev = hashlib.sha256(line.encode()).hexdigest()
+        return None
+    ```
+
+4. **Hint:** A plain CONNECT proxy sees the destination hostname without decrypting HTTPS, which is enough for an allowlist. Injecting a header into an HTTPS request, though, means terminating TLS for that one host, so the sandbox must trust the proxy's CA for it.
+
+    **Sketch:**
+    - Run `docker network create --internal agent-net` (no route out).
+    - Start a proxy container (here `mitmdump -s addon.py` from the mitmproxy image) on `agent-net`, then `docker network connect` it to a normal network too.
+    - Run the sandbox only on `agent-net`, with `HTTPS_PROXY=http://egress:8080`.
+    - Pass through TLS for the PyPI hosts (mitmproxy's `ignore_hosts` option) so pip needs no extra CA. Intercept only the API host, and mount the proxy's CA certificate into the sandbox for it (`SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE`).
+    - Tests: `pip install requests` works; `curl https://example.com` gets 403; `curl --noproxy '*' https://example.com` fails with no route, which proves the proxy can't be bypassed; and `env` inside the sandbox shows no key.
+
+    The key lives only in the proxy container's environment. mitmproxy's API changes between versions, so check its current docs.
+
+    ```python
+    # addon.py, run with: mitmdump -s addon.py
+    import os
+
+    from mitmproxy import http
+
+    ALLOWED = {"pypi.org", "files.pythonhosted.org", "api.example.com"}
+    INJECT = {"api.example.com": ("Authorization", f"Bearer {os.environ['EXAMPLE_API_KEY']}")}
+
+    def http_connect(flow: http.HTTPFlow) -> None:   # HTTPS: decide on the CONNECT host
+        if flow.request.host not in ALLOWED:
+            flow.response = http.Response.make(403, b"egress blocked")
+
+    def request(flow: http.HTTPFlow) -> None:        # plain HTTP and intercepted HTTPS
+        host = flow.request.pretty_host
+        if host not in ALLOWED:
+            flow.response = http.Response.make(403, b"egress blocked")
+        elif host in INJECT:
+            name, value = INJECT[host]
+            flow.request.headers[name] = value       # the sandbox never sees the key
+    ```
+
+5. **Hint:** Precision on your test set (a 1:2 attack-to-benign ratio) is far higher than in production, where attacks are rare. Recompute precision at a realistic base rate before you pick an action.
+
+    **Sketch:** For each threshold, compute precision = TP / (TP + FP) and recall = TP / (TP + FN), and inspect the false positives separately (expect them to cluster in benign docs that *discuss* injection). Worked example: at a threshold with 90% recall and 2% false-positive rate (4 of 200 benign), test precision is 90 / 94 ≈ 96%. At a production base rate of 1 injection per 1,000 tool outputs, though, you'd see about 0.9 true hits against 999 × 0.02 ≈ 20 false alarms, so precision is about **4%**. Blocking at that threshold mostly blocks legitimate content. Ship score *bands*: low → allow; middle → log and add a "flagged as possible injection" note in context; high → quarantine or ask a human, and fail closed (block) on agents that hold payment or send tools. Re-tune on real traffic.
+
+    ```python
+    def precision_recall(scores: list[float], labels: list[bool], threshold: float) -> tuple[float, float]:
+        tp = sum(s >= threshold and y for s, y in zip(scores, labels))
+        fp = sum(s >= threshold and not y for s, y in zip(scores, labels))
+        fn = sum(s < threshold and y for s, y in zip(scores, labels))
+        precision = tp / (tp + fp) if tp + fp else 1.0
+        recall = tp / (tp + fn) if tp + fn else 0.0
+        return precision, recall
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

@@ -415,6 +415,86 @@ Agent traces are among the most sensitive data you'll store. They contain everyt
 4. **Port to OpenTelemetry.** Replace the JSONL tracer with OTel spans using GenAI attribute names, export to a local backend (e.g., run Jaeger or Phoenix in Docker), and confirm your agent, chat and tool spans nest correctly. Add a tool that runs in a separate HTTP service and propagate the trace context so its spans join the same trace.
 5. **Replay a failure (harder).** Extend the tracer to record full message history on each `chat` span (redacted). Write a `replay(trace_id, step, new_system_prompt)` function that rebuilds the conversation up to that step, mocks tools from recorded results, and re-runs the model five times with the new prompt. Use it to test a fix for a failure you found in exercise 1, then turn it into an eval case.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Make the failure deterministic (for example, `get_order` raises `KeyError` for any ID not in a small dict) so it reproduces, and list root spans (`parent_id is None`) to get trace IDs.
+
+    **Sketch:** Run the ten tasks, grep the JSONL for `execute_tool` spans with `"status": "error"`, and call `print_trace` on those traces. A typical run shows `execute_tool get_order ... <-- ERROR` twice in a row with the same arguments. The first bad decision is usually *not* the failed tool call itself but the `chat` step right after the first error: the model had an error result in context and chose to repeat the identical call instead of asking the user or searching. If the error message gave no hint on how to recover, classify it as a **tool** problem (unhelpful error) rather than a model problem.
+
+2. **Hint:** Group spans by `trace_id`, then count `(tool, arguments)` pairs among `execute_tool` spans. Sum `cost_usd` from the `chat` spans rather than trusting the root span, which lacks totals if the run crashed.
+
+    **Sketch:** Arguments are recorded as `json.dumps(block.input)`, so key order can vary; record them with `sort_keys=True` in the tracer if you want a canonical fingerprint.
+
+    ```python
+    import json
+    from collections import Counter, defaultdict
+
+    def flag_loops(path: str = "traces.jsonl", max_steps: int = 15) -> None:
+        traces = defaultdict(list)
+        for line in open(path):
+            span = json.loads(line)
+            traces[span["trace_id"]].append(span)
+        for trace_id, spans in traces.items():
+            calls = Counter((s["attributes"]["tool"], s["attributes"]["arguments"])
+                            for s in spans if s["name"] == "execute_tool")
+            repeated = [tool for (tool, _), n in calls.items() if n >= 3]
+            steps = sum(s["name"] == "chat" for s in spans)
+            cost = sum(s["attributes"].get("cost_usd", 0) for s in spans if s["name"] == "chat")
+            if repeated or steps > max_steps:
+                print(f"{trace_id} steps={steps} repeated={repeated} cost=${cost:.4f}")
+    ```
+
+3. **Hint:** Root spans already carry `agent`, `steps` and `total_cost_usd`, and their `duration_ms` is end-to-end latency. Add `outcome` to the root's attributes at the end of `run_agent` (from a checker or a label), and join tool spans to their root's version through `trace_id`.
+
+    **Sketch:** Group roots by `attributes["agent"]`. Success rate is the share with `outcome == "success"`. Steps and cost percentiles come from the root attributes, latency p95 from the root `duration_ms`. Tool error rate per tool is errored `execute_tool` spans divided by all `execute_tool` spans for that tool and version. Use `.get()`, since a run that raised has no totals. With ten runs, "p95" is effectively the maximum, so collect more runs before you trust the tails.
+
+    ```python
+    import json
+    import statistics
+    from collections import defaultdict
+
+    def p95(xs: list) -> float:
+        return statistics.quantiles(xs, n=20)[-1] if len(xs) > 1 else xs[0]
+
+    roots = defaultdict(list)
+    for s in map(json.loads, open("traces.jsonl")):
+        if s["parent_id"] is None:
+            roots[s["attributes"]["agent"]].append(s)
+    for version, rs in roots.items():
+        steps = [r["attributes"].get("steps", 0) for r in rs]
+        cost = [r["attributes"].get("total_cost_usd", 0.0) for r in rs]
+        ok = sum(r["attributes"].get("outcome") == "success" for r in rs) / len(rs)
+        print(f"{version}: success {ok:.0%} steps p50/p95 {statistics.median(steps)}/{p95(steps):.0f} "
+              f"cost mean/p95 ${statistics.mean(cost):.3f}/${p95(cost):.3f} "
+              f"latency p95 {p95([r['duration_ms'] for r in rs]) / 1000:.1f}s")
+    ```
+
+4. **Hint:** Call `trace.set_tracer_provider` before the first traced call, and call `provider.shutdown()` on exit so the `BatchSpanProcessor` flushes. For the remote tool, the trace context travels in the W3C `traceparent` header.
+
+    **Sketch:** Run a local backend that accepts OTLP (Jaeger's all-in-one image or Phoenix in Docker), point `OTEL_EXPORTER_OTLP_ENDPOINT` at its OTLP/HTTP port (usually 4318), and swap each `tracer.span(...)` for `otel.start_as_current_span(...)` with `gen_ai.operation.name`, `gen_ai.request.model`, `gen_ai.usage.*`, `gen_ai.tool.name` and so on. Check in the UI that `chat` and `execute_tool` spans are children of `invoke_agent`. For the HTTP tool, the client calls `opentelemetry.propagate.inject(headers)` before the request, and the service calls `ctx = extract(request.headers)` then `start_as_current_span("execute_tool ...", context=ctx)`, with its own `TracerProvider` and a different `service.name`. Instrumentation packages for `requests`/`httpx` and FastAPI do the inject and extract for you. Success means one trace ID spans both services.
+
+5. **Hint:** The tracer's `json.dumps(..., default=str)` would turn SDK content blocks into useless strings, so record history with `block.model_dump(mode="json")`. Record full (redacted) tool results too, since `result_preview` is truncated to 500 characters.
+
+    **Sketch:** On each `chat` span, store the message list as sent (redacted). `replay` loads that span for the given step, builds a lookup from `(tool, arguments)` to the recorded result, and re-runs the loop from there with the new system prompt. Mocked tools return the recorded result, and an unseen argument set gets a stub such as `"NO RECORDED RESULT"` or a live sandboxed tool. Run it five times and count how often the bad decision recurs. The eval case is the recorded prefix plus an assertion about the next step, for example "the next call is not `get_order` with the same ID."
+
+    ```python
+    def replay(trace_id, step, new_system_prompt, tools, n=5, path="traces.jsonl"):
+        spans = [s for s in map(json.loads, open(path)) if s["trace_id"] == trace_id]
+        chat = next(s for s in spans if s["name"] == "chat" and s["attributes"]["step"] == step)
+        recorded = {(s["attributes"]["tool"], s["attributes"]["arguments"]): s["attributes"]["result"]
+                    for s in spans if s["name"] == "execute_tool"}
+        next_calls = []
+        for _ in range(n):
+            resp = client.messages.create(model=MODEL, max_tokens=16000, system=new_system_prompt,
+                                          tools=tools, messages=chat["attributes"]["messages"])
+            next_calls.append([(b.name, b.input) for b in resp.content if b.type == "tool_use"])
+            # to continue further, answer each tool_use from `recorded` and loop as in run_agent
+        return next_calls
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

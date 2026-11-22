@@ -557,6 +557,75 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <li><strong>Eval gate.</strong> Build a CI job that runs 20 eval cases against the PR branch and against main, and fails if success drops by more than one case or mean cost per task rises by more than 15%. Run it twice on the same commit and discuss what the noise means for your thresholds.</li>
 <li><strong>Game day.</strong> Simulate a &quot;spend spike from one tenant&quot; incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?) and recovery, then write the postmortem and regression eval.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Two questions decide it: how long does a run take, and what triggers it (a waiting user, a clock, or an event)?</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li>(a) FAQ bot: <strong>synchronous request/response</strong>, streamed for a chat UI. It&#39;s a few turns in seconds, so a queue adds only overhead.</li>
+<li>(b) Invoice reconciliation: <strong>scheduled (cron)</strong>, enqueuing work to workers. Guard against overlapping runs with a lock, alert when the job <em>doesn&#39;t</em> run, and deliver an exceptions report for human review. Per-invoice classification can use the Batch API.</li>
+<li>(c) CI fixer: <strong>event-driven webhook</strong> (build failed) starting a <strong><dfn class="gt" tabindex="0" data-t="Background agent" data-d="An agent that runs asynchronously, often in a cloud sandbox, on a delegated task and reports back with results such as a pull request, rather than working interactively." data-a="background-agent">background agent</dfn> that opens a PR</strong> from a sandbox. Verify the webhook signature, deduplicate by event ID, and let a human review the PR.</li>
+<li>(d) Research agent: <strong>async job queue + workers</strong>, streaming progress over SSE, with checkpointing so a worker crash or browser disconnect doesn&#39;t lose 15 minutes of work, and a notification when the report is ready.</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> Make a table: credential, where it is stored, how it reaches the tool, whether it can appear in context, sandbox, logs or traces, scope, and lifetime. Then grep your traces and logs for key-shaped strings.</p>
+<p> <strong>Sketch:</strong> Typical findings and fixes:</p>
+<ul>
+<li>Model API key in an environment variable: fine if it comes from a secrets manager, is never logged, and uses a separate spend-capped key per environment.</li>
+<li>A personal access token with org-wide scope: replace it with a GitHub App installation token (one hour, one repository).</li>
+<li>A third-party API key passed into the sandbox so model-written code can call the API: move it to the egress proxy, which injects it for allowlisted hosts only.</li>
+<li>A database password baked into a tool&#39;s connection string: use a short-lived, read-only role per task.</li>
+<li>Error messages or tool results that echo URLs or headers with tokens: redact them before they reach the model or the trace store.</li>
+</ul>
+<p> Anything visible to the model, long-lived, or broader than the task needs fails the test.</p>
+</li>
+<li><p><strong>Hint:</strong> Hash the <em>resolved</em> config: replace the prompt path with the file&#39;s contents, then serialize deterministically (<code>sort_keys=True</code>) so the same config always produces the same hash.</p>
+<p> <strong>Sketch:</strong> Put the hash on the root span of every run (for example <code>agent.config_hash</code>). Test that two loads give the same hash and that editing one word of <code>system.v9.md</code> changes it. Tool <em>implementations</em> matter too: include a code version (git SHA) or the implementation version behind <code>lookup_order@3</code>.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+<span class="hljs-keyword">import</span> yaml  <span class="hljs-comment"># pip install pyyaml</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">load_agent_config</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">dict</span>, <span class="hljs-built_in">str</span>]:
+    cfg = yaml.safe_load(Path(path).read_text())
+    cfg[<span class="hljs-string">&quot;system_prompt_text&quot;</span>] = Path(cfg[<span class="hljs-string">&quot;system_prompt&quot;</span>]).read_text()  <span class="hljs-comment"># hash contents, not path</span>
+    blob = json.dumps(cfg, sort_keys=<span class="hljs-literal">True</span>, separators=(<span class="hljs-string">&quot;,&quot;</span>, <span class="hljs-string">&quot;:&quot;</span>))
+    <span class="hljs-keyword">return</span> cfg, hashlib.sha256(blob.encode()).hexdigest()[:<span class="hljs-number">12</span>]
+
+_, h1 = load_agent_config(<span class="hljs-string">&quot;agents/support-triage/v14.yaml&quot;</span>)
+_, h2 = load_agent_config(<span class="hljs-string">&quot;agents/support-triage/v14.yaml&quot;</span>)
+<span class="hljs-keyword">assert</span> h1 == h2  <span class="hljs-comment"># deterministic; now edit one word of the prompt and check the hash changes</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Have each run write per-case results (<code>passed</code>, <code>cost_usd</code>), check out <code>main</code> in a second step or job and run the same 20 cases, then compare in a small gate script. Before setting thresholds, ask how much a 20-case success count varies between two runs of the <em>same</em> code.</p>
+<p> <strong>Sketch:</strong> The gate fails if <code>pr_passes &lt; main_passes - 1</code> or <code>pr_mean_cost &gt; 1.15 * main_mean_cost</code>. On noise: at an 85% success rate, a 20-case count has a standard deviation of √(20 × 0.85 × 0.15) ≈ 1.6 cases. The <em>difference</em> between two independent runs has a standard deviation of about 2.3 cases, so identical code &quot;drops by more than one case&quot; roughly a quarter of the time. Cost per task drifts too. Remedies: more cases, several repeats per case, paired per-case comparison, run main and the PR at the same time, a looser per-PR gate backed by a nightly full suite, and a confidence interval rather than a fixed count.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> sys
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">summary</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">float</span>]:
+    rows = json.load(<span class="hljs-built_in">open</span>(path))  <span class="hljs-comment"># [{&quot;case&quot;: ..., &quot;passed&quot;: bool, &quot;cost_usd&quot;: float}, ...]</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">sum</span>(r[<span class="hljs-string">&quot;passed&quot;</span>] <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> rows), <span class="hljs-built_in">sum</span>(r[<span class="hljs-string">&quot;cost_usd&quot;</span>] <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> rows) / <span class="hljs-built_in">len</span>(rows)
+
+(pr_ok, pr_cost), (main_ok, main_cost) = summary(sys.argv[<span class="hljs-number">1</span>]), summary(sys.argv[<span class="hljs-number">2</span>])
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;success <span class="hljs-subst">{pr_ok}</span> vs <span class="hljs-subst">{main_ok}</span>; mean cost $<span class="hljs-subst">{pr_cost:<span class="hljs-number">.3</span>f}</span> vs $<span class="hljs-subst">{main_cost:<span class="hljs-number">.3</span>f}</span>&quot;</span>)
+<span class="hljs-keyword">if</span> pr_ok &lt; main_ok - <span class="hljs-number">1</span> <span class="hljs-keyword">or</span> pr_cost &gt; <span class="hljs-number">1.15</span> * main_cost:
+    sys.exit(<span class="hljs-string">&quot;eval gate failed&quot;</span>)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Inject a realistic cause in staging, such as one tenant launching many tasks with a tool that always fails (a loop) or a cache-breaking prompt change, and don&#39;t tell the on-call person which one.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li><strong>Detection:</strong> &quot;hourly spend over 2× forecast&quot; and the per-tenant spend-cap alerts at 50% and 80%, corroborated by per-tenant spend, p95 steps per task and cache hit rate. Measure time to detect.</li>
+<li><strong>Mitigation:</strong> the per-<em>tenant</em> spend cap or kill switch, not the global one, so other tenants are unaffected. Kill the runaway runs, and tighten that tenant&#39;s concurrency and step budgets.</li>
+<li><strong>Recovery:</strong> fix the cause, re-enable the tenant gradually, and tell the customer.</li>
+<li><strong>Postmortem (blameless):</strong> timeline, time to detect and time to mitigate, dollars and users affected, root cause, what worked, what didn&#39;t, and owned action items.</li>
+<li><strong>Regression eval:</strong> the runaway trace becomes a case asserting the run ends within budget or the loop detector fires. Add a test that the alert fires on synthetic spend.</li>
+</ul>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="deployment" data-total="6">
 

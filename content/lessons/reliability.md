@@ -365,6 +365,66 @@ Track reliability metrics beside quality: success rate, recovery rate under faul
 4. **Crash test.** Give a mutating tool a 20% chance of calling `os._exit(1)`, and restart the process until the run completes. Use the ledger to verify that every refund happened exactly once. Then remove the ledger and observe the duplicates.
 5. **Saga design.** An agent provisions a cloud project, a database, a DNS record and a welcome email. Specify the compensations, the irreversible steps, where approval goes, and what the checkpoint holds to resume mid-unwind.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Ask "what happens if this runs twice?" If nothing changes, it's read-only or naturally idempotent. If the world changes twice, it's unsafe. Then key the unsafe ones on the business *intent*, not on `tool_use_id`.
+
+    **Sketch:** `search_kb` and `get_order` are **read-only**. `update_shipping_address(order_id, address)` is **naturally idempotent**: setting the same address twice leaves the same state (watch for side effects such as a notification email on every update, which would make it unsafe). `send_email` is **unsafe**: key it on `(run_id, "send_email", recipient, purpose or ticket_id)`, deliberately leaving out the body, because a resumed model re-words the email. `issue_refund` is **unsafe**: key on `(run_id, "refund", order_id)` as in the lesson, or drop `run_id` if the rule is "one refund per order, ever." Both unsafe tools are candidates for an approval gate.
+
+2. **Hint:** Layers multiply: attempts per layer = 1 + retries.
+
+    **Sketch:** The SDK makes 1 + 2 = 3 attempts per call, the wrapper makes 5 SDK calls, and a queue that retries 3 times runs the job 1 + 3 = 4 times. Worst case: 3 × 5 × 4 = **60 API attempts** per model call (45 if you read "retries 3 times" as 3 runs in total), and each queue retry may also repeat every earlier step of the task. Redesign: `max_retries=0` on the client, one wrapper like `create_with_retry` as the only retry owner (full jitter, `retry-after`, a total deadline), and a queue that only re-delivers after a worker crash, resuming from the checkpoint rather than restarting. Permanent errors go to a dead-letter queue instead of being retried. Worst case is now the wrapper's 6 attempts.
+
+3. **Hint:** Fingerprint from `state["messages"]` rather than an in-memory counter, so the detector still works after a resume. To test harness logic deterministically, script the fake model to repeat the same call; a real model may reword the query.
+
+    **Sketch:** In the `tools` branch, call `verdict(state["messages"])` before running the tools. On `"looping"`, set `state["status"] = "looping"` and stop. On `"nudge"`, run the tools and append a text block after the tool results ("You've run this identical search three times; try a different query or report that nothing was found").
+
+    ```python
+    import json
+    from collections import Counter
+
+    class LoopDetector:
+        def __init__(self, nudge_at: int = 3, stop_at: int = 5):
+            self.nudge_at, self.stop_at = nudge_at, stop_at
+
+        def verdict(self, messages: list) -> str | None:
+            counts = Counter((b["name"], json.dumps(b["input"], sort_keys=True))
+                             for m in messages if m["role"] == "assistant"
+                             for b in m["content"] if b["type"] == "tool_use")
+            worst = max(counts.values(), default=0)
+            if worst >= self.stop_at:
+                return "looping"
+            return "nudge" if worst >= self.nudge_at else None
+    ```
+
+4. **Hint:** The dangerous window is *after* the provider acts but *before* the ledger and checkpoint record it, so put an `os._exit(1)` there. Make the fake payment provider log every real refund and honor idempotency keys, as Stripe does.
+
+    **Sketch:** Drive it with `until python agent.py --run-id crash-1; do echo restarting; done`, and raise the `resumes > 3` poison limit for the test, or the run will likely be quarantined. Afterwards, `SELECT order_id, COUNT(*) FROM provider_refunds GROUP BY order_id HAVING COUNT(*) > 1` must return nothing, and every ledger key should be `done`. Then call the provider without the ledger and key: any crash after a refund but before the checkpoint saves the tool results makes the resumed worker re-run the whole `tools` branch, and duplicate refunds appear within a few runs.
+
+    ```python
+    import os
+    import random
+    import sqlite3
+
+    pdb = sqlite3.connect("provider.db", isolation_level=None)
+    pdb.execute("CREATE TABLE IF NOT EXISTS provider_refunds (key TEXT UNIQUE, order_id TEXT, cents INT)")
+
+    def refund(order_id: str, amount_cents: int, idempotency_key: str | None = None) -> dict:
+        key = idempotency_key or os.urandom(8).hex()  # no key: every call looks new
+        pdb.execute("INSERT OR IGNORE INTO provider_refunds VALUES (?, ?, ?)",
+                    (key, order_id, amount_cents))
+        if random.random() < 0.2:
+            os._exit(1)  # crash after the money moved, before anyone recorded it
+        return {"order_id": order_id, "status": "refunded"}
+    ```
+
+5. **Hint:** Order the steps so the irreversible one comes last, and make every compensation "delete if it exists," so treating "already gone" as success keeps it idempotent.
+
+    **Sketch:** Forward order: create project → create database → create DNS record → health checks (DB reachable, DNS resolves) → welcome email. Compensations, run in reverse: delete the DNS record (resolvers may cache it until its TTL expires), delete the database (snapshot first if it might hold data; respect deletion protection), delete the project. The **email is irreversible**, so it goes last, after validation. Its only "compensation" is a follow-up message. Approval goes before provisioning if cost or quota is significant, and before any compensation that destroys data. Create resources under deterministic names or idempotency keys derived from the request, so a crash between "created" and "recorded" can find the resource instead of orphaning it. The checkpoint holds the saga ID, the phase (`forward` or `unwinding`), each completed step with the resource IDs it returned and its compensation, which compensations have finished, and the failure cause. That is enough for a new worker to continue the unwind exactly where it stopped.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

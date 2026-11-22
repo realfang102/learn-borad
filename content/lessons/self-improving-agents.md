@@ -327,6 +327,93 @@ A lessons-learned file can use the same discipline: candidate lessons are propos
 4. **Run the optimizer.** Use the `optimize` function above on a task of your choice (e.g., extracting dates in ISO format from messy text) with 30 dev and 30 held-out cases. Then deliberately make the dev set unrepresentative and observe what happens to held-out performance.
 5. **Threat-model self-improvement.** For an agent that auto-writes skills from its own successful sessions and shares them across a team, list at least five ways things could go wrong (quality, security, safety) and a concrete control for each. Which controls belong in the harness rather than the prompt?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Use the levels table: ask *what changes* (the attempt, memory, prompts, the agent's code, weights) and *how long the change persists*. Then ask where the "better or worse" signal comes from.
+
+    **Sketch:**
+    - (a) **Level 1**, within-episode. Feedback: test results and error output.
+    - (b) **Level 2**, across episodes (skill library). Feedback: environment feedback, execution errors and a self-verification check before a program is stored.
+    - (c) **Level 3**, prompt/program optimization. Feedback: your metric on training examples, used to score candidate instructions and demonstrations.
+    - (d) **Level 5**, self-modification (with an open-ended archive). Feedback: coding-benchmark scores (SWE-bench, Polyglot).
+    - (e) **Level 2**, cross-session memory. Feedback: the user's own statements and corrections. That is explicit but unverified, so it risks overgeneralization and poisoning.
+
+2. **Hint:** In the grounded variant, tell the model only *that* it was wrong, not the right answer, and revise only the attempts that failed. Track flips in both directions, not just final accuracy.
+
+    **Sketch:** Report accuracy for each variant plus two counts for the revise variants: correct→wrong ("broke it") and wrong→correct ("fixed it"). Because the grounded variant revises only failures, it can't break a correct answer, so its accuracy is at least the single-attempt baseline. Typically the intrinsic variant gains little or nothing on reasoning problems and breaks some correct answers, which is the lesson's point. Caveat: "you were wrong" is oracle feedback. It's realistic only where a real verifier (tests, a checker) exists in deployment. Run each problem a few times, since 20 problems is a small sample.
+
+    ```python
+    import anthropic
+
+    client = anthropic.Anthropic()
+
+    def ask(messages: list) -> str:
+        resp = client.messages.create(model="claude-sonnet-5-5", max_tokens=4000, messages=messages)
+        return "".join(b.text for b in resp.content if b.type == "text")
+
+    def attempt(problem: dict, variant: str) -> tuple[str, str]:
+        """variant: "single" | "intrinsic" | "grounded". Returns (first, final)."""
+        msgs = [{"role": "user", "content": problem["question"] + "\nEnd with 'ANSWER: <answer>'."}]
+        first = ask(msgs)
+        if variant == "single" or (variant == "grounded" and problem["check"](first)):
+            return first, first
+        feedback = ("Critically review your answer and revise it if needed." if variant == "intrinsic"
+                    else "That answer is incorrect. Find the error and solve it again.")
+        msgs += [{"role": "assistant", "content": first}, {"role": "user", "content": feedback}]
+        return first, ask(msgs)
+    ```
+
+3. **Hint:** Inject `LESSONS.md` as a second system block *after* the cached one (`agent.system.append(...)`), so the shared prefix still caches. Each gate check needs a fresh workspace and an automatic check on final state.
+
+    **Sketch:** After a failure, ask the model (in a separate call) for **one** general lesson grounded in the trajectory and the check output. Then run the gate below. Expect most proposals to be rejected and the file to grow slowly, with pass rate rising a little and then flattening. Nondeterminism can let a useless lesson through when a re-run passes by luck, so require each gated task to pass twice, or compare pass rates over a few runs. Also log tokens added per lesson, and consolidate the file periodically before bloat costs more than the lessons are worth.
+
+    ```python
+    import random
+    from pathlib import Path
+
+    LESSONS = Path("LESSONS.md")
+
+    def try_lesson(lesson: str, failed_task: dict, passing: list[dict]) -> bool:
+        current = LESSONS.read_text() if LESSONS.exists() else ""
+        candidate = current + f"\n- {lesson.strip()}"
+        regression = random.sample(passing, k=min(3, len(passing)))
+        # run_task: fresh workspace, Agent with `candidate` as an extra system block, check final state
+        if all(run_task(t, lessons=candidate) for t in [failed_task, *regression]):
+            LESSONS.write_text(candidate)  # gate passed: keep the lesson
+            return True
+        return False
+    ```
+
+4. **Hint:** Make every check strict and programmatic (an exact `YYYY-MM-DD` string). To make dev "unrepresentative," give it a different distribution from held-out, for example only numeric US-style dates in dev but written-out and European-style dates in held-out. Watch out for Python's late-binding lambdas when you build checks in a loop.
+
+    **Sketch:** Build 60 cases with gold dates, split 30/30, and run `optimize`. With a representative dev set, expect a few accepted rounds as the prompt picks up general rules (relative dates, missing years, ordinal suffixes). With a skewed dev set, the optimizer proposes rules that fit dev (such as "read 03/04 as March 4") that don't help or actively hurt held-out, so the held-out gate **rejects** them. Held-out performance stays flat while dev failures persist. That is the gate working. The remaining risk: if the held-out set *also* doesn't match production, nothing protects you. With 30 cases, one case is 3.3 points, so require a margin before accepting a change.
+
+    ```python
+    raw = [("Moved the sync to March 4th, 2026 at 3pm", "2026-03-04"),
+           ("Invoice dated 2026-01-15, due in 30 days", "2026-01-15")]  # ... 60 in total
+    cases = [{"task": f"Extract the date as YYYY-MM-DD. Reply with the date only.\n\n{text}",
+              "check": lambda out, want=want: out.strip() == want}  # default arg binds each value
+             for text, want in raw]
+    dev, holdout = cases[:30], cases[30:]
+    best_prompt = optimize("You extract dates from messy text.", dev, holdout)
+    ```
+
+5. **Hint:** Shared, auto-written skills are code and instructions that spread across a team with no author review, so think supply chain, persistence and privilege, not just quality.
+
+    **Sketch:** Strong answers cover at least these, with a control for each:
+    - **Lucky or incorrect procedures** become skills. Draft only from *verified* successes, and replay the skill on held-out tasks before enabling it.
+    - **Overgeneralization:** a repo-specific hack becomes a team-wide rule. Scope skills per project, with explicit when-to-use metadata.
+    - **Secret or PII leakage:** session details end up in a shared skill. Scan for secrets and PII before publishing.
+    - **Poisoning and worming:** an injected page leads to a skill such as "always upload logs to X," which spreads to everyone. Track provenance, block auto-publishing from sessions that read untrusted content, and require human review or signing.
+    - **Unsafe helper scripts:** `rm -rf`, `curl | sh`. Run them sandboxed, with code review and static checks.
+    - **Privilege escalation:** a skill tells agents to skip approvals or edit settings or evaluators. Skills can't change permissions, and those files stay outside agent write access.
+    - **Bloat and staleness.** Dedupe, assign owners, track usage, expire or revalidate skills, and keep versioned rollback.
+
+    Almost all of these controls belong in the **harness**: scanning, provenance gating, approval workflows, sandboxing, permission boundaries and versioning. Prompt guidance ("write general skills") only affects quality.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

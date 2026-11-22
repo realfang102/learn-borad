@@ -423,6 +423,94 @@ Training without rigorous evaluation is how teams ship regressions. Treat a trai
 4. **Design an environment.** Specify a training environment for an agent that triages support tickets using three tools. Define: the reset state, the tools, the outcome reward, any shaping rewards, and at least four reward-hacking vectors with a defense for each.
 5. **Fine-tune or not?** A team runs a frontier model for invoice extraction (200k documents/day, 96% accuracy on their eval, latency acceptable, cost too high). Write a one-page recommendation: which approach from the decision table, what data you'd generate, how you'd evaluate, and what result would make you abandon the plan.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Choose a family whose report discloses a lot. AI2's Tülu 3 / OLMo reports publish data and recipes, and DeepSeek-R1's report describes its post-training stages. Expect "undisclosed" for some boxes, especially data mixtures and agentic RL.
+
+    **Sketch:** Make a table with one row per stage: pretraining, SFT, preference optimization, RLVR, agentic RL, evals/red-teaming. For each, write one sentence or "not disclosed." For example, from the lesson, DeepSeek-R1 used DeepSeek-V3-Base for **pretraining**, a small cold-start long-reasoning set plus a large rejection-sampled set for **SFT**, **RLVR** with GRPO on rule-based accuracy and format rewards, and a final RL stage for helpfulness and harmlessness that plays the role of **preference optimization**. Its report describes no multi-turn **agentic RL**. Tülu 3 is the cleanest example of SFT → DPO → RLVR. The point of the exercise is noticing *which* stages labs disclose and which they keep private.
+
+2. **Hint:** Look at what earns *partial* credit without being a usable call, and at what the exact-match check ignores, such as extra keys.
+
+    **Sketch:** Three loophole completions:
+    - `null` (or `"ok"`): valid JSON but not a call, and it still earns **0.1**.
+    - `{"tool": "convert_currency", "args": {}}`: the right tool with no arguments earns **0.5**. A policy can farm this by always guessing the most common tool.
+    - `{"tool": "convert_currency", "args": {...correct...}, "also": "delete_account"}`: extra top-level keys are ignored, so a call with smuggled junk earns **1.0**.
+
+    The reward also never asks whether a tool call was appropriate at all, so the dataset needs rows where the right answer is a clarifying question. Revised reward: no credit unless the output is a dict with exactly the keys `tool` and `args`, the argument names match the schema exactly, and most of the credit depends on correct values. Keep only a tiny format credit, so early training still gets some gradient.
+
+    ```python
+    def tool_call_reward_v2(completions, expected, **kwargs) -> list[float]:
+        rewards = []
+        for completion, exp in zip(completions, expected):
+            target = json.loads(exp)
+            try:
+                call = json.loads(_text(completion).strip())
+            except json.JSONDecodeError:
+                call = None
+            if not (isinstance(call, dict) and set(call) == {"tool", "args"} and isinstance(call["args"], dict)):
+                rewards.append(0.0)               # not a well-formed call: nothing
+            elif call["tool"] != target["tool"] or set(call["args"]) != set(target["args"]):
+                rewards.append(0.05)              # well-formed, but wrong tool or wrong/extra arg names
+            else:
+                right = sum(call["args"][k] == v for k, v in target["args"].items())
+                rewards.append(0.2 + 0.8 * right / max(1, len(target["args"])))
+        return rewards
+    ```
+
+3. **Hint:** Give each attempt a *fresh copy* of the task's starting workspace, and judge success with a checker on the final state, not on the agent's last message. Run it in a sandbox, since `auto_approve=True` skips the approval prompts.
+
+    **Sketch:** Convert the SDK content blocks with `model_dump` (via `json.dumps(default=...)`) so the history is plain JSON. Store the system prompt and tool definitions with each trajectory, and convert to your trainer's chat template later. Consider dropping thinking blocks. The tasks that give **zero GRPO signal** are the ones at 5/5 (too easy) or 0/5 (too hard), because every sample in the group gets the same reward and so every advantage is zero. For the SFT set, cap trajectories per task so easy tasks don't dominate. Get data for 0/5 tasks some other way: a stronger model, hints (STaR-style rationalization), or easier sub-tasks.
+
+    ```python
+    import json
+    import shutil
+    from collections import Counter
+    from pathlib import Path
+
+    def to_json(block):  # json.dumps calls this for SDK content blocks it can't serialize
+        return block.model_dump(mode="json", exclude_none=True)
+
+    wins = Counter()
+    with open("sft.jsonl", "w") as out:
+        for task in TASKS:  # each: {"id", "prompt", "start_dir", "check": fn(workspace) -> bool}
+            for attempt in range(5):
+                ws = Path(f"runs/{task['id']}-{attempt}")
+                shutil.rmtree(ws, ignore_errors=True)
+                shutil.copytree(task["start_dir"], ws)
+                agent = Agent(ws, auto_approve=True)
+                agent.run_turn(task["prompt"])
+                if task["check"](ws):
+                    wins[task["id"]] += 1
+                    out.write(json.dumps({"system": SYSTEM_PROMPT, "tools": TOOLS,
+                                          "messages": agent.messages}, default=to_json) + "\n")
+    print({t["id"]: f"{wins[t['id']]}/5" for t in TASKS})
+    ```
+
+4. **Hint:** Decide which tool call *is* the outcome (for example, the routing call) and grade the resulting state against a gold label. Then, for every reward term, ask, "What's the laziest way to get this?"
+
+    **Sketch:**
+    - **Reset:** sample a ticket from a labeled pool (historical plus synthetic) with gold `queue` and `priority`, load a fresh snapshot of the mock CRM and the knowledge-base index, and strip resolution fields from the ticket under test.
+    - **Tools:** `search_kb(query)`, `get_customer(customer_id)` and `route_ticket(ticket_id, queue, priority)`. The last is terminal.
+    - **Outcome reward:** 0.7 × [queue correct] + 0.3 × [priority correct], read from the routing system's record, with 0 if no route is made before the step limit.
+    - **Shaping:** a small penalty for malformed calls and for steps beyond about 6, kept much smaller than the accuracy reward.
+    - **Hacking vectors and defenses:**
+        - Calling `route_ticket` repeatedly with different queues: only the first route counts, since it ends the episode.
+        - Always predicting the majority queue: balance sampling or weight rewards by class, and track macro-F1.
+        - Label leakage through tools (the CRM shows the ticket's final queue, or a KB article names it): audit tool outputs for gold fields.
+        - Routing instantly to dodge the step penalty: keep the penalty tiny and the reward dominated by correctness.
+        - Over-prioritizing everything: score priority with an asymmetric cost matrix.
+        - If a judge grades a rationale: grade state, not narration.
+
+5. **Hint:** Before reaching for the "distill" row of the decision table, check the cheaper levers: Batch API, caching, and a smaller hosted model with the same prompt. Then define in advance the result that would make you stop.
+
+    **Sketch:** Assume about 3,000 input and 500 output tokens per invoice (scanned PDFs may cost more).
+    - **The numbers:** Opus 5.5 costs about 3,000 × $4 + 500 × $20 per MTok ≈ $0.022 per document, or **≈ $4,400 a day**. The Batch API halves that if turnaround of up to a day is acceptable, and Haiku 5.5 with the same prompt would be about $110 a day *if* it clears the eval.
+    - **Plan:** (1) Run the eval on smaller models and batch first. (2) If they fall short, distill: run the frontier model on 20–50k diverse invoices, keep outputs that pass validators (line items sum to the total, VAT math, dates parse, vendor matches master data), send disagreements to humans, and fine-tune a smaller model with LoRA/QLoRA or a provider fine-tuning API. (3) Evaluate on a held-out set with unseen vendors and layouts, reporting per-field accuracy (especially totals and bank details) and cost per document including hosting. (4) Deploy in shadow mode, then as a cascade that sends low-confidence or validator-failing documents to the frontier model.
+    - **Abandon if:** the student falls below about 95% overall, or below the frontier model on high-value fields; total cost (GPU, engineering, retraining as formats drift) doesn't clearly beat a cheaper hosted model; or errors concentrate on new layouts.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

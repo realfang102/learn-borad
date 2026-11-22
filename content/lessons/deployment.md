@@ -334,6 +334,79 @@ Use this as a launch review. Each item should have an owner and evidence.
 4. **Eval gate.** Build a CI job that runs 20 eval cases against the PR branch and against main, and fails if success drops by more than one case or mean cost per task rises by more than 15%. Run it twice on the same commit and discuss what the noise means for your thresholds.
 5. **Game day.** Simulate a "spend spike from one tenant" incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?) and recovery, then write the postmortem and regression eval.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Two questions decide it: how long does a run take, and what triggers it (a waiting user, a clock, or an event)?
+
+    **Sketch:**
+    - (a) FAQ bot: **synchronous request/response**, streamed for a chat UI. It's a few turns in seconds, so a queue adds only overhead.
+    - (b) Invoice reconciliation: **scheduled (cron)**, enqueuing work to workers. Guard against overlapping runs with a lock, alert when the job *doesn't* run, and deliver an exceptions report for human review. Per-invoice classification can use the Batch API.
+    - (c) CI fixer: **event-driven webhook** (build failed) starting a **background agent that opens a PR** from a sandbox. Verify the webhook signature, deduplicate by event ID, and let a human review the PR.
+    - (d) Research agent: **async job queue + workers**, streaming progress over SSE, with checkpointing so a worker crash or browser disconnect doesn't lose 15 minutes of work, and a notification when the report is ready.
+
+2. **Hint:** Make a table: credential, where it is stored, how it reaches the tool, whether it can appear in context, sandbox, logs or traces, scope, and lifetime. Then grep your traces and logs for key-shaped strings.
+
+    **Sketch:** Typical findings and fixes:
+    - Model API key in an environment variable: fine if it comes from a secrets manager, is never logged, and uses a separate spend-capped key per environment.
+    - A personal access token with org-wide scope: replace it with a GitHub App installation token (one hour, one repository).
+    - A third-party API key passed into the sandbox so model-written code can call the API: move it to the egress proxy, which injects it for allowlisted hosts only.
+    - A database password baked into a tool's connection string: use a short-lived, read-only role per task.
+    - Error messages or tool results that echo URLs or headers with tokens: redact them before they reach the model or the trace store.
+
+    Anything visible to the model, long-lived, or broader than the task needs fails the test.
+
+3. **Hint:** Hash the *resolved* config: replace the prompt path with the file's contents, then serialize deterministically (`sort_keys=True`) so the same config always produces the same hash.
+
+    **Sketch:** Put the hash on the root span of every run (for example `agent.config_hash`). Test that two loads give the same hash and that editing one word of `system.v9.md` changes it. Tool *implementations* matter too: include a code version (git SHA) or the implementation version behind `lookup_order@3`.
+
+    ```python
+    import hashlib
+    import json
+    from pathlib import Path
+
+    import yaml  # pip install pyyaml
+
+    def load_agent_config(path: str) -> tuple[dict, str]:
+        cfg = yaml.safe_load(Path(path).read_text())
+        cfg["system_prompt_text"] = Path(cfg["system_prompt"]).read_text()  # hash contents, not path
+        blob = json.dumps(cfg, sort_keys=True, separators=(",", ":"))
+        return cfg, hashlib.sha256(blob.encode()).hexdigest()[:12]
+
+    _, h1 = load_agent_config("agents/support-triage/v14.yaml")
+    _, h2 = load_agent_config("agents/support-triage/v14.yaml")
+    assert h1 == h2  # deterministic; now edit one word of the prompt and check the hash changes
+    ```
+
+4. **Hint:** Have each run write per-case results (`passed`, `cost_usd`), check out `main` in a second step or job and run the same 20 cases, then compare in a small gate script. Before setting thresholds, ask how much a 20-case success count varies between two runs of the *same* code.
+
+    **Sketch:** The gate fails if `pr_passes < main_passes - 1` or `pr_mean_cost > 1.15 * main_mean_cost`. On noise: at an 85% success rate, a 20-case count has a standard deviation of √(20 × 0.85 × 0.15) ≈ 1.6 cases. The *difference* between two independent runs has a standard deviation of about 2.3 cases, so identical code "drops by more than one case" roughly a quarter of the time. Cost per task drifts too. Remedies: more cases, several repeats per case, paired per-case comparison, run main and the PR at the same time, a looser per-PR gate backed by a nightly full suite, and a confidence interval rather than a fixed count.
+
+    ```python
+    import json
+    import sys
+
+    def summary(path: str) -> tuple[int, float]:
+        rows = json.load(open(path))  # [{"case": ..., "passed": bool, "cost_usd": float}, ...]
+        return sum(r["passed"] for r in rows), sum(r["cost_usd"] for r in rows) / len(rows)
+
+    (pr_ok, pr_cost), (main_ok, main_cost) = summary(sys.argv[1]), summary(sys.argv[2])
+    print(f"success {pr_ok} vs {main_ok}; mean cost ${pr_cost:.3f} vs ${main_cost:.3f}")
+    if pr_ok < main_ok - 1 or pr_cost > 1.15 * main_cost:
+        sys.exit("eval gate failed")
+    ```
+
+5. **Hint:** Inject a realistic cause in staging, such as one tenant launching many tasks with a tool that always fails (a loop) or a cache-breaking prompt change, and don't tell the on-call person which one.
+
+    **Sketch:**
+    - **Detection:** "hourly spend over 2× forecast" and the per-tenant spend-cap alerts at 50% and 80%, corroborated by per-tenant spend, p95 steps per task and cache hit rate. Measure time to detect.
+    - **Mitigation:** the per-*tenant* spend cap or kill switch, not the global one, so other tenants are unaffected. Kill the runaway runs, and tighten that tenant's concurrency and step budgets.
+    - **Recovery:** fix the cause, re-enable the tenant gradually, and tell the customer.
+    - **Postmortem (blameless):** timeline, time to detect and time to mitigate, dollars and users affected, root cause, what worked, what didn't, and owned action items.
+    - **Regression eval:** the runaway trace becomes a case asserting the run ends within budget or the loop detector fires. Add a test that the alert fires on synthetic spend.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

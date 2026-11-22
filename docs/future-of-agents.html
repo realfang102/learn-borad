@@ -357,6 +357,57 @@
 <li><strong>Delegation design.</strong> Design the authorization flow for an agent that buys office supplies under $200 without asking, and asks for anything above. What does the user sign? What does the merchant verify? What gets logged? Compare your design to AP2&#39;s mandates.</li>
 <li><strong>Capstone.</strong> Complete milestones 1–6 of the capstone project and publish your eval results — including the failures.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Answer each of the five questions literally, quoting the source where you can. A question the source can&#39;t answer is itself a finding.</p>
+<p> <strong>Sketch:</strong> A strong paragraph names the exact metric (for example, &quot;pass rate on a public coding benchmark with the vendor&#39;s own scaffold&quot;). It notes whether results are a single run or best of several, and whether cost was reported. It says whether the tasks are a benchmark (possibly contaminated, well-specified) or real work, and identifies the baseline (usually the previous model, rarely a human with good tools). It closes with what would refute the claim: a drop on fresh held-out tasks, or failure on your own eval. Typical conclusion: &quot;evidence of benchmark progress at an unknown reliability and cost, not evidence it will work on our tasks.&quot;</p>
+</li>
+<li><p><strong>Hint:</strong> Each prediction needs a named source, a metric, a threshold, a reliability level and a date. If a reasonable person could argue about whether it came true, rewrite it.</p>
+<p> <strong>Sketch:</strong> Use a template like &quot;By ‹date›, ‹public source› will report ‹metric› ≥ ‹threshold› at ‹reliability›.&quot; Examples of the <em>shape</em> (not forecasts):</p>
+<ul>
+<li>&quot;By next November, METR&#39;s published 50% time horizon for the best model will be at least double today&#39;s.&quot;</li>
+<li>&quot;At least half of the 20 open-source repos I depend on will contain an <code>AGENTS.md</code>.&quot;</li>
+<li>&quot;Our <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> will pass ≥ 80% of my 30-task eval on all of 3 runs per task.&quot;</li>
+</ul>
+<p> Add a confidence (say 60%) to each, and note what you&#39;d conclude if it fails. &quot;Agents will be much better&quot; is unfalsifiable and doesn&#39;t count. Then set the reminder and grade honestly, partial misses included.</p>
+</li>
+<li><p><strong>Hint:</strong> Write down what a new teammate would need on day one: exact build, test and lint commands, conventions, layout, and what not to touch. To test it, run the <em>same</em> tasks with and without the file.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li><strong><code>AGENTS.md</code>:</strong> a one-line project overview, setup and build commands, the exact test command (including how to run a single test), lint and format commands, code style and naming conventions, a directory map, commit and PR rules, and gotchas (generated files, slow tests, required environment variables).</li>
+<li><strong><code>llms.txt</code>:</strong> follow the proposal&#39;s shape: an H1 with the project name, a one-paragraph blockquote summary, then H2 sections listing links to LLM-friendly Markdown docs with a short note each.</li>
+<li><strong>Evaluation:</strong> pick 5–10 representative tasks, run each in a fresh session two or three times with and without the file, and compare pass rate, steps, tokens and wrong-command attempts (for example, calling <code>pytest</code> directly when the repo needs <code>make test</code>). A typical result is fewer wasted steps rather than a dramatic jump in pass rate.</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> Separate three things: the <em>standing</em> authorization the user signs once, the <em>per-purchase</em> record, and the limits enforced outside the agent (on the payment credential), so a hijacked agent can&#39;t exceed them.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li><strong>User signs once:</strong> a standing mandate saying agent X may buy office supplies, ≤ $200 per order, ≤ a monthly cap, shipping only to the office address, valid until a date, revocable. It&#39;s signed with the user&#39;s key, such as a passkey.</li>
+<li><strong>Under $200:</strong> the agent builds the cart and submits it with the standing mandate.</li>
+<li><strong>Over $200:</strong> the user reviews and signs that specific cart (items, merchant, total) before checkout.</li>
+<li><strong>Merchant verifies:</strong> the signature chain, that the mandate is current and not revoked, that the agent&#39;s identity matches the delegate named in it, the total against the limit, the category and shipping address, and that the payment credential is scoped. Back the limits up on the payment side too, for example a virtual card with a per-transaction limit, a monthly cap and merchant-category restrictions. An aggregate cap stops the agent splitting a big order into several under $200.</li>
+<li><strong>Logged:</strong> mandates, carts, prices, merchant, agent identity and version, the user&#39;s approvals with timestamps, a link to the agent&#39;s trace, and the payment outcome, so disputes can be resolved.</li>
+<li><strong>Comparison with AP2:</strong> the standing authorization plays the role of AP2&#39;s <em>intent mandate</em>, and the user-signed cart above $200 corresponds to its <em>cart mandate</em>. Both give verifiable delegation of what the user authorized.</li>
+</ul>
+</li>
+<li><p><strong>Hint:</strong> Keep the scope small enough to finish (one domain, 3–6 tools), and build the 30-task eval with automatic checks <em>early</em>, since it drives every later decision.</p>
+<p> <strong>Sketch:</strong> A strong submission contains:</p>
+<ul>
+<li>A one-page brief covering the task, why it needs an agent rather than a workflow, and what &quot;done&quot; means.</li>
+<li>A from-scratch loop, plus a note on whether a framework would help.</li>
+<li>3–6 tools with schemas and actionable errors, one exposed over MCP.</li>
+<li>Context work: system prompt, retrieval and session memory.</li>
+<li>A planning step and verification grounded in real feedback.</li>
+<li>A results table: pass@1, consistency (pass^3 from three runs per task), mean and p95 cost, and latency.</li>
+<li>Failures published with traces, each classified as prompt, tool, context or model (<a href="observability.html">observability</a>), and a short list of what you&#39;d fix next.</li>
+</ul>
+<p> Common pitfalls: checks that grade the agent&#39;s narration instead of the final state, no repeated runs, and scope creep.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="future-of-agents" data-total="6">
 

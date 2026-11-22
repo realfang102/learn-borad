@@ -5,7 +5,7 @@ agent loop to tools, memory, retrieval, context engineering, multi-agent systems
 evaluation, observability, reliability, cost, security, alignment and training agentic models.
 
 - **40 in-depth lessons** in 8 modules, each with objectives, diagrams, runnable code, exercises,
-  a quiz with explanations, and curated further reading
+  hints and solution sketches for every exercise, a quiz with explanations, and curated further reading
 - **9 interactive simulations** (agent loop stepper, context-window simulator, prompt-injection
   sandbox, cost calculator, pass@k vs pass^k, workflow pattern explorer, and more)
 - **12 graded hands-on projects**, from a first tool call to a red-teamed, evaluated production agent
