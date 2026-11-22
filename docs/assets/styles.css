@@ -301,6 +301,18 @@ main p a:not(.btn), .gl-more, .section-head a { text-decoration: underline; text
 .diagram pre.mermaid[data-processed="true"] { text-align: center; white-space: normal; }
 .diagram svg { max-width: 100%; height: auto; }
 
+/* exercise solutions */
+details.solutions { margin: 1.4em 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-elev); }
+details.solutions > summary { cursor: pointer; padding: 12px 18px; font-weight: 700; font-size: 15.5px; color: var(--accent-text); list-style: none; display: flex; align-items: center; gap: 10px; }
+details.solutions > summary::-webkit-details-marker { display: none; }
+details.solutions > summary::before { content: "💡"; }
+details.solutions > summary::after { content: "Show"; margin-left: auto; font-size: 13px; color: var(--text-muted); font-weight: 600; }
+details.solutions[open] > summary::after { content: "Hide"; }
+details.solutions[open] > summary { border-bottom: 1px solid var(--border); }
+details.solutions > :not(summary) { margin-left: 18px; margin-right: 18px; }
+details.solutions > ol, details.solutions > ul { padding: 4px 0 4px 1.3em; font-size: 16px; }
+@media print { details.solutions { display: none; } }
+
 /* glossary tooltips */
 dfn.gt { font-style: normal; text-decoration: underline dotted color-mix(in srgb, var(--accent) 60%, transparent); text-underline-offset: 3px; text-decoration-thickness: 1.5px; cursor: help; }
 dfn.gt:hover, dfn.gt:focus { color: var(--accent-text); outline: none; }

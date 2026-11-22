@@ -358,6 +358,55 @@ For where this might go, see [the future of agents](future-of-agents.html).
 4. **Safety design.** Write a layered safety plan for a mobile manipulator in a hospital supply room shared with staff. For each layer, name one failure it catches that the others might miss.
 5. **Evaluation protocol.** Design a real-world comparison of two VLAs on ten kitchen tasks with 300 trials: allocation, randomized initial conditions, success criteria and uncertainty. How could SIMPLER-style simulation guide which tasks get the most real trials?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Map the timescales onto the layers of the hierarchical architecture diagram: planner, skill policy, low-level controller. **Sketch:** Seconds (planner): find a sponge, pick it, wipe the spill region, check whether the table is clean, rinse the sponge. Tenths of a second (skill policy or VLA, 5 to 50 Hz): steer the gripper toward the sponge from camera images, adjust the wipe path as the spill spreads, notice the sponge slipping. Milliseconds (low-level controller, 100 to 1000 Hz): keep contact force against the table steady, track joint trajectories, stop on unexpected contact. If the planner slows to 5 seconds per step, the task takes longer and the robot idles between skills, but it stays safe and smooth because nothing reactive depends on the planner. That only holds if each skill runs to completion (or a safe stop) on its own; anything that needs a fast reaction, such as liquid heading for the table edge or a hand entering the workspace, must be owned by the lower layers.
+2. **Hint:** Add the method to the stub (a subclass is fine), declare a matching tool with `skill(...)` so the harness's `getattr(robot, b.name)(**b.input)` dispatch still works, and tell the planner in `SYSTEM` to call it before each pick. **Sketch:** A real affordance is a learned value function over the current camera image; a toy rule is enough to see the behavior. It prevents attempts that cannot work from the current state (picking an object that is not visible, picking while already holding something, very low-probability grasps) and lets the planner choose a better alternative first. New failures: a miscalibrated estimate blocks feasible steps or blesses bad ones, the planner may skip the check or ignore a low score (computing the say-times-can product in the harness is more reliable than asking the model to do it), and every step costs an extra model turn.
+
+    ```python
+    class AffordanceRobot(RobotStub):
+        def can_succeed(self, skill: str, obj: str) -> str:
+            """Toy affordance: P(success) of skill(obj) from the current state."""
+            if skill == "pick":
+                ok = obj in self.scene and not self.holding
+                p = 0.0 if not ok else (0.3 if obj == "knife" else 0.9)  # thin objects are hard
+            elif skill == "place":
+                p = 0.95 if self.holding else 0.0
+            else:
+                p = 0.0
+            return json.dumps({"skill": skill, "obj": obj, "p_success": p})
+
+    TOOLS.append(skill("can_succeed", "Estimate the probability (0-1) that a skill succeeds now.",
+                       {"skill": {"type": "string", "enum": ["pick", "place"]},
+                        "obj": {"type": "string"}}))
+    ```
+3. **Hint:** Fail without changing state, so the object stays where it was, and keep the retry counter in the harness, not in the prompt, for the same reason the knife gate lives there. **Sketch:** With feedback the planner usually just retries `pick`, which is the Inner Monologue lesson in action. With a limit of three attempts, an object at 25% failure per attempt still gets stuck 0.25³ = 1/64 ≈ 1.6% of the time, so escalation will happen in practice. When it does, return a `BLOCKED` result that tells the planner to stop and report to the user, and in a real system notify an operator.
+
+    ```python
+    import random
+    from collections import Counter
+
+    MAX_TRIES, failures = 3, Counter()
+
+    class FlakyRobot(RobotStub):
+        def pick(self, obj: str) -> str:
+            if obj in self.scene and not self.holding and random.random() < 0.25:
+                return f"FAILED: grasp slipped on {obj}"  # state unchanged
+            return super().pick(obj)
+
+    def gated_pick(robot: FlakyRobot, obj: str) -> tuple[str, bool]:
+        if failures[obj] >= MAX_TRIES:
+            return f"BLOCKED: {MAX_TRIES} failed grasps on {obj}. Stop and tell the user.", True
+        out = robot.pick(obj)
+        failures[obj] += out.startswith("FAILED")
+        return out, out.startswith("FAILED")
+    ```
+4. **Hint:** Use the lesson's five layers as the skeleton, and for each one think about which failure the layers above and below it would let through. **Sketch:** (1) Hardware: e-stops on the robot and at the door, speed and force limits per ISO/TS 15066, bumpers; catches a software crash or a planner bug that drives into someone, where nothing above reacts in time. (2) Planning and control constraints: keep-out zones at doorways and crash-cart areas, slowing down when a safety scanner sees a person, collision checking; catches a path through an occupied aisle before any contact happens, which force limits only catch after contact. (3) Harness gates: an allowlist of items, approval for controlled drugs and sharps containers, barcode check before handing anything over, step caps and logs; catches a manipulated or confused planner (for example, instructions written on a box label) picking a restricted or wrong item. (4) Human oversight: staff can pause or take over, and the robot asks when the requested item is missing or ambiguous; catches situations nobody anticipated, such as a substitution that looks reasonable but is clinically wrong. (5) Semantic safety in the model: carry sharps safely, never stack heavy boxes on fragile supplies; catches novel unsafe actions nobody wrote a rule for.
+5. **Hint:** 300 trials over two models and ten tasks is only 15 trials per model per task, so think about pairing and about how wide the uncertainty is before deciding allocation. **Sketch:** Pre-generate randomized initial conditions (object positions, distractors, lighting) per task and run both models on the same conditions in random order, so the comparison is paired. Fix success criteria in advance (end state plus a time limit), have judges who do not know which model ran, and log interventions and unsafe events. With equal allocation, each model gets 150 trials; at 50% success the 95% interval is about ±1.96 × √(0.25/150) ≈ ±8 points per model, and about ±1.96 × √(0.25/15) ≈ ±25 points per model per task, so per-task claims are weak. Analyse pairs with a paired test (for example McNemar) or bootstrap intervals over conditions. Use SIMPLER-style simulation first: run both models on many simulated trials per task, then spend more real trials on tasks where the simulated gap is small (the real comparison is uncertain) or where simulation is known to be unfaithful (deformables, contact-rich tasks), and fewer where simulation shows a large, consistent gap.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

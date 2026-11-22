@@ -257,6 +257,30 @@ langchain_tool = lc_tool(get_order_status, parse_docstring=True)
 4. **Migration plan.** You have a production AutoGen 0.4 multi-agent system. Write a one-page migration plan to Microsoft Agent Framework, including how you would use an eval suite to decide when to cut over.
 5. **Build vs. buy.** Estimate what you would have to build to match a managed platform's sandboxing, session persistence and identity features for an internal coding agent. When would you still choose to self-host?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Work through the selection table in order (language first, then control, multi-agent, durability, observability, lock-in, maturity, where it runs), because early answers eliminate most options. **Sketch:** A strong answer separates must-haves from nice-to-haves, says honestly whether a raw API loop plus the Tool Runner would already do, and compares the two shortlisted options on the criteria that actually differ between them (for example LangGraph's checkpointers and `interrupt()` versus the Claude Agent SDK's built-in file and shell tools). It ends with how you would confirm the choice: run your own eval suite on a small prototype in each, and check whether you can read the code path from user input to model call.
+2. **Hint:** You need to see the raw HTTP request body, not the framework's own logs. Point the framework at a logging proxy through its base-URL setting, turn on the provider SDK's debug logging (`ANTHROPIC_LOG=debug` or `OPENAI_LOG=debug`), or, when you can pass in a client, attach an `httpx` request hook. **Sketch:** Run a trivial one-tool agent, capture the `system`, `tools` and `messages` fields, and diff them against what you wrote. Things frameworks commonly add: role, goal and backstory text or formatting instructions in the system prompt, reworded or reformatted tool descriptions, schemas generated differently from your docstring, extra instructions for structured output or final answers, and retries that resend the conversation. Each addition is a hidden prompt you now have to test against.
+
+    ```python
+    import json
+
+    import anthropic
+    import httpx
+
+    def log_request(request: httpx.Request) -> None:
+        body = json.loads(request.content or b"{}")
+        print(json.dumps({k: body.get(k) for k in ("system", "tools")}, indent=2))
+
+    client = anthropic.Anthropic(http_client=httpx.Client(event_hooks={"request": [log_request]}))
+    ```
+3. **Hint:** Write the second tool in the same framework-free style (typed arguments, a docstring with an `Args:` section), and compare the schemas each framework actually sends to the model, captured as in exercise 2, rather than its in-memory objects. **Sketch:** Add something like `cancel_order(order_id: str, reason: str) -> str` to `tools.py`, wrap both functions with each adapter, and run the same prompt ("Where is A-1042? If it hasn't shipped, cancel it") in both frameworks. Compare the tool names, whether the docstring summary and per-argument `Args:` descriptions survived, `required` lists, `additionalProperties`, and how optional or defaulted parameters are rendered. Differences in descriptions are behavioral differences, so run your eval cases on both versions, not just a schema diff.
+4. **Hint:** Treat it as three separate moves: extract what should be framework-free (tools, prompts, state), rebuild the orchestration in the new framework, and decide cut-over with evidence from the same eval suite run against both systems. **Sketch:** (1) Inventory the agents, tools, team patterns (for example AutoGen 0.4's round-robin or selector group chats) and termination conditions, and map each to Agent Framework's agents, workflows and orchestration patterns using Microsoft's migration guide. (2) Move tool logic into plain functions or MCP servers, and prompts into version-controlled files. (3) Build an eval suite from production traces: task success, policy or safety cases, cost, latency and turn counts, with several runs per case to measure variance. (4) Run the new system in shadow mode on mirrored traffic, then canary it (for example 5%, then 25%, then 100%) with a rollback switch. (5) Cut over only when task success matches the old system within noise, no safety case regresses, and cost and latency are within agreed bounds. Also plan for in-flight sessions (drain or convert them) and for the timeline: AutoGen is in maintenance mode, so this is about access to new features, not an emergency.
+5. **Hint:** Break each feature into the components you would have to build and operate yourself, and remember the ongoing costs (on-call, security reviews, upgrades), not just the first build. **Sketch:** *Sandboxing:* a container or microVM per session with strong isolation, network egress controls, CPU, memory and time limits, image management, cleanup and abuse monitoring. *Session persistence:* an event log, resumable streams, file-system snapshots or volumes, idle timeouts and long-running sessions that survive deploys. *Identity:* per-user credentials kept out of the sandbox, a secrets vault, OAuth for MCP servers, scoped short-lived tokens and audit logs. Together that is typically a sizeable platform project plus ongoing operations. Still self-host when data residency, air-gapped or regulatory requirements rule out a vendor runtime, when you need models the platform does not support, when you already run a hardened sandbox platform, when costs at your scale favor it, or when you need control the platform does not expose (Claude Managed Agents is still in beta, for example).
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

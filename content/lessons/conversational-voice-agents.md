@@ -307,6 +307,43 @@ Most mature deployments are hybrids: AI handles high-volume routine contacts, an
 4. **Latency budget.** Build a cascaded voice demo with LiveKit Agents or Pipecat. Instrument each stage and record p50 and p95 voice-to-voice latency over 30 turns. Change one variable (model tier, endpointing threshold, TTS vendor) and measure the effect.
 5. **Compliance design.** Design the payment-collection step of a phone agent so no card number ever reaches the LLM, transcripts or logs. Draw the call flow, including how recording is paused and how the agent learns whether payment succeeded.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Read the policy as a literal-minded new hire would, and look for every word that needs judgment: "within", "unused", "may", "at our discretion". **Sketch:** Typical ambiguities: does "30 days" run from purchase or from delivery; who decides "unused" or "original condition", and on what evidence; whether gifts, sale items, bundles or partial returns qualify; who pays return shipping; refund to original payment or store credit. Rewrite each as a testable rule (condition, then allowed action, then limit), for example "If delivery was 30 or fewer days ago and the item is not final sale, offer a refund to the original payment method." Then list explicit escalation criteria: anything requiring a condition judgment from a photo, refunds above the tool limit, a claimed prior promise by staff, legal or safety mentions, and any case the rules do not cover. Remember the lesson's point that the limits must also be enforced in the tools.
+2. **Hint:** `get_order` should reuse exactly the same ownership check as `issue_refund`, and the confirmation rule needs state the harness owns: a pending refund plus a counter the harness increments each time a real customer message arrives. **Sketch:** `get_order(order_id)` returns an error until `session["customer_id"]` is set, and returns the same "not found on this account" message for orders that belong to other customers, so it does not leak whether they exist. For confirmation, the first refund call above $50 only records the pending refund and asks the agent to read the amount back. The refund goes through only if the same call arrives in a later customer turn. In red-teaming, try a claimed supervisor approval, a third-party order number, "just confirm it yourself", and splitting $90 into two $45 refunds; that last one passes this rule, so note it as a gap (a per-order refund cap closes it).
+
+    ```python
+    CONFIRM_ABOVE = 50.00
+
+    def needs_confirmation(order_id: str, amount: float) -> bool:
+        """Call in issue_refund after the existing checks; True means stop and ask."""
+        if amount <= CONFIRM_ABOVE:
+            return False
+        if session.get("pending") == (order_id, amount) and session["turn"] > session["pending_turn"]:
+            session["pending"] = None  # confirmed in a later customer turn
+            return False
+        session["pending"], session["pending_turn"] = (order_id, amount), session["turn"]
+        return True  # issue_refund returns "Read back the amount and ask the customer to confirm."
+    ```
+3. **Hint:** The simulated user is a second model with a system prompt holding the persona and hidden goal, told to reveal information only when asked and to stop when its goal is met or refused. Grade the final database state, not the transcript. **Sketch:** Run each scenario five times with a fresh session and fresh mock database. pass^1 is the average per-trial success. With n = 5 trials and k = 5, a scenario's pass^5 is 1 only if all five trials succeeded, so a scenario at 4/5 contributes 0.8 to pass^1 and 0 to pass^5. For intuition, an agent at 70% per trial passes five in a row 0.7^5 ≈ 16.8% of the time. Inconsistent scenarios usually involve ambiguous policy, users who reveal key facts late, multi-step actions (exchange plus address change), or the simulated user itself drifting off-goal, so read the failing transcripts before blaming the agent.
+
+    ```python
+    from math import comb
+
+    def pass_hat_k(successes: int, trials: int, k: int) -> float:
+        """Unbiased estimate of P(all k trials succeed) from `trials` runs of one scenario."""
+        return comb(successes, k) / comb(trials, k)
+
+    scenarios = [5, 4, 5, 3, 5, 5, 2, 5, 4, 5]  # successes out of 5 per scenario
+    print(sum(c / 5 for c in scenarios) / 10, sum(pass_hat_k(c, 5, 5) for c in scenarios) / 10)
+    # pass^1 = 0.86, pass^5 = 0.6
+    ```
+4. **Hint:** Log a timestamp at each boundary: user stops speaking (VAD end), final transcript, first LLM token, first TTS audio byte sent. Voice-to-voice latency is the last minus the first. **Sketch:** Both frameworks expose per-stage metrics or events you can hook. Over 30 turns, sort the latencies: p50 is the middle value, and p95 falls between the second- and third-slowest turns, so it is noisy at this sample size; run more turns before trusting small differences. Change only one variable and keep the script of turns identical. Expected patterns: lowering the endpointing silence threshold cuts latency almost one-for-one but causes more interruptions of users who pause mid-sentence; a faster model tier lowers LLM time to first token; streaming TTS vendors differ mainly in time to first audio. Report the stage breakdown, not just the total, so you can see which stage dominates (often endpointing).
+5. **Hint:** The agent should never be in the audio path while the number is spoken or keyed; it only starts the payment step and receives a yes/no result. **Sketch:** The flow: (1) the agent confirms the amount and calls a `start_payment(amount)` tool; (2) the harness pauses call recording and detaches STT from the caller's audio, and tells the caller via a fixed prompt; (3) the call is bridged to a PCI-compliant IVR or payment provider that collects digits by DTMF, with tones masked from any recording; (4) the provider tokenizes the card and returns only success or failure, a transaction reference and perhaps the last four digits; (5) the harness resumes recording and STT and returns that result as the tool result; (6) the agent confirms or offers to retry or hand off. Add defenses in depth: redact card-like digit strings from transcripts and logs in case a caller reads the number aloud anyway, and keep the payment step out of the LLM's tool arguments entirely.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

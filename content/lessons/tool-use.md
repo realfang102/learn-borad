@@ -489,6 +489,63 @@ Nearly everyone hits some of these. Most produce a 400 error; a few silently deg
 4. **Human approval.** Add a `send_email(to, subject, body)` tool. Before executing it, print the arguments and ask for `y/n` on the terminal; on `n`, return an `is_error` result saying the user declined. Observe how the model responds to a declined action.
 5. **Port it.** Re-implement the weather-plus-calculator agent on another provider's function-calling API, using their current quick-start docs. List every structural difference you had to handle (argument encoding, result roles, IDs, parallel-call behavior).
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** The model picks between overlapping tools almost entirely from their descriptions, so the "when to use" sentence is the lever. **Sketch:** Add the tool and handler below; the answer is 42.195 km ≈ **26.2188 mi**. Because the description says "use this for any unit conversion instead of calculate", the model picks it. To flip the choice, change `calculate`'s description to "Use for all numeric work, including unit conversions" and narrow `convert_units` to "Only for conversions the user explicitly asks to be done with this tool" (or delete its "instead of calculate" line). The choice changes because the descriptions are the only information the model has about which tool fits.
+
+    ```python
+    TO_METERS = {"km": 1000, "mi": 1609.344, "m": 1, "ft": 0.3048}
+
+    TOOLS.append({
+        "name": "convert_units",
+        "description": ("Convert a length between units. Use this for any unit conversion "
+                        "instead of calculate. Returns the converted value with its unit."),
+        "strict": True,
+        "input_schema": {
+            "type": "object",
+            "properties": {"value": {"type": "number"},
+                           "from_unit": {"type": "string", "enum": list(TO_METERS)},
+                           "to_unit": {"type": "string", "enum": list(TO_METERS)}},
+            "required": ["value", "from_unit", "to_unit"],
+            "additionalProperties": False,
+        },
+    })
+    HANDLERS["convert_units"] = lambda value, from_unit, to_unit: (
+        f"{value * TO_METERS[from_unit] / TO_METERS[to_unit]:.4f} {to_unit}")
+    ```
+
+2. **Hint:** Use the Lisbon-vs-Oslo question, which reliably triggers two parallel calls, and copy the error messages verbatim from the exceptions the SDK raises. **Sketch:** Omitting the assistant turn gives a 400 `invalid_request_error`: the `tool_result` refers to a `tool_use_id` that doesn't appear in the previous assistant message. Splitting parallel results into separate user messages either produces a 400 about a `tool_use` without its `tool_result` in the very next message, or, where the API tolerates it, silently teaches the model to stop calling tools in parallel (see the Common Bugs table). Record what you actually observe. Rules: "Always append `response.content` unchanged before sending results" and "Return every result for a turn in one user message, results first, one per `tool_use_id`."
+3. **Hint:** Raise the error inside `get_weather` so `run_tool` handles it; for the comparison, make a variant of `run_tool` that returns `"content": ""` without `is_error`. **Sketch:** With two lookups per run, about half of all runs (1 − 0.7² = 51%) see at least one failure. With helpful errors, the model typically retries the failed city and still answers correctly, costing about one extra step per failure. With empty strings, it tends to say data is unavailable, guess the temperature, or answer about only one city, so steps may be fewer but answer quality drops. Report both mean steps and the number of correct final answers out of ten.
+
+    ```python
+    import random
+
+    def get_weather(city: str) -> str:
+        if random.random() < 0.3:
+            raise TimeoutError("Weather service timed out after 5 s. This is usually "
+                               "transient; retrying the same call is safe.")
+        key = city.split(",")[0].strip().lower()
+        ...  # rest unchanged
+    ```
+
+4. **Hint:** Put the approval inside the handler; an exception there already becomes an `is_error` result through `run_tool`. **Sketch:** Add a matching `TOOLS` entry (strict, with `to`, `subject` and `body` required). On "n", the model usually acknowledges the decline and asks what to change, offers a revised draft, or ends without sending; it shouldn't retry the same email unchanged, and the error message says so. If it does retry, that's a prompt or tool-description fix.
+
+    ```python
+    def send_email(to: str, subject: str, body: str) -> str:
+        print(f"To: {to}\nSubject: {subject}\n\n{body}")
+        if input("Send this email? [y/n] ").strip().lower() != "y":
+            raise PermissionError("The user declined to send this email. Do not retry "
+                                  "it unchanged; ask the user what they want instead.")
+        return f"Email sent to {to}."  # a real implementation would call your mail API
+
+    HANDLERS["send_email"] = send_email  # plus a matching entry in TOOLS
+    ```
+
+5. **Hint:** Walk through the comparison table row by row and note where your port needed different code, not just different names. **Sketch:** Typical differences for OpenAI's Chat Completions API: tools are wrapped as `{"type": "function", "function": {..., "parameters": schema}}`; the stop signal is `finish_reason == "tool_calls"` rather than `stop_reason == "tool_use"`; arguments arrive as a **JSON string** you must `json.loads` (and handle parse errors without strict mode); the system prompt is a message in the list rather than a separate parameter; and each result is its own `role: "tool"` message with `tool_call_id`, so one message per result is correct there, unlike Anthropic's single user message. There's no `is_error` flag, so you describe the failure in the content. Parallel calls can be turned off with `parallel_tool_calls`. Gemini uses `functionCall`/`functionResponse` parts with `args` as an object. APIs evolve, so confirm each detail against the current docs.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

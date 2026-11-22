@@ -382,6 +382,38 @@ response = client.messages.create(
 <li><strong>Effort experiment.</strong> Using the code above, ask a tricky multi-step logic puzzle at <code>effort</code> <code>&quot;low&quot;</code> and <code>&quot;high&quot;</code>. Compare correctness, <code>usage.output_tokens</code> and wall-clock time. When would you pay for the higher setting?</li>
 <li><strong>Stretch: cost model.</strong> An agent makes 25 calls per task. The transcript starts at 6,000 tokens and grows by 2,500 tokens per step, and each step outputs 400 tokens. Using the Opus 5.5 list prices above and assuming no caching, estimate the <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">cost per task</dfn>. Then estimate how prompt caching would change the input cost, and explain why.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Keep the underlying data identical across formats so the only variable is formatting, and count with the same model each time. <strong>Sketch:</strong> Use <code>client.messages.count_tokens</code> on each variant. You should find pretty-printed JSON costs noticeably more than minified JSON (whitespace and newlines are tokens too), and JSON generally costs more per fact than plain prose because of quotes, braces and repeated keys. Lesson for tool results: return compact, relevant fields only, drop boilerplate and indentation, and summarize large outputs before they enter the context.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+data = {<span class="hljs-string">&quot;order_id&quot;</span>: <span class="hljs-string">&quot;A-1042&quot;</span>, <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;shipped&quot;</span>, <span class="hljs-string">&quot;items&quot;</span>: [{<span class="hljs-string">&quot;sku&quot;</span>: <span class="hljs-string">&quot;X1&quot;</span>, <span class="hljs-string">&quot;qty&quot;</span>: <span class="hljs-number">2</span>}]}
+variants = {
+    <span class="hljs-string">&quot;minified&quot;</span>: json.dumps(data, separators=(<span class="hljs-string">&quot;,&quot;</span>, <span class="hljs-string">&quot;:&quot;</span>)),
+    <span class="hljs-string">&quot;pretty&quot;</span>: json.dumps(data, indent=<span class="hljs-number">2</span>),
+    <span class="hljs-string">&quot;prose&quot;</span>: <span class="hljs-string">&quot;Order A-1042 has shipped. It contains 2 of item X1.&quot;</span>,
+}
+<span class="hljs-keyword">for</span> name, text <span class="hljs-keyword">in</span> variants.items():
+    count = client.messages.count_tokens(
+        model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: text}]
+    )
+    <span class="hljs-built_in">print</span>(name, count.input_tokens)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Note both <em>how many</em> distinct answers you get and how different they are; then add constraints (length, style, words to avoid) and compare. <strong>Sketch:</strong> The open-ended prompt usually gives five different names because sampling picks among many plausible continuations. A specific prompt (&quot;one lowercase word, under 8 letters, ending in -git, reply with the name only&quot;) narrows the distribution, so answers converge, though they may still not be identical. The takeaway for agents: specific instructions and structured outputs reduce variance, but you still evaluate success as a rate over several runs.</p>
+</li>
+<li><p><strong>Hint:</strong> Pick a library small or new enough that it is unlikely to be well represented in training data, and check the first answer against the real source. <strong>Sketch:</strong> Without the source the model often gives a plausible but wrong signature (invented parameter names, wrong defaults, wrong order), stated confidently. With the source in context it reads the real definition and answers correctly. That is grounding: the second answer is an observation, not a recollection. Agents read before they write for the same reason: a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> that edits a function without opening the file is relying on the first, hallucination-prone mode.</p>
+</li>
+<li><p><strong>Hint:</strong> Run each setting several times, since one run of each proves little, and time the calls with <code>time.perf_counter()</code>. <strong>Sketch:</strong> Expect <code>&quot;high&quot;</code> to use many more output tokens (thinking counts toward <code>output_tokens</code>) and take longer, and to be correct more often on a genuinely tricky puzzle; on an easy one, both settings tend to succeed and <code>&quot;low&quot;</code> wins on cost and speed. Pay for higher effort on steps where a wrong answer is expensive or hard to detect (debugging, planning, ambiguous judgment calls) and where your measurements show the accuracy gain; keep low effort for lookups, routing and classification.</p>
+</li>
+<li><p><strong>Hint:</strong> Input at step <em>i</em> is 6,000 + 2,500 × (<em>i</em> − 1) tokens, so total input is an arithmetic series; output is a flat 400 per step. <strong>Sketch:</strong> Total input = 25 × 6,000 + 2,500 × (0 + 1 + … + 24) = 150,000 + 2,500 × 300 = <strong>900,000 tokens</strong> → 0.9 × $4 = <strong>$3.60</strong>. Output = 25 × 400 = 10,000 tokens → 0.01 × $20 = <strong>$0.20</strong>. Total ≈ <strong>$3.80 per task</strong>. With caching, each step re-reads the previous step&#39;s whole input as a prefix and only writes the new 2,500 tokens (plus the first 6,000 once). Using the Opus 5.5 rates from <a href="cost-and-latency.html">cost and latency</a> (cache reads $0.20/MTok, 5-minute writes $5/MTok): writes = 6,000 + 24 × 2,500 = 66,000 tokens → $0.33; reads = 900,000 − 66,000 = 834,000 tokens → about $0.17. Input drops from $3.60 to about <strong>$0.50</strong> (roughly 86% less), and the task to about $0.70. Why: almost every token in an agent&#39;s input is a repeat of the previous call&#39;s prefix, and cached prefixes cost a small fraction of fresh input.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="llm-fundamentals" data-total="7">
 

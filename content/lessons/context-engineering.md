@@ -330,6 +330,35 @@ The process matters more than the specific numbers: **measure** what fills your 
 4. **Clearing vs. compaction.** On a tool-heavy task (e.g., 40+ file reads), compare three configurations: no management, `clear_tool_uses_20250919` with `keep=5`, and server-side compaction. Measure success rate, total input tokens and cache hit rate.
 5. **Sub-agent design (hard).** Build a `delegate(task: str) -> str` tool that runs a sub-agent in a fresh context with read-only tools and returns a summary under 300 words. Use it for codebase exploration, and compare the lead agent's context size and success rate against a single agent doing everything. Identify one task where delegation hurts, and explain why.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** `client.messages.count_tokens(model=..., system=..., tools=..., messages=...)` counts a request without running it, so you can measure a component by difference: count with and without it. **Sketch:** On each call, log (a) system tokens = count with `system` minus count without, (b) tool-definition tokens likewise, (c) tool-result tokens = full count minus a count with every `tool_result` content replaced by an empty string, (d) the rest as conversation history. Cross-check the total against `usage.input_tokens + cache_read_input_tokens + cache_creation_input_tokens`. Plot the components per step. On a long task you should see what the lesson predicts: the fixed prefix stays flat, while tool results grow until they are the largest consumer by far. That tells you to target them first (truncation, pagination, clearing).
+2. **Hint:** For every if-else rule, ask "what goal does this serve?" and write the goal plus the reason; keep genuinely hard constraints, but give each one its *why*. **Sketch:** Follow the lesson's refund example: replace "if refund AND annual AND days > 30, use R7" with the policy, the reason behind it, and an escalation rule for unclear cases, organized under headings such as `<background>`, `<tools_guidance>` and `<output_format>`. For the comparison, make sure at least three of the 10 tasks are cases the original rules didn't anticipate, run each prompt several times per task, and score against a fixed rubric. The typical result: both versions tie on cases the rules covered, and the right-altitude prompt wins on the unanticipated ones. If it loses somewhere, a specific rule was load-bearing; put it back, with its reason.
+3. **Hint:** With `datetime.now()` at the top, the first bytes of the system prompt change on every call, and the system prompt renders before the messages, so nothing after it can be cached. Also check the prompt exceeds the model's minimum cacheable length, or reads stay at zero in both runs. **Sketch:** Run 1 shows `cache_read_input_tokens = 0` on every step, and worse, each step pays the cache *write* premium for the whole prompt. Run 2 reads everything but the new turn. Worked example, in base-input-token equivalents (cache read ≈ 0.05×, 5-minute write 1.25×), for a 10K-token prefix that grows by 2K per step (prompts of 10K, 12K, 14K, 16K, 18K): timestamp at top: (10 + 12 + 14 + 16 + 18)K × 1.25 = 87.5K. Timestamp moved: step 1 writes 10K × 1.25 = 12.5K; steps 2 to 5 each read the previous prompt and write the new 2K, giving 0.5 + 2.5 = 3.0K, then 3.1K, 3.2K and 3.3K, for 25.1K in total. That's about 3.5× cheaper over five steps (roughly 3K vs. 15 to 22.5K per step after the first), and the gap widens as the history grows. Time-to-first-token should drop too.
+4. **Hint:** Make sure the task actually crosses the clearing trigger and the compaction threshold (use big files or many reads), or all three runs will look the same. Count total input as `input_tokens + cache_read_input_tokens + cache_creation_input_tokens` summed over calls, and cache hit rate as cache reads divided by that total. **Sketch:** Expect *no management* to use the most tokens and to degrade (or hit the window) late in the task. *Clearing with keep = 5* should cut total input tokens sharply while keeping a high hit rate between clearing events, since each clear rebuilds the cache once; its typical failure is the agent needing a cleared file, which it can re-read because file reads are restorable. *Compaction* gives the smallest context after it fires, but each compaction starts a new prefix and is lossy, so watch for a forgotten constraint or decision afterwards. Run each configuration several times; single runs of an agent are noisy. A strong write-up reports success rate next to the token numbers, because a cheaper run that fails isn't a win.
+5. **Hint:** The sub-agent is just a second agent loop inside a tool function: its own `messages` list, read-only tools, a step limit, and only its final text goes back to the lead. **Sketch:** Enforce the 300-word cap in code (check the length, ask the sub-agent to shorten once, then truncate) as well as in its prompt. Delegation tends to win on broad exploration ("find every caller of `parse_config`"), where the lead's context grows by roughly the summary rather than by the whole search. It hurts on tightly coupled work such as "rename this function and update every caller consistently", where the lead needs exact details the summary dropped and re-reads the files anyway. Total tokens go up and parallel sub-agents can make conflicting choices, which is the Cognition argument.
+
+    ```python
+    SUB_SYSTEM = ("You are a read-only research sub-agent. Investigate the task, then reply in under "
+                  "300 words with concrete findings: file paths, line numbers, facts. No speculation.")
+
+    def delegate(task: str, max_steps: int = 30) -> str:
+        msgs = [{"role": "user", "content": task}]  # fresh context: none of the lead's history
+        for _ in range(max_steps):
+            r = client.messages.create(model="claude-sonnet-5-5", max_tokens=16000,
+                                       system=SUB_SYSTEM, tools=READ_ONLY_TOOLS, messages=msgs)
+            msgs.append({"role": "assistant", "content": r.content})
+            if r.stop_reason != "tool_use":
+                return next((b.text for b in r.content if b.type == "text"), f"[sub-agent stopped: {r.stop_reason}]")
+            msgs.append({"role": "user", "content": [
+                {"type": "tool_result", "tool_use_id": b.id, "content": run_tool(b.name, b.input)}
+                for b in r.content if b.type == "tool_use"]})
+        return "[sub-agent hit its step limit without a final report]"
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

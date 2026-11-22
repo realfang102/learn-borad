@@ -384,6 +384,60 @@ A good run searches for annual-plan refunds, finds `refund-policy#0`, and answer
 4. **Citation verifier.** After the agent answers, parse every `[id]` citation and check it was actually returned by a `search_docs` call in this conversation. Flag answers with unsupported citations, or with factual sentences that carry no citation.
 5. **Agentic vs. pipeline (hard).** Build two systems over the same corpus: (a) single-shot retrieval (top 5, then answer) and (b) the agentic loop. Write 10 multi-hop questions where the second search depends on the first result. Compare accuracy, tokens and latency, and explain where each wins.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Label exactly one relevant chunk per query, and seed the corpus with lookalikes (E4012 next to E4021, `parse_config` next to `load_config`) so near misses count as misses. **Sketch:** The expected pattern: BM25 wins the identifier group, because rare exact tokens get a high IDF and match exactly, while embeddings tend to return "a chunk about some error". Embeddings win the conceptual group whenever the query shares few words with the answer ("can't get into my account" vs. a chunk about password resets). Each method fails where the other succeeds, which is the argument for hybrid search. Note that the example's `tokenize` splits `parse_config` into `parse` and `config`, so BM25 still matches identifiers but can also match their parts.
+2. **Hint:** RRF needs only the ordered IDs from each retriever, not their scores; count ranks from 1. **Sketch:** With k = 60, the lesson's example works out as 1/61 + 1/68 ≈ 0.0311 for "1st in BM25, 8th in dense", against 1/63 ≈ 0.0159 for "3rd in dense only". A document that is 1st in one list only scores 1/61 ≈ 0.0164. That beats every other single-list document, but it loses to any document that appears in both top-20 lists (at least 2/80 = 0.025). So it "wins" overall when the lists barely overlap, which is typical for an exact-identifier query where dense retrieval returns unrelated errors. That preference for consensus is by design; a smaller k (say 10) gives first places more weight.
+
+    ```python
+    def rrf(*rankings: list[str], k: int = 60) -> list[tuple[str, float]]:
+        scores: dict[str, float] = {}
+        for ranking in rankings:
+            for rank, doc_id in enumerate(ranking, start=1):
+                scores[doc_id] = scores.get(doc_id, 0.0) + 1 / (k + rank)
+        return sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+    bm25_ids = [c["id"] for _, c in index.search(query, k=20)]
+    fused = rrf(bm25_ids, dense_ids)  # dense_ids: chunk ids from your embedding search, best first
+    ```
+
+3. **Hint:** Make documents longer than the 40-word chunk size so they actually split, and keep chunk IDs unchanged when you contextualize (change only the text you index) so the same labels work for both runs. **Sketch:** For each question, find the rank of the first relevant chunk in the top 10. Recall@1 is the fraction at rank 1, recall@3 the fraction at rank ≤ 3, and MRR the mean of 1/rank (0 if not found). Worked example for 15 questions: 9 at rank 1, 3 at rank 2, 1 at rank 3 and 2 not found gives recall@1 = 9/15 = 0.60, recall@3 = 13/15 ≈ 0.87, MRR = (9 + 3 × 1/2 + 1/3) / 15 = 10.83 / 15 ≈ 0.72. For the contextualized index, rebuild with `BM25([{"id": c["id"], "text": contextualize(DOCS[c["id"].split("#")[0]], c["text"])} for c in chunks])`. Expect the biggest gains on questions that use document-level terms ("annual plan", the product name) that appear in the document but not in the chunk itself.
+
+    ```python
+    def evaluate(index, labeled: list[tuple[str, set[str]]], k_max: int = 10) -> tuple[float, float, float]:
+        r1 = r3 = mrr = 0.0
+        for question, relevant in labeled:
+            ids = [c["id"] for _, c in index.search(question, k=k_max)]
+            rank = next((i for i, cid in enumerate(ids, start=1) if cid in relevant), None)
+            r1 += rank == 1
+            r3 += rank is not None and rank <= 3
+            mrr += 1 / rank if rank else 0.0
+        n = len(labeled)
+        return r1 / n, r3 / n, mrr / n
+    ```
+
+4. **Hint:** The ground truth is already in `messages`: every `tool_result` block's content contains `<result id="...">` tags, so collect those IDs, then compare them with the `[id]` citations in the final text. **Sketch:** Flag any citation that's not in the retrieved set (fabricated, or from an earlier answer). For uncited claims, split the answer into sentences and flag those that make a factual claim (contain a number, or a verb like "is", "can" or "will") without a citation. That's a rough heuristic, so treat it as a filter that sends cases to review. The next step up is an LLM-judge pass that checks each cited chunk actually supports its sentence (faithfulness, not just existence).
+
+    ```python
+    import re
+
+    CITE = re.compile(r"\[([\w.-]+#\d+)\]")
+
+    def verify_citations(answer: str, messages: list[dict]) -> dict:
+        retrieved = {rid for m in messages if m["role"] == "user" and isinstance(m["content"], list)
+                     for b in m["content"] if b.get("type") == "tool_result"
+                     for rid in re.findall(r'<result id="([^"]+)"', b["content"])}
+        unsupported = sorted(set(CITE.findall(answer)) - retrieved)
+        sentences = re.split(r"(?<=[.!?])\s+", answer.strip())
+        uncited = [s for s in sentences if not CITE.search(s) and re.search(r"\d|\b(is|are|can|will)\b", s)]
+        return {"unsupported": unsupported, "uncited": uncited, "ok": not unsupported and not uncited}
+    ```
+
+5. **Hint:** Model the questions on the lesson's libxml trace, where the second query needs an entity (the service name) that appears only in the first result. Sum `response.usage.input_tokens + output_tokens` over every call, and run each system several times, since the agent isn't deterministic. **Sketch:** Expect the pipeline to fail most multi-hop questions: the top 5 for "customers affected by the libxml CVE" won't include the deployment-versions chunk, because that chunk never mentions libxml. The agentic loop should be clearly more accurate on these, at a multiple of the tokens and latency, since each turn resends the growing history and adds a model call. On single-hop questions the pipeline matches its accuracy with one call. A strong write-up has a per-question table and a failure analysis (pipeline: missing the second hop; agent: redundant searches, giving up early, hitting the 5-search cap). It ends with a routing recommendation: a single retrieval for simple lookups, the agent for questions that need a chain.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

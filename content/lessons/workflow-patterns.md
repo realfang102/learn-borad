@@ -518,6 +518,68 @@ Frameworks such as LangGraph, the Claude Agent SDK, the OpenAI Agents SDK, CrewA
 4. **Ground the evaluator.** Rewrite `refine` for code generation: the generator writes a Python function, and the evaluator first runs a provided set of `assert` tests (in a sandbox) and only calls the LLM reviewer if all tests pass. Compare rounds-to-success with the pure-LLM evaluator.
 5. **Design challenge.** Sketch, as a mermaid diagram, a pipeline that combines at least three patterns for "turn a 2-hour meeting transcript into decisions, action items with owners, and a follow-up email." Justify each pattern and identify where you would put human review.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** For each task, ask whether the steps are known in advance, whether the inputs fall into categories, and whether there's a checkable success criterion. Then apply "start simple": could a single augmented call do it? **Sketch:** (a) **Parallelization (sectioning) with a merge step**: extract themes from batches of reviews in parallel, then one call merges and counts them. If 500 short reviews fit comfortably in context, try a single long-context call first and compare. (b) **Routing**: send the 80% vacation questions to a cheap model with the vacation policy, and everything else to a stronger path with retrieval over all HR policies; evaluate the router for misroutes. (c) **Orchestrator-workers, or an autonomous coding agent, grounded by tests**: the number of files and their dependencies are unknown up front, so a fixed chain can't capture it. The existing service's behavior, captured as tests, is the evaluator. (d) **A single call plus a programmatic gate, or evaluator-optimizer with a code evaluator**: a word count and three keyword checks are deterministic, so code checks them and feeds failures back; no LLM judge needed.
+2. **Hint:** Wrap the outline step in a loop of at most two attempts, and on failure append the missing topics to the prompt as an explicit requirement. **Sketch:** Log every retry, then count them over 20 runs. You'll probably find that some "failures" are the gate's fault: it's a substring check, so an outline section called "Costs" fails a `must_cover` entry of "pricing". Measure how often the retry fires *and* why, and fix false negatives in the gate (synonyms, or a cheap LLM check) separately from real outline misses.
+
+    ```python
+    import logging
+
+    def outline_with_retry(topic: str, must_cover: list[str]) -> Outline:
+        prompt = f"Outline a 1-page brief on: {topic}. Use 3-6 sections."
+        for attempt in range(2):
+            outline = llm_json(prompt, Outline)
+            text = " ".join(outline.sections).lower()
+            missing = [m for m in must_cover if m.lower() not in text]
+            if not missing:
+                return outline
+            logging.info("outline gate failed (attempt %d), missing=%s", attempt + 1, missing)
+            prompt += f"\nThe outline MUST include a section covering each of: {', '.join(missing)}."
+        raise ValueError(f"Outline missing required topics after retry: {missing}")
+    ```
+
+3. **Hint:** Move the router's system prompt into a constant so you can swap versions, and deliberately include ambiguous tickets ("charged twice after the app crashed") in the labelled set. **Sketch:** Accuracy is correct predictions divided by 30 (e.g. 26 correct gives 26/30 ≈ 87%). The confusion matrix shows *which* boundary leaks, e.g. cancellations landing in "general". Typical fixes: define each boundary explicitly ("double charges are refund, even if a bug caused them"), add one example per tricky case, and put `reasoning` **before** `category` in the `Route` model, because structured output fills fields in order, so the reasoning as written is produced after the decision. To avoid tuning to your 30 tickets, keep 10 of them aside and report the improved prompt's score on those.
+
+    ```python
+    from collections import Counter
+
+    CATS = ["refund", "technical", "general"]
+
+    def evaluate_router(labelled: list[tuple[str, str]], system: str) -> None:
+        confusion = Counter()
+        for ticket, gold in labelled:
+            pred = llm_json(f"Classify this support ticket:\n\n{ticket}", Route, system=system, model=FAST).category
+            confusion[(gold, pred)] += 1
+        accuracy = sum(confusion[(c, c)] for c in CATS) / len(labelled)
+        print(f"accuracy = {accuracy:.0%}   rows = gold, columns = predicted {CATS}")
+        for gold in CATS:
+            print(f"{gold:<10}", [confusion[(gold, pred)] for pred in CATS])
+    ```
+
+4. **Hint:** Have the generator return only code (or use `llm_json` with a `code: str` field) so there's no Markdown to strip, and feed the failing assertion's traceback back as the feedback. **Sketch:** Each round: run the tests; if any fail, the feedback is the traceback (no LLM call); if all pass, ask the LLM reviewer about edge cases and readability, and stop when it approves. The subprocess below is *not* a sandbox, so for untrusted code run it in a container with no network ([guardrails and sandboxing](guardrails-and-sandboxing.html)). Typical comparison over a set of functions: the grounded version never accepts code that fails its tests and usually needs fewer rounds, since tracebacks are precise feedback. The pure-LLM evaluator sometimes passes buggy code or keeps nitpicking correct code.
+
+    ```python
+    import os, subprocess, sys, tempfile
+
+    def run_asserts(code: str, tests: str, timeout: int = 10) -> tuple[bool, str]:
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "candidate.py")
+            with open(path, "w") as f:
+                f.write(code + "\n\n" + tests)
+            try:
+                p = subprocess.run([sys.executable, "-I", path], cwd=d,
+                                   capture_output=True, text=True, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                return False, f"Timed out after {timeout}s (infinite loop?)"
+        return p.returncode == 0, p.stderr[-2000:]  # the traceback is the feedback
+    ```
+
+5. **Hint:** Separate what can be done independently (extracting decisions, action items, open questions) from what depends on earlier output (the email depends on the action items), and put a human where an error would be sent to other people. **Sketch:** A 2-hour meeting is roughly 18,000 spoken words, on the order of 25K tokens, so it fits in context; split for *focus*, not size. One strong design: (1) **sectioning**: in parallel, extract decisions, action items (task, owner, due date, supporting quote) and open questions, each in its own structured-output call; (2) **chaining with a gate**: code checks that every owner is on the attendee list and every item quotes the transcript, and flags items with no owner as "unassigned" instead of letting the model guess; (3) **evaluator-optimizer**: draft the follow-up email, and have an evaluator check that every item in the email traces back to an extracted item, with nothing invented or dropped; (4) **human review** of the action items and email before anything is sent, since wrong owners or invented commitments go to colleagues. Optional **routing** up front by meeting type (standup, planning, customer call) picks extraction prompts. The diagram should show the parallel fan-out, the gate, the evaluator loop and the human approval step before "send".
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

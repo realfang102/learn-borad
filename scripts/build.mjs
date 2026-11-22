@@ -380,6 +380,17 @@ for (const l of lessons) {
   for (const p of l.prerequisites) if (!curriculum.modules.some((m) => m.lessons.includes(p))) warn(`${l.slug}: unknown prerequisite ${p}`);
   if (!l.quiz.length) warn(`${l.slug}: no quiz`);
   if (!l.takeaways) warn(`${l.slug}: no "Key Takeaways" section`);
+  const ex = l.html.match(/<h2 id="exercises">[\s\S]*?(?=<h2 )/);
+  if (ex) {
+    const sol = ex[0].match(/<details class="solutions">([\s\S]*?)<\/details>/);
+    if (!sol) warn(`${l.slug}: exercises have no solutions block`);
+    else {
+      const before = ex[0].slice(0, ex[0].indexOf("<details"));
+      const nEx = (before.match(/<ol>[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1;
+      const nSol = (sol[1].match(/<ol>[\s\S]*<\/ol>/) || [""])[0].split(/<li>(?=[\s\S]*?Hint)/).length - 1;
+      if (nEx && nSol !== nEx) warn(`${l.slug}: ${nEx} exercises but ${nSol} solutions`);
+    }
+  }
 }
 const allCurriculumSlugs = new Set(curriculum.modules.flatMap((m) => m.lessons));
 for (const doc of [cheatsheet, projects].filter(Boolean))

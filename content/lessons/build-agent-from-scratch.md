@@ -765,6 +765,88 @@ if __name__ == "__main__":
 4. **Loop detection.** When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.
 5. **Real sandbox.** Run `run_command` in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Filter `TOOLS` once, before the `Agent` is created, and make `execute` check against the filtered names too, so a stray call to a removed tool still fails cleanly. **Sketch:** Tools render first in the cache prefix (`tools` → `system` → `messages`), so changing the tool list mid-conversation invalidates the cached tools, system prompt and entire history, and the next step pays full price for everything. A fixed tool list for the whole session keeps the prefix stable, and the model never sees capabilities appear or vanish. Remember to strip the flag in `main()` too, or `--read-only` is taken as the workspace path.
+
+    ```python
+    READ_ONLY = "--read-only" in sys.argv
+    ACTIVE_TOOLS = [t for t in TOOLS if not (READ_ONLY and t["name"] in NEEDS_APPROVAL)]
+    ACTIVE_NAMES = {t["name"] for t in ACTIVE_TOOLS}
+    # Agent.run_turn: pass tools=ACTIVE_TOOLS. Agent.execute: check block.name against ACTIVE_NAMES.
+    # main(): args = [a for a in sys.argv[1:] if a not in ("--yes", "--read-only")]
+    ```
+2. **Hint:** Reuse `resolve()` and the same hidden-file filter as `list_files`, skip files that are not UTF-8, and report an invalid regex as a `ToolFailure` with advice. **Sketch:** Add a method to `Workspace` and a definition with `tool("search_files", ..., pattern={"type": "string"}, path=PATH)`. The description does the steering: "Search file contents with a Python regex; returns `path:line: text` (max 100 matches). Use this to find where something is defined or used instead of reading files one by one." In `agent_trace.jsonl`, compare the number of `read_file` events per task before and after; a good description shows `search_files` calls followed by a few targeted reads.
+
+    ```python
+    def search_files(self, pattern: str, path: str) -> str:  # a Workspace method; needs `import re`
+        try:
+            regex = re.compile(pattern)
+        except re.error as e:
+            raise ToolFailure(f"Invalid regex ({e}). Escape special characters or use a plain substring.")
+        matches = []
+        for p in sorted(self.resolve(path).rglob("*")):
+            rel = p.relative_to(self.root)
+            if not p.is_file() or any(part.startswith(".") or part == "__pycache__" for part in rel.parts):
+                continue
+            try:
+                lines = p.read_text(encoding="utf-8").splitlines()
+            except UnicodeDecodeError:
+                continue  # skip binary files
+            matches += [f"{rel}:{i}: {line.strip()}" for i, line in enumerate(lines, 1) if regex.search(line)]
+            if len(matches) >= 100:
+                return "\n".join(matches[:100]) + "\n... (truncated at 100; narrow the pattern or path)"
+        return "\n".join(matches) or "No matches."
+    ```
+3. **Hint:** The four usage fields are priced differently: uncached input, output, cache reads and cache writes. Keep the prices in one table, as in [cost and latency](cost-and-latency.html). **Sketch:** Compute the step cost from `response.usage`, add it to a running turn total and write both into the `model` trace event. For the lesson's example trace line (412 input, 5,890 cache read, 388 cache write, 151 output) at the November 2026 Opus 5.5 rates: (412 × 4 + 151 × 20 + 5,890 × 0.20 + 388 × 5) / 1,000,000 = (1,648 + 3,020 + 1,178 + 1,940) / 1,000,000 ≈ $0.0078. Without caching, all 6,690 prompt tokens would cost $4/MTok: (26,760 + 3,020) / 1,000,000 ≈ $0.030, almost four times as much.
+
+    ```python
+    PRICES = {"claude-opus-5-5": (4.00, 20.00, 0.20, 5.00)}  # $/MTok: input, output, cache read, cache write
+
+    def step_cost(model: str, u) -> float:
+        p_in, p_out, p_read, p_write = PRICES[model]
+        return (u.input_tokens * p_in + u.output_tokens * p_out
+                + (u.cache_read_input_tokens or 0) * p_read
+                + (u.cache_creation_input_tokens or 0) * p_write) / 1_000_000
+
+    # In run_turn: cost = step_cost(MODEL, u); turn_usd += cost
+    # self.trace("model", ..., usd=round(cost, 5), turn_usd=round(turn_usd, 4))
+    ```
+4. **Hint:** Key each call on its name plus its input serialized with `json.dumps(..., sort_keys=True)`, count keys in a `Counter` reset at the start of each turn, and put the note in the same user message as the results, after the `tool_result` blocks. **Sketch:** For the test, temporarily make one tool always fail (for example `read_file` raising `ToolFailure("Temporary error, try again.")`, which invites retries). Without the note the model may retry until the step budget; with it, the trace should show the model switching approach or asking the user after the third identical call.
+
+    ```python
+    from collections import Counter
+
+    def loop_note(calls: Counter, tool_blocks: list) -> list[dict]:
+        """Count this turn's calls; return a text block to append if any call has repeated 3+ times."""
+        repeated = set()
+        for b in tool_blocks:
+            key = (b.name, json.dumps(b.input, sort_keys=True))
+            calls[key] += 1
+            if calls[key] >= 3:
+                repeated.add(b.name)
+        if not repeated:
+            return []
+        return [{"type": "text", "text": f"Note: you have repeated the identical {', '.join(sorted(repeated))} "
+                 "call three times this turn. It will not behave differently; change approach or ask the user."}]
+
+    # In run_turn: calls = Counter() before the loop, then
+    # results = [self.execute(b) for b in tool_blocks] + loop_note(calls, tool_blocks)
+    ```
+5. **Hint:** Keep the metacharacter check and allowlist, then prefix the argv with a `docker run` command instead of running it directly. Build a small image with Python and pytest installed, because the agent's tests need them. **Sketch:** Mount only the workspace (`-v {root}:/work -w /work`), add `--network none`, `--user 1000:1000`, `--read-only` with a `--tmpfs /tmp`, memory and CPU limits, and `--rm`. Give the container a name so a timeout can `docker kill` it, because killing the `docker` client process does not always stop the container. Measure overhead by timing a trivial command (`python -c pass`) 20 times directly and 20 times in the container and comparing medians. Container start-up usually dominates, so if it is too slow, start one long-lived container per session and run each command with `docker exec`, keeping the same mounts and limits.
+
+    ```python
+    def sandboxed_argv(root: Path, argv: list[str], name: str) -> list[str]:
+        return ["docker", "run", "--rm", "--name", name, "--network", "none",
+                "--user", "1000:1000", "--read-only", "--tmpfs", "/tmp",
+                "--memory", "1g", "--cpus", "1",
+                "-v", f"{root}:/work", "-w", "/work",
+                "mini-agent-sandbox:latest", *argv]  # image: python:3.12-slim plus pytest
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

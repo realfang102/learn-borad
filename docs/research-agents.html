@@ -436,6 +436,67 @@ WEB_TOOLS = [
 <li><strong>Citation verifier.</strong> Write a verifier that, for each sentence with a citation, fetches the source and asks a model whether the source supports the sentence, outputting supported, partially supported or unsupported. Run it on ten reports and report the unsupported rate.</li>
 <li><strong>Rubric judge.</strong> Write an LLM-judge rubric (accuracy, citation accuracy, completeness, source quality, efficiency) and score ten reports. Then score three yourself and measure agreement. Where does the judge disagree with you?</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Fix your checklist before you start, so you judge both products by the same criteria, and pick the five citations at random (number them, roll dice) rather than checking the ones that look suspicious. <strong>Sketch:</strong> Use a question with real conflicts in the evidence (costs, forecasts, contested statistics). For each product record: did it clarify or show a plan, did the plan cover the obvious sub-questions, the share of primary vs. secondary sources, and whether conflicting figures were explained (different years, definitions, regions) or silently averaged. For each sampled citation, open the source and classify it as supported, misattributed (real source, says something different or weaker), drifted (supports a neighbouring sentence), dead link, or fabricated. A strong write-up maps each problem to this lesson&#39;s failure modes (popularity bias, false sense of completeness, synthesis errors such as wrong year or unit) rather than just declaring a winner.</p>
+</li>
+<li><p><strong>Hint:</strong> Mirror <code>plan()</code>: a small Pydantic model holding a list of questions, called with <code>client.messages.parse</code>, and an instruction to return an empty list when the question is already clear. <strong>Sketch:</strong> Ask only questions whose answers would change the plan (scope, audience, time frame, region, depth), then judge each question by whether the two plausible answers would lead to different sub-questions.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Clarification</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    questions: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]  <span class="hljs-comment"># empty if the question is already specific</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">clarify</span>(<span class="hljs-params">question: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]:
+    resp = client.messages.parse(
+        model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+        max_tokens=<span class="hljs-number">16000</span>,
+        output_format=Clarification,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>:
+            <span class="hljs-string">&quot;Before researching, list at most three clarifying questions whose answers &quot;</span>
+            <span class="hljs-string">&quot;would change the research plan (scope, audience, time frame, region). &quot;</span>
+            <span class="hljs-string">f&quot;Return an empty list if none are needed.\n\nQuestion: <span class="hljs-subst">{question}</span>&quot;</span>}],
+    )
+    <span class="hljs-keyword">return</span> resp.parsed_output.questions[:<span class="hljs-number">3</span>]  <span class="hljs-comment"># enforce the cap in code as well</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Use another structured output, something like <code>Review(done: bool, followups: list[str])</code>, and keep appending to <code>findings</code> instead of replacing it. <strong>Sketch:</strong> After the first parallel round, give the lead the question and all findings, and ask it to judge plan coverage, conflicts and thin areas. Stop on <code>done</code>, on an empty follow-up list, or after two extra rounds. To measure cost, sum <code>usage.input_tokens + usage.output_tokens</code> over every call (have <code>research()</code> return its usage too). Score reports from runs with and without the loop using the same rubric. Expect better completeness and conflict handling on broad questions, little change on simple ones, and a token bill that grows with each round.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Review</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    done: <span class="hljs-built_in">bool</span>
+    followups: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]  <span class="hljs-comment"># at most three targeted sub-questions</span>
+
+<span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>):  <span class="hljs-comment"># at most two extra rounds</span>
+    review = client.messages.parse(
+        model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>, output_format=Review,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Question: <span class="hljs-subst">{question}</span>\n\nFindings:\n&quot;</span>
+                   + <span class="hljs-string">&quot;\n\n&quot;</span>.join(findings) + <span class="hljs-string">&quot;\n\nAre there gaps or unexplained conflicts?&quot;</span>}],
+    ).parsed_output
+    <span class="hljs-keyword">if</span> review.done <span class="hljs-keyword">or</span> <span class="hljs-keyword">not</span> review.followups:
+        <span class="hljs-keyword">break</span>
+    <span class="hljs-keyword">with</span> ThreadPoolExecutor(max_workers=<span class="hljs-number">3</span>) <span class="hljs-keyword">as</span> pool:
+        findings += <span class="hljs-built_in">list</span>(pool.<span class="hljs-built_in">map</span>(research, review.followups[:<span class="hljs-number">3</span>]))</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Split the report into (sentence, URL) pairs first, then make one small, independent judgment per pair. A <code>Literal</code> field forces the three allowed labels. <strong>Sketch:</strong> Fetch each URL yourself (record fetch failures as a separate &quot;dead link&quot; category, not as unsupported), pass the page text and the claim to a model, and ask for a label plus the exact supporting quote, which makes the verdict auditable. The unsupported rate is unsupported pairs divided by all checked pairs. Report partially supported separately, because that is where misattribution and drift usually show up.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+
+<span class="hljs-keyword">import</span> httpx
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Verdict</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    label: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;supported&quot;</span>, <span class="hljs-string">&quot;partially supported&quot;</span>, <span class="hljs-string">&quot;unsupported&quot;</span>]
+    quote: <span class="hljs-built_in">str</span>  <span class="hljs-comment"># the passage relied on; empty if none</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">verify</span>(<span class="hljs-params">sentence: <span class="hljs-built_in">str</span>, url: <span class="hljs-built_in">str</span></span>) -&gt; Verdict:
+    page = httpx.get(url, follow_redirects=<span class="hljs-literal">True</span>, timeout=<span class="hljs-number">30</span>).text[:<span class="hljs-number">100_000</span>]
+    resp = client.messages.parse(
+        model=<span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>, output_format=Verdict,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;&lt;source&gt;<span class="hljs-subst">{page}</span>&lt;/source&gt;\n&lt;claim&gt;<span class="hljs-subst">{sentence}</span>&lt;/claim&gt;\n&quot;</span>
+                   <span class="hljs-string">&quot;Does the source support the claim? Quote the passage you rely on.&quot;</span>}],
+    )
+    <span class="hljs-keyword">return</span> resp.parsed_output</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Give every dimension a short scale (for example 1 to 5) with anchor descriptions for the low, middle and high scores, and ask for a reason before each score. <strong>Sketch:</strong> Score each dimension in its own judge call or as separate fields of one structured output, as Anthropic described. For agreement, three reports times five dimensions gives 15 paired scores: report exact agreement and within-one-point agreement, and look at the pattern of disagreements. Typical findings: the judge rewards length and confident tone, cannot verify citation accuracy without the sources in front of it, and misses source-quality problems (content farms over primary sources), which is why the lesson keeps human review in the loop. Fix the rubric anchors where they disagree, then re-check agreement.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="research-agents" data-total="7">
 

@@ -395,6 +395,54 @@ APIs evolve quickly; check each project's current documentation for exact parame
 4. **Build the refund state machine.** Implement the full loop around `choose_transition`: state actions in code, a case file that accumulates results, a step limit, and an audit log of `(state, next_state, reason)`. Write unit tests that mock the model's decisions to cover every path in the graph.
 5. **Two-step vs one-step.** For a research question that needs several web searches, compare (a) one agent run that must end directly in a strict schema with (b) a free-form agent run followed by a separate extraction call. Compare accuracy and cost over ten questions.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Separate the two failure types: a *parse failure* is `json.loads` raising; a *schema violation* parses but fails Pydantic validation (missing field, label outside the enum). Count each separately, and count non-`end_turn` stop reasons on their own. **Sketch:** Expect the two schema-based methods to show zero parse failures and zero schema violations on normally completed responses. Prompt-only may also come out clean on 50 messages with a modern model, but a clean 50 doesn't prove anything at 10,000 a day; look for markdown fences, preambles and off-list labels. With `other` removed, out-of-scope messages (spam, "thanks!", a job application) still get a confident label from the remaining categories, because the mask forces a legal value, which shows why every enum needs an escape hatch.
+2. **Hint:** Put `evidence` *before* `priority` so the model quotes first and judges second, and normalize whitespace and case before comparing. **Sketch:** A failure means the model paraphrased or stitched fragments together instead of quoting; report the failure rate and read the failing examples. Fixes if it's high: say "copied verbatim, a single contiguous span" in the description, and route failures to a retry with feedback or to review.
+
+    ```python
+    from typing import Literal
+    from pydantic import BaseModel, Field
+
+    class TicketTriage(BaseModel):
+        category: Literal["billing", "bug", "how_to", "account_access", "other"]
+        evidence: str = Field(description="Exact quote from the ticket that justifies the "
+                                          "priority, copied verbatim")  # before priority
+        priority: Literal["low", "normal", "high", "urgent"]
+        summary: str
+        customer_email: str | None = Field(description="null if not present in the ticket")
+
+    def evidence_ok(triage: TicketTriage, ticket: str) -> bool:
+        norm = lambda s: " ".join(s.split()).lower()  # ignore whitespace and case differences
+        return norm(triage.evidence) in norm(ticket)
+    ```
+
+3. **Hint:** Make the mismatch unambiguous (e.g. items sum to 1,240.00 but the printed total is 1,420.00), change only `check_invoice`'s `and not inv.notes` condition, and run each version several times. **Sketch:** Without the escape hatch, the model has no honest way to pass, so runs either exhaust the retries and raise `ValueError`, or "fix" the data by changing a line item or the total so the numbers sum: a fabricated value that passes validation. With `notes` restored, it keeps the printed values and explains the discrepancy, passing on the first attempt. Two sentences: a validator that demands something the source doesn't contain pressures the model to invent data. Every check needs a legitimate way to report "the input itself is inconsistent".
+4. **Hint:** Inject the decision function (default `choose_transition`) and the action table, so tests can replace the model with a scripted list of decisions and the actions with stubs. **Sketch:** The loop below runs each state's action in code, appends the result to the case file, asks the model for the next legal state, logs `(state, next_state, reason)` and escalates on the step limit. Tests: script one path per terminal state (collect → verify → approve/escalate/deny), the clarification cycle (collect → ask → collect → verify → deny), and an endless ask/collect cycle that must end in `escalate` from the step limit; assert the final state and the audit trail for each.
+
+    ```python
+    TERMINAL = {"approve_refund", "escalate", "deny"}
+
+    def run_case(case_file: str, actions: dict, decide=choose_transition, max_steps: int = 12):
+        state, audit = "collect_info", []
+        for _ in range(max_steps):
+            case_file += f"\n[{state}] {actions[state](case_file)}"  # code runs the state's action
+            if state in TERMINAL:
+                return state, audit
+            next_state, reason = decide(state, case_file)
+            assert next_state in TRANSITIONS[state]  # defence in depth; the enum already ensures it
+            audit.append((state, next_state, reason))
+            state = next_state
+        actions["escalate"](case_file)
+        audit.append((state, "escalate", f"step limit of {max_steps} reached"))
+        return "escalate", audit
+    ```
+
+5. **Hint:** Hold everything else constant (model, tools, effort, questions) and grade answers against reference answers you prepare in advance; sum `usage` across *all* calls, including the extraction call. **Sketch:** (a) puts the strict `output_config.format` on the agent's run, so its final turn must be schema-shaped; (b) lets it finish in prose and then calls `messages.parse` on the findings, possibly with a smaller model. Typically (b) is as accurate or more so, because the research and reasoning happen without format pressure and the extraction step is easy, at the cost of one extra, cheap call. (a) can be cheaper but risks committing to fields early or squeezing nuance (caveats, conflicting sources) into rigid fields. With only ten questions, report the differences as indicative, not conclusive.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

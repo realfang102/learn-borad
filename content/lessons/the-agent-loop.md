@@ -380,6 +380,98 @@ Here's what each piece does:
 4. **Make errors actionable.** Change `read_file` so that on `FileNotFoundError` it returns the closest matching filenames in that directory (hint: `difflib.get_close_matches`). Compare how many steps the agent needs to recover from a typo'd path before and after.
 5. **Stretch: approval gate.** Add a `write_file` tool. Before executing it, have the harness print the proposed change and ask for `y/n` on stdin. On "n", return `is_error: true` with "User declined this change", and observe how the model adapts. Which stop conditions and guards does a write-capable agent need that a read-only one doesn't?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Three model calls means three assistant messages; the parallel step is *one* assistant message with two `tool_use` blocks, answered by *one* user message with two `tool_result` blocks. **Sketch:** Seven messages in total, alternating user/assistant, with ids paired `toolu_01`→`toolu_01`, `toolu_02`→`toolu_02`, `toolu_03`→`toolu_03`. The last assistant turn has `stop_reason` `end_turn` and no `tool_use`.
+
+    ```json
+    [
+      {"role": "user", "content": "What does this project do?"},
+      {"role": "assistant", "content": [
+        {"type": "tool_use", "id": "toolu_01", "name": "list_dir", "input": {"path": "."}}]},
+      {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": "toolu_01", "content": "README.md\nmain.py\nsrc/"}]},
+      {"role": "assistant", "content": [
+        {"type": "tool_use", "id": "toolu_02", "name": "read_file", "input": {"path": "README.md"}},
+        {"type": "tool_use", "id": "toolu_03", "name": "read_file", "input": {"path": "main.py"}}]},
+      {"role": "user", "content": [
+        {"type": "tool_result", "tool_use_id": "toolu_02", "content": "# tidy: cleans up Git branches..."},
+        {"type": "tool_result", "tool_use_id": "toolu_03", "content": "import sys\n..."}]},
+      {"role": "assistant", "content": [
+        {"type": "text", "text": "It's a CLI that tidies Git branches; the entry point is main.py."}]}
+    ]
+    ```
+
+2. **Hint:** Keep a running total in `run_agent`, update it right after each `messages.create`, and check it before executing more tools (if the model already finished, just return its answer). **Sketch:** Stop with a message that says how much was spent and why it stopped. If you later add prompt caching, also count `cache_read_input_tokens` and `cache_creation_input_tokens`, since `input_tokens` then covers only the uncached part.
+
+    ```python
+    TOKEN_BUDGET = 200_000
+
+    def run_agent(task: str) -> str:
+        messages = [{"role": "user", "content": task}]
+        used = 0
+        for step in range(MAX_STEPS):
+            response = client.messages.create(...)  # same call as above
+            used += response.usage.input_tokens + response.usage.output_tokens
+            messages.append({"role": "assistant", "content": response.content})
+            # ... end_turn / pause_turn / refusal / max_tokens branches as before ...
+            if used > TOKEN_BUDGET:  # checked before running any more tools
+                return (f"[Stopped: used {used:,} tokens, over the {TOKEN_BUDGET:,} budget, "
+                        f"after {step + 1} model calls.]")
+            # ... execute tools and append results as before ...
+    ```
+
+3. **Hint:** Normalize each call to a hashable key (tool name plus `json.dumps(input, sort_keys=True)`) and keep the last three in a `deque(maxlen=3)`. **Sketch:** When all three keys match, append a note to that call's `tool_result` content rather than stopping. Usually the model reacts by trying a different path, argument or tool; keep `MAX_STEPS` as the backstop in case it doesn't.
+
+    ```python
+    import json
+    from collections import deque
+
+    recent = deque(maxlen=3)  # create once per run, before the loop
+
+    # inside the tool-execution loop, after computing `output` for `block`:
+    key = (block.name, json.dumps(block.input, sort_keys=True))
+    recent.append(key)
+    if len(recent) == 3 and len(set(recent)) == 1:
+        output += ("\n[Harness note: you have made this exact call 3 times in a row "
+                   "and got the same result. Try a different approach.]")
+    ```
+
+4. **Hint:** Catch the error inside the tool, look in the parent directory, and re-raise with a better message; the loop's `try/except` already turns it into an `is_error` result. **Sketch:** Before, a typo like `src/confg.py` usually costs an extra `list_dir` call before the retry; after, the error says "Did you mean: config.py?" and the model typically fixes the path on the very next step, saving about one step per typo.
+
+    ```python
+    import difflib
+
+    def read_file(rel: str) -> str:
+        p = safe_path(rel)
+        try:
+            text = p.read_text(encoding="utf-8")
+        except FileNotFoundError:
+            names = sorted(e.name for e in p.parent.iterdir()) if p.parent.is_dir() else []
+            close = difflib.get_close_matches(p.name, names, n=3)
+            hint = f"Did you mean: {', '.join(close)}?" if close else f"Files here: {', '.join(names[:20])}"
+            raise FileNotFoundError(f"{rel} does not exist. {hint}") from None
+        return text[:20_000] + ("\n[truncated]" if len(text) > 20_000 else "")
+    ```
+
+5. **Hint:** Put the approval inside the tool's implementation so the model cannot skip it, and make a decline an ordinary error observation. **Sketch:** On "n" the model usually explains, asks what you'd prefer, or proposes a smaller change. A write-capable agent additionally needs: the path boundary enforced on writes too; a cap on file size and on the number of writes per run; an undo path (a Git checkpoint or backup before writing); verification after writing (re-read, run tests); and a stop condition for repeated declines, such as ending the run after two refusals rather than letting it retry variations of the same change.
+
+    ```python
+    class UserDeclined(Exception):
+        pass
+
+    def write_file(args: dict) -> str:
+        path = safe_path(args["path"])  # same boundary as the read tools
+        print(f"--- proposed write to {args['path']} ---\n{args['content'][:2000]}")
+        if input("Apply this change? [y/n] ").strip().lower() != "y":
+            raise UserDeclined("User declined this change")  # becomes is_error: true
+        path.write_text(args["content"], encoding="utf-8")
+        return f"Wrote {len(args['content'])} characters to {args['path']}"
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

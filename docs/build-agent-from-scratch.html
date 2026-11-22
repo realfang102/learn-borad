@@ -881,6 +881,79 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
 <li><strong><dfn class="gt" tabindex="0" data-t="Loop detection" data-d="Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating." data-l="reliability" data-a="loop-detection">Loop detection</dfn>.</strong> When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.</li>
 <li><strong>Real sandbox.</strong> Run <code>run_command</code> in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead.</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Filter <code>TOOLS</code> once, before the <code>Agent</code> is created, and make <code>execute</code> check against the filtered names too, so a stray call to a removed tool still fails cleanly. <strong>Sketch:</strong> Tools render first in the cache prefix (<code>tools</code> → <code>system</code> → <code>messages</code>), so changing the tool list mid-conversation invalidates the cached tools, system prompt and entire history, and the next step pays full price for everything. A fixed tool list for the whole session keeps the prefix stable, and the model never sees capabilities appear or vanish. Remember to strip the flag in <code>main()</code> too, or <code>--read-only</code> is taken as the workspace path.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">READ_ONLY = <span class="hljs-string">&quot;--read-only&quot;</span> <span class="hljs-keyword">in</span> sys.argv
+ACTIVE_TOOLS = [t <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> TOOLS <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (READ_ONLY <span class="hljs-keyword">and</span> t[<span class="hljs-string">&quot;name&quot;</span>] <span class="hljs-keyword">in</span> NEEDS_APPROVAL)]
+ACTIVE_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> ACTIVE_TOOLS}
+<span class="hljs-comment"># Agent.run_turn: pass tools=ACTIVE_TOOLS. Agent.execute: check block.name against ACTIVE_NAMES.</span>
+<span class="hljs-comment"># main(): args = [a for a in sys.argv[1:] if a not in (&quot;--yes&quot;, &quot;--read-only&quot;)]</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Reuse <code>resolve()</code> and the same hidden-file filter as <code>list_files</code>, skip files that are not UTF-8, and report an invalid regex as a <code>ToolFailure</code> with advice. <strong>Sketch:</strong> Add a method to <code>Workspace</code> and a definition with <code>tool(&quot;search_files&quot;, ..., pattern={&quot;type&quot;: &quot;string&quot;}, path=PATH)</code>. The description does the steering: &quot;Search file contents with a Python regex; returns <code>path:line: text</code> (max 100 matches). Use this to find where something is defined or used instead of reading files one by one.&quot; In <code>agent_trace.jsonl</code>, compare the number of <code>read_file</code> events per task before and after; a good description shows <code>search_files</code> calls followed by a few targeted reads.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">search_files</span>(<span class="hljs-params">self, pattern: <span class="hljs-built_in">str</span>, path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:  <span class="hljs-comment"># a Workspace method; needs `import re`</span>
+    <span class="hljs-keyword">try</span>:
+        regex = re.<span class="hljs-built_in">compile</span>(pattern)
+    <span class="hljs-keyword">except</span> re.error <span class="hljs-keyword">as</span> e:
+        <span class="hljs-keyword">raise</span> ToolFailure(<span class="hljs-string">f&quot;Invalid regex (<span class="hljs-subst">{e}</span>). Escape special characters or use a plain substring.&quot;</span>)
+    matches = []
+    <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(<span class="hljs-variable language_">self</span>.resolve(path).rglob(<span class="hljs-string">&quot;*&quot;</span>)):
+        rel = p.relative_to(<span class="hljs-variable language_">self</span>.root)
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> p.is_file() <span class="hljs-keyword">or</span> <span class="hljs-built_in">any</span>(part.startswith(<span class="hljs-string">&quot;.&quot;</span>) <span class="hljs-keyword">or</span> part == <span class="hljs-string">&quot;__pycache__&quot;</span> <span class="hljs-keyword">for</span> part <span class="hljs-keyword">in</span> rel.parts):
+            <span class="hljs-keyword">continue</span>
+        <span class="hljs-keyword">try</span>:
+            lines = p.read_text(encoding=<span class="hljs-string">&quot;utf-8&quot;</span>).splitlines()
+        <span class="hljs-keyword">except</span> UnicodeDecodeError:
+            <span class="hljs-keyword">continue</span>  <span class="hljs-comment"># skip binary files</span>
+        matches += [<span class="hljs-string">f&quot;<span class="hljs-subst">{rel}</span>:<span class="hljs-subst">{i}</span>: <span class="hljs-subst">{line.strip()}</span>&quot;</span> <span class="hljs-keyword">for</span> i, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(lines, <span class="hljs-number">1</span>) <span class="hljs-keyword">if</span> regex.search(line)]
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(matches) &gt;= <span class="hljs-number">100</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;\n&quot;</span>.join(matches[:<span class="hljs-number">100</span>]) + <span class="hljs-string">&quot;\n... (truncated at 100; narrow the pattern or path)&quot;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;\n&quot;</span>.join(matches) <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;No matches.&quot;</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> The four usage fields are priced differently: uncached input, output, cache reads and cache writes. Keep the prices in one table, as in <a href="cost-and-latency.html">cost and latency</a>. <strong>Sketch:</strong> Compute the step cost from <code>response.usage</code>, add it to a running turn total and write both into the <code>model</code> trace event. For the lesson&#39;s example trace line (412 input, 5,890 cache read, 388 cache write, 151 output) at the November 2026 Opus 5.5 rates: (412 × 4 + 151 × 20 + 5,890 × 0.20 + 388 × 5) / 1,000,000 = (1,648 + 3,020 + 1,178 + 1,940) / 1,000,000 ≈ $0.0078. Without caching, all 6,690 prompt tokens would cost $4/MTok: (26,760 + 3,020) / 1,000,000 ≈ $0.030, almost four times as much.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">PRICES = {<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>: (<span class="hljs-number">4.00</span>, <span class="hljs-number">20.00</span>, <span class="hljs-number">0.20</span>, <span class="hljs-number">5.00</span>)}  <span class="hljs-comment"># $/MTok: input, output, cache read, cache write</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">step_cost</span>(<span class="hljs-params">model: <span class="hljs-built_in">str</span>, u</span>) -&gt; <span class="hljs-built_in">float</span>:
+    p_in, p_out, p_read, p_write = PRICES[model]
+    <span class="hljs-keyword">return</span> (u.input_tokens * p_in + u.output_tokens * p_out
+            + (u.cache_read_input_tokens <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>) * p_read
+            + (u.cache_creation_input_tokens <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>) * p_write) / <span class="hljs-number">1_000_000</span>
+
+<span class="hljs-comment"># In run_turn: cost = step_cost(MODEL, u); turn_usd += cost</span>
+<span class="hljs-comment"># self.trace(&quot;model&quot;, ..., usd=round(cost, 5), turn_usd=round(turn_usd, 4))</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Key each call on its name plus its input serialized with <code>json.dumps(..., sort_keys=True)</code>, count keys in a <code>Counter</code> reset at the start of each turn, and put the note in the same user message as the results, after the <code>tool_result</code> blocks. <strong>Sketch:</strong> For the test, temporarily make one tool always fail (for example <code>read_file</code> raising <code>ToolFailure(&quot;Temporary error, try again.&quot;)</code>, which invites retries). Without the note the model may retry until the <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">step budget</dfn>; with it, the trace should show the model switching approach or asking the user after the third identical call.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">loop_note</span>(<span class="hljs-params">calls: Counter, tool_blocks: <span class="hljs-built_in">list</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>]:
+    <span class="hljs-string">&quot;&quot;&quot;Count this turn&#x27;s calls; return a text block to append if any call has repeated 3+ times.&quot;&quot;&quot;</span>
+    repeated = <span class="hljs-built_in">set</span>()
+    <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> tool_blocks:
+        key = (b.name, json.dumps(b.<span class="hljs-built_in">input</span>, sort_keys=<span class="hljs-literal">True</span>))
+        calls[key] += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> calls[key] &gt;= <span class="hljs-number">3</span>:
+            repeated.add(b.name)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> repeated:
+        <span class="hljs-keyword">return</span> []
+    <span class="hljs-keyword">return</span> [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">f&quot;Note: you have repeated the identical <span class="hljs-subst">{<span class="hljs-string">&#x27;, &#x27;</span>.join(<span class="hljs-built_in">sorted</span>(repeated))}</span> &quot;</span>
+             <span class="hljs-string">&quot;call three times this turn. It will not behave differently; change approach or ask the user.&quot;</span>}]
+
+<span class="hljs-comment"># In run_turn: calls = Counter() before the loop, then</span>
+<span class="hljs-comment"># results = [self.execute(b) for b in tool_blocks] + loop_note(calls, tool_blocks)</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Keep the metacharacter check and allowlist, then prefix the argv with a <code>docker run</code> command instead of running it directly. Build a small image with Python and pytest installed, because the agent&#39;s tests need them. <strong>Sketch:</strong> Mount only the workspace (<code>-v {root}:/work -w /work</code>), add <code>--network none</code>, <code>--user 1000:1000</code>, <code>--read-only</code> with a <code>--tmpfs /tmp</code>, memory and CPU limits, and <code>--rm</code>. Give the container a name so a timeout can <code>docker kill</code> it, because killing the <code>docker</code> client process does not always stop the container. Measure overhead by timing a trivial command (<code>python -c pass</code>) 20 times directly and 20 times in the container and comparing medians. Container start-up usually dominates, so if it is too slow, start one long-lived container per session and run each command with <code>docker exec</code>, keeping the same mounts and limits.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">sandboxed_argv</span>(<span class="hljs-params">root: Path, argv: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>], name: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]:
+    <span class="hljs-keyword">return</span> [<span class="hljs-string">&quot;docker&quot;</span>, <span class="hljs-string">&quot;run&quot;</span>, <span class="hljs-string">&quot;--rm&quot;</span>, <span class="hljs-string">&quot;--name&quot;</span>, name, <span class="hljs-string">&quot;--network&quot;</span>, <span class="hljs-string">&quot;none&quot;</span>,
+            <span class="hljs-string">&quot;--user&quot;</span>, <span class="hljs-string">&quot;1000:1000&quot;</span>, <span class="hljs-string">&quot;--read-only&quot;</span>, <span class="hljs-string">&quot;--tmpfs&quot;</span>, <span class="hljs-string">&quot;/tmp&quot;</span>,
+            <span class="hljs-string">&quot;--memory&quot;</span>, <span class="hljs-string">&quot;1g&quot;</span>, <span class="hljs-string">&quot;--cpus&quot;</span>, <span class="hljs-string">&quot;1&quot;</span>,
+            <span class="hljs-string">&quot;-v&quot;</span>, <span class="hljs-string">f&quot;<span class="hljs-subst">{root}</span>:/work&quot;</span>, <span class="hljs-string">&quot;-w&quot;</span>, <span class="hljs-string">&quot;/work&quot;</span>,
+            <span class="hljs-string">&quot;mini-agent-sandbox:latest&quot;</span>, *argv]  <span class="hljs-comment"># image: python:3.12-slim plus pytest</span></code></pre></div>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="build-agent-from-scratch" data-total="6">
 

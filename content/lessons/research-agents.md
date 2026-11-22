@@ -299,6 +299,70 @@ Use deep research as a fast, well-read research assistant whose work you spot-ch
 4. **Citation verifier.** Write a verifier that, for each sentence with a citation, fetches the source and asks a model whether the source supports the sentence, outputting supported, partially supported or unsupported. Run it on ten reports and report the unsupported rate.
 5. **Rubric judge.** Write an LLM-judge rubric (accuracy, citation accuracy, completeness, source quality, efficiency) and score ten reports. Then score three yourself and measure agreement. Where does the judge disagree with you?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Fix your checklist before you start, so you judge both products by the same criteria, and pick the five citations at random (number them, roll dice) rather than checking the ones that look suspicious. **Sketch:** Use a question with real conflicts in the evidence (costs, forecasts, contested statistics). For each product record: did it clarify or show a plan, did the plan cover the obvious sub-questions, the share of primary vs. secondary sources, and whether conflicting figures were explained (different years, definitions, regions) or silently averaged. For each sampled citation, open the source and classify it as supported, misattributed (real source, says something different or weaker), drifted (supports a neighbouring sentence), dead link, or fabricated. A strong write-up maps each problem to this lesson's failure modes (popularity bias, false sense of completeness, synthesis errors such as wrong year or unit) rather than just declaring a winner.
+2. **Hint:** Mirror `plan()`: a small Pydantic model holding a list of questions, called with `client.messages.parse`, and an instruction to return an empty list when the question is already clear. **Sketch:** Ask only questions whose answers would change the plan (scope, audience, time frame, region, depth), then judge each question by whether the two plausible answers would lead to different sub-questions.
+
+    ```python
+    class Clarification(BaseModel):
+        questions: list[str]  # empty if the question is already specific
+
+    def clarify(question: str) -> list[str]:
+        resp = client.messages.parse(
+            model="claude-opus-5-5",
+            max_tokens=16000,
+            output_format=Clarification,
+            messages=[{"role": "user", "content":
+                "Before researching, list at most three clarifying questions whose answers "
+                "would change the research plan (scope, audience, time frame, region). "
+                f"Return an empty list if none are needed.\n\nQuestion: {question}"}],
+        )
+        return resp.parsed_output.questions[:3]  # enforce the cap in code as well
+    ```
+3. **Hint:** Use another structured output, something like `Review(done: bool, followups: list[str])`, and keep appending to `findings` instead of replacing it. **Sketch:** After the first parallel round, give the lead the question and all findings, and ask it to judge plan coverage, conflicts and thin areas. Stop on `done`, on an empty follow-up list, or after two extra rounds. To measure cost, sum `usage.input_tokens + usage.output_tokens` over every call (have `research()` return its usage too). Score reports from runs with and without the loop using the same rubric. Expect better completeness and conflict handling on broad questions, little change on simple ones, and a token bill that grows with each round.
+
+    ```python
+    class Review(BaseModel):
+        done: bool
+        followups: list[str]  # at most three targeted sub-questions
+
+    for _ in range(2):  # at most two extra rounds
+        review = client.messages.parse(
+            model="claude-opus-5-5", max_tokens=16000, output_format=Review,
+            messages=[{"role": "user", "content": f"Question: {question}\n\nFindings:\n"
+                       + "\n\n".join(findings) + "\n\nAre there gaps or unexplained conflicts?"}],
+        ).parsed_output
+        if review.done or not review.followups:
+            break
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            findings += list(pool.map(research, review.followups[:3]))
+    ```
+4. **Hint:** Split the report into (sentence, URL) pairs first, then make one small, independent judgment per pair. A `Literal` field forces the three allowed labels. **Sketch:** Fetch each URL yourself (record fetch failures as a separate "dead link" category, not as unsupported), pass the page text and the claim to a model, and ask for a label plus the exact supporting quote, which makes the verdict auditable. The unsupported rate is unsupported pairs divided by all checked pairs. Report partially supported separately, because that is where misattribution and drift usually show up.
+
+    ```python
+    from typing import Literal
+
+    import httpx
+
+    class Verdict(BaseModel):
+        label: Literal["supported", "partially supported", "unsupported"]
+        quote: str  # the passage relied on; empty if none
+
+    def verify(sentence: str, url: str) -> Verdict:
+        page = httpx.get(url, follow_redirects=True, timeout=30).text[:100_000]
+        resp = client.messages.parse(
+            model="claude-sonnet-5-5", max_tokens=16000, output_format=Verdict,
+            messages=[{"role": "user", "content": f"<source>{page}</source>\n<claim>{sentence}</claim>\n"
+                       "Does the source support the claim? Quote the passage you rely on."}],
+        )
+        return resp.parsed_output
+    ```
+5. **Hint:** Give every dimension a short scale (for example 1 to 5) with anchor descriptions for the low, middle and high scores, and ask for a reason before each score. **Sketch:** Score each dimension in its own judge call or as separate fields of one structured output, as Anthropic described. For agreement, three reports times five dimensions gives 15 paired scores: report exact agreement and within-one-point agreement, and look at the pattern of disagreements. Typical findings: the judge rewards length and confident tone, cannot verify citation accuracy without the sources in front of it, and misses source-quality problems (content farms over primary sources), which is why the lesson keeps human review in the loop. Fix the rubric anchors where they disagree, then re-check agreement.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

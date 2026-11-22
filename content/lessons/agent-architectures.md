@@ -429,6 +429,68 @@ Relative characteristics, assuming the same model and tools. Real numbers depend
 4. **CoALA audit.** Pick an agent you use (a coding agent, a research assistant). Describe its memory types, internal and external actions, and decision procedure using CoALA. Identify one missing component and argue whether adding it would help.
 5. **Graph design.** Design a state graph for an expense-reimbursement agent that must always check policy before approving and must get human sign-off above $500. Implement it in plain Python or LangGraph, and write a test proving no path reaches `approve` without `check_policy`.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** The two searches don't depend on each other; only the final comparison needs both. Then ask which architecture has any way to react to a bad result. **Sketch:** (a) ReWOO: `#E1 = search["Eiffel Tower completion date"]`, `#E2 = search["Statue of Liberty dedication date"]`, then the solver compares the evidence (or add `#E3 = llm["Which came first: #E1 or #E2?"]`). (b) LLMCompiler: `1. search("Eiffel Tower completed") deps: []`, `2. search("Statue of Liberty dedication") deps: []`, `3. join() deps: [1, 2]`. Tasks 1 and 2 can run in parallel. If the first search returns nothing useful: ReAct notices on the next Thought and searches again with different words; ReWOO can't react, so the solver gets empty evidence and must either answer from its own knowledge (ungrounded) or say it doesn't know (if a later step had used `#E1` as input, its query would be corrupted too); LLMCompiler's joiner sees the gap and can replan with a new search.
+2. **Hint:** The simplest real `search` is a small helper that makes one API call with the web search server tool and returns its text. Keep its usage separate, since those calls are tool cost, not reasoning calls. **Sketch:** ReWOO makes 2 reasoning calls (planner, solver) however many searches it runs; the tool runner makes one call per step, each resending the growing context. Sum `usage.input_tokens` for each (iterate `for message in runner:` to see every call's usage). Expect ReWOO to use clearly fewer input tokens on questions its plan gets right, and the tool runner to win on accuracy when an intermediate result is surprising (an ambiguous entity, an empty search). Report both, per question. A production version of the helper should also handle `stop_reason == "pause_turn"` by continuing the call.
+
+    ```python
+    def web_search(query: str) -> str:
+        r = client.messages.create(
+            model="claude-sonnet-5-5", max_tokens=4000,
+            tools=[{"type": "web_search_20260209", "name": "web_search"}],
+            messages=[{"role": "user", "content": f"Search the web and report the key facts, with sources, for: {query}"}],
+        )
+        return "".join(b.text for b in r.content if b.type == "text")
+
+    TOOLS["search"] = web_search  # the ReWOO worker now calls a real search
+    ```
+
+3. **Hint:** The reflection is ordinary text kept in a list (the episodic memory) and rendered into the next attempt's prompt; the tests are the evaluator, so feed their real error output into the reflection prompt. **Sketch:** To judge accuracy, label each logged reflection yourself as correct, partly correct or wrong against the true root cause. Common patterns: reflections are good when the failing assertion is specific (the `is_palindrome` case), and vague ("be more careful with edge cases") or wrong when the error is indirect (a timeout, an import error, a test expecting an unusual format). The second kind is the lesson's warning in action: reflection quality is bounded by the evaluator signal.
+
+    ```python
+    def reflexion(task: str, tests: str, max_trials: int = 3) -> str | None:
+        reflections: list[str] = []  # episodic memory across trials
+        for trial in range(max_trials):
+            lessons = "\n".join(f"- {r}" for r in reflections) or "(none yet)"
+            code = generate_code(f"{task}\n\nLessons from earlier attempts:\n{lessons}")
+            passed, error = run_tests(code, tests)
+            if passed:
+                return code
+            reflections.append(llm(
+                f"Your code:\n{code}\n\nTest output:\n{error}\n\n"
+                "In two sentences, diagnose why it failed and what to do differently next time."))
+            print(f"trial {trial + 1} reflection: {reflections[-1]}")
+        return None
+    ```
+
+4. **Hint:** Go through the CoALA table column by column (memory types, internal actions, external actions, decision procedure) and write a concrete instance for each, or "none". **Sketch:** For a coding agent like Claude Code: *working* memory is the context window plus its to-do list; *episodic* is session transcripts (resumable, but rarely retrieved across sessions); *semantic* is CLAUDE.md facts plus files pulled in with grep and read; *procedural* is the weights, the system prompt, skills and CLAUDE.md conventions. Internal actions: reasoning (thinking), retrieval (search tools, memory reads), learning (writing notes or CLAUDE.md, usually when asked). External actions: editing files, running commands, fetching pages. Decision procedure: a greedy loop with a to-do plan, verified by tests. A commonly missing piece is *systematic episodic learning*: Reflexion-style lessons from past failures carried across sessions. A strong argument names the recurring failure it would fix and the costs from the [memory](memory.html) lesson: staleness, bloat and poisoned lessons.
+5. **Hint:** Write the graph as an explicit edge table, so the property "every path to `approve` passes `check_policy`" can be checked by enumerating paths, and test the conditional edge's $500 rule separately at the boundary. **Sketch:** Nodes: `extract → check_policy → {reject, approve, human_review}`, `human_review → {approve, reject}`. The router after `check_policy` returns `reject` if policy fails, `human_review` if the amount is above $500, otherwise `approve`. The structural test proves the ordering; the router test proves the threshold. As defense in depth, have the `approve` node itself refuse unless `state["policy_checked"]` is true. If you add a loop (say, "ask for a missing receipt" back to `extract`), track visited edges in the path search so it terminates.
+
+    ```python
+    EDGES = {"start": ["extract"], "extract": ["check_policy"],
+             "check_policy": ["reject", "approve", "human_review"],
+             "human_review": ["approve", "reject"], "approve": [], "reject": []}
+
+    def route_after_policy(state: dict) -> str:
+        if not state["policy_ok"]:
+            return "reject"
+        return "human_review" if state["amount"] > 500 else "approve"
+
+    def paths(node="start", path=()):
+        path += (node,)
+        yield from (p for nxt in EDGES[node] for p in paths(nxt, path)) if EDGES[node] else [path]
+
+    def test_approve_requires_policy_and_signoff():
+        assert all("check_policy" in p for p in paths() if p[-1] == "approve")
+        assert route_after_policy({"policy_ok": True, "amount": 500.01}) == "human_review"
+        assert route_after_policy({"policy_ok": True, "amount": 500}) == "approve"
+        assert route_after_policy({"policy_ok": False, "amount": 20}) == "reject"
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz
