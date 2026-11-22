@@ -17,7 +17,7 @@
 </header>
 <main id="main" class="page chapter" data-slug="under-the-hood">
 <div class="ch-hero reveal"><a class="crumb" href="chapters.html">🔭 Going Further</a><div class="ch-hero-emoji">🔧</div><p class="eyebrow">Chapter 12 of 14</p><h1>A peek under the hood</h1><p class="lead">What really happens inside an agent — messages, tool calls, a surprisingly short loop of code, and the 'USB-C' standard that plugs agents into your apps.</p><p class="meta">⏱ 13 min read · 🎮 2 interactive demos</p>
-<nav class="mini-toc" aria-label="In this chapter"><a href="#three-parts-the-model-the-tools-and-the-harness">Three parts: the model, the tools and the harness</a><a href="#messages-and-tool-calls">Messages and tool calls</a><a href="#the-system-prompt-the-agent-s-job-description">The system prompt: the agent s job description</a><a href="#mcp-usb-c-for-ai">MCP: USB-C for AI</a><a href="#frameworks-and-sdks-building-blocks-for-builders">Frameworks and SDKs: building blocks for builders</a><a href="#want-to-go-deeper">Want to go deeper?</a><a href="#quick-check">Quick check</a><a href="#what-s-next">What s next</a></nav></div>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#three-parts-the-model-the-tools-and-the-harness">Three parts: the model, the tools and the harness</a><a href="#messages-and-tool-calls">Messages and tool calls</a><a href="#the-system-prompt-the-agents-job-description">The system prompt: the agent's job description</a><a href="#mcp-usb-c-for-ai">MCP: &quot;USB-C for AI&quot;</a><a href="#frameworks-and-sdks-building-blocks-for-builders">Frameworks and SDKs: building blocks for builders</a><a href="#want-to-go-deeper">Want to go deeper?</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
 <article class="prose"><p>When you watch an agent search the web, edit a file and write a report, it can feel like magic. Here&#39;s a secret that surprises almost everyone: the machinery that makes it work is <strong>simple</strong>. The clever part is the AI model. Everything around it is mostly plumbing — a few dozen lines of code passing notes back and forth.</p>
 <p>You don&#39;t need to be a programmer to follow this chapter. If you understand passing notes, you&#39;ll understand how agents work.</p>
 <div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>The AI model never <em>does</em> anything directly. It only writes text — including structured requests like &quot;please run this tool&quot;. A regular program called the <strong>harness</strong> carries out those requests and reports back. Repeat until done: that&#39;s an agent.</p>
@@ -66,7 +66,7 @@
 <p>One more surprise: the model has no memory between calls. <strong>The harness re-sends the entire conversation every time.</strong> That&#39;s why long tasks fill up the model&#39;s context window, and why the techniques in <a href="memory.html">Memory</a> matter.</p>
 </div>
 
-<h2 id="the-system-prompt-the-agent-s-job-description">The system prompt: the agent&#39;s job description</h2>
+<h2 id="the-system-prompt-the-agents-job-description">The system prompt: the agent&#39;s job description</h2>
 <p>Before your first message, the harness quietly adds one more thing: a <strong>system prompt</strong>. It&#39;s a set of standing instructions that frames the whole conversation — the agent&#39;s job description and house rules, all in one.</p>
 <p>A simple system prompt for a support agent might read:</p>
 <div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="hljs">You are the support assistant for Willow &amp; Pine, a small online furniture shop.
@@ -115,7 +115,7 @@ Never share one customer&#x27;s details with another customer.</code></pre></div
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">It guarantees agents never misuse the tools they have</button><button type="button" class="quiz-opt" data-i="1">It makes the AI model itself better at reasoning</button><button type="button" class="quiz-opt" data-i="2">It gives apps one standard plug for tools and data</button><button type="button" class="quiz-opt" data-i="3">It lets models remember all your past conversations</button></div>
 <div class="quiz-expl" hidden><strong class="verdict"></strong> Like USB-C for chargers, MCP replaces many custom connectors with one shared standard: write a server once, and any MCP-compatible app can use it. It doesn&#39;t change the model&#39;s intelligence or memory, and it doesn&#39;t make tools safe: you still choose which servers to trust.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
-<h2 id="what-s-next">What&#39;s next</h2>
+<h2 id="whats-next">What&#39;s next</h2>
 <p>Now you know how agents work inside, you can see why they sometimes go wrong: every trip around the loop is a chance for a small mistake. Next, we&#39;ll look at <a href="reliable-agents.html">making agents reliable</a> — and why checking work changes everything.</p>
 </article>
 <section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="under-the-hood">Mark as done</button></section>
