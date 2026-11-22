@@ -27,7 +27,7 @@ window.SIMS["writing-team"] = {
            { pane: "doc", op: "para", text: "A 2025 survey found that 8 in 10 tea drinkers brew green tea too hot! Boiling water scorches the leaves and pulls out bitter compounds." },
            { pane: "doc", op: "bullets", items: ["**Cooler water:** aim for 70–80 °C — let the kettle rest a few minutes after boiling.", "**Shorter steep:** 1–3 minutes, then taste. **Measure:** about 2 g of leaf per cup.", "Our Hillside Sencha is simply the best tea in the world — order now before it sells out! Also join our tasting on December 12. Follow us on Instagram too!"] },
            { pane: "team", op: "progress", name: "Writer", pct: 100, status: "Draft 1 done · 412 words" }], tokens: 1800, t: 6 },
-    { phase: "observe", say: "The editor grades draft 1 against the checklist. It fails **three** items — exactly the kind of thing a quick human skim might miss.",
+    { phase: "observe", say: "The editor grades draft 1 against the checklist. It fails **four** items — exactly the kind of thing a quick human skim might miss.",
       do: [{ pane: "team", op: "progress", name: "Editor", pct: 50, status: "Reviewing draft 1…" },
            { pane: "rubric", op: "mark", i: 0, state: "fail", text: "Under 350 words — _412_" },
            { pane: "rubric", op: "mark", i: 1, state: "fail", text: "Friendly, not pushy — _\"best tea in the world… order now\"_" },

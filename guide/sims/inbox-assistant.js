@@ -78,7 +78,7 @@ window.SIMS["inbox-assistant"] = {
            { pane: "tools", op: "result", text: "4 sent" },
            { pane: "tools", op: "call", name: "calendar.hold", args: { slots: ["Wed Dec 2 14:00", "Thu Dec 3 9:30"], title: "Hold: Marco (Tidewater)", status: "tentative" } },
            { pane: "tools", op: "result", text: "2 tentative holds created" }] },
-    { phase: "done", say: "In about two minutes: 8 emails **sorted**, a phishing attempt **caught**, a calendar clash **avoided**, 4 replies **sent only after approval**.",
+    { phase: "done", say: "In under a minute: 8 emails **sorted**, a phishing attempt **caught**, a calendar clash **avoided**, 4 replies **sent only after approval**.",
       do: [{ pane: "tasks", op: "mark", i: 4, state: "done" },
            { pane: "chat", op: "msg", from: "agent", text: "All done! Sent 4 replies and held two slots for Marco — I'll release the other once he picks. ⚠️ The \"IT Support\" email is a phishing attempt: please don't click it, and report it with your Report Phishing button. Your payslip and the stand-up change are FYI; the newsletter is saved for later." }] }
   ]

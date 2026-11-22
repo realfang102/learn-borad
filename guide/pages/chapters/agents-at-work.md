@@ -158,27 +158,27 @@ Using agents at work isn't only about you. Your colleagues, customers and compan
 
 ```quiz
 Q: Which task is the best fit to hand to an agent completely on its own?
-- [ ] Deciding which team member should be promoted this year
-- [x] Reformatting a contact spreadsheet — working on a copy of the file
-- [ ] Writing a personal apology to a client you let down
+- [x] Reformatting a contact spreadsheet, working on a copy
+- [ ] Choosing which team member should be promoted this year
+- [ ] Writing a heartfelt apology to a client you let down
 - [ ] Approving a large purchase that needs a manager's sign-off
-E: Reformatting data is repetitive, easy to check and low-risk (especially on a copy). Promotions, personal apologies and large approvals need human judgment and accountability — an agent might help prepare, but shouldn't decide.
+E: Reformatting data is repetitive, easy to check and low-risk, especially on a copy. The apology is tempting because agents write well, but it's personal: your own words matter. Promotions and big approvals need a person who is accountable; an agent can help prepare, not decide.
 
 Q: You have little time to review a 5-page research brief from an agent. What's the smartest approach?
-- [ ] Read every sentence carefully from start to finish
+- [ ] Read every sentence carefully, from the first to the last
 - [ ] Trust it, since agents rarely make mistakes in research
-- [x] Check numbers, names and sources first, and spot-check a few claims
-- [ ] Ask a second AI whether the brief sounds right
-E: Mistakes cluster in "dangerous details" — numbers, names, quotes and sources. Spot-checking those is far faster than proofreading everything, and much safer than blind trust. Another AI's opinion helps, but doesn't replace looking at the sources.
+- [x] Check numbers, names and sources, then spot-check claims
+- [ ] Ask a second AI app whether the whole brief sounds right
+E: Mistakes cluster in "dangerous details": numbers, names, quotes and sources. Checking those is far faster than proofreading every sentence, and much safer than blind trust. A second AI can help, but it can be fooled in the same ways, so it doesn't replace opening the sources yourself.
 
 Q: A colleague pastes a customer list with phone numbers into a free AI app they found online. What's the main problem?
-- [ ] Free apps always give lower-quality answers
-- [ ] The customer list will be too long for the AI to read
-- [ ] There's no problem if the app gives a good result
-- [x] Personal data went into a tool the company hasn't approved
-E: Quality isn't the issue — privacy is. Sensitive data should only go into tools your company has approved for that use, and identifying details are best removed whenever possible.
+- [ ] Free apps always give lower-quality answers than paid ones
+- [ ] The list is probably too long for the AI to read in one go
+- [ ] Nothing, as long as the app gives back a useful result
+- [x] Customers' data went into a tool the company hasn't approved
+E: Quality isn't the issue; privacy is. Even a perfect result doesn't undo sharing customers' personal details with an app that may store them or use them for training. Sensitive data should only go into tools your company has approved, with identifying details removed where possible.
 ```
 
 ## What's next
 
-Delegating more work to agents means trusting them with more access — your email, your files, maybe your accounts. Next, let's learn how to do that **safely**: spotting tricks, protecting your data and choosing how much freedom to give.
+Delegating more work to agents means trusting them with more access — your email, your files, maybe your accounts. Next, let's learn how to do that safely in [Staying safe with agents](staying-safe.html): spotting tricks, protecting your data and choosing how much freedom to give.

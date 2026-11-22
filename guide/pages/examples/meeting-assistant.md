@@ -72,23 +72,23 @@ Using the confirmed action items above, draft a short, friendly follow-up email 
 
 ```quiz
 Q: What made "Let's go with that" a problem for the assistant?
-- [ ] Rosa spoke too quietly to be transcribed
-- [x] It followed two different suggestions, so its meaning was unclear
+- [ ] Rosa spoke too quietly for it to be transcribed
+- [x] It came right after two different suggestions
 - [ ] It was said after the meeting had officially ended
-- [ ] Nobody in the meeting agreed with Rosa
-E: Kenji suggested online-only and Amara suggested a smaller section, and then Rosa said "that." Picking one would have been a guess written down as fact, so the assistant quoted the moment and asked.
+- [ ] Nobody else in the meeting agreed with Rosa
+E: Kenji suggested online-only and Amara suggested a smaller section, and then Rosa said "that". Picking one would have been a guess written down as fact, so the assistant quoted the moment and asked.
 
 Q: Why did the assistant care about Tom's "sometime next week"?
-- [ ] Tom is often late, according to the transcript
-- [ ] TaskBoard refuses tasks that have no due date
-- [x] Amara's copy depended on Tom's prices arriving in time
-- [ ] Vague dates make the summary too long to read
-E: Checking dependencies is part of making action items useful. If Tom's prices slipped, Amara's Dec 18 deadline was at risk, so a firm date (Dec 4) mattered.
+- [ ] The transcript showed that Tom is often late
+- [ ] TaskBoard refuses to create tasks without a date
+- [x] Amara's copy depended on Tom's prices arriving
+- [ ] Vague dates make a summary too long to read
+E: Checking dependencies is part of making action items useful. If Tom's prices slipped, Amara's Dec 18 deadline was at risk, so a firm date (Dec 4) mattered. TaskBoard never complained about dates; its only error was about a name.
 
 Q: When TaskBoard didn't recognize "Amara Osei", what did the assistant do?
-- [ ] It assigned the task to Rosa instead
-- [ ] It stopped and reported a failure
-- [ ] It created a new account for Amara
-- [x] It searched members, confirmed by email, and retried
-E: A good agent investigates errors instead of giving up or improvising. The email address confirmed "Amara O." was the same person, so retrying was safe. Assigning the task to someone else would have quietly created a mess.
+- [ ] It gave the task to Rosa instead, to be safe
+- [ ] It stopped and reported the whole job as failed
+- [ ] It created a brand-new TaskBoard account for Amara
+- [x] It searched for her, matched the email, and retried
+E: A good agent investigates errors instead of giving up or improvising. The email address confirmed "Amara O." was the same person, so retrying was safe. Giving the task to someone else would have quietly created a mess.
 ```

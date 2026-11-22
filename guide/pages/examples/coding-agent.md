@@ -8,7 +8,7 @@ concepts: [the-agent-loop, tools, staying-safe, reliable-agents]
 sim: coding-agent
 ---
 
-Coding is where agents first became truly useful — and it's a perfect window into how *all* agents work. Code gives an agent something precious: **a way to check its own work**. Tests either pass or fail, so the agent knows whether it's done.
+Coding is where agents first became truly useful — and it's a perfect window into how *all* agents work. Code gives an agent something precious: **a way to check its own work**. Most software projects come with **tests**: small programs that check the code does what it should. Tests either pass or fail, so the agent knows whether it's done.
 
 In this example, a shop owner named Maya asks her coding agent to fix a broken discount code. She doesn't explain *how* — just *what's wrong*.
 
@@ -32,7 +32,7 @@ The agent used only a handful of simple tools — **run a command**, **search fi
 
 <div class="detail">
 
-**What's really happening under the hood:** each "Act" step is the language model asking its harness to run a tool (for example, a `bash` tool for terminal commands and an `edit` tool that replaces exact lines of text). The harness runs the command in a safe sandbox, sends the output back, and the model decides what to do next. Popular coding agents in 2026 — such as Claude Code, OpenAI's Codex, GitHub Copilot's agent mode and Cursor — all follow this same pattern, with permission settings that control which commands can run without asking.
+**What's really happening under the hood:** each "Act" step is the language model asking its **harness** (the program wrapped around the model that actually runs tools) to run a tool (for example, a `bash` tool for terminal commands and an `edit` tool that replaces exact lines of text). The harness runs the command in a safe sandbox, sends the output back, and the model decides what to do next. Popular coding agents as of 2026, such as Claude Code, OpenAI's Codex, GitHub Copilot's agent features and Cursor, all follow this same pattern, with permission settings that control which commands can run without asking.
 
 </div>
 
@@ -40,7 +40,7 @@ The agent used only a handful of simple tools — **run a command**, **search fi
 
 - **Instant feedback.** Tests and error messages tell the agent exactly what's wrong.
 - **Everything is text.** Code, errors and docs are all things language models read well.
-- **Mistakes are reversible.** Version control (git) means any change can be undone.
+- **Mistakes are reversible.** Programmers use **version control** (most often a tool called git), which saves every version of the code, so any change can be undone.
 
 > [!WARNING] What can go wrong
 > - **"Fixing" the test instead of the bug.** An agent under pressure to make tests pass might edit the test itself. Good setups forbid changing tests without permission.
@@ -63,23 +63,23 @@ Please:
 
 ```quiz
 Q: Why did the agent run the tests *before* changing any code?
-- [ ] To make the run take longer and look thorough
-- [x] To see the bug for itself, so it would know for sure when it was fixed
-- [ ] Because the tests fix the bug automatically
-- [ ] To delete the failing tests
-E: Reproducing the problem first gives the agent a clear "before" and a way to prove the "after". It's the same habit good human engineers have.
+- [ ] To warm up the shop's server so the fix would run faster later
+- [x] To see the failure itself, so it can prove the fix later
+- [ ] Because running the tests repairs simple bugs automatically
+- [ ] To find out which failing tests it could safely delete first
+E: Reproducing the problem gives the agent a clear "before" and a way to prove the "after". Tests only *report* problems; they never fix them. And deleting a failing test would hide the bug, not solve it.
 
 Q: After its fix, why did the agent re-run *all* the tests, not just the failing one?
-- [ ] The failing test was deleted
-- [ ] Running more tests makes the code faster
-- [x] To make sure the fix didn't accidentally break something else
-- [ ] Tests can only be run all together
-E: A change in one place can break another. Running the full suite checks for side effects — that's what "verifying your work" means for a coding agent.
+- [ ] Because the two failing tests had been deleted during the fix
+- [ ] Because running more tests makes the shop's code run faster
+- [x] To check the fix hadn't quietly broken something elsewhere
+- [ ] Because the test tool can't run a single test on its own
+E: A change in one place can break another, so running the full suite checks for side effects. The tool *can* run just a few tests: the agent did exactly that at the start with `npm test -- discounts`.
 
 Q: What's the main reason the agent asked before publishing?
-- [x] Publishing changes the live shop, which affects real customers — a human should approve that
-- [ ] The agent didn't know how to publish
-- [ ] Coding agents are never allowed to save files
-- [ ] It wanted to be polite
-E: Approval steps belong in front of actions with real-world impact. The agent did all the work, but the human stays in charge of the important decision.
+- [x] Publishing changes the live shop that real customers use
+- [ ] It wasn't sure its fix was correct, despite the tests
+- [ ] Coding agents aren't technically able to publish code
+- [ ] Asking first is simply a polite way to end a conversation
+E: Approval steps belong in front of actions with real-world impact. All 24 tests passed, so the agent wasn't unsure. The point is that the human stays in charge of changes that affect customers.
 ```

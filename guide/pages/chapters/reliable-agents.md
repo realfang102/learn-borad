@@ -133,13 +133,13 @@ Q: What's the best way to help an agent check its own work on a report?
 E: Concrete success criteria turn a vague goal into something the agent can verify, item by item. Telling it "no mistakes" or simply writing more words doesn't give it anything to check against.
 
 Q: What is an "eval" for an agent?
-- [ ] A review the agent writes about its own personality
-- [x] A set of example tasks with known good answers, used to score it
-- [ ] A single test run to see if the agent works at all
-- [ ] A ranking of which AI company is best
-E: An eval is like a practice exam: many example tasks, a clear idea of a good answer, and a score you can re-check every time you change something. One try isn't enough because results vary from run to run.
+- [x] A practice exam of sample tasks with known good answers
+- [ ] A report the agent writes about how well it thinks it did
+- [ ] A single trial run to check that the agent works at all
+- [ ] A public leaderboard ranking which AI company is best
+E: An eval is like a practice exam: many sample tasks, a clear idea of a good answer, and a score you can re-check every time you change something. A single trial run isn't enough because results vary from run to run, and public leaderboards don't test your specific job.
 ```
 
 ## What's next
 
-You've learned what agents are, how they work, and how to use them safely and reliably. In the final chapter, we'll look ahead: **how fast agents are improving**, what's still hard, and a simple plan to make agents part of your own week.
+You've learned what agents are, how they work, and how to use them safely and reliably. In the [final chapter](whats-next.html), we'll look ahead: how fast agents are improving, what's still hard, and a simple plan to make agents part of your own week.

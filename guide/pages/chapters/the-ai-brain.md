@@ -98,7 +98,7 @@ Many models today (as of 2026) do this automatically. They have a **thinking** o
 
 ## Why the brain needs tools
 
-Let's put it all together. A language model is brilliant with language and surprisingly good at reasoning. But on its own, it has three big gaps:
+Let's put it all together. A language model is brilliant with language and surprisingly good at reasoning. But on its own, it has four big gaps:
 
 | On its own, a model… | So it might… | The fix |
 |---|---|---|

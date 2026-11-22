@@ -147,24 +147,24 @@ At the end, tell me what you checked and anything you couldn't confirm.
 
 ```quiz
 Q: What makes the agent loop different from a chatbot answering once?
-- [ ] The agent uses a bigger language model
-- [x] It feeds the results of its actions back into its next decision
-- [ ] The agent writes longer and more detailed replies
-- [ ] It always follows the same fixed list of steps
-E: The heart of the loop is "observe": the agent reads what happened and uses it to choose the next step. A bigger model or a fixed script doesn't give you that ability to adapt.
+- [ ] It runs on a bigger and more capable language model
+- [x] It feeds each result back into its next decision
+- [ ] It writes longer replies with much more detail in them
+- [ ] It follows the same fixed list of steps every time
+E: The heart of the loop is "observe": the agent reads what happened and uses it to choose the next step. A bigger model or longer replies don't add that, and a fixed list of steps is the opposite — a script that can't adapt.
 
 Q: In the weekend-trip run, the forecast showed storms on Saturday. What did the loop let the agent do?
-- [ ] Ignore the forecast and book the Saturday hike as planned
-- [ ] Give up and ask Jordan to plan the weekend instead
-- [ ] Book every cabin, just in case the plan changed
-- [x] Move the hike to Sunday and keep the Saturday-night cabin
-E: Observing a surprising result and changing course is exactly what the loop is for. Ignoring it would be unsafe, and giving up or over-booking ignores the goal.
+- [ ] Book the Saturday hike anyway, since that was the plan
+- [ ] Stop and ask Jordan to plan the weekend themselves
+- [ ] Book all three cabins in case the plan changed again
+- [x] Move the hike to Sunday, still staying Saturday night
+E: Observing a surprising result and changing course is exactly what the loop is for. Sticking to the old plan would be unsafe, while giving up or booking everything ignores what Jordan asked for.
 
 Q: Who actually runs a tool, like booking a cabin, when an agent decides to use it?
 - [ ] The language model, which clicks the buttons itself
-- [x] The harness: the software around the model
-- [ ] The tool runs automatically whenever the model is thinking
-- [ ] Nobody — tools are only described, never run
+- [x] The harness, the ordinary software around the model
+- [ ] The tool runs by itself whenever the model is thinking
+- [ ] Nobody, because tools are only described, never run
 E: The model can only write a request. The harness carries it out, sends back the result, and can block or pause actions for approval — which is what keeps agents controllable.
 ```
 

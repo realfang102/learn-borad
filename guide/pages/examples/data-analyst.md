@@ -30,7 +30,7 @@ In this example, Amara, who manages four cafés, uploads three months of sales a
 
 The most important habit is that the agent **doesn't do arithmetic in its head**. Language models are good with words but can slip on long calculations, so the agent writes small programs and runs them — the same way a person would use spreadsheet formulas instead of a calculator. The program counts all 1,248 rows exactly; the agent's job is deciding *what* to count and *what it means*.
 
-The second habit is **suspicion of surprises**. One entry claimed 940 cold brews sold in a single day — about twenty times a normal day. Taken at face value, it made Riverside the clear winner. The agent checked it against the till's transaction count (only 212 sales that day, across all products), concluded it was almost certainly a typo, and — crucially — didn't invent a "corrected" number. It left the row flagged and asked Amara.
+The second habit is **suspicion of surprises**. An **outlier** is a value far away from all the others, and it deserves a second look. One entry claimed 940 cold brews sold in a single day — about twenty times a normal day. Taken at face value, it made Riverside the clear winner. The agent checked it against the till's records (only 212 transactions that day, across all products), concluded it was almost certainly a typo, and — crucially — didn't invent a "corrected" number. It left the row flagged and asked Amara.
 
 <div class="detail">
 
@@ -42,7 +42,7 @@ Because the calculations happen in real code, you can ask to see it — a big ad
 
 ## Why this works
 
-- **Cleaning first prevents wrong answers.** The six duplicates would have inflated totals, and the café spelled seven different ways would have been split into several "cafés".
+- **Cleaning first prevents wrong answers.** The six duplicates would have inflated totals, and the seven different spellings of four café names would have split real cafés into several fake ones.
 - **Code makes the numbers trustworthy.** Every total can be re-run and checked, like a formula.
 - **Reasoning handles the ambiguity.** Whether 03/07 means 3 July or 7 March is a judgment call; the agent used the file's own date range to decide, then verified.
 - **Honest insights beat impressive ones.** "Neck and neck, and here's a number to double-check" is more useful to a team than a confident but wrong winner.
@@ -76,23 +76,23 @@ Re-check your analysis: re-run the key totals a different way, confirm the numbe
 
 ```quiz
 Q: Why did the agent check the data for problems before calculating anything?
-- [ ] To make the analysis take longer
-- [x] Duplicates and inconsistent names would have quietly distorted the totals
-- [ ] Because charts can't be made from messy data
-- [ ] It wanted to rewrite Amara's original file
-E: Messy data gives confident-looking but wrong answers. Cleaning first — in a copy, with every change reported — is what makes the results trustworthy.
+- [ ] Checking first makes the final chart look more professional
+- [x] Duplicates and name variants would quietly skew the totals
+- [ ] Charts can't be drawn at all until a file has zero problems
+- [ ] It needed to fix Amara's original file before anyone saw it
+E: Messy data gives confident-looking but wrong answers. Cleaning first, in a copy with every change reported, is what makes the results trustworthy. The agent deliberately left Amara's original file untouched.
 
 Q: Why did the agent run small programs instead of adding up the numbers itself?
-- [ ] Programs make the chart prettier
-- [ ] The spreadsheet was locked
-- [x] Code calculates exactly and can be re-run and checked
-- [ ] Language models can't read numbers at all
-E: Language models can read numbers fine, but long arithmetic in their "head" is error-prone. Code gives exact, repeatable results — like using formulas instead of mental maths.
+- [ ] Programs produce nicer-looking charts than a language model
+- [ ] The spreadsheet was locked, so only code could open it
+- [x] Code calculates exactly, and the totals can be re-run
+- [ ] Language models can't read numbers in a spreadsheet at all
+E: Language models can read numbers fine, but long arithmetic done "in their head" is error-prone. Code gives exact, repeatable results, like using spreadsheet formulas instead of mental maths.
 
 Q: What did the agent do with the entry showing 940 cold brews in one day?
-- [ ] Replaced it with 94, the most likely value
-- [ ] Kept it, since data should never be questioned
-- [ ] Deleted the row from the file permanently
-- [x] Checked it, flagged it, left it out of the chart and asked Amara
-E: The evidence pointed to a typo, but the agent couldn't know the real number — so it didn't invent one. It kept the row, flagged it, and let the human decide.
+- [ ] Replaced it with 94, the most likely correct value
+- [ ] Kept it in, since data from the till is always right
+- [ ] Deleted the row permanently so it couldn't cause trouble
+- [x] Flagged it, left it out of the chart and asked Amara
+E: The evidence pointed to a typo, but the agent couldn't know the real number (94? 40?), so "correcting" it would have meant inventing data. It kept the row, flagged it, and let Amara decide.
 ```

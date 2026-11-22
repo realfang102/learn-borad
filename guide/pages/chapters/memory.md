@@ -125,17 +125,17 @@ We've covered a lot. Write a compact summary I can paste into a new chat so you 
 ```quiz
 Q: What is an agent's "context window"?
 - [ ] A permanent record of every conversation it has ever had
-- [x] Everything the model can see at once while it works, up to a limit
-- [ ] The part of the screen where the AI's answer appears
-- [ ] A settings page for choosing which tools are allowed
+- [x] Everything the model can see at once, up to a size limit
+- [ ] The part of the screen where the AI's answers show up for you
+- [ ] A settings page where you choose which tools it may use
 E: The context window is short-term memory: the instructions, conversation, documents and tool results the model can see right now. It's limited in size, and it isn't permanent — that's what long-term memory is for.
 
 Q: Early in a very long task, you told an agent an important fact. Now it's acting as if it never heard it. What's the most likely reason?
-- [ ] The agent decided the fact wasn't true
-- [ ] The model was retrained during the conversation
-- [x] The fact dropped out of its context window as it filled up
-- [ ] Agents ignore anything said before the first tool call
-E: As the backpack fills, older material can be dropped or compressed. If the fact wasn't kept in a summary or saved to long-term memory, the model can no longer see it. The model doesn't retrain itself mid-chat.
+- [ ] It decided the fact was false and quietly dropped it
+- [ ] The model was retrained partway through the conversation
+- [x] The fact was pushed out of its overfull context window
+- [ ] Agents ignore anything said before their first tool call
+E: As the backpack fills, older material can be dropped or compressed. If the fact wasn't kept in a summary or saved to long-term memory, the model can no longer see it. The model doesn't retrain itself mid-chat, and it isn't secretly judging your facts — it simply can't see that one any more.
 
 Q: Which is the best way for an agent to remember your preferences between separate conversations?
 - [ ] Keep one endless chat open so nothing is ever lost

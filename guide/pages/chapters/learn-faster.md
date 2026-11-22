@@ -16,7 +16,7 @@ That's not a personal failing. It's one of the best-known findings in the scienc
 
 ## What actually works
 
-Psychologists have studied learning for more than a century. A widely cited 2013 review by John Dunlosky and colleagues looked at ten popular study techniques and rated how well the evidence supported each. **Practice testing** and **spacing out your study** came out on top. Highlighting and rereading — the night-before-the-exam favourites — were rated low.
+Psychologists have studied learning for more than a century. A widely cited 2013 review by John Dunlosky and colleagues looked at ten popular study techniques and rated how useful each one is, based on the evidence. **Practice testing** (quizzing yourself) and **spacing out your study** were the only two rated highly useful. Highlighting and rereading — the night-before-the-exam favourites — were rated low.
 
 Here are five techniques with solid research behind them, and how AI can help with each:
 
@@ -28,11 +28,11 @@ Here are five techniques with solid research behind them, and how AI can help wi
 | 🧩 **Worked examples** | Studying a fully solved problem step by step before trying your own | Shows solutions, then gradually hands over the steps |
 | 🔀 **Interleaving** | Mixing different types of problems instead of doing them in blocks | Builds mixed practice sets |
 
-A quick honest note: these aren't magic, and the evidence is stronger for some than others. Active recall and spacing are among the most consistently supported findings in learning research. Interleaving has strong results especially for maths and for learning to tell similar things apart. Worked examples help most when you're a **beginner** — as you get better, solving problems yourself becomes more useful than studying solutions.
+A quick honest note: these aren't magic, and the evidence is stronger for some than others. Active recall and spacing are among the most consistently supported findings in learning research. Interleaving was rated promising but less proven; it has strong results especially in maths and for learning to tell similar things apart. Worked examples help most when you're a **beginner** — as you get better, solving problems yourself becomes more useful than studying solutions.
 
 <div class="detail">
 
-**Why "harder" works better:** psychologist Robert Bjork calls these **desirable difficulties**. Struggling a little to recall an answer strengthens the memory more than easily re-reading it. In a well-known 2006 experiment, Henry Roediger and Jeffrey Karpicke found that students who practised recalling a text remembered noticeably more a week later than students who spent the same time re-reading it — even though the re-readers felt *more* confident. Spacing works partly because you've started to forget, so each review takes effort. The catch: because these methods feel harder, people often wrongly believe they're working less well.
+**Why "harder" works better:** psychologist Robert Bjork calls these **desirable difficulties**. Struggling a little to recall an answer strengthens the memory more than easily re-reading it. In a well-known 2006 experiment, Henry Roediger and Jeffrey Karpicke found that students who practised recalling a text remembered noticeably more a week later than students who spent the same time re-reading it — even though the re-readers felt *more* confident. (Tested just five minutes later, the re-readers actually did slightly better, which is exactly why rereading feels like it works.) Spacing works partly because you've started to forget, so each review takes effort. The catch: because these methods feel harder, people often wrongly believe they're working less well.
 
 </div>
 
@@ -60,7 +60,7 @@ Wait for my answer before continuing. If I'm wrong, give me a hint first and let
 At the end, list the 3 things I should review.
 ```
 
-**Spaced repetition — flashcards plus a schedule.** AI is great at turning notes into flashcards. The spacing itself is best handled by a flashcard app (Anki is a popular free one) that decides when each card is due — or by an agent that can put review sessions in your calendar.
+**Spaced repetition — flashcards plus a schedule.** AI is great at turning notes into flashcards. The spacing itself is best handled by a flashcard app (Anki is a popular one, free on most devices) that decides when each card is due — or by an agent that can put review sessions in your calendar.
 
 ```prompt
 Turn these notes into 20 flashcards: [paste notes].
@@ -124,7 +124,7 @@ So build a few habits:
 - **Notice when it disagrees with your class.** Sometimes the AI is wrong; sometimes your course uses a simplified version. Ask your teacher.
 
 > [!WARNING] Don't let it do the thinking for you
-> It's tempting to ask the AI for the answer, read it, nod, and move on. That feels like learning but mostly isn't — you've practised *reading* an answer, not *producing* one. At least one field study with high-school maths students found that those given a general chatbot during practice did better in practice but worse on a later test taken without it, while a version designed to give hints instead of answers largely avoided that drop. Ask for hints, not answers. Try first, then check. And for graded work, follow your school's or employer's rules on AI use.
+> It's tempting to ask the AI for the answer, read it, nod, and move on. That feels like learning but mostly isn't — you've practised *reading* an answer, not *producing* one. A 2025 study of nearly 1,000 high-school maths students in Turkey found that those given a general chatbot during practice did better in practice but worse on a later test taken without it. A version designed to give hints instead of answers largely avoided that drop. Ask for hints, not answers. Try first, then check. And for graded work, follow your school's or employer's rules on AI use.
 
 <div class="detail">
 

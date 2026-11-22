@@ -79,23 +79,23 @@ Format it as a one-page checklist.
 
 ```quiz
 Q: Why did the agent ask for Jordan's email and postcode before looking up the order?
-- [ ] To add Jordan to a mailing list
-- [x] To confirm it was really the customer before sharing details or moving money
-- [ ] Because the order number was spelled wrong
-- [ ] The tools only work with postcodes
+- [ ] To sign Jordan up for the shop's email newsletter
+- [x] To check it was really Jordan before sharing details
+- [ ] Because the order number Jordan gave had a typo in it
+- [ ] Because the order tool only searches by postcode
 E: Identity checks protect customers from scammers pretending to be them. They must come before any account details are shared or any refund is made.
 
 Q: Tracking said "delivered" but Jordan said the package was missing. What did the agent do?
-- [ ] Told Jordan the records prove it was delivered
-- [ ] Refunded immediately without checking anything
-- [x] Pulled the detailed delivery scan and found it was 0.6 miles away
-- [ ] Asked Jordan to call the carrier instead
-E: When two sources disagree, a good agent looks for more evidence. The detailed scan supported Jordan's story — without accusing anyone or giving money away blindly.
+- [ ] Told Jordan the records proved it was delivered
+- [ ] Refunded straight away without checking anything
+- [x] Checked the detailed scan: it was 0.6 miles away
+- [ ] Asked Jordan to contact the carrier personally
+E: When two sources disagree, a good agent looks for more evidence. The detailed scan supported Jordan's story, without accusing anyone or giving money away blindly.
 
 Q: Why did a human approve the refund instead of the agent doing it alone?
-- [ ] The agent didn't know how to issue refunds
-- [ ] Customers prefer talking to humans
-- [ ] The policy said refunds are never allowed
-- [x] It was above the $100 limit the company set for the agent
-E: The agent could refund small amounts itself, but the company drew a line for bigger ones. Caps plus approval steps keep costly decisions with people.
+- [ ] The agent didn't know how to issue a refund
+- [ ] Customers prefer a person to handle refunds
+- [ ] The policy said lost parcels are never refunded
+- [x] $164 was over the agent's $100 refund limit
+E: The policy actually offered a refund or a reship, and the agent could refund small amounts itself. But the company drew a line at $100. Caps plus approval steps keep costly decisions with people.
 ```

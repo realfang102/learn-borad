@@ -17,6 +17,24 @@ evaluation, observability, reliability, cost, security, alignment and training a
 - Full-text search (`⌘K` / `Ctrl K` / `/`), dark mode, mobile-friendly, works offline,
   zero runtime dependencies
 
+## Agents Made Simple — the beginner guide
+
+A separate, gentler site at `docs/guide/` (source in `guide/`) for complete beginners:
+
+- **14 short chapters** in 4 parts, from "What is an AI agent?" to "What's next", each with analogies,
+  a 🙂 Simple / 🤓 Detailed explanation toggle, interactive demos and a quick check
+- **12 animated example pages** ("Agents in action"): step-by-step simulations of real agent applications —
+  coding, deep research, customer support, browser booking, data analysis, study tutor, inbox, meetings,
+  writing team, incident response, knowledge base and phone voice agents. You play the human in the loop:
+  approve or deny the agent's risky actions.
+- **20 interactive demos** (next-word prediction, tokens, be-the-agent, toolbox, memory backpack, planning,
+  agent teams, prompt builder, AI-tutor modes, prompt-injection spotting, autonomy dial, under-the-hood flow,
+  MCP plug-ins, error chains and more) — all collected on a Playground page
+- **45 ready-to-use prompts** for learning, writing, research, productivity and working with agents
+
+`npm run build` builds both sites; `npm run build:guide` builds just the guide. Authoring rules for the
+guide (page format, widgets, simulation script format) are in [guide/AUTHORING.md](guide/AUTHORING.md).
+
 ## Quick start
 
 ```bash

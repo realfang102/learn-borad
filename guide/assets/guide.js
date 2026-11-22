@@ -96,7 +96,7 @@
       '<div class="sim-progress"><span></span></div>' +
       '<div class="sim-status"><div class="loop-ind">' + PHASES.map(function (p) { return '<span data-ph="' + p[0] + '">' + p[1] + "</span>"; }).join("") + '</div>' +
       '<div class="sim-stats"><span>step <b class="st-step">0</b>/' + s.steps.length + '</span><span>🛠️ <b class="st-tools">0</b> tool calls</span><span>🔤 <b class="st-tok">0</b> tokens</span><span>⏱ <b class="st-time">0s</b></span></div></div>' +
-      '<div class="sim-panes"></div><div class="sim-narr" aria-live="polite"><div class="narr-face">🙂</div><div class="narr-text"></div></div>';
+      '<div class="sim-panes"></div><div class="sim-narr" aria-live="polite"><div class="narr-face">🙂</div><div class="narr-text"></div><button type="button" class="w-btn primary s-next" aria-label="Next step">Next ▶</button></div>';
     this.panesEl = $(".sim-panes", this.el);
     this.panes = {};
     (s.panes || []).forEach(function (p) {
@@ -108,6 +108,7 @@
     });
     $(".s-play", this.el).addEventListener("click", function () { self.playing ? self.pause() : self.play(); });
     $(".s-step", this.el).addEventListener("click", function () { self.pause(); self.next(); });
+    $(".s-next", this.el).addEventListener("click", function () { self.pause(); self.next(); });
     $(".s-reset", this.el).addEventListener("click", function () { self.pause(); self.reset(); });
     $(".sim-speed", this.el).addEventListener("change", function (e) { self.speed = +e.target.value; });
   };
@@ -116,7 +117,7 @@
     for (var k in this.panes) { this.panes[k].body.innerHTML = ""; this.panes[k].state = {}; this.panes[k].el.classList.remove("flash"); }
     $$(".loop-ind span", this.el).forEach(function (x) { x.className = ""; });
     this.narrate("info", this.spec.intro || "Press <strong>▶ Play</strong> to watch the agent work, or <strong>Step</strong> to go one move at a time.", true);
-    this.stats(); $(".s-play", this.el).textContent = "▶ Play"; $(".s-step", this.el).disabled = false;
+    this.stats(); $(".s-play", this.el).textContent = "▶ Play"; $(".s-step", this.el).disabled = false; $(".s-next", this.el).disabled = false;
   };
   Sim.prototype.narrate = function (phase, html, raw) {
     $(".narr-face", this.el).textContent = FACES[phase] || "💡";
@@ -148,7 +149,7 @@
     this.tok += st.tokens || Math.round(120 + txt / 3.5);
     this.secs += st.t || (st.phase === "act" ? 3 : st.phase === "think" ? 4 : 1.5);
     this.stats();
-    if (this.i >= this.spec.steps.length && !this.waiting) { this.ended = true; this.playing = false; $(".s-play", this.el).textContent = "↺ Replay"; $(".s-step", this.el).disabled = true; }
+    if (this.i >= this.spec.steps.length && !this.waiting) { this.ended = true; this.playing = false; $(".s-play", this.el).textContent = "↺ Replay"; $(".s-step", this.el).disabled = true; $(".s-next", this.el).disabled = true; }
     var base = 1800 + Math.min(4200, ((st.say || "").length + txt) * 16) + (this.stepDelay || 0) * this.speed;
     return st.wait ? st.wait * 1000 : base;
   };

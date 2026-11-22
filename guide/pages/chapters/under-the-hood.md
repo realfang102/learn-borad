@@ -112,27 +112,27 @@ This guide gives you the intuition. If you want the full engineering story — t
 
 ```quiz
 Q: In an agent, what actually runs a tool like "send email"?
-- [ ] The AI model sends the email itself
-- [x] The harness, after the model asks for it in a tool call
-- [ ] The MCP standard sends it automatically
-- [ ] The user has to send it manually every time
-E: The model only writes text, including structured tool calls. The harness reads the request and runs the real tool — which is also why the harness can block it or ask you first.
+- [x] The harness, which carries out the model's tool call
+- [ ] The AI model itself, which sends the email directly
+- [ ] The MCP standard, which sends the email automatically
+- [ ] You, by copying the model's text into your email app
+E: The model only writes text, including structured tool calls. The harness reads the request and runs the real tool, which is also why it can block the action or ask you first. MCP is just a standard way to plug tools in; it doesn't run anything by itself.
 
 Q: How does the agent loop know when to stop?
-- [ ] After exactly ten trips around the loop
-- [ ] When the tool returns an error message
-- [x] When the model replies without asking for any tool
-- [ ] When the user closes the app window
-E: A reply with no tool call means the model has its final answer, so the loop ends. Errors are just results the model can react to — and real harnesses also set a maximum number of steps as a safety limit.
+- [ ] After exactly ten trips around the loop, every time
+- [ ] As soon as any tool sends back an error message
+- [x] When the model replies without requesting a tool
+- [ ] When the harness decides the answer looks good enough
+E: A reply with no tool call means the model has its final answer, so the loop ends. The harness doesn't judge quality; it just checks for a tool request. Errors are results the model can react to, and real harnesses also set a maximum number of steps as a safety limit.
 
 Q: What problem does MCP (the Model Context Protocol) mainly solve?
-- [ ] It makes AI models smarter at reasoning
-- [ ] It stops agents from ever making mistakes
-- [ ] It lets models remember past conversations
-- [x] It gives apps one standard way to plug in tools and data
-E: Like USB-C for chargers, MCP replaces many custom connectors with one shared standard: write a server once, and any MCP-compatible app can use it. It doesn't change the model's intelligence or memory.
+- [ ] It makes the AI model itself better at reasoning
+- [ ] It guarantees agents never misuse the tools they have
+- [ ] It lets models remember all your past conversations
+- [x] It gives apps one standard plug for tools and data
+E: Like USB-C for chargers, MCP replaces many custom connectors with one shared standard: write a server once, and any MCP-compatible app can use it. It doesn't change the model's intelligence or memory, and it doesn't make tools safe: you still choose which servers to trust.
 ```
 
 ## What's next
 
-Now you know how agents work inside, you can see why they sometimes go wrong: every trip around the loop is a chance for a small mistake. Next, we'll look at how to make agents **reliable** — and why checking work changes everything.
+Now you know how agents work inside, you can see why they sometimes go wrong: every trip around the loop is a chance for a small mistake. Next, we'll look at [making agents reliable](reliable-agents.html) — and why checking work changes everything.

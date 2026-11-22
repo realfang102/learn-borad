@@ -34,7 +34,7 @@ The most important moment in the run is the **contradiction**. One source said h
 
 <div class="detail">
 
-**The real technology (as of 2026):** "deep research" is now a standard feature of the big AI assistants. Google launched Gemini Deep Research in late 2024; OpenAI (ChatGPT deep research), Perplexity and Anthropic (Claude's Research feature) followed in 2025. They differ in the details, but share the same loop: plan, search, read, take notes, repeat, then write a cited report — often taking several minutes per question.
+**The real technology (as of 2026):** "deep research" is now a standard feature of the big AI assistants. Google launched Gemini Deep Research in December 2024; OpenAI (ChatGPT deep research), Perplexity and Anthropic (Claude's Research feature) followed in early 2025. They differ in the details, but share the same loop: plan, search, read, take notes, repeat, then write a cited report — often taking several minutes per question.
 
 Anthropic has described its own setup publicly: a lead agent plans the research and starts several subagents that search in parallel, then combines their findings, with a separate citation step that links each claim to the source it came from. It also reported the downside you saw in the token counter — its multi-agent research used roughly 15 times more tokens than an ordinary chat. That's why these tools save the team approach for questions that are genuinely broad.
 
@@ -78,23 +78,23 @@ Go through your report claim by claim. For each citation, quote the exact senten
 
 ```quiz
 Q: Why did the lead agent send helper agents instead of researching everything itself?
-- [ ] Helpers are always cheaper than one agent
-- [x] Independent sub-questions could be researched in parallel, each with a clean memory
-- [ ] The lead agent wasn't allowed to use web search
-- [ ] Helpers can't make mistakes
-E: Splitting independent sub-questions lets helpers work at the same time and keeps each one focused. It's actually *more* expensive in tokens — that's the trade-off.
+- [ ] Helpers use fewer tokens than one agent working alone
+- [x] The sub-questions could be researched in parallel
+- [ ] The lead agent wasn't allowed to search the web itself
+- [ ] Helper agents check each other, so they can't be wrong
+E: The three sub-questions didn't depend on each other, so helpers could work at the same time, each with a clean, focused memory. It actually costs *more* tokens, not fewer: that's the trade-off you saw on the counter.
 
 Q: Two sources disagreed about heat pumps in deep cold. What did the agent do?
-- [ ] Picked the source with the higher relevance score
-- [ ] Left the topic out of the report entirely
-- [x] Investigated why they disagreed, then explained it in the report
-- [ ] Asked Priya which source she preferred
-E: The sources described different kinds of machines from different years, so both were right about what they described. Explaining that is far more useful than silently choosing one.
+- [ ] Used the source with the higher relevance score
+- [ ] Left cold weather out of the report entirely
+- [x] Found out why they disagreed and explained it
+- [ ] Asked Priya which of the two sources she trusted
+E: The sources described different kinds of machines from different years, so both were right about what they described. A relevance score only says how well a page matches the question, not whether it's correct, so "pick the higher score" wouldn't have settled it.
 
 Q: What's the best quick habit when you get a cited research report from an agent?
-- [ ] Trust it fully, since it has citations
-- [x] Spot-check a few citations, especially for claims you'll act on
-- [ ] Delete any claim that says "likely"
-- [ ] Ask for a longer report with more sources
-E: Citations make checking easy, but agents can still attach a source to a claim it doesn't support. A two-minute spot-check catches most problems.
+- [ ] Trust it fully, since every claim has a citation
+- [x] Spot-check a few citations, especially key ones
+- [ ] Delete every claim that uses the word "likely"
+- [ ] Ask for a much longer report with more sources
+E: Citations make checking easy, but agents can still attach a source to a claim it doesn't support. A two-minute spot-check of the claims you'll act on catches most problems. Words like "likely" are usually a sign of honesty, not a mistake.
 ```

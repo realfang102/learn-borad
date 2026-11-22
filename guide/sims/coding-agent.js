@@ -20,8 +20,8 @@ window.SIMS["coding-agent"] = {
     { phase: "observe", say: "Two tests fail — and the error message is a big clue: the shop charged **$90.10** when it should have charged **$90.00**.",
       do: [{ pane: "term", op: "out", style: "err", text: "✗ SAVE10 gives 10% off\n  Expected total: 90.00\n  Received total: 90.10\n✗ shipping is never discounted\n2 failed, 22 passed" },
            { pane: "tasks", op: "mark", i: 0, state: "done" }] },
-    { phase: "think", say: "The agent reasons about the numbers like a detective: the discount is being applied to the wrong amount.",
-      do: [{ pane: "think", op: "think", text: "90.10 instead of 90.00 — the 10% seems to be taken off before the $1 shipping fee is added, then shipping is discounted too? Let me read the code." },
+    { phase: "think", say: "The agent reasons about the numbers like a detective: an extra **10 cents** is sneaking into the total, and the second failing test says shipping is being discounted too.",
+      do: [{ pane: "think", op: "think", text: "90.10 instead of 90.00 — exactly 10 cents too much, so something adds money after the discount. And the shipping test fails, so shipping is getting a discount it shouldn't. Let me find the code." },
            { pane: "tasks", op: "mark", i: 1, state: "doing" }] },
     { phase: "act", say: "It **searches the codebase** for the discount logic instead of reading every file.",
       do: [{ pane: "term", op: "cmd", text: "grep -rn \"SAVE10\" src/" }] },
@@ -43,9 +43,9 @@ window.SIMS["coding-agent"] = {
     { phase: "human", say: "Changing a live shop is important, so the agent **asks Maya before publishing** the fix. You're Maya — approve or deny!",
       do: [{ pane: "chat", op: "msg", from: "agent", text: "Found it: a leftover \"+ 0.10\" in the discount math, and shipping was being discounted by mistake. I fixed both; all 24 tests pass. Shall I publish the fix?" },
            { pane: "chat", op: "approval", title: "Publish the fix to the live shop?", detail: "1 file changed: src/checkout/discounts.js (2 lines)\nAll tests passing", approve: "✅ Publish it", deny: "✋ Not yet", deniedSay: "Maya said not yet — so the agent leaves the fix ready for review instead of publishing. Nothing changes on the live shop until she decides." }] },
-    { phase: "act", say: "With approval, it saves the change with a clear description so humans can see exactly what changed and why.",
+    { phase: "act", say: "With approval, it saves (commits) the change with a clear description so humans can see exactly what changed and why, then publishes it.",
       do: [{ pane: "tasks", op: "mark", i: 4, state: "doing" }, { pane: "term", op: "cmd", text: "git commit -m \"Fix SAVE10: remove stray +0.10, don't discount shipping\"" }, { pane: "term", op: "out", style: "ok", text: "[main 3f2a91c] Fix SAVE10 … 1 file changed, 2 insertions(+), 2 deletions(-)" }] },
-    { phase: "done", say: "Done in about two minutes. The agent **reproduced** the bug, **found** the cause, made a **small fix**, **proved** it with tests, and **asked before** going live.",
+    { phase: "done", say: "Done in under a minute. The agent **reproduced** the bug, **found** the cause, made a **small fix**, **proved** it with tests, and **asked before** going live.",
       do: [{ pane: "tasks", op: "mark", i: 4, state: "done" }, { pane: "chat", op: "msg", from: "agent", text: "Published! SAVE10 now takes 10% off products only, as your README describes. The two tests that caught this will flag it if it ever comes back." }] }
   ]
 };

@@ -10,7 +10,7 @@ sim: inbox-assistant
 
 Email eats hours of the working week: reading, sorting, replying, and going back and forth to find a meeting time. It's also one of the most natural jobs for an agent, because the work is mostly reading text and making small decisions. An **inbox assistant** connects to your email and calendar, so it can do the sorting and drafting while you make the calls that matter.
 
-In this example, Sam, an operations manager, has eight unread emails and a call in twenty minutes. Sam asks the assistant to sort them out, with one firm rule: *don't send anything without checking with me.* Watch how the assistant spots a fake "IT Support" email, notices a calendar clash the calendar itself doesn't know about, and stops to ask before acting in Sam's name.
+In this example, Sam, an operations manager, has eight unread emails and a call in twenty minutes. Sam asks the assistant to sort them out, with one firm rule: *don't send anything without checking with me.* Watch how the assistant spots a fake "IT Support" email (a **phishing** attempt: a scam designed to steal passwords), notices a calendar clash the calendar itself doesn't know about, and stops to ask before acting in Sam's name.
 
 <div class="sim" data-sim="inbox-assistant"></div>
 
@@ -28,13 +28,13 @@ In this example, Sam, an operations manager, has eight unread emails and a call 
 <div><strong>Approve, then send</strong>Show every outgoing message and wait for a yes.</div>
 </div>
 
-The assistant uses a handful of [tools](tools.html): *list emails*, *inspect an email*, *add a label*, *find free time*, *create a calendar hold* and *send*. The skill is in how it combines them. Look at the meeting slot. The calendar said Tuesday 10:15 was free, but an email from that same morning said the stand-up had moved to 10:30. The assistant connected the two facts and dropped the slot. A tool that only looks at one source would have missed it.
+The assistant uses a handful of [tools](tools.html): *list emails*, *inspect an email*, *add a label*, *find free time*, *create a calendar hold* and *send*. The skill is in how it combines them. Look at the meeting slot. The calendar said Tuesday 10:15 was free, but an email that arrived that morning said the stand-up had moved to 10:30. The assistant connected the two facts and dropped the slot. A tool that only looks at one source would have missed it.
 
 Notice also what it *didn't* do. It didn't tell Dana a deadline Sam hadn't agreed to, and it didn't decide on the delivery change by itself. Wherever a reply would commit Sam to something, it left a blank and asked a short, specific question.
 
 <div class="detail">
 
-**The real technology, as of 2026.** Assistants reach your email and calendar through **connectors**: permissions you grant (usually through a "Sign in with Google/Microsoft" screen) that let the AI call your account's APIs, the official ways programs talk to Gmail, Outlook or Google Calendar. Gemini is built into Gmail and Google Calendar, Microsoft 365 Copilot is built into Outlook, and assistants such as Claude and ChatGPT can connect to Gmail and Google Calendar. Many of these connections use the **Model Context Protocol (MCP)**, an open standard for plugging tools into AI apps (see [under the hood](under-the-hood.html)). What the assistant can do depends on the permissions you grant. Read-only access is much safer than "send on my behalf."
+**The real technology, as of 2026.** Assistants reach your email and calendar through **connectors**: permissions you grant (usually through a "Sign in with Google/Microsoft" screen) that let the AI call your account's APIs, the official ways programs talk to Gmail, Outlook or Google Calendar. Gemini is built into Gmail and Google Calendar, Microsoft 365 Copilot is built into Outlook, and assistants such as Claude and ChatGPT can connect to Gmail and Google Calendar. More and more of these connections use the **Model Context Protocol (MCP)**, an open standard for plugging tools into AI apps (see [under the hood](under-the-hood.html)). What the assistant can do depends on the permissions you grant. Read-only access is much safer than "send on my behalf."
 
 **How the phishing check works.** Email systems run automatic sender checks (called SPF, DKIM and DMARC) to see whether a message really comes from the domain it claims. A failed check, a look-alike address ("supp1y" with a number one) and a link to an unrelated site are classic warning signs. Spam filters catch many phishing emails, but not all of them.
 
@@ -42,7 +42,7 @@ Notice also what it *didn't* do. It didn't tell Dana a deadline Sam hadn't agree
 
 ## Where this is used today
 
-- **Triage and summaries.** "What needs my attention today?" is one of the most common uses of AI in email apps, and it's low-risk, because the assistant only reads.
+- **Triage (sorting by urgency) and summaries.** "What needs my attention today?" is one of the most common uses of AI in email apps, and it's low-risk, because the assistant only reads.
 - **Drafting replies.** Assistants draft in your tone. You edit and send. This is where most of the time is saved.
 - **Scheduling.** Finding a time that works for several people, then proposing slots, is tedious for humans and easy for an agent that can see calendars.
 - **Fully automatic sending** is still rare and usually limited to narrow cases (such as auto-accepting meetings from your team). Most people keep a human approval step, and for good reason. See [the autonomy dial](staying-safe.html).
@@ -72,23 +72,23 @@ Find a 30-minute slot next week for a call with [name]. Check my calendar AND my
 
 ```quiz
 Q: How did the assistant decide the "IT Support Desk" email was phishing?
-- [ ] It clicked the link to see where it went
-- [x] It inspected the sender address, link target and security check
-- [ ] It forwarded the email to Sam's IT team
-- [ ] It replied to ask whether the email was genuine
+- [ ] It clicked the link to see which website it opened
+- [x] It checked the sender, link address and security check
+- [ ] It forwarded the email to Sam's IT team to ask them
+- [ ] It replied to the sender and asked if it was genuine
 E: It checked the evidence *without* opening the link: a look-alike sender address, a link to an unrelated site, and a failed sender check. Clicking or replying is exactly what the attacker wants.
 
 Q: Why did the assistant drop the Tuesday 10:15 slot the calendar said was free?
-- [ ] Marco had said he was busy that morning
-- [ ] Tuesday mornings are always reserved for email
-- [ ] The calendar tool returned an error
-- [x] A recent email showed the stand-up had moved, so it would clash
-E: The calendar hadn't been updated yet, but the 9:30 email said the stand-up was moving to 10:30. Cross-checking two sources caught a clash that one source alone would have missed.
+- [ ] Marco had written that he was busy on Tuesday morning
+- [ ] Sam keeps Tuesday mornings free for reading email
+- [ ] The calendar tool returned an error for that slot
+- [x] An email said the stand-up had moved, causing a clash
+E: Marco never mentioned his availability. The calendar simply hadn't been updated yet, but the 9:30 email said the stand-up was moving to 10:30. Cross-checking two sources caught a clash that one source alone would have missed.
 
 Q: Why did the assistant ask Sam before sending the replies?
-- [x] Emails sent in Sam's name have real consequences and can't be unsent
-- [ ] It isn't technically able to send email
-- [ ] The drafts were too long to send automatically
-- [ ] Sending is slower than leaving drafts
-E: Sam had set a rule ("don't send without checking"), and sending is an action with real-world impact. Approval steps keep the human in charge of anything that can't be undone.
+- [x] Emails sent in Sam's name can't be taken back
+- [ ] It isn't technically able to send email itself
+- [ ] It needed Sam's password to send each message
+- [ ] Sending four emails at once looks like spam
+E: Sam had set a rule ("don't send without checking"), and sending is an action with real-world impact. The assistant *could* send (it did, right after approval), but the human stays in charge of anything that can't be undone.
 ```

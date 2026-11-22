@@ -16,13 +16,13 @@ In this final chapter, we'll look at how fast, and in which direction. We'll be 
 
 How do you measure progress in agents? One clever answer comes from **METR**, an independent research organization that studies what AI systems can do. Instead of asking "how smart is the AI?", they ask a more practical question: **how long a task can an agent complete on its own?**
 
-Here's how it works. They collect many tasks — mostly software and reasoning tasks — and time how long skilled humans take to do each one. Some take a minute, some take hours. Then they see which tasks the AI agents can complete. An agent's **time horizon** is the length of task (in human time) it succeeds at about **half the time**.
+Here's how it works. They collect many tasks — mostly software, cybersecurity and AI-research tasks — and time how long skilled humans take to do each one. Some take a minute, some take hours. Then they see which tasks the AI agents can complete. An agent's **time horizon** is the length of task (in human time) it succeeds at about **half the time**.
 
-Press **Animate** to see how that time horizon has grown. Note that the bars use a special scale where each step up is many times bigger than the last:
+Press **Animate** to see how that time horizon has grown. The bars use a stretched scale (a **log scale**): each step up the chart means many times longer, not just a little longer.
 
 <div data-widget="horizon-chart"></div>
 
-From a few seconds in 2019 to several hours by 2026. METR found that this length has **doubled roughly every seven months** over the long run since 2019, and that the pace appears to have picked up in recent years. A doubling every seven months means about ten times longer every two years or so.
+You just watched the time horizon go from a few seconds in 2019 to several hours by 2026. METR found that this length has **doubled roughly every seven months** over the long run since 2019, and that the pace appears to have picked up in recent years. A doubling every seven months means about ten times longer every two years or so.
 
 > [!ANALOGY] How far can you hike without a map?
 > Think of agents as hikers who can walk a trail alone until they get lost. In 2019, they got lost after a few steps. Now they can hike for hours before needing directions. They haven't just become faster walkers — they've become much better at noticing wrong turns, checking the map and getting back on track. That's the reliability skill from [Making agents reliable](reliable-agents.html), improving over time.
@@ -35,7 +35,7 @@ It's important to read this chart carefully:
 
 <div class="detail">
 
-**Why "time horizon" is a clever measure:** most AI tests become useless once AIs ace them. Measuring by task length gives one scale that works for both weak and strong systems, and it connects directly to usefulness: an agent that can handle two-hour tasks can take over very different work than one limited to two-minute tasks. METR also reports a stricter version — the task length agents complete 80% of the time — and it is consistently several times shorter than the 50% figure. That gap is a good reminder of why human checking still matters. If you want the latest numbers, look at METR's own published measurements rather than headlines, since they update them as new models appear.
+**Why "time horizon" is a clever measure:** most AI tests become useless once AIs ace them. Measuring by task length gives one scale that works for both weak and strong systems, and it connects directly to usefulness: an agent that can handle two-hour tasks can take over very different work than one limited to two-minute tasks. METR also reports a stricter version — the task length agents complete 80% of the time — and it is consistently several times shorter (roughly five times, in their first study) than the 50% figure. METR has also checked other kinds of tasks and found similar rising trends, though the actual lengths vary a lot by type of work. That gap is a good reminder of why human checking still matters. If you want the latest numbers, look at METR's own published measurements rather than headlines, since they update them as new models appear.
 
 </div>
 
@@ -124,25 +124,25 @@ You've finished the guide — congratulations! Here's where to go next:
 
 ```quiz
 Q: What does METR's "time horizon" measure?
-- [ ] How many hours an agent can run before its computer shuts down
-- [x] The length of task (in human time) an agent completes about half the time
-- [ ] How far into the future an AI can predict events
-- [ ] How long it takes a human to check an agent's work
-E: The time horizon is the length of tasks — measured by how long skilled humans take — that an agent succeeds at roughly 50% of the time. It's about task difficulty, not running time.
+- [x] How long a task, timed on skilled humans, agents finish half the time
+- [ ] How many hours in a row an agent can keep working before it stops
+- [ ] How far into the future an AI model can accurately predict events
+- [ ] How long a skilled human needs to check an agent's finished work
+E: The time horizon is the length of tasks, measured by how long skilled humans take, that an agent succeeds at about half the time. It's tempting to read it as how long the agent runs, but it's about how big a task is, not running time.
 
 Q: Why shouldn't you read the chart as "agents can now reliably do any multi-hour task"?
-- [ ] Because the chart only measures typing speed
-- [ ] Because agents stop improving after 2026
-- [x] Because it reflects 50% success on tidy test tasks, not real-world reliability
-- [ ] Because the measurements only include human workers
-E: The time horizon marks where agents succeed about half the time, on tasks with clear instructions and checks. Messy real work and near-certain success are both much harder. Nobody knows exactly how the trend will continue.
+- [ ] Because the times show how long agents took, not how long humans took
+- [ ] Because experts agree the trend will stop sometime after 2026
+- [x] Because it means 50% success on tidy test tasks, not reliability
+- [ ] Because each bar shows only an agent's single luckiest attempt
+E: The time horizon marks where agents succeed about half the time, on test tasks with clear instructions and checks. Messy real work and near-certain success are both much harder. The times are human times, and nobody knows for sure how the trend will continue.
 
 Q: As agents take on more work, which skill is likely to become MORE valuable?
-- [ ] Typing quickly
-- [ ] Memorizing facts and figures
-- [ ] Avoiding AI tools entirely
+- [ ] Typing quickly and accurately
+- [ ] Memorizing lots of facts and figures
+- [ ] Steering clear of AI tools entirely
 - [x] Judging whether work is correct
-E: Agents can type and recall facts instantly. Knowing what "right" looks like — and catching mistakes — is what makes you effective at directing and reviewing agent work.
+E: Agents can type and recall facts instantly. Knowing what "right" looks like, and catching mistakes, is what makes you effective at directing and reviewing agent work. Avoiding AI won't protect your skills; using it while keeping your judgment sharp will.
 ```
 
 ## What's next

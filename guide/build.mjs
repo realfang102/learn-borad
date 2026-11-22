@@ -229,7 +229,7 @@ function examplesPage() {
   const cats = [...new Set(examples.map((e) => e.category))];
   const body = `<main id="main" class="page"><div class="ch-hero reveal"><p class="eyebrow">Agents in action</p><h1>Watch real agent applications work 🎬</h1><p class="lead">Each example is an animated, step-by-step recreation of how a real kind of agent tackles a real task — what it thinks, which tools it uses, where a human steps in, and what can go wrong.</p></div>
 <div class="filters">${["All", ...cats].map((c, i) => `<button type="button" class="filter${i ? "" : " on"}" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}</div>
-<div class="ex-grid">${examples.map((e) => exampleCard(e).replace('class="ex-card"', `class="ex-card" data-cat="${esc(e.category)}"`)).join("")}</div></main>`;
+<h2 class="sr-only">All examples</h2><div class="ex-grid">${examples.map((e) => exampleCard(e).replace('class="ex-card"', `class="ex-card" data-cat="${esc(e.category)}"`)).join("")}</div></main>`;
   return layout({ title: `Agents in action · ${site.name}`, desc: "Animated examples of real agent applications.", body, page: "examples" });
 }
 

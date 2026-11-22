@@ -30,7 +30,7 @@ That detective work is a great job for an agent. It doesn't get groggy at 3 a.m.
 
 The agent worked like a careful detective. The graph showed a sudden **jump** in errors at 03:05, which hinted that *something changed*. It tested the cheapest idea first (a traffic surge — ruled out), followed the clue in the logs, and then **double-checked** that clue: the logs blamed the database, but the database itself turned out to be healthy. That surprise steered it to the real cause — an automated job had changed one setting from 50 to 5, just one minute before the trouble began.
 
-Two habits matter most here. First, the agent kept **investigating** (reading graphs and logs, which is safe) separate from **changing** things (risky). It could look at anything on its own, but the rollback needed Sam's approval. Second, it didn't stop when the command said "success". It **verified** the fix on the dashboard and with 20 test checkouts. You can read more about these habits in [making agents reliable](reliable-agents.html).
+Two habits matter most here. First, the agent kept **investigating** (reading graphs and logs, which is safe) separate from **changing** things (risky). It could look at anything on its own, but the **rollback** (undoing the change by restoring the previous setting) needed Sam's approval. Second, it didn't stop when the command said "success". It **verified** the fix on the dashboard and with 20 test checkouts. You can read more about these habits in [making agents reliable](reliable-agents.html).
 
 <div class="detail">
 

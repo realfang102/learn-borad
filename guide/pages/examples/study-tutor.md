@@ -76,23 +76,23 @@ Quiz me on [topic] using spaced repetition. Start with 5 questions. Bring back t
 
 ```quiz
 Q: Why did the tutor quiz Leo *before* explaining mitosis and meiosis?
-- [ ] Quizzing is faster than explaining
-- [x] To find out whether the mistake in his notes was also in his head
-- [ ] Because it couldn't read his notes properly
-- [ ] To give him a grade for his teacher
-E: The tutor had spotted the error in the notes but didn't know whether Leo actually believed it. One diagnostic question showed the mix-up was real, so it knew exactly what to fix first.
+- [ ] Quizzing is faster than explaining, so it saves time
+- [x] To see if the error in his notes was in his head too
+- [ ] It couldn't read his notes properly, so it had to ask
+- [ ] To give him a score it could pass on to his teacher
+E: The tutor had read the notes fine and spotted the error, but didn't know whether Leo actually believed it. One diagnostic question showed the mix-up was real, so it knew exactly what to fix first.
 
 Q: When Leo answered the Punnett square question wrong, what did the tutor do?
-- [ ] It gave him the right answer and moved on
-- [ ] It skipped genetics because it was too hard
-- [x] It gave a hint so he could work out the answer himself
-- [ ] It marked the topic as finished
-E: A hint ("draw the 2×2 grid") kept Leo doing the thinking. Answers you work out yourself are remembered far better than answers you're handed, and that's why giving the answer straight away, although it's quicker, is less helpful.
+- [ ] Gave him the right answer straight away and moved on
+- [ ] Skipped genetics for now because it was too hard
+- [x] Gave a hint so he could find the answer himself
+- [ ] Marked genetics as a strong topic and finished
+E: A hint ("draw the 2×2 grid") kept Leo doing the thinking. Handing over the answer is quicker, but answers you work out yourself are remembered far better.
 
 Q: Why did the tutor refuse to complete Leo's worksheet?
-- [ ] AI tools aren't able to solve genetics problems
-- [ ] The worksheet was too long for it to read
-- [ ] It wanted Leo to stay up later studying
-- [x] It was graded work, and it was exactly the practice Leo needed
-E: Doing graded work for a student can break academic honesty rules, and here it would have skipped practice on Leo's weakest topic. The tutor explained this and offered to check his answers instead.
+- [ ] AI tools can't reliably solve genetics problems
+- [ ] The worksheet was too long for it to read in time
+- [ ] It wanted Leo to stay up later and study more
+- [x] It was graded, and it was the practice he needed
+E: The tutor could easily have solved it; it had just walked Leo through a Punnett square. But doing graded work for a student can break academic honesty rules, and here it would also have skipped practice on Leo's weakest topic. So it offered to check his answers instead.
 ```

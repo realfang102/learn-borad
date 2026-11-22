@@ -70,7 +70,7 @@ window.SIMS["data-analyst"] = {
       do: [{ pane: "term", op: "cmd", text: "python check_outlier.py --cafe Riverside --date 2026-09-02" },
            { pane: "term", op: "out", text: "Riverside cold brew, Sept: typical day 41 units, busiest other day 58\n2 Sep croissants: 45 (normal)\n2 Sep till transactions, ALL products: 212" }],
       tokens: 2000, t: 4 },
-    { phase: "think", say: "The evidence says **typo**: 940 cold brews can't fit into 212 sales, and nothing else that day was unusual. Still, the agent can't know the true number — so it won't invent one.",
+    { phase: "think", say: "The evidence says **typo**: 940 cold brews can't fit into 212 till transactions, and nothing else that day was unusual. Still, the agent can't know the true number — so it won't invent one.",
       do: [{ pane: "think", op: "think", text: "Probably 94 or 40 with a slip of the keyboard, but I can't tell which. Best: leave it out of the chart, keep it flagged, show both totals, and ask Amara to check the till receipt. Riverside without it: €48,650." }],
       tokens: 1300 },
     { phase: "human", say: "Removing data from a report the whole team will see is a judgment call, so the agent **asks Amara**. You're Amara — approve or deny.",
@@ -95,7 +95,7 @@ window.SIMS["data-analyst"] = {
              "**Old Town trails** by about 25%. All 3 days with missing unit counts are at Old Town, so the gap may be slightly smaller than it looks."] },
            { pane: "doc", op: "para", text: "**Needs checking:** Riverside, 2 Sep — 940 cold brews recorded (normal is ~41). Left out of the chart until confirmed." }],
       tokens: 2200, t: 5 },
-    { phase: "done", say: "In a few minutes the agent **cleaned** messy data, **computed** with code instead of guessing, **questioned** a too-good-to-be-true number, and let Amara make the call.",
+    { phase: "done", say: "In about a minute the agent **cleaned** messy data, **computed** with code instead of guessing, **questioned** a too-good-to-be-true number, and let Amara make the call.",
       do: [{ pane: "chat", op: "msg", from: "agent", text: "Done! The chart and 3-point summary are ready for Monday. I saved a cleaned copy (q3-sales-clean.csv) and didn't touch your original. If you can find the 2 Sep Riverside receipt, tell me the real number and I'll update everything in seconds." }],
       tokens: 500, t: 2 }
   ]

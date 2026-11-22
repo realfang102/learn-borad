@@ -30,7 +30,7 @@ In this example, Nadia runs a small tea shop and needs her December newsletter. 
 
 This pattern, where one agent generates and another evaluates and the loop repeats until the work passes, is often called an **evaluator-optimizer** loop. It works for the same reason human editing works: **judging is easier than creating**. It's hard to write a perfect paragraph in one go, but it's easy to check "is this under 350 words?" or "does it mention the event time?" A separate editor also has no attachment to the draft, so it's more willing to say "cut this."
 
-The checklist is what makes the critique useful. Vague feedback ("make it better") leads to random changes. Specific feedback ("add the time: 2–4 pm"; "keep ONE call to action") leads to targeted fixes. And notice that the checklist came straight from Nadia's brief. That's why [great instructions](great-instructions.html) matter so much. Your request becomes the test the work has to pass.
+The checklist is what makes the critique useful. Vague feedback ("make it better") leads to random changes. Specific feedback ("add the time: 2–4 pm"; "keep ONE call to action", meaning one thing you ask readers to do) leads to targeted fixes. And notice that the checklist came straight from Nadia's brief. That's why [great instructions](great-instructions.html) matter so much. Your request becomes the test the work has to pass.
 
 <div class="detail">
 
@@ -44,7 +44,7 @@ The fact-checker relies on **web search** (or a company's own documents), so its
 
 - **Separate roles catch different problems.** The editor caught length, tone and missing details. Only the fact-checker, which actually *searched*, could catch the invented survey.
 - **A checklist makes "done" clear.** The loop stops when every item passes, not when the writer feels finished.
-- **Rounds are cheap.** Two extra rounds take an AI team seconds. Repeat the loop a few times and you get noticeably better work.
+- **Rounds are cheap.** An extra round of critique and revision takes an AI team seconds, so two or three rounds usually give noticeably better work.
 - **The human sees the change log.** Nadia learns what was fixed, including the fake statistic, so she can judge how much to trust the result.
 
 The invented statistic deserves a closer look. "A 2025 survey found 8 in 10 tea drinkers brew green tea too hot" sounds exactly like a real fact, and that's the danger. Language models sometimes produce plausible details that have no source, which is called **hallucination**. The editor checked it against the checklist and couldn't tell it was false. Only *looking for evidence* revealed it. The fix was simple and honest: drop the number and keep the useful point.
@@ -73,23 +73,23 @@ Finish with the final draft and a short change log.
 
 ```quiz
 Q: Why does splitting the work into a writer and an editor tend to give better results?
-- [ ] Two agents always type twice as fast as one
-- [x] Checking work against criteria is easier than writing it perfectly at once
-- [ ] The editor knows facts the writer doesn't
-- [ ] Editors are always a more powerful AI model
-E: Judging ("is it under 350 words? is the time included?") is easier than creating perfect text in one try. A separate critic with a clear checklist turns that into specific fixes. The roles can even use the same model.
+- [ ] Two agents always type twice as fast as one agent
+- [x] Judging a draft is easier than writing it perfectly
+- [ ] The editor knows facts that the writer has never seen
+- [ ] The editor is always a bigger, more powerful model
+E: Judging ("is it under 350 words? is the time included?") is easier than creating perfect text in one try, and a separate critic with a clear checklist turns that into specific fixes. The roles can even use the same model, so "a more powerful editor" isn't the reason.
 
 Q: Which problem could only the fact-checker catch?
 - [ ] The draft was 412 words, over the limit
-- [ ] The tasting time was missing
+- [ ] The tasting time was missing from the draft
 - [x] The "2025 survey" statistic had no real source
 - [ ] There were three calls to action instead of one
 E: Length, missing details and tone can all be checked by reading. A made-up statistic looks just like a real one, so only searching for evidence revealed it was invented.
 
 Q: What did the team do when it couldn't find the survey?
-- [ ] It kept the claim because it sounded believable
-- [ ] It searched until something similar turned up
-- [ ] It asked the writer to invent a citation
-- [x] It removed the number and rewrote the line honestly
+- [ ] Kept the claim, because it sounded believable
+- [ ] Kept searching until something similar turned up
+- [ ] Asked the writer to come up with a citation
+- [x] Removed the number and rewrote the line honestly
 E: When a claim can't be backed up, the honest fixes are to remove it or reword it so it doesn't claim more than you know. Hunting for a "similar" source to fit a claim you already believe is how misinformation spreads.
 ```

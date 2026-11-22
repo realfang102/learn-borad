@@ -89,25 +89,25 @@ As of 2026, agents are genuinely useful in a growing list of areas. A few you'll
 
 ```quiz
 Q: What most clearly makes something an AI *agent* rather than a chatbot?
-- [ ] It uses a very large, powerful AI model
-- [x] It works in a loop: acting with tools and using the results to decide what to do next
-- [ ] It can write long, detailed answers
-- [ ] It remembers your name between conversations
-E: Size and memory don't make an agent. The loop does: acting (usually with tools), observing the result, and choosing the next step toward a goal.
+- [ ] It runs on a much bigger, more powerful model than chatbots
+- [x] It acts with tools and uses each result to pick its next step
+- [ ] It can write longer, more detailed answers to hard questions
+- [ ] It remembers your name and preferences between conversations
+E: A big model, long answers and memory can all belong to a plain chatbot too. What makes an agent is the loop: it acts (usually with tools), looks at the result, and chooses its next step toward a goal.
 
 Q: Your AI assistant tells you, step by step, how to rename 200 files on your computer. Is it acting as an agent?
-- [ ] Yes, because it gave you a multi-step plan
-- [ ] Yes, because it understood your computer
-- [x] No — it explained how, but you still have to do the work
+- [ ] Yes, because it gave you a clear multi-step plan
+- [ ] Yes, because it understood how your computer works
+- [x] No, because you still have to do the renaming
 - [ ] No, because renaming files is too simple for AI
-E: Explaining is chatbot behavior. An agent with a file tool would rename the files itself, check that it worked, and report back.
+E: A step-by-step plan is still just advice: explaining is chatbot behavior. An agent with a file tool would rename the files itself, check that it worked, and report back. (And no task is "too simple" — simple, repetitive jobs are great for agents.)
 
 Q: Why do most people keep a human "in the loop" for some agent actions?
-- [ ] Because agents can't use tools without a person
-- [x] Because agents can make mistakes, so risky or irreversible actions deserve a human check
-- [ ] Because the law requires a person to press every button
-- [ ] Because it makes agents faster
-E: Agents are capable but imperfect. Letting them do the legwork while you approve important actions (sending money, deleting things) gives you speed *and* safety.
+- [ ] Because agents can't use their tools unless a person is watching
+- [x] Because agents make mistakes, and some actions are hard to undo
+- [ ] Because the law says a person must approve every agent action
+- [ ] Because checking each step makes the agent finish much faster
+E: Agents can use tools on their own, and no general law requires a human click for everything — approvals actually slow things down a little. People add them because agents are capable but imperfect: you let the agent do the legwork and approve the important, hard-to-undo actions (sending money, deleting things).
 ```
 
 ## What's next

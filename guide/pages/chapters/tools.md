@@ -107,7 +107,7 @@ To make connecting easier, the industry has been adopting a shared standard call
 
 <div class="detail">
 
-**A bit more about MCP:** Anthropic introduced the Model Context Protocol as an open standard in late 2024, and through 2025 it was taken up across the industry, including in tools from other major AI companies. An MCP server can offer **tools** (actions), **resources** (things to read, like files or records) and **prompts** (ready-made instructions). The AI app connects to the server, learns its tool menu, and adds those tools to what the model can use. Because anyone can write an MCP server, it's also important to only connect ones you trust — a tool's description is read by the model, so a malicious one could try to mislead it.
+**A bit more about MCP:** Anthropic introduced the Model Context Protocol as an open standard in November 2024. Through 2025 it was taken up across the industry, including in tools from other major AI companies, and in December 2025 Anthropic donated it to the Agentic AI Foundation, part of the non-profit Linux Foundation, so no single company controls it. An MCP server can offer **tools** (actions), **resources** (things to read, like files or records) and **prompts** (ready-made instructions). The AI app connects to the server, learns its tool menu, and adds those tools to what the model can use. Because anyone can write an MCP server, it's also important to only connect ones you trust — a tool's description is read by the model, so a malicious one could try to mislead it.
 
 </div>
 
@@ -128,11 +128,11 @@ Use only read-only actions until I approve; ask me before sending, booking, buyi
 
 ```quiz
 Q: What does an agent actually "see" about a tool when deciding whether to use it?
-- [ ] The tool's full program code and server
-- [ ] A video demonstration of the tool in action
+- [ ] The tool's full program code and the server it runs on
+- [ ] A short video showing the tool being used correctly
 - [x] Its name, a short description and the inputs it needs
-- [ ] Nothing — the harness picks tools for it
-E: The model chooses tools from a short "menu" entry: name, description and inputs. It never sees the code. That's why clear descriptions lead to better tool choices.
+- [ ] Nothing at all, because the harness picks every tool
+E: The model chooses tools from a short "menu" entry: name, description and inputs. It never sees the code or the server, and the harness only runs the tool the model asks for — it doesn't choose. That's why clear descriptions lead to better tool choices.
 
 Q: Which of these is a tool that "touches" — that is, changes something in the world?
 - [ ] Checking tomorrow's calendar for free slots
@@ -142,11 +142,11 @@ Q: Which of these is a tool that "touches" — that is, changes something in the
 E: Cancelling a meeting changes something real and affects other people, so it deserves more care (and often an approval step). The other three only read information.
 
 Q: An agent only needs to summarize your inbox each morning. Which tool permissions should it have?
-- [ ] Read, send and delete emails, so it's ready for anything
-- [x] Read-only access to your inbox
+- [ ] Full access to read, send and delete, just in case
+- [x] Read-only access to your inbox, and nothing more
 - [ ] Send-only access, so it can email you the summary
-- [ ] No access — agents shouldn't touch email at all
-E: Give agents the fewest permissions they need (least privilege). Summarizing only requires reading. Extra powers like sending or deleting add risk without helping with this task.
+- [ ] No access at all, since agents shouldn't touch email
+E: Give agents the fewest permissions they need (least privilege). Summarizing only requires reading. Send-only access can't even see the inbox, and extra powers like sending or deleting add risk without helping with this task.
 ```
 
 ## What's next
