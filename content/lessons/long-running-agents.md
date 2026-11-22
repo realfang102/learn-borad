@@ -232,7 +232,7 @@ The broader lesson: **every harness component encodes an assumption about what t
 
 ### Server-side compaction, briefly
 
-The Claude API offers compaction as a beta (header `compact-2026-01-12`): opt in with a `compact_20260112` context-management edit, which by default triggers at 150,000 input tokens and returns a `compaction` block you must send back, so always append the full `response.content`. An on-demand variant lets the harness choose when to summarize, and Claude Managed Agents compacts automatically. Code is in [context engineering](context-engineering.html#compaction).
+The Claude API offers server-side compaction in two beta forms. **Threshold compaction** (header `compact-2026-01-12`) is a `compact_20260112` context-management edit that by default triggers at 150,000 input tokens and returns a `compaction` block you must send back, so always append the full `response.content`. **On-demand compaction** (header `compact-2026-09-04`) lets the harness decide when to summarize, can keep recent turns verbatim and can run in the background; the docs recommend it wherever it is available. Claude Managed Agents compacts automatically. Code is in [context engineering](context-engineering.html#compaction).
 
 Whatever the mechanism, **write anything that must survive to durable storage before compaction, not after.** A summary keeps what the summarizer thought mattered; the progress file keeps what you decided matters.
 
@@ -291,7 +291,8 @@ def run_session(feat: dict, meter, max_turns: int = 200) -> str:
     messages = [{"role": "user", "content":
         f"Read progress.md and the last 20 commits, run ./init.sh and the smoke tests, "
         f"then implement ONLY {feat['id']}: {feat['description']}\nAcceptance steps: "
-        f"{feat['steps']}\nDo not edit features.json or tests/. Update progress.md before stopping."}]
+        f"{feat['steps']}\nDo not edit features.json or tests/, and do not commit: the harness "
+        f"does. Update progress.md before stopping."}]
     for _ in range(max_turns):
         with client.beta.messages.stream(
             model=MODEL, max_tokens=32000, system=SYSTEM, tools=[BASH], messages=messages,
@@ -328,7 +329,9 @@ def main(meter, max_sessions: int = 80, max_usd: float = 400.0, max_stalls: int 
         if not todo or meter.usd >= max_usd or stalls >= max_stalls:
             break                             # done, out of money, or stuck: hand to a human
         feat = min(todo, key=lambda f: f["priority"])
+        base = sh(["git", "rev-parse", "HEAD"])[1].strip()
         stop = run_session(feat, meter)
+        sh(["git", "reset", "--soft", base])  # fold any commits the agent made back into the diff
         ok = gates_pass(feat)                 # the harness decides, not the agent's claim
         TASKS.write_text(snapshot)            # undo any edits the agent made to the list
         feat["attempts"] += 1
@@ -350,7 +353,7 @@ def main(meter, max_sessions: int = 80, max_usd: float = 400.0, max_stalls: int 
 
 What this sketch gets right, and what it leaves for you:
 
-- **The model never self-certifies.** It can believe it's done, but only `gates_pass` flips `passes`, and edits to `tests/` or the task list fail the session outright.
+- **The model never self-certifies.** It can believe it's done, but only `gates_pass` flips `passes`, and edits to `tests/` or the task list fail the session outright. The harness also owns commits (unlike Anthropic's setup, where the agent committed): the soft reset folds any agent commits back into the working tree, so a committed test edit can't slip past the check.
 - **Failure keeps the lessons and drops the code.** The stash preserves the attempt for a human, the notes preserve what was learned, and the main line stays green for the next session.
 - **Three budgets apply at three scales.** `max_tokens` caps each response, the task budget paces each session, and dollars, sessions and stalls cap the whole project.
 - **Left out:** retries and a checkpointed inner loop (from [reliability](reliability.html)), a sandbox ([guardrails and sandboxing](guardrails-and-sandboxing.html)), prompt caching, a stuck-baseline repair step, and a human review queue. Several of these are exercises below.

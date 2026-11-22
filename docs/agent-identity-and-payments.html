@@ -208,7 +208,7 @@
 <li><strong>Authorization server (AS)</strong>: issues tokens after the user consents.</li>
 <li><strong>Resource server (RS)</strong>: the API that accepts tokens.</li>
 </ul>
-<p><strong>OAuth 2.1</strong>, still an IETF draft in 2026, consolidates a decade of lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens that are sender-constrained or rotated on each use. On 2.0, follow the <strong>Security Best Current Practice</strong> (RFC 9700, January 2025).</p>
+<p><strong>OAuth 2.1</strong>, still an IETF draft in 2026, consolidates a decade of lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens for public clients that are sender-constrained or rotated on each use. On 2.0, follow the <strong>Security Best Current Practice</strong> (RFC 9700, January 2025).</p>
 <h3 id="authorization-code-with-pkce"><a class="anchor" href="#authorization-code-with-pkce" aria-hidden="true" tabindex="-1">#</a>Authorization code with PKCE</h3>
 <p>An agent host obtains consent with the <strong>authorization code grant</strong> plus <strong>PKCE</strong> (Proof Key for Code Exchange, RFC 7636). The host generates a random <em>code verifier</em> and sends only its SHA-256 hash, the <em>code challenge</em>, with the authorization request. To redeem the code it must present the verifier, so an attacker who intercepts the code (via a malicious app on the same redirect URI, a leaky log or a browser extension) can&#39;t use it.</p>
 <figure class="diagram"><pre class="mermaid">sequenceDiagram
@@ -243,7 +243,7 @@
 <p>If the agent has its own OAuth client and grants, the user or an administrator can revoke <em>that agent&#39;s</em> refresh token without touching their own sessions or other agents. Show users their connected agents with scopes and last use, make revocation one click, and make the broker fail closed when a refresh fails rather than falling back to a broader credential.</p>
 <h3 id="token-exchange-and-on-behalf-of"><a class="anchor" href="#token-exchange-and-on-behalf-of" aria-hidden="true" tabindex="-1">#</a>Token exchange and on-behalf-of</h3>
 <p>Agents often sit mid-chain: user → agent host → tool service → downstream API. Forwarding the user&#39;s token down the chain is dangerous (MCP forbids this &quot;token passthrough&quot;); each hop should obtain a <em>new</em> token for the next audience.</p>
-<p><strong>OAuth 2.0 Token Exchange</strong> (RFC 8693) standardizes this. A service presents a <code>subject_token</code> (the user) and optionally an <code>actor_token</code> (itself), and asks for a token with a specific <code>audience</code> and narrower <code>scope</code>. The result can carry an <strong><code>act</code> (actor) claim</strong> recording who acts for whom:</p>
+<p><strong>OAuth 2.0 <dfn class="gt" tabindex="0" data-t="Token exchange" data-d="An OAuth 2.0 extension (RFC 8693) for trading one token for another, e.g., a narrowly scoped, short-lived token for a downstream API on behalf of the user, so agents never hold broad credentials." data-a="token-exchange">Token Exchange</dfn></strong> (RFC 8693) standardizes this. A service presents a <code>subject_token</code> (the user) and optionally an <code>actor_token</code> (itself), and asks for a token with a specific <code>audience</code> and narrower <code>scope</code>. The result can carry an <strong><code>act</code> (actor) claim</strong> recording who acts for whom:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;iss&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://auth.example.com&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;sub&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user-42&quot;</span><span class="hljs-punctuation">,</span>
@@ -262,7 +262,7 @@
 <li><strong>PKCE is verified.</strong> Clients must use <code>S256</code> when technically capable, and must refuse to proceed if the authorization server&#39;s metadata lacks <code>code_challenge_methods_supported</code>.</li>
 <li><strong>Resource indicators are mandatory.</strong> Clients send the server&#39;s canonical URI as <code>resource</code>. Servers must reject tokens not issued for them and must not accept or transit any other token.</li>
 <li><strong>Scopes are minimized, then stepped up.</strong> On a <code>401</code>, the server should name the needed scopes in <code>WWW-Authenticate</code>, and the client requests exactly those. If a later operation needs more, the server answers <code>403</code> with <code>error=&quot;insufficient_scope&quot;</code> and the required scopes, and the client runs <strong>step-up authorization</strong>: it re-authorizes for the <em>union</em> of old and new scopes, so it keeps what it had.</li>
-<li><strong>Issuer validation.</strong> Clients compare the <code>iss</code> in the authorization response with the issuer they recorded before redirecting (RFC 9207), defeating &quot;mix-up&quot; attacks that trick a client into sending a code to the wrong server.</li>
+<li><strong>Issuer validation.</strong> Clients compare the <code>iss</code> in the authorization response with the issuer they recorded before redirecting (RFC 9207), and reject a response without <code>iss</code> when the server&#39;s metadata says it sends one. This defeats &quot;mix-up&quot; attacks that trick a client into sending a code to the wrong server.</li>
 <li><strong>Refresh tokens are never assumed.</strong> Clients may ask for <code>offline_access</code>; the authorization server decides.</li>
 </ul>
 <p>Two official, opt-in <strong>authorization extensions</strong> cover cases user consent doesn&#39;t fit. <strong>OAuth Client Credentials</strong> gives machine-to-machine access for background services and CI, with the agent authenticating as <em>itself</em>. <strong>Enterprise-Managed Authorization</strong> puts the organization&#39;s identity provider (IdP) in charge: the client exchanges the employee&#39;s SSO assertion at the IdP for an <strong>Identity Assertion JWT Authorization Grant</strong> (ID-JAG) via an RFC 8693 token exchange, then trades it for an access token at the MCP server&#39;s authorization server. No per-server consent screens, and revocation at the IdP applies everywhere.</p>
@@ -270,7 +270,7 @@
 </div></div>
 <h2 id="keep-secrets-out-of-the-model"><a class="anchor" href="#keep-secrets-out-of-the-model" aria-hidden="true" tabindex="-1">#</a>Keep Secrets Out of the Model</h2>
 <p>The most important rule in this lesson: <strong>never give a model a raw, long-lived secret</strong>, whether in the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, a tool result, an environment variable a code tool can print, or memory. Anything in context can come back out (in a reply, a tool argument, an image URL), and <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> turns that into an attack (<a href="agent-security.html#the-lethal-trifecta-and-exfiltration">the lethal trifecta</a>). Context is also copied widely: traces, eval datasets, logs, caches.</p>
-<p>Instead, use a <strong>credential broker</strong>: a component outside the model that holds tokens, decides whether a tool call may use one, attaches it, and strips secrets from results. <a href="guardrails-and-sandboxing.html#credential-isolation-via-proxies">Guardrails &amp; Sandboxing</a> showed the network-level version, an egress proxy. A broker works at the application level, so it also knows <em>which tool</em> is being called and <em>for how much money</em>.</p>
+<p>Instead, use a <strong><dfn class="gt" tabindex="0" data-t="Credential broker" data-d="A component that holds secrets and attaches them to outbound requests on the agent's behalf, enforcing scopes and limits, so tokens never appear in the model's context." data-a="credential-broker">credential broker</dfn></strong>: a component outside the model that holds tokens, decides whether a tool call may use one, attaches it, and strips secrets from results. <a href="guardrails-and-sandboxing.html#credential-isolation-via-proxies">Guardrails &amp; Sandboxing</a> showed the network-level version, an egress proxy. A broker works at the application level, so it also knows <em>which tool</em> is being called and <em>for how much money</em>.</p>
 <h3 id="per-tool-and-per-action-scoping"><a class="anchor" href="#per-tool-and-per-action-scoping" aria-hidden="true" tabindex="-1">#</a>Per-tool and per-action scoping</h3>
 <ul>
 <li><strong>Per tool</strong>: each tool declares one scope and one audience. <code>list_orders</code> gets an <code>orders:read</code> token for the orders API and can never obtain a payments token.</li>
@@ -319,10 +319,13 @@
         <span class="hljs-keyword">if</span> spec.scope <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> g.scopes:
             <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;scope <span class="hljs-subst">{spec.scope}</span> was not granted&quot;</span>
         <span class="hljs-keyword">if</span> spec.spends:
-            amount = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>)))
+            <span class="hljs-keyword">try</span>:
+                amount = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>)))
+            <span class="hljs-keyword">except</span> ArithmeticError:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;amount is not a number&quot;</span>
             <span class="hljs-keyword">if</span> args.get(<span class="hljs-string">&quot;merchant&quot;</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> g.merchants:
                 <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;merchant is not on the allowlist&quot;</span>
-            <span class="hljs-keyword">if</span> amount &lt;= <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> g.spent + amount &gt; g.session_cap:
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> amount.is_finite() <span class="hljs-keyword">or</span> amount &lt;= <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> g.spent + amount &gt; g.session_cap:
                 <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;amount <span class="hljs-subst">{amount}</span> breaks the cap (<span class="hljs-subst">{g.spent}</span> of <span class="hljs-subst">{g.session_cap}</span> used)&quot;</span>
             <span class="hljs-keyword">if</span> amount &gt; g.approve_above <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-variable language_">self</span>.approve(g, args):
                 <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;the user declined this purchase&quot;</span>
@@ -391,17 +394,17 @@ TOOLS = [
 <h2 id="agent-identity-on-the-web"><a class="anchor" href="#agent-identity-on-the-web" aria-hidden="true" tabindex="-1">#</a>Agent Identity on the Web</h2>
 <p>On the open web there&#39;s no OAuth relationship to lean on. Sites classify traffic by <strong>user-agent strings</strong> (trivial to spoof) and <strong>IP ranges</strong> (brittle and shared), so helpful agents get blocked while scrapers pose as browsers.</p>
 <h3 id="signed-agent-requests-web-bot-auth"><a class="anchor" href="#signed-agent-requests-web-bot-auth" aria-hidden="true" tabindex="-1">#</a>Signed agent requests: Web Bot Auth</h3>
-<p><strong>Web Bot Auth</strong> lets an automated client prove <em>which operator</em> sent a request by signing it with <strong>HTTP Message Signatures</strong> (RFC 9421, 2024). Cloudflare proposed it in May 2025. The IETF formed a <strong>webbotauth</strong> working group in October 2025, and its protocol document, <em>HTTP Message Signatures for Bots</em>, was still an Internet-Draft in late 2026, so details may change.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Web Bot Auth" data-d="An IETF effort, based on HTTP Message Signatures (RFC 9421), that lets automated clients such as agents cryptographically sign requests so websites can verify who is calling; still an Internet-Draft as of late 2026." data-a="web-bot-auth">Web Bot Auth</dfn></strong> lets an automated client prove <em>which operator</em> sent a request by signing it with <strong>HTTP Message Signatures</strong> (RFC 9421, 2024). Cloudflare proposed it in May 2025. The IETF formed a <strong>webbotauth</strong> working group in October 2025, and its protocol document, <em>HTTP Message Signatures for Bots</em>, was still an Internet-Draft in late 2026, so details may change.</p>
 <ul>
-<li>The operator publishes its public keys (Ed25519 in the reference implementation) in a <strong>key directory</strong> at <code>/.well-known/http-message-signatures-directory</code> on its own domain.</li>
-<li>Each request carries a <code>Signature-Agent</code> header pointing there, plus <code>Signature-Input</code> and <code>Signature</code> headers: an RFC 9421 signature over at least the target authority, with creation and expiry times, a nonce and the tag <code>web-bot-auth</code>.</li>
-<li>The site fetches and caches the keys, verifies the signature, rejects replayed nonces, and applies its policy for that operator.</li>
+<li>The operator publishes its public keys (Ed25519 in the reference implementation) in a <strong>key directory</strong>, a JWK Set. Served at the reserved path <code>/.well-known/http-message-signatures-directory</code> on the operator&#39;s domain, it ties the keys to that domain.</li>
+<li>Each request carries a <code>Signature-Agent</code> header naming the directory&#39;s URL, plus <code>Signature-Input</code> and <code>Signature</code> headers: an RFC 9421 signature over at least the target authority (or full URI), with creation and expiry times, a <code>keyid</code> (the key&#39;s JWK thumbprint) and the tag <code>web-bot-auth</code>.</li>
+<li>The site fetches and caches the keys, verifies the signature and expiry, and applies its policy for that operator. A signature over just the authority can be replayed until it expires, so short expiry windows, an optional nonce and covering more components (method, path) narrow that risk.</li>
 </ul>
 <p>An abbreviated, illustrative request:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">GET /products/usb-c-charger HTTP/1.1
 Host: shop.example
-Signature-Agent: sig1=&quot;https://agent.example.com&quot;
-Signature-Input: sig1=(&quot;@authority&quot; &quot;signature-agent&quot;);created=1795430000;expires=1795430300;keyid=&quot;&lt;JWK thumbprint&gt;&quot;;alg=&quot;ed25519&quot;;nonce=&quot;&lt;random&gt;&quot;;tag=&quot;web-bot-auth&quot;
+Signature-Agent: sig1=&quot;https://agent.example.com/.well-known/http-message-signatures-directory&quot;
+Signature-Input: sig1=(&quot;@authority&quot; &quot;signature-agent&quot;;key=&quot;sig1&quot;);created=1795430000;expires=1795430300;keyid=&quot;&lt;JWK thumbprint&gt;&quot;;tag=&quot;web-bot-auth&quot;
 Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
 <p>Visa&#39;s <strong>Trusted Agent Protocol</strong> (October 2025, developed with Cloudflare) and Mastercard&#39;s Agent Pay build on Web Bot Auth so merchants can recognize registered shopping agents.</p>
 <p>Be precise about what a signature proves: the request came from the holder of a key a particular operator published. That gives accountability and a stable identity for rate limits and allowlists. It does <em>not</em> prove which user the agent serves, that the user authorized this action, or that the agent behaves well. Privacy is open too: a stable signature makes agents trackable, and the working group is also discussing anonymous variants.</p>
@@ -448,7 +451,7 @@ Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
 </div>
 <p>Only the last row gives non-repudiation, and only for whoever&#39;s key signed. An operator&#39;s log, however well protected, is the operator&#39;s word, which is why payment protocols put the user&#39;s approval of exactly what will be paid into a signature made with the user&#39;s key.</p>
 <h2 id="agentic-payments"><a class="anchor" href="#agentic-payments" aria-hidden="true" tabindex="-1">#</a>Agentic Payments</h2>
-<p>Payments concentrate every problem above. Money is hard to claw back, card fraud rules assume a human at checkout, and liability assumes someone can say &quot;yes, I did that&quot;. As AP2&#39;s overview frames it: what proves the user authorized this purchase, does the request reflect their true intent, and who is accountable when it goes wrong? Several overlapping, sometimes competing efforts launched in 2025 and 2026:</p>
+<p>Payments concentrate every problem above. Money is hard to claw back, card fraud rules assume a human at checkout, and liability assumes someone can say &quot;yes, I did that&quot;. As <dfn class="gt" tabindex="0" data-t="Agent Payments Protocol" data-d="An open protocol announced by Google in September 2025 for agent-initiated payments, built on cryptographically signed mandates that record what the user authorized; version 0.2 (April 2026) was donated to the FIDO Alliance." data-a="agent-payments-protocol">AP2</dfn>&#39;s overview frames it: what proves the user authorized this purchase, does the request reflect their true intent, and who is accountable when it goes wrong? Several overlapping, sometimes competing efforts launched in 2025 and 2026:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -465,7 +468,7 @@ Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
 <td>v0.2 (April 2026), pre-1.0</td>
 </tr>
 <tr>
-<td><strong>ACP</strong> (Agentic Commerce Protocol)</td>
+<td><strong><dfn class="gt" tabindex="0" data-t="Agentic Commerce Protocol" data-d="An open standard from OpenAI and Stripe (September 2025) for agents to complete purchases with merchants, using delegated payment tokens with allowances so the model never sees card details." data-a="agentic-commerce-protocol">ACP</dfn></strong> (Agentic Commerce Protocol)</td>
 <td>OpenAI and Stripe</td>
 <td>Checkout API between agent and merchant, plus delegated payment tokens</td>
 <td>Beta, date-versioned spec</td>
@@ -477,7 +480,7 @@ Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
 <td>Launched January 2026</td>
 </tr>
 <tr>
-<td><strong>x402</strong></td>
+<td><strong><dfn class="gt" tabindex="0" data-t="x402" data-d="An open payment protocol that revives HTTP status 402 Payment Required: a server answers with payment requirements, the client (often an agent) pays, typically in stablecoins, and retries with a payment header." data-a="x402">x402</dfn></strong></td>
 <td>Coinbase; now the x402 Foundation</td>
 <td>Payments inside HTTP using status 402</td>
 <td>Open standard, v2</td>
@@ -532,13 +535,13 @@ Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
 <p>OpenAI and Stripe released the <strong>Agentic Commerce Protocol</strong> on September 29, 2025, alongside <strong>Instant Checkout</strong> in ChatGPT. It is Apache-2.0 licensed and versioned by date (the 2026-04-17 release added carts, product feeds, orders, authentication and MCP support). Two pieces matter here:</p>
 <ul>
 <li>An <strong>agentic checkout</strong> API that merchants implement, so an agent can create, update and complete a checkout while the merchant stays <strong>merchant of record</strong>.</li>
-<li>A <strong>delegated payment</strong> spec: the payment provider tokenizes the user&#39;s credential with an <strong>allowance</strong> (one-time use, a <code>max_amount</code> in minor units, currency, the specific <code>checkout_session_id</code> and <code>merchant_id</code>, and <code>expires_at</code>). The agent never handles the card number. Stripe&#39;s comparable primitive is the <strong>Shared Payment Token</strong>.</li>
+<li>A <strong>delegated payment</strong> spec: the payment provider tokenizes the user&#39;s credential with an <strong>allowance</strong> (one-time use, a <code>max_amount</code> in minor units, currency, the specific <code>checkout_session_id</code> and <code>merchant_id</code>, and <code>expires_at</code>). The merchant receives only the scoped token, and the model never sees the card number. Stripe&#39;s comparable primitive is the <strong>Shared Payment Token</strong>.</li>
 </ul>
 <p>The allowance is the broker&#39;s per-action scoping, enforced by the payment provider. Products move fast: in March 2026 OpenAI scaled back native Instant Checkout, shifting purchases into merchants&#39; own apps inside ChatGPT, while the ACP spec kept evolving. Treat product integrations as provisional and the delegation patterns as durable.</p>
 <h3 id="ucp-the-commerce-layer"><a class="anchor" href="#ucp-the-commerce-layer" aria-hidden="true" tabindex="-1">#</a>UCP: the commerce layer</h3>
 <p>Google introduced the <strong>Universal Commerce Protocol</strong> in January 2026 at the National Retail Federation conference, co-developed with Shopify and endorsed by retailers and payment companies. UCP covers the shopping workflow (capabilities, checkout, fulfillment, discounts, payment handlers), and AP2 is designed as the authorization layer that plugs into it. ACP and UCP overlap at checkout; whether they converge is open.</p>
 <h3 id="x402-payments-inside-http"><a class="anchor" href="#x402-payments-inside-http" aria-hidden="true" tabindex="-1">#</a>x402: payments inside HTTP</h3>
-<p>HTTP reserved status <strong>402 Payment Required</strong> in the 1990s but never defined it. <strong>x402</strong>, launched by Coinbase in May 2025, gives it a protocol for machine-to-machine payments: paying per API call or per article, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025, and in 2026 it moved under the Linux Foundation.</p>
+<p>HTTP reserved status <strong>402 Payment Required</strong> in the 1990s but never defined it. <strong>x402</strong>, launched by Coinbase in May 2025, gives it a protocol for machine-to-machine payments: paying per API call or per article, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025; in April 2026 the Linux Foundation took it on, with Coinbase contributing the protocol.</p>
 <p>In version 2, the exchange looks like this (abbreviated):</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">GET /premium-data HTTP/1.1
 Host: api.example.com
@@ -638,7 +641,7 @@ PAYMENT-RESPONSE: &lt;base64 JSON: settlement result, transaction reference&gt;<
 <p> <strong>Sketch:</strong> A reasonable plan:</p>
 <ul>
 <li><code>search_mail</code> and <code>read_message</code>: <code>gmail.readonly</code>, audience the Gmail API, allowed, but their output is untrusted.</li>
-<li><code>create_draft</code>: <code>gmail.compose</code>, allowed (a draft sends nothing).</li>
+<li><code>create_draft</code>: <code>gmail.compose</code>, allowed. Note that this scope also permits sending, so the broker, not the scope, must ensure the tool only ever calls the drafts endpoint.</li>
 <li><code>send_mail</code>: <code>gmail.send</code>, ask, with the exact recipients and body shown.</li>
 <li><code>list_events</code>: <code>calendar.events.readonly</code>, allowed.</li>
 <li><code>create_event</code> and <code>move_event</code>: <code>calendar.events</code>, allowed for the user&#39;s own calendar, ask when external attendees will be notified.</li>
@@ -664,7 +667,12 @@ PAYMENT-RESPONSE: &lt;base64 JSON: settlement result, transaction reference&gt;<
             now, day = time.time(), datetime.date.today().isoformat()
             <span class="hljs-keyword">while</span> <span class="hljs-variable language_">self</span>.recent <span class="hljs-keyword">and</span> <span class="hljs-variable language_">self</span>.recent[<span class="hljs-number">0</span>] &lt; now - <span class="hljs-number">600</span>:
                 <span class="hljs-variable language_">self</span>.recent.popleft()
-            amount, key = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>))), (args.get(<span class="hljs-string">&quot;merchant&quot;</span>), day)
+            <span class="hljs-keyword">try</span>:
+                amount, key = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>))), (args.get(<span class="hljs-string">&quot;merchant&quot;</span>), day)
+            <span class="hljs-keyword">except</span> ArithmeticError:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;amount is not a number&quot;</span>
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> amount.is_finite():
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;amount is not a number&quot;</span>
             <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.recent) &gt;= <span class="hljs-number">3</span>:
                 <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;velocity limit: at most 3 purchases per 10 minutes&quot;</span>
             <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.daily[key] + amount &gt; <span class="hljs-variable language_">self</span>.merchant_daily_cap:

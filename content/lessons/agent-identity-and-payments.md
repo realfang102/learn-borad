@@ -56,7 +56,7 @@ The agent's own identity uses the same building blocks as any service: **workloa
 - **Authorization server (AS)**: issues tokens after the user consents.
 - **Resource server (RS)**: the API that accepts tokens.
 
-**OAuth 2.1**, still an IETF draft in 2026, consolidates a decade of lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens that are sender-constrained or rotated on each use. On 2.0, follow the **Security Best Current Practice** (RFC 9700, January 2025).
+**OAuth 2.1**, still an IETF draft in 2026, consolidates a decade of lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens for public clients that are sender-constrained or rotated on each use. On 2.0, follow the **Security Best Current Practice** (RFC 9700, January 2025).
 
 ### Authorization code with PKCE
 
@@ -132,7 +132,7 @@ Two standards fit agents well. **Rich Authorization Requests** (RFC 9396) replac
 - **PKCE is verified.** Clients must use `S256` when technically capable, and must refuse to proceed if the authorization server's metadata lacks `code_challenge_methods_supported`.
 - **Resource indicators are mandatory.** Clients send the server's canonical URI as `resource`. Servers must reject tokens not issued for them and must not accept or transit any other token.
 - **Scopes are minimized, then stepped up.** On a `401`, the server should name the needed scopes in `WWW-Authenticate`, and the client requests exactly those. If a later operation needs more, the server answers `403` with `error="insufficient_scope"` and the required scopes, and the client runs **step-up authorization**: it re-authorizes for the *union* of old and new scopes, so it keeps what it had.
-- **Issuer validation.** Clients compare the `iss` in the authorization response with the issuer they recorded before redirecting (RFC 9207), defeating "mix-up" attacks that trick a client into sending a code to the wrong server.
+- **Issuer validation.** Clients compare the `iss` in the authorization response with the issuer they recorded before redirecting (RFC 9207), and reject a response without `iss` when the server's metadata says it sends one. This defeats "mix-up" attacks that trick a client into sending a code to the wrong server.
 - **Refresh tokens are never assumed.** Clients may ask for `offline_access`; the authorization server decides.
 
 Two official, opt-in **authorization extensions** cover cases user consent doesn't fit. **OAuth Client Credentials** gives machine-to-machine access for background services and CI, with the agent authenticating as *itself*. **Enterprise-Managed Authorization** puts the organization's identity provider (IdP) in charge: the client exchanges the employee's SSO assertion at the IdP for an **Identity Assertion JWT Authorization Grant** (ID-JAG) via an RFC 8693 token exchange, then trades it for an access token at the MCP server's authorization server. No per-server consent screens, and revocation at the IdP applies everywhere.
@@ -197,10 +197,13 @@ class CredentialBroker:
         if spec.scope not in g.scopes:
             return f"scope {spec.scope} was not granted"
         if spec.spends:
-            amount = Decimal(str(args.get("amount", "0")))
+            try:
+                amount = Decimal(str(args.get("amount", "0")))
+            except ArithmeticError:
+                return "amount is not a number"
             if args.get("merchant") not in g.merchants:
                 return "merchant is not on the allowlist"
-            if amount <= 0 or g.spent + amount > g.session_cap:
+            if not amount.is_finite() or amount <= 0 or g.spent + amount > g.session_cap:
                 return f"amount {amount} breaks the cap ({g.spent} of {g.session_cap} used)"
             if amount > g.approve_above and not self.approve(g, args):
                 return "the user declined this purchase"
@@ -283,17 +286,17 @@ On the open web there's no OAuth relationship to lean on. Sites classify traffic
 
 **Web Bot Auth** lets an automated client prove *which operator* sent a request by signing it with **HTTP Message Signatures** (RFC 9421, 2024). Cloudflare proposed it in May 2025. The IETF formed a **webbotauth** working group in October 2025, and its protocol document, *HTTP Message Signatures for Bots*, was still an Internet-Draft in late 2026, so details may change.
 
-- The operator publishes its public keys (Ed25519 in the reference implementation) in a **key directory** at `/.well-known/http-message-signatures-directory` on its own domain.
-- Each request carries a `Signature-Agent` header pointing there, plus `Signature-Input` and `Signature` headers: an RFC 9421 signature over at least the target authority, with creation and expiry times, a nonce and the tag `web-bot-auth`.
-- The site fetches and caches the keys, verifies the signature, rejects replayed nonces, and applies its policy for that operator.
+- The operator publishes its public keys (Ed25519 in the reference implementation) in a **key directory**, a JWK Set. Served at the reserved path `/.well-known/http-message-signatures-directory` on the operator's domain, it ties the keys to that domain.
+- Each request carries a `Signature-Agent` header naming the directory's URL, plus `Signature-Input` and `Signature` headers: an RFC 9421 signature over at least the target authority (or full URI), with creation and expiry times, a `keyid` (the key's JWK thumbprint) and the tag `web-bot-auth`.
+- The site fetches and caches the keys, verifies the signature and expiry, and applies its policy for that operator. A signature over just the authority can be replayed until it expires, so short expiry windows, an optional nonce and covering more components (method, path) narrow that risk.
 
 An abbreviated, illustrative request:
 
 ```text
 GET /products/usb-c-charger HTTP/1.1
 Host: shop.example
-Signature-Agent: sig1="https://agent.example.com"
-Signature-Input: sig1=("@authority" "signature-agent");created=1795430000;expires=1795430300;keyid="<JWK thumbprint>";alg="ed25519";nonce="<random>";tag="web-bot-auth"
+Signature-Agent: sig1="https://agent.example.com/.well-known/http-message-signatures-directory"
+Signature-Input: sig1=("@authority" "signature-agent";key="sig1");created=1795430000;expires=1795430300;keyid="<JWK thumbprint>";tag="web-bot-auth"
 Signature: sig1=:<base64 signature>:
 ```
 
@@ -383,7 +386,7 @@ Three design choices are worth copying even outside payments:
 OpenAI and Stripe released the **Agentic Commerce Protocol** on September 29, 2025, alongside **Instant Checkout** in ChatGPT. It is Apache-2.0 licensed and versioned by date (the 2026-04-17 release added carts, product feeds, orders, authentication and MCP support). Two pieces matter here:
 
 - An **agentic checkout** API that merchants implement, so an agent can create, update and complete a checkout while the merchant stays **merchant of record**.
-- A **delegated payment** spec: the payment provider tokenizes the user's credential with an **allowance** (one-time use, a `max_amount` in minor units, currency, the specific `checkout_session_id` and `merchant_id`, and `expires_at`). The agent never handles the card number. Stripe's comparable primitive is the **Shared Payment Token**.
+- A **delegated payment** spec: the payment provider tokenizes the user's credential with an **allowance** (one-time use, a `max_amount` in minor units, currency, the specific `checkout_session_id` and `merchant_id`, and `expires_at`). The merchant receives only the scoped token, and the model never sees the card number. Stripe's comparable primitive is the **Shared Payment Token**.
 
 The allowance is the broker's per-action scoping, enforced by the payment provider. Products move fast: in March 2026 OpenAI scaled back native Instant Checkout, shifting purchases into merchants' own apps inside ChatGPT, while the ACP spec kept evolving. Treat product integrations as provisional and the delegation patterns as durable.
 
@@ -393,7 +396,7 @@ Google introduced the **Universal Commerce Protocol** in January 2026 at the Nat
 
 ### x402: payments inside HTTP
 
-HTTP reserved status **402 Payment Required** in the 1990s but never defined it. **x402**, launched by Coinbase in May 2025, gives it a protocol for machine-to-machine payments: paying per API call or per article, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025, and in 2026 it moved under the Linux Foundation.
+HTTP reserved status **402 Payment Required** in the 1990s but never defined it. **x402**, launched by Coinbase in May 2025, gives it a protocol for machine-to-machine payments: paying per API call or per article, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025; in April 2026 the Linux Foundation took it on, with Coinbase contributing the protocol.
 
 In version 2, the exchange looks like this (abbreviated):
 
@@ -481,7 +484,7 @@ Card networks set their own dispute rules, and analysts generally note that no c
 
     **Sketch:** A reasonable plan:
     - `search_mail` and `read_message`: `gmail.readonly`, audience the Gmail API, allowed, but their output is untrusted.
-    - `create_draft`: `gmail.compose`, allowed (a draft sends nothing).
+    - `create_draft`: `gmail.compose`, allowed. Note that this scope also permits sending, so the broker, not the scope, must ensure the tool only ever calls the drafts endpoint.
     - `send_mail`: `gmail.send`, ask, with the exact recipients and body shown.
     - `list_events`: `calendar.events.readonly`, allowed.
     - `create_event` and `move_event`: `calendar.events`, allowed for the user's own calendar, ask when external attendees will be notified.
@@ -510,7 +513,12 @@ Card networks set their own dispute rules, and analysts generally note that no c
                 now, day = time.time(), datetime.date.today().isoformat()
                 while self.recent and self.recent[0] < now - 600:
                     self.recent.popleft()
-                amount, key = Decimal(str(args.get("amount", "0"))), (args.get("merchant"), day)
+                try:
+                    amount, key = Decimal(str(args.get("amount", "0"))), (args.get("merchant"), day)
+                except ArithmeticError:
+                    return "amount is not a number"
+                if not amount.is_finite():
+                    return "amount is not a number"
                 if len(self.recent) >= 3:
                     return "velocity limit: at most 3 purchases per 10 minutes"
                 if self.daily[key] + amount > self.merchant_daily_cap:

@@ -437,7 +437,7 @@ Final: &quot;The invoicing app is fully implemented, with all core features work
 <td>Low; can be server-side</td>
 </tr>
 <tr>
-<td><strong>Context reset</strong></td>
+<td><strong><dfn class="gt" tabindex="0" data-t="Context reset" data-d="Starting a fresh context window and handing over state through notes, files and git history, instead of compacting the old transcript; often more robust for very long tasks." data-a="context-reset">Context reset</dfn></strong></td>
 <td>The session ends and a new one starts from a structured handoff artifact</td>
 <td>Only what the handoff captures</td>
 <td>Yes</td>
@@ -455,7 +455,7 @@ Final: &quot;The invoicing app is fully implemented, with all core features work
 <p>Anthropic&#39;s March 2026 post puts the trade-off plainly: &quot;While compaction preserves continuity, it doesn&#39;t give the agent a clean slate,&quot; whereas &quot;a reset provides a clean slate&quot; at the price of a handoff artifact plus extra orchestration, tokens and latency. Context anxiety in Claude Sonnet 4.5 made resets essential in that work. With Claude Opus 4.5 the behavior largely disappeared, and the harness switched to one continuous session with automatic compaction.</p>
 <p>The broader lesson: <strong>every harness component encodes an assumption about what the model can&#39;t do alone</strong>, and those assumptions expire. Re-test them with each new model and remove scaffolding that is no longer load-bearing.</p>
 <h3 id="server-side-compaction-briefly"><a class="anchor" href="#server-side-compaction-briefly" aria-hidden="true" tabindex="-1">#</a>Server-side compaction, briefly</h3>
-<p>The Claude API offers compaction as a beta (header <code>compact-2026-01-12</code>): opt in with a <code>compact_20260112</code> context-management edit, which by default triggers at 150,000 input tokens and returns a <code>compaction</code> block you must send back, so always append the full <code>response.content</code>. An on-demand variant lets the harness choose when to summarize, and Claude Managed Agents compacts automatically. Code is in <a href="context-engineering.html#compaction">context engineering</a>.</p>
+<p>The Claude API offers server-side compaction in two beta forms. <strong>Threshold compaction</strong> (header <code>compact-2026-01-12</code>) is a <code>compact_20260112</code> context-management edit that by default triggers at 150,000 input tokens and returns a <code>compaction</code> block you must send back, so always append the full <code>response.content</code>. <strong>On-demand compaction</strong> (header <code>compact-2026-09-04</code>) lets the harness decide when to summarize, can keep recent turns verbatim and can run in the background; the docs recommend it wherever it is available. Claude Managed Agents compacts automatically. Code is in <a href="context-engineering.html#compaction">context engineering</a>.</p>
 <p>Whatever the mechanism, <strong>write anything that must survive to durable storage before compaction, not after.</strong> A summary keeps what the summarizer thought mattered; the progress file keeps what you decided matters.</p>
 <h3 id="writing-a-handoff-that-works"><a class="anchor" href="#writing-a-handoff-that-works" aria-hidden="true" tabindex="-1">#</a>Writing a handoff that works</h3>
 <p>For a reset or the next fresh session, a good handoff answers five questions in the order a cold reader needs them: <strong>the goal</strong> (link the spec and task list), <strong>the state</strong> (last green commit, what passes, what&#39;s broken), <strong>what was just tried</strong> (including the exact error), <strong>one concrete next action</strong>, and <strong>what must not change</strong> (decisions, frozen files, open questions).</p>
@@ -503,7 +503,8 @@ BASH = {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-str
     messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>:
         <span class="hljs-string">f&quot;Read progress.md and the last 20 commits, run ./init.sh and the smoke tests, &quot;</span>
         <span class="hljs-string">f&quot;then implement ONLY <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>: <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;description&#x27;</span>]}</span>\nAcceptance steps: &quot;</span>
-        <span class="hljs-string">f&quot;<span class="hljs-subst">{feat[<span class="hljs-string">&#x27;steps&#x27;</span>]}</span>\nDo not edit features.json or tests/. Update progress.md before stopping.&quot;</span>}]
+        <span class="hljs-string">f&quot;<span class="hljs-subst">{feat[<span class="hljs-string">&#x27;steps&#x27;</span>]}</span>\nDo not edit features.json or tests/, and do not commit: the harness &quot;</span>
+        <span class="hljs-string">f&quot;does. Update progress.md before stopping.&quot;</span>}]
     <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_turns):
         <span class="hljs-keyword">with</span> client.beta.messages.stream(
             model=MODEL, max_tokens=<span class="hljs-number">32000</span>, system=SYSTEM, tools=[BASH], messages=messages,
@@ -540,7 +541,9 @@ BASH = {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-str
         <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> todo <span class="hljs-keyword">or</span> meter.usd &gt;= max_usd <span class="hljs-keyword">or</span> stalls &gt;= max_stalls:
             <span class="hljs-keyword">break</span>                             <span class="hljs-comment"># done, out of money, or stuck: hand to a human</span>
         feat = <span class="hljs-built_in">min</span>(todo, key=<span class="hljs-keyword">lambda</span> f: f[<span class="hljs-string">&quot;priority&quot;</span>])
+        base = sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;rev-parse&quot;</span>, <span class="hljs-string">&quot;HEAD&quot;</span>])[<span class="hljs-number">1</span>].strip()
         stop = run_session(feat, meter)
+        sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;reset&quot;</span>, <span class="hljs-string">&quot;--soft&quot;</span>, base])  <span class="hljs-comment"># fold any commits the agent made back into the diff</span>
         ok = gates_pass(feat)                 <span class="hljs-comment"># the harness decides, not the agent&#x27;s claim</span>
         TASKS.write_text(snapshot)            <span class="hljs-comment"># undo any edits the agent made to the list</span>
         feat[<span class="hljs-string">&quot;attempts&quot;</span>] += <span class="hljs-number">1</span>
@@ -560,9 +563,9 @@ BASH = {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-str
             stalls += <span class="hljs-number">1</span></code></pre></div>
 <p>What this sketch gets right, and what it leaves for you:</p>
 <ul>
-<li><strong>The model never self-certifies.</strong> It can believe it&#39;s done, but only <code>gates_pass</code> flips <code>passes</code>, and edits to <code>tests/</code> or the task list fail the session outright.</li>
+<li><strong>The model never self-certifies.</strong> It can believe it&#39;s done, but only <code>gates_pass</code> flips <code>passes</code>, and edits to <code>tests/</code> or the task list fail the session outright. The harness also owns commits (unlike Anthropic&#39;s setup, where the agent committed): the soft reset folds any agent commits back into the working tree, so a committed test edit can&#39;t slip past the check.</li>
 <li><strong>Failure keeps the lessons and drops the code.</strong> The stash preserves the attempt for a human, the notes preserve what was learned, and the main line stays green for the next session.</li>
-<li><strong>Three budgets apply at three scales.</strong> <code>max_tokens</code> caps each response, the task budget paces each session, and dollars, sessions and stalls cap the whole project.</li>
+<li><strong>Three budgets apply at three scales.</strong> <code>max_tokens</code> caps each response, the <dfn class="gt" tabindex="0" data-t="Task budget" data-d="An advisory token budget for a whole agentic loop (a Claude API beta) that the model can see and pace itself against, unlike max_tokens, which silently caps a single response." data-a="task-budget">task budget</dfn> paces each session, and dollars, sessions and stalls cap the whole project.</li>
 <li><strong>Left out:</strong> retries and a checkpointed inner loop (from <a href="reliability.html">reliability</a>), a sandbox (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>), <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn>, a stuck-baseline repair step, and a human review queue. Several of these are exercises below.</li>
 </ul>
 <h2 id="budgets-across-sessions"><a class="anchor" href="#budgets-across-sessions" aria-hidden="true" tabindex="-1">#</a>Budgets Across Sessions</h2>

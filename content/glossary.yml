@@ -17,6 +17,11 @@
   definition: "The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit."
   lesson: the-agent-loop
   aliases: ["Agentic loop", "Tool-use loop"]
+- term: "Agent Payments Protocol"
+  definition: "An open protocol announced by Google in September 2025 for agent-initiated payments, built on cryptographically signed mandates that record what the user authorized; version 0.2 (April 2026) was donated to the FIDO Alliance."
+  lesson: agent-identity-and-payments
+  aliases: ["AP2"]
+
 - term: "Agent Skills"
   definition: "Packaged folders of instructions (a SKILL.md file), scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge. Introduced by Anthropic in 2025 and published as an open standard, it joined the Agentic AI Foundation in October 2026."
   lesson: context-engineering
@@ -36,6 +41,11 @@
   definition: "A Linux Foundation directed fund, announced 9 December 2025, that provides vendor-neutral governance for agent standards. Its founding projects were MCP, goose and AGENTS.md; A2A moved in as a hosted project in August 2026 and Agent Skills joined in October 2026."
   lesson: protocols-mcp-a2a
   aliases: ["AAIF"]
+- term: "Agentic Commerce Protocol"
+  definition: "An open standard from OpenAI and Stripe (September 2025) for agents to complete purchases with merchants, using delegated payment tokens with allowances so the model never sees card details."
+  lesson: agent-identity-and-payments
+  aliases: ["ACP"]
+
 - term: "Agentic RAG"
   definition: "Retrieval in which the agent decides when and what to search, issues multiple refined queries, and judges whether results suffice, rather than a single fixed retrieve-then-generate step."
   lesson: rag-and-retrieval
@@ -184,6 +194,10 @@
 - term: "Context isolation"
   definition: "Giving each subtask its own clean context (for example via subagents) so irrelevant tokens from other work do not distract the model."
   lesson: multi-agent-systems
+- term: "Context reset"
+  definition: "Starting a fresh context window and handing over state through notes, files and git history, instead of compacting the old transcript; often more robust for very long tasks."
+  lesson: long-running-agents
+
 - term: "Context rot"
   definition: "The degradation of a model's recall and reasoning as its context grows longer, even well within the advertised window limit."
   lesson: context-engineering
@@ -199,6 +213,10 @@
 - term: "Cost per task"
   definition: "The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call."
   lesson: cost-and-latency
+- term: "Credential broker"
+  definition: "A component that holds secrets and attaches them to outbound requests on the agent's behalf, enforcing scopes and limits, so tokens never appear in the model's context."
+  lesson: agent-identity-and-payments
+
 - term: "Data contamination"
   definition: "Benchmark items leaking into a model's training data, inflating scores without reflecting real capability."
   lesson: benchmarks
@@ -337,6 +355,10 @@
 - term: "Indirect prompt injection"
   definition: "Prompt injection delivered through content the agent reads, such as web pages, emails, documents or tool results, rather than typed by the user (Greshake et al., 2023)."
   lesson: agent-security
+- term: "Initializer agent"
+  definition: "In long-running harnesses, a first session that sets up the environment, a structured task list and progress notes so later working sessions can make incremental, verifiable progress."
+  lesson: long-running-agents
+
 - term: "Instruction hierarchy"
   definition: "Training models to prioritize instructions by privilege, system over user over third-party content (Wallace et al., 2024), to resist injected instructions."
   lesson: agent-security
@@ -700,6 +722,10 @@
   definition: "Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent."
   lesson: prompting-for-agents
   aliases: ["System message"]
+- term: "Task budget"
+  definition: "An advisory token budget for a whole agentic loop (a Claude API beta) that the model can see and pace itself against, unlike max_tokens, which silently caps a single response."
+  lesson: long-running-agents
+
 - term: "Task decomposition"
   definition: "Breaking a complex goal into smaller subtasks that can be solved sequentially or in parallel, by the model itself or by an orchestrator."
   lesson: reasoning-and-planning
@@ -728,6 +754,11 @@
 - term: "Token"
   definition: "The unit of text a model reads and writes, typically a word piece. Context limits, pricing and speed are all measured in tokens."
   lesson: llm-fundamentals
+- term: "Token exchange"
+  definition: "An OAuth 2.0 extension (RFC 8693) for trading one token for another, e.g., a narrowly scoped, short-lived token for a downstream API on behalf of the user, so agents never hold broad credentials."
+  lesson: agent-identity-and-payments
+  aliases: ["On-behalf-of flow", "RFC 8693"]
+
 - term: "Tool call"
   definition: "A structured request emitted by the model, such as a tool_use block with an id, a tool name and JSON input, asking the harness to run a tool."
   lesson: tool-use
@@ -803,6 +834,10 @@
 - term: "Voyager"
   definition: "A lifelong-learning Minecraft agent (Wang et al., 2023) with an automatic curriculum, an iterative prompting loop and a skill library of executable code."
   lesson: self-improving-agents
+- term: "Web Bot Auth"
+  definition: "An IETF effort, based on HTTP Message Signatures (RFC 9421), that lets automated clients such as agents cryptographically sign requests so websites can verify who is calling; still an Internet-Draft as of late 2026."
+  lesson: agent-identity-and-payments
+
 - term: "WebArena"
   definition: "A benchmark (Zhou et al., 2023) of realistic tasks on self-hosted websites (e-commerce, forums, code hosting, CMS) with functional, execution-based checks."
   lesson: benchmarks
@@ -812,6 +847,10 @@
 - term: "World model"
   definition: "An internal model of how an environment works, used to predict the consequences of actions and plan ahead."
   lesson: future-of-agents
+- term: "x402"
+  definition: "An open payment protocol that revives HTTP status 402 Payment Required: a server answers with payment requirements, the client (often an agent) pays, typically in stablecoins, and retries with a payment header."
+  lesson: agent-identity-and-payments
+
 - term: "Zero-shot chain-of-thought"
   definition: "Eliciting step-by-step reasoning without examples, famously by appending a phrase like \"Let's think step by step\" (Kojima et al., 2022)."
   lesson: reasoning-and-planning
