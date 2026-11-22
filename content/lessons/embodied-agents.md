@@ -114,10 +114,10 @@ flowchart TB
     PR --> SK
 ```
 
-Each layer runs at its own rate. The planner thinks in seconds and reasons about goals, the skill policy reacts to images many times per second, and the controller closes force and position loops fast enough to be smooth and safe. The gate between planner and skills is the same "separate deciding from doing" principle used for software agents (see [guardrails and sandboxing](guardrails-and-sandboxing.html)), and the hardware emergency stop sits outside the software entirely.
+Each layer runs at its own rate: the planner thinks in seconds, the skill policy reacts to images many times per second, and the controller closes force and position loops fast enough to be smooth and safe. The gate applies the "separate deciding from doing" principle from [guardrails and sandboxing](guardrails-and-sandboxing.html), and the hardware e-stop sits outside the software entirely.
 
 > [!NOTE]
-> Modern versions of this pattern often replace the text-only LLM with a **VLM** (vision-language model) that sees camera images directly, and replace scripted skills with a VLA that accepts open-ended language commands. Google DeepMind's Gemini Robotics-ER plus Gemini Robotics, NVIDIA's GR00T "System 2 / System 1" split and Figure's Helix all follow this slow-planner, fast-actor shape.
+> Modern versions swap the text-only LLM for a **VLM** (vision-language model) that sees camera images, and scripted skills for a VLA that accepts open-ended commands. Gemini Robotics-ER plus Gemini Robotics, NVIDIA GR00T's dual-system design and Figure's Helix all follow this slow-planner, fast-actor shape.
 
 ### A sketch: an LLM planner calling robot skills
 
@@ -186,7 +186,7 @@ for step in range(20):  # skill budget
     messages.append({"role": "user", "content": results})
 ```
 
-Three details matter more than they look. The skills return **success or failure**, which is the Inner Monologue lesson: a planner without feedback cannot recover. The **safety gate lives in the harness**, so a confused or manipulated model cannot talk its way past it. And the planner never sees joint angles: it works at the level of objects and places, which is where language models are strong.
+Three details matter. Skills return **success or failure** (the Inner Monologue lesson: without feedback, no recovery). The **safety gate lives in the harness**, so a confused or manipulated model cannot talk its way past it. And the planner never sees joint angles; it reasons about objects and places, where language models are strong.
 
 A run might produce a trace like this:
 
@@ -207,41 +207,39 @@ Final: I moved the mug to the sink. The knife is still on the table because
        handling sharp objects needs operator approval. Want me to request it?
 ```
 
-On a real robot, `pick` would take several seconds and fail some of the time, so the planner would see more `FAILED` observations and retries. The [human-in-the-loop](human-in-the-loop.html) escalation at the end is the right behavior, not a failure.
+On a real robot, `pick` would take seconds and sometimes fail, so expect more retries. The [human-in-the-loop](human-in-the-loop.html) escalation at the end is the right behavior, not a failure.
 
 ## Vision-Language-Action Models
 
-The hierarchical approach depends on having good skills, and each skill traditionally needed its own data and training. The next idea was to train *one* model that maps camera images and a language instruction directly to robot actions, across many tasks. These are **vision-language-action (VLA) models**.
+Hierarchical agents need good skills, and each skill traditionally needed its own data and training. The next idea was *one* model mapping camera images plus a language instruction directly to robot actions, across many tasks: a **vision-language-action (VLA) model**.
 
 ### From RT-1 to RT-2
 
-**RT-1** (Robotics Transformer 1, Google, December 2022) was trained on about 130,000 teleoperated episodes covering more than 700 instructions, collected over 17 months with a fleet of 13 mobile manipulators. It took images and an instruction and output discretized arm and base actions. It reached 97% success on the instructions it was trained on and generalized better than prior methods to new objects and scenes, but it knew only what was in its robot data.
+**RT-1** (Robotics Transformer 1, Google, December 2022) was trained on about 130,000 teleoperated episodes covering more than 700 instructions, collected over 17 months with a fleet of 13 mobile manipulators. It output discretized arm and base actions and reached 97% success on its training instructions, but it knew only what was in its robot data.
 
-**RT-2** (Google DeepMind, July 2023) introduced the term VLA and the key idea behind it. Start from a large **vision-language model** pretrained on web images and text, represent robot actions as text tokens (for example, a string of integers for discretized position and rotation changes), and **co-fine-tune** on robot data and web data together. The robot inherited semantic knowledge it never saw in demonstrations: it could follow commands like "move the banana to the sum of two plus one" or pick up an object that could serve as an improvised hammer. The lesson was that web-scale pretraining transfers to physical action.
+**RT-2** (Google DeepMind, July 2023) introduced the term VLA and its key idea: take a **vision-language model** pretrained on web images and text, represent robot actions as text tokens (strings of integers for discretized position and rotation changes), and **co-fine-tune** on robot and web data together. The robot inherited semantic knowledge absent from its demonstrations, following commands like "move the banana to the sum of two plus one" or picking up an object usable as an improvised hammer. Web-scale pretraining transfers to physical action.
 
 ### Cross-embodiment: Open X-Embodiment and RT-X
 
-Every lab had its own robots and its own small dataset. The **Open X-Embodiment** collaboration (October 2023) pooled 60 existing datasets from 34 labs into more than one million real robot trajectories across 22 embodiments, from single arms to bimanual robots and quadrupeds. Models trained on the mixture (**RT-1-X** and **RT-2-X**) often did better on a given robot than models trained only on that robot's data. This **positive transfer** across embodiments suggested robotics might follow the same "more diverse data wins" scaling story as language.
+Every lab had its own robots and small dataset. The **Open X-Embodiment** collaboration (October 2023) pooled 60 existing datasets from 34 labs into more than one million real robot trajectories across 22 embodiments, from single arms to bimanual robots and quadrupeds. Models trained on the mixture (**RT-1-X** and **RT-2-X**) often did better on a given robot than models trained only on that robot's data. This **positive transfer** suggested robotics might follow language's "more diverse data wins" story.
 
 ### Open VLAs: Octo and OpenVLA
 
-Two open models made VLAs accessible outside large labs in 2024:
-
-- **Octo** (May 2024) is a transformer-based policy pretrained on 800,000 episodes from Open X-Embodiment, released in small sizes (27M and 93M parameters) with a **diffusion** action head that generates continuous actions. It was designed to be fine-tuned to new robots, sensors and action spaces.
-- **OpenVLA** (June 2024) is a 7B-parameter VLA built on a Llama 2 backbone with pretrained vision encoders, trained on 970,000 episodes. Its authors reported a 16.5% absolute gain in task success over the 55B-parameter RT-2-X across 29 tasks, with about seven times fewer parameters, and released weights and fine-tuning code.
+- **Octo** (May 2024) is a transformer-based policy pretrained on 800,000 episodes from Open X-Embodiment, in small sizes (27M and 93M parameters), with a **diffusion** head generating continuous actions and a design aimed at fine-tuning to new robots.
+- **OpenVLA** (June 2024) is a 7B-parameter VLA built on a Llama 2 backbone with pretrained vision encoders, trained on 970,000 episodes. Its authors reported a 16.5% absolute gain in task success over the 55B-parameter RT-2-X across 29 tasks, and released weights and fine-tuning code.
 
 ### Flow matching and π0
 
-Tokenized actions have a resolution problem: a robot folding laundry needs smooth, high-frequency, continuous motion. **Physical Intelligence**, a startup founded in 2024, released **π0** (pi-zero) in October 2024. It pairs a pretrained VLM (PaliGemma) with a separate ~300M-parameter **action expert** that generates continuous **action chunks** (short sequences of future actions) via **flow matching**, a relative of diffusion, controlling robots at up to 50 Hz. Physical Intelligence open-sourced π0 weights in early 2025 through its openpi repository. Its successors moved in telling directions:
+Tokenized actions are coarse, while folding laundry needs smooth, high-frequency motion. The startup **Physical Intelligence** released **π0** (pi-zero) in October 2024. It pairs a pretrained VLM (PaliGemma) with a separate ~300M-parameter **action expert** that generates continuous **action chunks** (short sequences of future actions) via **flow matching**, a relative of diffusion, controlling robots at up to 50 Hz. Its weights were open-sourced in early 2025 (the openpi repository). Successors moved in telling directions:
 
 - **π0.5** (April 2025) focused on **open-world generalization**: cleaning kitchens and bedrooms in homes it had never seen.
-- **π\*0.6** (November 2025) added **Recap**, a method for learning from the robot's own experience, including human corrections and autonomous practice, rather than demonstrations alone. The company reported large throughput gains on tasks such as making espresso drinks and assembling boxes.
+- **π\*0.6** (November 2025) added **Recap**, learning from the robot's own experience (human corrections and autonomous practice), not just demonstrations, on tasks such as making espresso drinks and assembling boxes.
 - **π0.7** (April 2026) was presented as a "steerable" generalist that accepts richer prompts (language, subgoal images, metadata) and composes separately learned skills for new tasks.
 
 ### Frontier VLAs: Gemini Robotics and GR00T
 
-- **Gemini Robotics** (Google DeepMind, March 2025) built a VLA on Gemini 2.0, alongside **Gemini Robotics-ER**, a VLM specialized for embodied reasoning (spatial understanding, pointing, grasp prediction). An on-device version followed in June 2025. **Gemini Robotics 1.5** (September 2025) added "thinking" before acting and **motion transfer** across embodiments, with ER 1.5 available to developers through the Gemini API. **Gemini Robotics 2** (July 2026) extended control to humanoid **whole-body** movement, and **Gemini Robotics 2.5** (November 2026) was announced as DeepMind's most capable VLA so far, rolling out to robotics partners.
-- **NVIDIA Isaac GR00T N1** (March 2025) was released as an open foundation model for humanoids with an explicit dual-system design: a slower VLM-based reasoning module and a fast diffusion-based action module. It was trained on a mix of real teleoperation, synthetic data and human videos. Updates followed (N1.5 in mid-2025, then N1.6 using NVIDIA's Cosmos Reason VLM).
+- **Gemini Robotics** (Google DeepMind, March 2025) built a VLA on Gemini 2.0, alongside **Gemini Robotics-ER**, a VLM for embodied reasoning (spatial understanding, pointing, grasp prediction); an on-device version followed in June 2025. **Gemini Robotics 1.5** (September 2025) added "thinking" before acting and **motion transfer** across embodiments, with ER 1.5 available to developers through the Gemini API. **Gemini Robotics 2** (July 2026) extended control to humanoid **whole-body** movement, and **Gemini Robotics 2.5** (November 2026) was announced as DeepMind's most capable VLA so far, rolling out to robotics partners.
+- **NVIDIA Isaac GR00T N1** (March 2025) is an open humanoid foundation model with a dual-system design: a slower VLM reasoning module and a fast diffusion-based action module, trained on teleoperation, synthetic data and human videos. Updates followed (N1.5 in mid-2025, then N1.6 using NVIDIA's Cosmos Reason VLM).
 
 | Model | Org, date | Action representation | Open weights? |
 |---|---|---|---|
@@ -259,13 +257,13 @@ Tokenized actions have a resolution problem: a robot folding laundry needs smoot
 
 ## Where Robot Data Comes From
 
-Language models feast on the web. Robots have no equivalent corpus of "what the motors did", and that **data bottleneck** shapes the entire field. The main sources, usually mixed together:
+Robots have no web-scale corpus of "what the motors did", and this **data bottleneck** shapes the field. The main sources, usually mixed:
 
-- **Teleoperation.** A human drives the robot (with a VR headset, a matching "leader" arm, or a handheld gripper with a camera) while sensors record observations and actions. This is the highest-quality data and the most expensive: it scales with human hours and hardware. Large collection efforts such as DROID and the in-house fleets of frontier labs follow this route.
-- **Cross-embodiment datasets.** Pooling data from many robot types (Open X-Embodiment and successors) trades consistency for diversity. The challenge is that action spaces differ: a 7-joint arm and a humanoid hand do not share a common "language" of motion, so models need per-embodiment heads or normalized action representations.
-- **Simulation.** Physics simulators (MuJoCo, NVIDIA Isaac Sim and Isaac Lab, and others) produce unlimited data and support reinforcement learning at enormous scale. Locomotion is the big success story: legged robots' walking controllers are now commonly trained in simulation and transferred to real hardware. **Domain randomization**, varying textures, lighting, masses and friction during training so the real world looks like just another variation, is the classic bridge across the sim-to-real gap. Contact-rich manipulation of deformable objects (cloth, cables, food) remains much harder to simulate faithfully.
-- **Human video.** The internet holds vast amounts of video of people manipulating objects, but no action labels. Methods learn **latent actions** (inferred changes between frames), predict future frames or hand poses, or use video for representation learning before fine-tuning on robot data. GR00T N1, for example, used human videos alongside robot data.
-- **The robot's own experience.** Deployed robots generate data, including failures and human corrections. Learning from this, as π\*0.6's Recap does, is how the data flywheel familiar from software products might eventually reach robotics (see [training agents](training-agents.html) and [self-improving agents](self-improving-agents.html)).
+- **Teleoperation.** A human drives the robot (with a VR headset, a matching "leader" arm, or a handheld gripper with a camera) while sensors record observations and actions. Highest quality, most expensive: it scales with human hours and hardware (DROID and frontier labs' in-house fleets follow this route).
+- **Cross-embodiment datasets.** Pooling many robot types trades consistency for diversity. Action spaces differ (a 7-joint arm versus a humanoid hand), so models need per-embodiment heads or normalized action representations.
+- **Simulation.** Physics simulators (MuJoCo, NVIDIA Isaac Sim and Isaac Lab, and others) give unlimited data for reinforcement learning at scale. Locomotion is the big success: legged robots' walking controllers are now commonly trained in simulation. **Domain randomization**, varying textures, lighting, masses and friction during training so the real world looks like just another variation, is the classic bridge across the sim-to-real gap. Deformable objects (cloth, cables, food) remain hard to simulate faithfully.
+- **Human video.** Abundant, but without action labels. Methods infer **latent actions** between frames, predict future frames or hand poses, or pretrain representations before fine-tuning on robot data (GR00T N1 used human videos this way).
+- **The robot's own experience.** Deployed robots generate data, including failures and corrections. Learning from it, as Recap does, is how a software-style data flywheel might reach robotics (see [training agents](training-agents.html) and [self-improving agents](self-improving-agents.html)).
 
 ## World Models for Robotics
 
@@ -274,47 +272,47 @@ A **world model** predicts how the world will change given an action. Model-base
 - **Genie** (Google DeepMind) learned controllable environments from unlabeled internet video in 2024. **Genie 2** (December 2024) generated playable 3D worlds from a prompt image, and **Genie 3** (August 2025) produced interactive worlds in real time that a user or an agent can move through.
 - **NVIDIA Cosmos** (announced at CES in January 2025) is a family of open world foundation models aimed squarely at physical AI: **Cosmos Predict** generates future video from text, image or video inputs, **Cosmos Transfer** turns simulator output or structured inputs into varied photorealistic video for synthetic data, and **Cosmos Reason** is a VLM for physical reasoning.
 
-World models serve robotics in three ways: **synthetic data** (generate many variations of a scene for training), **policy evaluation** (roll a policy out "in imagination" instead of on hardware), and **planning** (imagine the outcome of candidate actions before committing). The open question is fidelity. Generated video can look convincing while violating physics in small ways that matter enormously to a grasp, and errors compound over long rollouts. As of 2026, world models are valuable for data augmentation and coarse evaluation, but they do not replace real-world testing.
+World models serve robotics in three ways: **synthetic data**, **policy evaluation** (rolling a policy out "in imagination" instead of on hardware), and **planning** (imagining outcomes before committing). The open question is fidelity: generated video can look convincing while violating physics in small ways that matter enormously to a grasp, and errors compound over long rollouts. As of 2026, they help with data augmentation and coarse evaluation but do not replace real-world testing.
 
 ## Evaluating Embodied Agents
 
 Evaluating robots is much harder than evaluating chatbots (see [evaluating agents](evaluating-agents.html) and [benchmarks](benchmarks.html)).
 
-**Real-world success rates** are the ground truth: run the policy on physical hardware for a set of tasks and count successes. They are also slow, expensive, and hard to reproduce. Results depend on the exact robot, cameras, lighting, object set, initial positions and how strictly "success" is judged, and many papers report a few dozen trials per task. A 10-point difference between two papers using different setups tells you almost nothing.
+**Real-world success rates** are the ground truth: run the policy on physical hardware for a set of tasks and count successes. They are also slow, expensive and hard to reproduce: results depend on the robot, cameras, lighting, objects, initial positions and how strictly "success" is judged, often over a few dozen trials per task. A 10-point gap between papers with different setups tells you almost nothing.
 
 **Simulation benchmarks** trade realism for reproducibility:
 
 - **LIBERO** (2023) offers 130 simulated manipulation tasks in four suites (spatial layouts, object variety, goals, and a long-horizon set) with teleoperated demonstrations. It is widely used to compare VLA fine-tuning recipes; top models now score very high on its standard suites, so it is increasingly saturated.
-- **SIMPLER** (2024) builds simulated replicas of real evaluation setups (Google's RT-series robot tasks and BridgeData V2 tasks), using real-image overlays and texture matching, and shows that rankings in simulation correlate with real-world rankings.
+- **SIMPLER** (2024) builds simulated replicas of real setups (Google's RT-series tasks and BridgeData V2), using real-image overlays and texture matching, so that simulated rankings track real-world ones.
 - **BEHAVIOR-1K** (Stanford) defines 1,000 everyday household activities in a high-fidelity simulator, aimed at long-horizon mobile manipulation.
 
 **Game and virtual environments** (Minecraft, commercial 3D games) evaluate the high-level side: instruction following, exploration and long-horizon planning without contact physics.
 
-Good practice borrowed from software agents applies here too: report the number of trials and confidence intervals, test on held-out objects, scenes and instructions, and measure more than success: time to completion, number of human interventions, and the rate of unsafe events.
+Good practice: report trial counts and confidence intervals, test on held-out objects, scenes and instructions, and measure time to completion, human interventions and unsafe events, not just success.
 
 ## Safety in the Physical World
 
-Software agents can leak data or spend money. Embodied agents can injure someone. Safety therefore comes in independent layers, and the most important ones do not involve the AI model at all.
+Embodied agents can injure someone, so safety comes in independent layers, and the most important ones do not involve the AI model at all.
 
-1. **Hardware and low-level safeguards.** Emergency stop buttons wired to cut motor power, torque and speed limits, force sensing that stops on unexpected contact, and safety-rated monitoring around industrial robots. Standards such as ISO 10218 (industrial robots) and ISO/TS 15066 (collaborative robots working near people) codify limits on speed and contact force. These layers must work even if every line of AI code is wrong.
+1. **Hardware and low-level safeguards.** Emergency stops that cut motor power, torque and speed limits, and force sensing that stops on unexpected contact. Standards such as ISO 10218 (industrial robots) and ISO/TS 15066 (collaborative robots working near people) codify limits on speed and contact force. These layers must work even if every line of AI code is wrong.
 2. **Constraints in planning and control.** Workspace boundaries, keep-out zones around people, collision checking before execution, and **control barrier functions** or similar methods that mathematically filter commands to stay inside a safe set.
 3. **Harness-level gates.** As in the code sketch above: validate each skill call, require approval for risky objects or actions, cap the number of steps, and log everything for review (see [observability](observability.html)).
 4. **Human oversight and override.** A person who can pause, correct or take over the robot, and an agent that asks when uncertain rather than guessing.
-5. **Semantic safety in the model.** The model itself should understand that a knife is handed over handle-first and that bleach does not go in the coffee machine. Google DeepMind's **ASIMOV** benchmark (introduced with Gemini Robotics in March 2025, alongside work on generating "robot constitutions") measures this kind of common-sense safety understanding, and later versions added scenarios drawn from real injury reports and, in 2026, agentic and jailbreak variants.
+5. **Semantic safety in the model.** The model should know that a knife is handed over handle-first and bleach does not go in the coffee machine. Google DeepMind's **ASIMOV** benchmark (introduced with Gemini Robotics in March 2025, alongside work on generating "robot constitutions") measures this kind of common-sense safety understanding, and later versions added scenarios drawn from real injury reports and, in 2026, agentic and jailbreak variants.
 
 > [!WARNING] Language makes robots attackable
-> A robot that takes natural-language instructions inherits the [prompt injection and jailbreak](agent-security.html) problems of LLM agents, now with physical consequences. Researchers have shown that LLM-controlled robots can be jailbroken into unsafe behavior. Text on a sign or a package is untrusted input, just like text on a web page. This is why layers 1 to 4 must not depend on the model's cooperation.
+> A robot that takes natural-language instructions inherits the [prompt injection and jailbreak](agent-security.html) problems of LLM agents, with physical consequences; researchers have jailbroken LLM-controlled robots into unsafe behavior. Text on a sign or package is untrusted input. Layers 1 to 4 must not depend on the model's cooperation.
 
 > [!KEY] Defense in depth, from silicon to steel
 > Model judgment is the outermost and weakest layer. Physical safety rests on hardware stops and force limits, then on constraints the planner cannot override, then on harness gates and human oversight. The broader alignment questions are covered in [agent safety and alignment](agent-safety-alignment.html).
 
 ## Virtual Embodiment: Game Agents as a Bridge
 
-3D games offer embodiment without broken dishes: agents see pixels, act through controls, and pursue long-horizon goals, while resets are free. Two lines of work show how ideas flow between virtual and physical agents.
+3D games offer embodiment without broken dishes: agents see pixels, act through controls and pursue long-horizon goals, with free resets.
 
-**Voyager** (2023) was an LLM-powered agent in Minecraft built on GPT-4. It had three parts that map cleanly onto robotics: an **automatic curriculum** proposing progressively harder goals, a **skill library** of executable code that it wrote, verified and reused, and an **iterative prompting** loop that fed back game errors and execution results. It acted through a code API rather than raw keyboard and mouse, which is the Code as Policies idea in a game world. The skill library is a vivid example of agent [memory](memory.html): competence accumulated as reusable, verified programs.
+**Voyager** (2023) was an LLM-powered agent in Minecraft built on GPT-4. It had three parts that map cleanly onto robotics: an **automatic curriculum** proposing progressively harder goals, a **skill library** of executable code that it wrote, verified and reused, and an **iterative prompting** loop that fed back game errors and execution results. It acted through a code API (Code as Policies in a game world), and its skill library is a vivid example of agent [memory](memory.html): competence stored as verified programs.
 
-**SIMA** (Google DeepMind, March 2024) went the other way: a single agent that followed natural-language instructions across many commercial 3D games using only screen pixels and keyboard-and-mouse output, like a human player. **SIMA 2** (November 2025) put a Gemini model at its core, so it could reason about goals, explain its plans and improve through self-generated practice in which Gemini proposed tasks and estimated rewards. DeepMind also tested it inside worlds generated by Genie 3, a glimpse of agents training in endless generated environments.
+**SIMA** (Google DeepMind, March 2024) went the other way: a single agent that followed natural-language instructions across many commercial 3D games using only screen pixels and keyboard-and-mouse output, like a human player. **SIMA 2** (November 2025) put a Gemini model at its core, so it could reason about goals, explain its plans and improve through self-generated practice in which Gemini proposed tasks and estimated rewards. DeepMind also tested it in worlds generated by Genie 3.
 
 Game agents do not solve contact physics, but they are a proving ground for the high-level half of embodied agents: grounding language in perception, long-horizon planning, skill reuse and learning from experience.
 
@@ -325,15 +323,15 @@ An honest summary, as of November 2026:
 **What works.**
 - Hierarchical systems in which a VLM plans and reliable skills execute, in constrained settings with a well-defined task set.
 - Learned locomotion for quadrupeds and humanoids, trained largely in simulation.
-- Dexterous demonstrations of tasks that were out of reach a few years ago: folding laundry, assembling boxes, making coffee, clearing tables in unfamiliar homes. Frontier VLAs from Google DeepMind, Physical Intelligence, NVIDIA and others now show genuine generalization to new objects and scenes.
+- Dexterous tasks out of reach a few years ago (folding laundry, assembling boxes, making coffee, tidying unfamiliar homes), with genuine generalization to new objects and scenes in frontier VLAs.
 - Industrial pilots, mostly structured tasks such as moving totes and parts, with humanoids from several companies.
 
 **What remains hard.**
-- **Reliability.** A demo that works 80% of the time is impressive research and an unusable product. Homes and workplaces need the long tail of rare situations handled, and per-step errors compound over long tasks exactly as they do for [software agents](when-to-use-agents.html).
+- **Reliability.** A demo that works 80% of the time is impressive research and an unusable product. The long tail matters, and per-step errors compound exactly as for [software agents](when-to-use-agents.html).
 - **Data.** Robot data remains orders of magnitude smaller than text or image data. Whether human video, simulation, world models and fleet experience can close the gap is the central bet of the field.
 - **Evaluation.** There is still no agreed, reproducible way to compare generalist robot policies in the real world.
 - **Dexterity and contact.** Fine manipulation, tactile sensing and deformable objects lag well behind visual understanding.
-- **Latency and compute.** Large VLAs need serious onboard or nearby compute to run at control rates, which pushes toward smaller on-device models and the slow-planner, fast-actor split.
+- **Latency and compute.** Large VLAs need serious compute to run at control rates, pushing toward on-device models and the slow-planner, fast-actor split.
 - **Safety assurance.** We can test safety but cannot yet certify that a learned policy will never do something dangerous in an unseen situation.
 - **Cost and hardware.** Capable robots are still expensive, and hardware reliability (hands, actuators, batteries) is its own bottleneck.
 
@@ -344,21 +342,21 @@ For where this might go, see [the future of agents](future-of-agents.html).
 
 ## Key Takeaways
 
-- Physical action makes agent mistakes **irreversible**, imposes **real-time** constraints, forces reasoning under **partial observability**, raises the stakes of **safety**, and introduces the **sim-to-real gap**.
-- The classical robotics stack (perception, state estimation, planning, control) still sits underneath modern systems; learned models replaced perception first, then skills, then task planning.
-- **Hierarchical agents** let an LLM or VLM plan at the level of objects and skills while learned or scripted policies and fast controllers execute. SayCan added **affordance grounding**, Inner Monologue added **feedback**, Code as Policies used **code as the plan**, and VoxPoser shaped **motion** with 3D value maps.
-- **VLAs** map images and language directly to actions. RT-2 showed web pretraining transfers to robots; Open X-Embodiment showed **cross-embodiment** data helps; Octo, OpenVLA and π0 opened the field; Gemini Robotics and GR00T represent frontier and open industrial efforts.
-- Data is the bottleneck: teleoperation, cross-embodiment pools, simulation with domain randomization, human video and the robot's own experience are all part of the mix. World models such as Genie and Cosmos add synthetic data and imagined rollouts, with fidelity limits.
-- Evaluate with real-world trials plus simulation benchmarks such as **LIBERO** and **SIMPLER**, and report trials, interventions and unsafe events, not just headline success.
-- Safety is layered from hardware e-stops and force limits up through constraints, harness gates and human override; model-level semantic safety (measured by benchmarks like **ASIMOV**) is the last layer, not the first.
+- Physical action brings **irreversibility**, **real-time** constraints, **partial observability**, higher **safety** stakes and the **sim-to-real gap**.
+- The classical stack (perception, state estimation, planning, control) still sits underneath; learning replaced perception, then skills, then task planning.
+- **Hierarchical agents** let an LLM or VLM plan over objects and skills while policies and fast controllers execute. SayCan added **affordance grounding**, Inner Monologue added **feedback**, Code as Policies used **code as the plan**, and VoxPoser shaped **motion** with 3D value maps.
+- **VLAs** map images and language directly to actions. RT-2 showed web pretraining transfers to robots; Open X-Embodiment showed **cross-embodiment** data helps; Octo, OpenVLA and π0 opened the field; Gemini Robotics and GR00T lead industrial efforts.
+- Data is the bottleneck: teleoperation, cross-embodiment pools, simulation, human video and the robot's own experience. World models (Genie, Cosmos) add synthetic data and imagined rollouts, with fidelity limits.
+- Evaluate with real-world trials plus simulation benchmarks (**LIBERO**, **SIMPLER**), reporting trials, interventions and unsafe events.
+- Safety is layered from hardware e-stops and force limits through constraints, harness gates and human override; model-level semantic safety (**ASIMOV**) is the last layer, not the first.
 
 ## Exercises
 
-1. **Timescales.** For the task "wipe a spill off the table", list the decisions made at three timescales (seconds, tenths of a second, milliseconds). Which component in the hierarchical diagram owns each, and what happens if the planner is slowed to 5 seconds per step?
-2. **Add affordances.** Extend the `RobotStub` sketch with a `can_succeed(skill, obj)` method that returns a probability (for example, low for objects far from the robot). Expose it as a tool and change the system prompt so the planner checks affordances before acting, SayCan-style. What failure modes does this prevent, and what new ones appear?
-3. **Feedback realism.** Modify `pick` to fail randomly 25% of the time. Run the agent and inspect how it recovers. Add a per-object retry limit in the harness and an escalation to the user after repeated failures.
-4. **Safety design.** You are deploying a mobile manipulator in a hospital supply room shared with staff. Write a layered safety plan covering hardware, planning constraints, harness gates, human override and model-level checks. For each layer, describe one failure it catches that the others might miss.
-5. **Evaluation protocol.** Design a real-world evaluation for comparing two VLAs on ten kitchen tasks with a budget of 300 trials. Decide how to allocate trials, randomize initial conditions, define success, and report uncertainty. How would you use SIMPLER-style simulation to decide which tasks deserve the most real trials?
+1. **Timescales.** For the task "wipe a spill off the table", list decisions at three timescales (seconds, tenths of a second, milliseconds). Which component owns each? What happens if the planner slows to 5 seconds per step?
+2. **Add affordances.** Extend the `RobotStub` sketch with a `can_succeed(skill, obj)` method returning a probability, expose it as a tool, and prompt the planner to check affordances before acting, SayCan-style. What failures does this prevent, and what new ones appear?
+3. **Feedback realism.** Modify `pick` to fail randomly 25% of the time. Observe recovery, then add a per-object retry limit in the harness and escalate to the user after repeated failures.
+4. **Safety design.** Write a layered safety plan for a mobile manipulator in a hospital supply room shared with staff. For each layer, name one failure it catches that the others might miss.
+5. **Evaluation protocol.** Design a real-world comparison of two VLAs on ten kitchen tasks with 300 trials: allocation, randomized initial conditions, success criteria and uncertainty. How could SIMPLER-style simulation guide which tasks get the most real trials?
 
 ## Check Your Understanding
 

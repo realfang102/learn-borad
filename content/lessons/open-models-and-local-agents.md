@@ -65,21 +65,21 @@ The field moves too fast for a ranking to survive a quarter, so think in familie
 | **Kimi** | Moonshot AI | Large MoE models aimed at agentic coding and tool use | Kimi K2: modified MIT (attribution for very large deployments); later releases use their own terms |
 | **GLM** | Zhipu AI (Z.ai) | Strong agentic and coding-oriented MoE models | Mostly MIT; some 2026 releases use custom terms |
 
-Others worth knowing: **MiniMax**, NVIDIA's **Nemotron**, IBM's **Granite**, Microsoft's **Phi** small models, and Ai2's **OLMo**, which is notable for releasing training data and code as well as weights.
+Others worth knowing: **MiniMax**, NVIDIA's **Nemotron**, IBM's **Granite**, Microsoft's **Phi**, and Ai2's **OLMo**, which also releases training data and code.
 
 Three things to take from this table:
 
-1. **Licenses differ per release, not per family.** Several labs have shipped one generation under MIT or Apache 2.0 and the next under custom terms with revenue or user-count thresholds. Your legal review attaches to an exact model, not a brand.
-2. **MoE changes the arithmetic.** An MoE model with hundreds of billions of *total* parameters may activate only a few tens of billions per token. Memory is set by the total (all experts must be loaded); speed per token is closer to that of a dense model the size of the *active* parameters.
-3. **Agentic post-training is what matters.** A model's general chat quality says little about whether it will call tools correctly for 30 steps. Recent releases from most of these labs advertise agentic and tool-use training explicitly; that is a necessary but not sufficient signal, which is why you evaluate (see [below](#evaluating-before-you-switch)).
+1. **Licenses differ per release, not per family.** Several labs have shipped one generation under MIT or Apache 2.0 and the next under custom terms with revenue or user thresholds. Legal review attaches to an exact model.
+2. **MoE changes the arithmetic.** Memory is set by *total* parameters (all experts must be loaded); per-token speed is closer to a dense model the size of the *active* parameters.
+3. **Agentic post-training is what matters.** General chat quality says little about calling tools correctly for 30 steps. Advertised tool-use training is necessary but not sufficient, which is why you [evaluate](#evaluating-before-you-switch).
 
 ## How Tool Calling Works Under the Hood
 
-With a hosted API you send a JSON `tools` array and receive structured `tool_use` blocks. It feels like the model natively speaks JSON objects. It doesn't. A language model only ever reads and writes tokens. Self-hosting exposes the two translation layers the provider normally hides.
+With a hosted API you send a JSON `tools` array and receive structured tool-call blocks, as if the model natively spoke JSON objects. It doesn't: a language model only reads and writes tokens. Self-hosting exposes the two translation layers the provider normally hides.
 
 ### Layer 1: the chat template
 
-A **chat template** is a small program (usually Jinja2, shipped in the model's `tokenizer_config.json` or a separate template file) that turns a list of messages plus tool definitions into one flat string with **special tokens** marking roles and boundaries. During post-training, the model saw thousands of examples in exactly this format, including examples of calling tools.
+A **chat template** is a small program (usually Jinja2, shipped in the model's `tokenizer_config.json` or a separate file) that turns messages plus tool definitions into one flat string, with **special tokens** marking roles and boundaries. During post-training the model saw many examples in exactly this format, including tool calls.
 
 Here is an illustrative rendering in the style many models use (ChatML-like role markers, with tool calls wrapped in tags, as in Qwen's templates):
 
@@ -134,13 +134,13 @@ sequenceDiagram
 
 ### How mismatches break agents
 
-These failures are common and confusing because the server returns HTTP 200:
+These failures are confusing because the server still returns HTTP 200:
 
-- **Wrong or missing template.** A quantized re-upload ships without the tool section of the template, or an old template predates tool support. The model never sees the tools, answers in prose, and your agent "never calls tools."
-- **Wrong parser.** The model emits a perfect `<tool_call>` block, but the server's parser expects a different format, so the call arrives as plain text in `content` and `tool_calls` is empty.
-- **Tool results rendered wrong.** The template mislabels `tool` role messages, so the model doesn't recognize the observation and calls the same tool again, looping.
-- **Lost reasoning.** For reasoning models, some templates expect prior reasoning to be dropped or kept in specific ways across turns. Getting it wrong degrades multi-turn tool use.
-- **Parallel and streaming edge cases.** Parsers sometimes handle a single call correctly but mangle two calls in one turn, or break when arguments are streamed.
+- **Wrong or missing template.** A re-upload ships a template without tool support. The model never sees the tools and answers in prose.
+- **Wrong parser.** The model emits a perfect `<tool_call>` block, but the parser expects another format, so the call arrives as plain text in `content` and `tool_calls` is empty.
+- **Tool results rendered wrong.** The template mislabels `tool` messages, the model doesn't recognize the observation, and it calls the same tool again, looping.
+- **Lost reasoning.** Reasoning models expect prior reasoning to be dropped or kept across turns in specific ways; getting it wrong degrades multi-turn tool use.
+- **Parallel and streaming edge cases.** A parser handles one call but mangles two in one turn, or breaks on streamed arguments.
 
 Debugging rule: log the **fully rendered prompt** and the **raw generated text** before parsing. If the raw text contains a well-formed call that the client didn't receive, the parser is wrong. If the raw text contains no call at all, look at the template first, then the model.
 
@@ -169,7 +169,7 @@ flowchart LR
 | **LM Studio** | Desktop GUI for trying models | Local OpenAI-compatible server (default port 1234) |
 | **TGI** (Hugging Face) | Existing deployments | In maintenance mode since late 2025; Hugging Face points new deployments to engines like vLLM and SGLang |
 
-Commercial and cloud options (NVIDIA's NIM and Dynamo, TensorRT-LLM, managed endpoints on the major clouds and inference providers) wrap similar engines. Many hosted inference providers also serve open-weight models, which gives you open-model economics and weight portability without running GPUs, though not the data-control benefit.
+Commercial options (NVIDIA NIM and Dynamo, TensorRT-LLM, cloud endpoints) wrap similar engines. Hosted inference providers also serve open-weight models: open-model economics and portability without running GPUs, though not the data-control benefit.
 
 ### Calling a local server with a tool
 
@@ -237,9 +237,9 @@ Because the endpoint is OpenAI-compatible, most frameworks from [Frameworks & SD
 
 ## Making Tool Calls Reliable: Constrained Decoding
 
-With `tool_choice="auto"`, the model generates freely, and nothing forces the arguments to be valid JSON or to match your schema. Frontier APIs largely hide this; small open models will hand you a trailing comma, a missing required field or an invented parameter some fraction of the time.
+With `tool_choice="auto"`, the model generates freely; nothing forces valid JSON that matches your schema. Small open models will hand you a trailing comma, a missing field or an invented parameter some fraction of the time.
 
-**Constrained decoding** (also called guided or grammar-based decoding) fixes the syntax problem at the source. At each step, the engine computes which next tokens are allowed by a grammar (derived from a JSON Schema, a regex or a context-free grammar) and masks out every other token's probability. The model *cannot* produce an invalid structure. The main engines:
+**Constrained decoding** (guided or grammar-based decoding) fixes syntax at the source. At each step, the engine computes which next tokens a grammar (from a JSON Schema, regex or context-free grammar) allows and masks out all others, so the model *cannot* produce an invalid structure. The main engines:
 
 - **Outlines**: constrained generation with JSON Schema, regex and grammars; usable as a library.
 - **XGrammar** and **llguidance**: fast grammar engines that inference servers (vLLM and SGLang among them) use for structured outputs.
@@ -250,13 +250,12 @@ Most servers expose this through the OpenAI-style `response_format` with a JSON 
 > [!WARNING] Valid is not correct
 > A grammar guarantees well-formed JSON with the right fields. It does not guarantee the model chose the right tool, the right order ID, or a sensible plan. Overly tight grammars can also hurt quality, for example by forcing JSON before a reasoning model has finished thinking. Constrain the *structure*; validate the *semantics* in your tool code and return helpful errors the model can recover from.
 
-Other reliability tactics that matter more for small models than for frontier ones:
+Tactics that matter more for small models than frontier ones:
 
-- **Fewer, simpler tools.** Ten tools with overlapping descriptions confuse an 8B model far more than a frontier model. Merge or route ([designing tools](designing-tools.html)).
-- **Flat schemas.** Prefer a few top-level fields with enums over deeply nested objects.
-- **Retry with the error.** Return parse and validation errors as tool results; most models self-correct on the next step.
-- **Short contexts.** Smaller models degrade faster as context grows; summarize aggressively ([context engineering](context-engineering.html)).
-- **Workflows over autonomy.** A fixed pipeline with small, well-scoped model calls is more robust than an open-ended loop ([workflow patterns](workflow-patterns.html)).
+- **Fewer, simpler tools** with flat schemas and enums; overlapping tools confuse an 8B model far more ([designing tools](designing-tools.html)).
+- **Retry with the error.** Return validation errors as tool results; most models self-correct.
+- **Short contexts.** Smaller models degrade faster as context grows ([context engineering](context-engineering.html)).
+- **Workflows over autonomy.** A fixed pipeline of small, well-scoped calls beats an open-ended loop ([workflow patterns](workflow-patterns.html)).
 
 ## Quantization and Agent Reliability
 
@@ -278,9 +277,7 @@ Rules of thumb:
 - **Below 4 bits**, quality drops faster, and small models suffer more than large ones.
 - **A bigger model at 4-bit often beats a smaller model at 16-bit** for the same memory, but measure on your tasks.
 
-Why agents are more sensitive than chat: quantization error shows up as slightly noisier token choices. In prose, a slightly different word is harmless. In a tool call, a slightly different token can be a wrong digit in an ID, a dropped brace or a hallucinated parameter, and in a 30-step loop those small per-step error rates compound. Aggregate benchmarks of quantized models often look nearly identical while long agentic runs show a visibly lower success rate. Evaluate the quantized artifact you will deploy, not the original.
-
-Also check *who* quantized it. Community GGUF and AWQ uploads are invaluable, but they vary in calibration data, template correctness and provenance (see [security](#security-and-the-model-supply-chain)).
+Why agents are more sensitive than chat: quantization error shows up as slightly noisier token choices. In prose, a different word is harmless; in a tool call, it can be a wrong digit in an ID or a dropped brace, and over 30 steps small error rates compound. Aggregate benchmarks can look nearly identical while long agentic runs succeed less often. Evaluate the quantized artifact you will deploy, and check *who* quantized it: community uploads vary in calibration, template correctness and [provenance](#security-and-the-model-supply-chain).
 
 ## Memory Math: Weights and the KV Cache
 
@@ -319,11 +316,11 @@ Two metrics pull against each other:
 
 The techniques that matter:
 
-- **Continuous batching.** The scheduler adds and removes sequences from the running batch at every step instead of waiting for a whole batch to finish. GPU decoding is limited by memory bandwidth, so serving many sequences at once costs little extra per step, which raises throughput dramatically. The price is that each individual request runs a bit slower when the batch is full.
-- **Paged KV cache.** vLLM's **PagedAttention** stores the KV cache in fixed-size blocks, like virtual memory pages, which removes most fragmentation and lets far more sequences fit.
-- **Prefix caching.** Agent requests share long prefixes: the same system prompt and tool definitions every call, and each step re-sends the previous steps. Reusing the cached KV for a shared prefix skips recomputing it, cutting TTFT and compute. vLLM's automatic prefix caching and SGLang's RadixAttention both do this. It is the self-hosted cousin of API prompt caching ([cost and latency](cost-and-latency.html)), and the same discipline applies: keep stable content first and never put a timestamp at the top of the prompt.
-- **Speculative decoding.** A cheap **draft** (a small model, extra prediction heads, or n-gram lookup from the prompt) proposes several tokens, and the large model verifies them in one forward pass, accepting the matching prefix. Output is identical in distribution to the large model alone; speed improves when drafts are often right. It helps single-request latency most and helps less when the GPU is already saturated by batching. Tool-call JSON that echoes IDs from the context is often easy to draft.
-- **Parallelism.** Tensor parallelism splits a model across GPUs to fit it and to cut per-token latency; MoE models also use expert parallelism. Disaggregated serving separates prefill (prompt processing) from decode on different GPUs.
+- **Continuous batching.** The scheduler adds and removes sequences at every step instead of waiting for a whole batch. Decoding is limited by memory bandwidth, so serving many sequences at once costs little extra per step, raising throughput dramatically; each request runs a bit slower when the batch is full.
+- **Paged KV cache.** vLLM's **PagedAttention** stores the KV cache in fixed-size blocks, like virtual memory pages, removing most fragmentation so more sequences fit.
+- **Prefix caching.** Agent calls share long prefixes: the same system prompt and tools, plus all previous steps. Reusing their cached KV cuts TTFT and compute (vLLM's automatic prefix caching, SGLang's RadixAttention). Like API prompt caching ([cost and latency](cost-and-latency.html)), it rewards keeping stable content first.
+- **Speculative decoding.** A cheap **draft** (small model, extra heads or n-gram lookup) proposes several tokens; the large model verifies them in one pass and keeps the matching prefix. The output distribution is unchanged; speed improves when drafts are often right. It helps single-request latency most and less on a saturated GPU.
+- **Parallelism.** Tensor parallelism splits a model across GPUs; MoE models add expert parallelism; disaggregated serving runs prefill and decode on different GPUs.
 
 For agents, a practical tuning target is **cost per successful task at an acceptable p95 step latency**, not raw tokens per second.
 
@@ -419,21 +416,19 @@ def run(task: str) -> str:
         messages.append({"role": "user", "content": results})
 ```
 
-`load_ticket` is your own data-access function. A production version would batch the local calls concurrently (the server's continuous batching rewards this), add retries, and handle `pause_turn` and `refusal` explicitly as in [Build an Agent From Scratch](build-agent-from-scratch.html). Note the data boundary: in this design the ticket text reaches only the local model, and only labels and IDs reach the hosted API. If the frontier model later needs to read specific tickets, that is a deliberate, auditable decision rather than a side effect.
+`load_ticket` is your own data-access function. A production version would send the local calls concurrently (continuous batching rewards this), add retries, and handle `pause_turn` and `refusal` explicitly as in [Build an Agent From Scratch](build-agent-from-scratch.html). Note the data boundary: ticket text reaches only the local model; only labels and IDs reach the hosted API.
 
 ## Fine-Tuning Small Models for Your Tools
 
-Open weights let you do something a hosted model rarely allows: train the model on your exact tools. A small fine-tuned model can match or beat a much larger general model on a *narrow*, well-defined agent task, while being faster and cheaper to serve.
+Open weights let you train the model on your exact tools. A small fine-tuned model can match or beat a much larger general model on a *narrow*, well-defined task while being faster and cheaper to serve. The usual recipe:
 
-The usual recipe:
+1. **Collect trajectories.** Run your agent with a strong frontier model (the **teacher**) on realistic tasks, logging every prompt, tool call, result and answer.
+2. **Filter** to successful trajectories, judged by your graders or humans. Training on failures teaches failures.
+3. **Format with the student's chat template**, so training and serving agree.
+4. **Train with LoRA.** **LoRA** freezes the base weights and trains small low-rank adapters, so it fits on modest hardware; **QLoRA** does the same over a 4-bit base. Servers such as vLLM can serve several adapters on one base.
+5. **Evaluate against the teacher and the base** on held-out tasks with the same harness.
 
-1. **Collect trajectories.** Run your agent with a strong frontier model (the **teacher**) on realistic tasks, logging every step: prompt, tool calls, tool results, final answer.
-2. **Filter.** Keep only successful trajectories, judged by your graders or by humans. Training on failures teaches failures.
-3. **Format with the student's chat template.** Render tool definitions, calls and results in the exact format the student model's template uses, so training and serving agree (the template lesson again).
-4. **Train with LoRA.** **LoRA** freezes the base weights and trains small low-rank adapter matrices, so fine-tuning fits on modest hardware; **QLoRA** does the same over a 4-bit base. Adapters can be merged into the weights or served separately (vLLM and others can serve multiple LoRA adapters on one base).
-5. **Evaluate against the teacher and the base**, on held-out tasks, with the same harness.
-
-This is **distillation** from the teacher's trajectories. Two cautions. Read your frontier provider's terms: several restrict using model outputs to build competing models, so check what your agreement permits. And fine-tuning narrows a model: it may get better at your tools and worse at things you didn't train, including following safety instructions, so re-run your safety and refusal evals afterwards.
+This is **distillation** from the teacher's trajectories. Two cautions: several providers' terms restrict using outputs to build competing models, so check your agreement; and fine-tuning narrows a model, possibly weakening safety behavior, so re-run safety and refusal evals.
 
 For the deeper picture (SFT, preference optimization, reinforcement learning with verifiable rewards, and the open training tooling), see [Training Agentic Models](training-agents.html).
 
@@ -441,16 +436,14 @@ For the deeper picture (SFT, preference optimization, reinforcement learning wit
 
 Public leaderboards tell you which models are worth trying. They do not tell you whether a model will run *your* agent. Before moving any step to an open model, run it through your own eval suite ([evaluating agents](evaluating-agents.html)).
 
-What to measure, per candidate (model × quantization × server configuration, since all three change behavior):
+Measure per candidate (model × quantization × server config, since all three change behavior):
 
-- **Task success rate** on a representative set of real tasks, with the same graders you use for the current model. Run each task several times; consistency (pass^k) matters for agents.
-- **Tool-call validity**: the share of calls that parse, match the schema and name an existing tool. Measure it with constrained decoding on and off.
-- **Tool selection accuracy** and **argument accuracy** on labeled steps.
-- **Recovery**: given an injected tool error, does the model retry sensibly or loop?
-- **Steps and tokens per success**: weaker models often take more steps, which eats the cost advantage.
-- **Latency** at your expected concurrency (p50 and p95 per step), not on an idle server.
-- **Cost per successful task**, including GPU amortization and idle time.
-- **Safety and policy behavior**: refusals, prompt-injection resistance and adherence to your policies, because you no longer inherit the provider's safeguards ([agent security](agent-security.html)).
+- **Task success rate** on real tasks with your existing graders, several runs each; consistency (pass^k) matters.
+- **Tool-call validity** (parses, matches schema, names a real tool), with constrained decoding on and off, plus **tool selection** and **argument accuracy** on labeled steps.
+- **Recovery**: given an injected tool error, does it retry sensibly or loop?
+- **Steps per success**: weaker models often take more steps, eating the cost advantage.
+- **Latency** (p50, p95 per step) at expected concurrency, and **cost per successful task** including idle GPUs.
+- **Safety behavior**: refusals and prompt-injection resistance, since you no longer inherit the provider's safeguards ([agent security](agent-security.html)).
 
 > [!TIP] Shadow before you switch
 > Run the open model in **shadow mode**: send it the same production inputs as the current model, log both outputs, and compare offline. You get a realistic eval set without risking users. Then canary it on a small share of traffic with automatic rollback ([deployment](deployment.html)).
@@ -461,20 +454,20 @@ Also test the integration, not just the model: multi-turn conversations with too
 
 Downloading weights from the internet and running them on your GPUs is a supply-chain decision, just like adding a dependency.
 
-- **Pickle vs safetensors.** Older PyTorch checkpoints (`.bin`, `.pt`) use Python's **pickle** format, which can execute arbitrary code when loaded. **safetensors** is a format that stores only tensors and metadata and cannot execute code on load. Prefer safetensors (or GGUF for llama.cpp), and refuse pickle files from sources you don't fully trust.
-- **`trust_remote_code`.** Some repositories ship custom Python modeling code. Loading them with `trust_remote_code=True` (in Hugging Face Transformers, and the equivalent flag in vLLM and others) runs that code on your machine. Avoid it when the architecture is already supported natively; when you must use it, read the code and pin an exact revision.
-- **Provenance.** Popular models attract re-uploads under look-alike names, and many quantized variants come from third parties. Download from the publisher's official organization, or from quantizers you have vetted, and pin by commit hash rather than a moving `main` branch. Mirror approved artifacts to an internal registry and record checksums.
-- **Templates are code too.** A chat template is a Jinja program inside the model repo. A modified template can silently change how system prompts or tools are presented.
-- **Backdoors are possible.** Research such as *Sleeper Agents* showed that models can be trained to behave normally until a trigger appears, and that standard safety training may not remove the behavior. You cannot fully audit weights. Mitigate with trusted sources, your own evals, and an agent design that does not grant a model more authority than you would grant untrusted code: sandbox tools, least privilege, and human approval for consequential actions ([guardrails and sandboxing](guardrails-and-sandboxing.html)).
-- **The server is an attack surface.** Inference servers parse complex file formats and accept network requests. Keep them updated, don't expose them to the internet without authentication, and isolate them from sensitive networks.
-- **Licenses and acceptable-use policies** are part of compliance: record which license each deployed artifact carries.
+- **Pickle vs safetensors.** Older PyTorch checkpoints (`.bin`, `.pt`) use Python's **pickle** format, which can execute arbitrary code when loaded. **safetensors** stores only tensors and metadata and cannot execute code. Prefer safetensors (or GGUF for llama.cpp) and refuse pickle files from sources you don't fully trust.
+- **`trust_remote_code`.** Some repositories ship custom Python modeling code; loading with `trust_remote_code=True` (Transformers, and the equivalent flag in vLLM and others) runs it on your machine. Avoid it for natively supported architectures; otherwise read the code and pin a revision.
+- **Provenance.** Popular models attract look-alike re-uploads, and most quantized variants come from third parties. Download from the publisher's official organization or vetted quantizers, pin by commit hash, and mirror approved artifacts internally with checksums.
+- **Templates are code too.** A modified Jinja template can silently change how system prompts or tools are presented.
+- **Backdoors are possible.** *Sleeper Agents* showed models can be trained to behave normally until a trigger appears, and that standard safety training may not remove this. You cannot fully audit weights, so don't grant a model more authority than untrusted code: sandboxed tools, least privilege, human approval for consequential actions ([guardrails and sandboxing](guardrails-and-sandboxing.html)).
+- **The server is an attack surface.** Keep it patched, require authentication, and never expose it directly to the internet.
+- **Licenses** are part of compliance: record which one each deployed artifact carries.
 
 > [!WARNING] Local is not automatically private
 > Self-hosting keeps data away from a model provider, but your own logs, traces, prompt caches and fine-tuning datasets now hold that sensitive data. Apply the same retention and access controls you would demand of a vendor ([observability](observability.html)).
 
 ## Key Takeaways
 
-- Open-weight models are a **deployment choice**: pick them for data control, cost at volume, latency, customization or offline use, and accept the ops burden and, for long-horizon tasks, a capability gap that is still real as of 2026.
+- Open-weight models are a **deployment choice** for data control, cost at volume, latency, customization or offline use; you accept the ops burden and, on long-horizon tasks, a capability gap that is still real as of 2026.
 - **Licenses vary per release**, from Apache 2.0 and MIT to custom terms with user or revenue thresholds; review the exact artifact you deploy.
 - Tool calling on open models is **text generation plus parsing**: the chat template renders tools into tokens, the model emits tool-call markers, and the server's parser turns them into JSON. Template or parser mismatches fail silently.
 - **Constrained decoding** (Outlines, XGrammar, llguidance, GBNF) guarantees well-formed tool JSON, but not correct choices; validate semantics in code.
@@ -485,10 +478,10 @@ Downloading weights from the internet and running them on your GPUs is a supply-
 
 ## Exercises
 
-1. **Serve and call.** Run a small instruction-tuned model with Ollama or vLLM and run the tool-calling example above. Then deliberately start the server without tool parsing enabled (or with a wrong parser) and observe what the response looks like. Write down how you would detect this failure in production.
+1. **Serve and call.** Serve a small instruction-tuned model with Ollama or vLLM and run the tool-calling example above. Then restart the server with tool parsing disabled (or the wrong parser) and inspect the response. How would you detect this failure in production?
 2. **Do the memory math.** Pick an open model you're interested in, read its `config.json`, and compute the KV bytes per token. How many concurrent 16K-token sessions fit on a 24 GB GPU at 4-bit weights? At 8-bit? Compare with what the server reports at startup.
 3. **Measure tool-call validity.** Build a set of 50 prompts that should trigger your tools. For one model, measure the share of valid, schema-conforming calls with and without constrained decoding, and at two quantization levels. Plot success against bits.
-4. **Hybrid split.** Take an agent you've built in this course. Identify one step that is high-volume and narrow, move it to a local model behind a tool as in the hybrid sketch, and compare cost per successful task and end-to-end success rate against the all-frontier version.
+4. **Hybrid split.** In an agent you've built, move one high-volume, narrow step to a local model behind a tool, as in the hybrid sketch. Compare cost per successful task and end-to-end success against the all-frontier version.
 5. **Design a supply-chain policy.** Write a one-page policy for your team covering where weights may be downloaded from, allowed file formats, `trust_remote_code`, revision pinning, license review, and the evals a model must pass before production. Which items could you enforce automatically in CI?
 
 ## Check Your Understanding
@@ -496,7 +489,7 @@ Downloading weights from the internet and running them on your GPUs is a supply-
 ```quiz
 Q: An agent on a self-hosted model never calls tools; it answers every question in prose. The server returns HTTP 200 and logs no errors. What should you check first?
 - [ ] Whether the GPU has enough free memory to hold the tool schemas
-- [x] Whether the rendered prompt and raw output show the expected tool format
+- [x] Whether the rendered prompt and raw output use the tool format
 - [ ] Whether the model's weights are stored in safetensors format
 - [ ] Whether the client library supports streaming responses
 E: Tool calling depends on the chat template rendering tools in the format the model was trained on, and a matching parser extracting calls from the output. Logging the rendered prompt and the raw generated text tells you whether the template or the parser is at fault. Memory problems cause errors or evictions, not silent prose.
@@ -511,19 +504,19 @@ E: Constrained decoding masks tokens that would violate the grammar, so the stru
 Q: A model has 64 layers, 8 KV heads and head dimension 128, with a 16-bit KV cache. Roughly how much KV memory does one 32K-token session need?
 - [ ] About 0.26 GB, the same as a single token at full precision
 - [ ] About 64 GB, since every attention head stores its own cache
-- [x] About 8.6 GB, at roughly 0.26 MB per token across all layers
+- [x] About 8.6 GB, at roughly 0.26 MB per token in total
 - [ ] About 2 GB, because grouped-query attention stores only keys
 E: 2 (K and V) × 64 layers × 8 KV heads × 128 × 2 bytes = 262,144 bytes per token, times 32,768 tokens ≈ 8.6 GB. GQA shrinks the cache by sharing KV heads among query heads, but both keys and values are still stored.
 
 Q: A team wants to replace its frontier model with an open model to cut costs on a 30-step coding agent. Which evidence should most influence the decision?
 - [ ] The open model's rank on a popular public chat leaderboard
 - [ ] Single-turn tool-call accuracy on a public function-calling benchmark
-- [x] Success rate and cost per success on their own tasks, with the quantized build
+- [x] Success and cost per success on their tasks, quantized build
 - [ ] The open model's advertised maximum context length and parameter count
 E: Long-horizon agent success depends on compounding per-step reliability on your tools and tasks, and the deployed quantization and server config change behavior. Public leaderboards and single-turn benchmarks are useful for shortlisting, not deciding.
 
 Q: Which design best keeps patient records away from a hosted frontier API while still using it for planning?
-- [x] A local model extracts or redacts fields; only the result reaches the frontier model
+- [x] A local model redacts fields, and only results reach the frontier model
 - [ ] The frontier model reads records directly, under a zero-retention agreement
 - [ ] Records are base64-encoded before being sent to the frontier model's context
 - [ ] The frontier model is prompted to ignore any personal data it sees in records
