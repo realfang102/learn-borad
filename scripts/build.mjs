@@ -387,7 +387,7 @@ for (const l of lessons) {
     else {
       const before = ex[0].slice(0, ex[0].indexOf("<details"));
       const nEx = (before.match(/<ol>[\s\S]*?<\/ol>/) || [""])[0].split("<li>").length - 1;
-      const nSol = (sol[1].match(/<ol>[\s\S]*<\/ol>/) || [""])[0].split(/<li>(?=[\s\S]*?Hint)/).length - 1;
+      const nSol = (sol[1].match(/<strong>Hint:?<\/strong>/g) || []).length;
       if (nEx && nSol !== nEx) warn(`${l.slug}: ${nEx} exercises but ${nSol} solutions`);
     }
   }
