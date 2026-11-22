@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The agent loop · Agents Made Simple</title><meta name="description" content="The simple think → act → observe cycle that turns a talking AI into one that gets things done."><meta name="theme-color" content="#fbfbfa">
+<title>The agent loop · Agents Made Simple</title><meta name="description" content="The think, act, observe cycle that turns talk into action."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,104 +16,88 @@
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="the-agent-loop">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">The Basics</a><p class="eyebrow">Chapter 03 <span aria-hidden="true">/</span> 14</p><h1>The agent loop</h1><p class="lead">The simple think → act → observe cycle that turns a talking AI into one that gets things done.</p><p class="meta">11 min read · 2 interactive demos · animated walkthrough</p>
-<nav class="mini-toc" aria-label="In this chapter"><a href="#think-act-observe-repeat">Think, act, observe, repeat</a><a href="#watch-the-loop-plan-a-weekend">Watch the loop plan a weekend</a><a href="#your-turn-be-the-agent">Your turn: be the agent</a><a href="#when-does-the-loop-stop">When does the loop stop?</a><a href="#why-checking-results-matters-so-much">Why checking results matters so much</a><a href="#the-brain-and-the-harness-who-does-what">The brain and the harness: who does what?</a><a href="#putting-the-loop-to-work">Putting the loop to work</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
-<article class="prose"><p>Think about how you cook a pot of soup without a recipe. You add some salt. You taste. A bit bland — add more. Taste again. Too thick — add water. Taste again. Perfect. Serve.</p>
-<p>You didn&#39;t plan every move in advance. You took a step, <strong>checked what happened</strong>, and used that to decide the next step. You kept going until the soup was right, and then you stopped.</p>
-<p>That&#39;s exactly how an AI agent works. In the <a href="the-ai-brain.html">last chapter</a> you met the brain: a language model that&#39;s great with words but can&#39;t look anything up or do anything on its own. This chapter adds the missing piece — the <strong>agent loop</strong>, the repeating cycle that lets that brain take actions, see the results, and keep going until a goal is reached.</p>
-<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The agent loop in one line</div><p><strong>Think</strong> about what to do next → <strong>act</strong> by using a tool → <strong>observe</strong> the result → repeat, until the goal is done or a person needs to decide.</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">The Basics</a><p class="eyebrow">Chapter 03 <span aria-hidden="true">/</span> 14</p><h1>The agent loop</h1><p class="lead">The think, act, observe cycle that turns talk into action.</p><p class="meta">12 min read · 2 interactive demos · animated walkthrough</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#think-act-observe-repeat">Think, act, observe, repeat</a><a href="#watch-it-plan-a-weekend">Watch it plan a weekend</a><a href="#when-does-the-loop-stop">When does the loop stop?</a><a href="#why-checking-matters">Why checking matters</a><a href="#the-brain-and-the-harness">The brain and the harness</a><a href="#putting-it-to-work">Putting it to work</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
+<article class="prose"><p>Think about cooking soup without a recipe. Add salt. Taste. Bland, so add more. Taste. Too thick, so add water. Taste. Perfect. Serve.</p>
+<p>You didn&#39;t plan every move. You took a step, <strong>checked what happened</strong>, and used that to choose the next one, until the soup was right.</p>
+<p>That&#39;s how an agent works. The <a href="the-ai-brain.html">last chapter</a> gave you the brain, which can&#39;t look anything up or act alone. This one adds the <strong>agent loop</strong>: the cycle that lets it act, see results, and keep going until the goal is reached.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>Big idea</div><p><strong>Think</strong> about the next step → <strong>act</strong> with a tool → <strong>observe</strong> the result → repeat, until the goal is done or a person needs to decide.</p>
 </div>
 <h2 id="think-act-observe-repeat">Think, act, observe, repeat</h2>
-<p>Here&#39;s the loop in motion. Watch the little robot go round:</p>
+<p>Watch the robot go round.</p>
 <div data-widget="hero-loop"></div>
 
-<p>Notice that the robot doesn&#39;t guess the weather. It <em>uses a tool</em> to find out, <em>reads</em> the result, and only then decides what to pack. Each step of the loop has a clear job:</p>
+<p>It doesn&#39;t guess the weather. It <em>uses a tool</em>, <em>reads</em> the result, and only then decides what to pack.</p>
 <div class="steps-strip">
-<div><strong>🧠 Think</strong>Look at the goal and everything learned so far. Decide the single best next step.</div>
-<div><strong>🛠️ Act</strong>Do that step, usually by using a tool: search, read a file, send a message.</div>
-<div><strong>👀 Observe</strong>Read what came back. Did it work? Was there a surprise?</div>
-<div><strong>🔁 Repeat</strong>Go back to Think with the new information — or stop if the goal is reached.</div>
+<div><strong>Think</strong>Look at the goal and what's known. Pick the single best next step.</div>
+<div><strong>Act</strong>Do it, usually with a tool: search, read a file, send a message.</div>
+<div><strong>Observe</strong>Read what came back. Did it work? Any surprise?</div>
+<div><strong>Repeat</strong>Back to Think with the new information, or stop if the goal is reached.</div>
 </div>
 
-<p>The magic is in that last step. A chatbot answers once and is done. An agent <strong>feeds the results of its actions back into its own thinking</strong>, so every turn of the loop it knows a little more. That&#39;s how it can handle tasks where the steps can&#39;t be planned in advance.</p>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>A GPS navigator works in a loop too. It plans a route, watches where your car actually is, and when you miss a turn or hit traffic, it doesn&#39;t give up — it <strong>recalculates</strong> from where you are now. Agents do the same thing with goals.</p>
+<p>A chatbot answers once. An agent <strong>feeds each result back into its thinking</strong>, so it knows a little more every turn. That&#39;s how it handles tasks whose steps can&#39;t be planned in advance.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>A GPS works in a loop too. When you miss a turn, it doesn&#39;t give up: it <strong>recalculates</strong> from where you are now.</p>
 </div>
-<h2 id="watch-the-loop-plan-a-weekend">Watch the loop plan a weekend</h2>
-<p>Let&#39;s see a complete run. Jordan asks an agent to plan a hiking weekend and book a cabin. The agent has two tools: one that checks the weather and one that searches and books cabins. Press play and keep an eye on the loop indicator as it lights up.</p>
+<h2 id="watch-it-plan-a-weekend">Watch it plan a weekend</h2>
+<p>Jordan asks an agent to plan a hiking weekend and book a cabin. It has a weather tool and a cabin tool. Press play and watch the loop indicator.</p>
 <div class="sim" data-sim="ch-the-agent-loop"></div>
 
-<p>A few things worth noticing:</p>
-<ul>
-<li><strong>It checked before it acted.</strong> The agent looked at the forecast <em>before</em> choosing a day or booking anything.</li>
-<li><strong>It adapted to a surprise.</strong> Storms on Saturday changed the plan. A rigid script would have booked a Saturday hike anyway.</li>
-<li><strong>It checked its own work.</strong> After booking, it read the confirmation and compared it with what Jordan asked for.</li>
-<li><strong>It asked before spending money.</strong> And if you clicked <strong>✋ Not yet</strong>, it stopped without booking anything.</li>
-<li><strong>It stopped when the goal was met.</strong> No endless extra searching.</li>
-</ul>
-<p>For more complete runs, every <a href="examples.html">example page</a> is built around this same loop — from the <a href="example-coding-agent.html">coding agent</a> fixing a bug to the <a href="example-research-agent.html">research agent</a> writing a cited report.</p>
-<h2 id="your-turn-be-the-agent">Your turn: be the agent</h2>
-<p>Reading about the loop is one thing. Running it yourself is better. In this game, <em>you</em> are the agent. Your user&#39;s website has suddenly become slow. Each round, choose your next action, then observe what happens.</p>
+<p>It <strong>checked</strong> the forecast before acting, <strong>adapted</strong> when storms hit Saturday, <strong>verified</strong> the booking, and <strong>asked</strong> before spending money. Click <strong>Not yet</strong> and it books nothing. Then it <strong>stopped</strong>, because the goal was met.</p>
+<p>Every <a href="examples.html">example page</a> runs on this same loop, from the <a href="example-coding-agent.html">coding agent</a> to the <a href="example-research-agent.html">research agent</a>.</p>
+<h3 id="your-turn-be-the-agent">Your turn: be the agent</h3>
+<p>Your user&#39;s website is suddenly slow. Each round, choose your next action and see what happens.</p>
 <div data-widget="be-the-agent"></div>
 
-<p>Did you notice which choices worked best? Gathering facts before acting. Following the evidence one step at a time. Avoiding destructive moves on a hunch. Asking a human before a risky change. And stopping once the question was answered. These aren&#39;t just game rules — they&#39;re the habits that separate a helpful agent from a dangerous one.</p>
+<p>The best moves gather facts first, follow the evidence, avoid destructive hunches, ask before risky changes, and stop once answered. Those habits separate a helpful agent from a dangerous one.</p>
 <h2 id="when-does-the-loop-stop">When does the loop stop?</h2>
-<p>A loop that never ends would be a problem, so every agent needs to know when to stop. In practice, there are four common reasons:</p>
+<p>Every agent needs to know when to stop. There are four common reasons:</p>
 <ol>
-<li><strong>The goal is reached.</strong> The cabin is booked, the bug is fixed, the report is written. The agent reports back and ends.</li>
-<li><strong>A person needs to decide.</strong> Something is risky, costly or unclear, so the agent pauses and asks. &quot;Shall I book it?&quot; &quot;Which of these two options do you prefer?&quot;</li>
-<li><strong>It&#39;s stuck.</strong> A tool keeps failing, or the information simply isn&#39;t available. A good agent says so honestly instead of pretending it succeeded.</li>
-<li><strong>It hits a limit.</strong> The software running the agent usually sets a maximum number of steps, a time limit or a spending budget, so a confused agent can&#39;t loop forever.</li>
+<li><strong>The goal is reached.</strong> The cabin is booked or the bug is fixed. It reports back.</li>
+<li><strong>A person needs to decide.</strong> Something is risky, costly or unclear, so it pauses and asks.</li>
+<li><strong>It&#39;s stuck.</strong> A tool keeps failing or the information isn&#39;t there. A good agent says so honestly.</li>
+<li><strong>It hits a limit.</strong> The software usually caps steps, time or spending, so a confused agent can&#39;t loop forever.</li>
 </ol>
-<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Tell your agent what &quot;done&quot; looks like</div><p>Agents stop more sensibly when they know the finish line. Instead of &quot;look into flights to Lisbon&quot;, try &quot;find the three cheapest direct flights to Lisbon on May 3rd and list them with times and prices — don&#39;t book anything.&quot; You&#39;ll learn more of these tricks in <a href="great-instructions.html">Great instructions</a>.</p>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Define &quot;done&quot;</div><p>Not &quot;look into flights to Lisbon&quot;, but &quot;find the three cheapest direct flights to Lisbon on May 3rd, with times and prices. Don&#39;t book anything.&quot; More in <a href="great-instructions.html">Great instructions</a>.</p>
 </div>
-<h2 id="why-checking-results-matters-so-much">Why checking results matters so much</h2>
-<p>The &quot;observe&quot; step is easy to overlook, but it&#39;s where most of an agent&#39;s reliability comes from.</p>
-<p>Imagine an agent that&#39;s right 95% of the time on each step. Sounds great! But a task with 20 steps gives it 20 chances to slip, and one wrong step early on — a misread number, a search that returned the wrong company — can quietly spoil everything that follows. Small errors <strong>add up</strong> over a long task.</p>
-<p>The cure is the same one you&#39;d use: <strong>check as you go.</strong> Good agents:</p>
-<ul>
-<li><strong>Read tool results carefully</strong> instead of assuming an action worked.</li>
-<li><strong>Verify important facts</strong> from a second source, or by re-running a test.</li>
-<li><strong>Compare the outcome with the goal</strong> before declaring victory: right date? right amount? right person?</li>
-<li><strong>Notice surprises</strong> — an error message, an empty search, an unexpected number — and change course.</li>
-</ul>
-<p>You&#39;ll explore this in depth, with a hands-on demo of how errors pile up, in <a href="reliable-agents.html">Making agents reliable</a>.</p>
-<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>&quot;Done!&quot; doesn&#39;t always mean done</div><p>Agents sometimes report success too early, or describe a result they didn&#39;t actually check. For anything important, glance at the evidence yourself: open the booking confirmation, look at the sent email, skim the final spreadsheet.</p>
+<h2 id="why-checking-matters">Why checking matters</h2>
+<p>Most of an agent&#39;s reliability comes from the &quot;observe&quot; step.</p>
+<p>Picture an agent that&#39;s right 95% of the time per step. A 20-step task gives it 20 chances to slip, and one early mistake, like a misread number or the wrong company, can quietly spoil everything after. Small errors <strong>add up</strong>.</p>
+<p>The cure is to <strong>check as you go</strong>. Good agents read tool results instead of assuming success, verify key facts from a second source, compare the outcome with the goal (right date, amount, person?), and change course on surprises.</p>
+<p>See errors pile up for yourself in <a href="reliable-agents.html">Making agents reliable</a>.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>&quot;Done!&quot; isn&#39;t always done</div><p>Agents sometimes declare success too early. For anything important, check the evidence: the booking confirmation, the sent email, the final spreadsheet.</p>
 </div>
-<h2 id="the-brain-and-the-harness-who-does-what">The brain and the harness: who does what?</h2>
-<p>Here&#39;s something that surprises many people: the language model never actually <em>touches</em> anything. It doesn&#39;t click buttons, send emails or book cabins. It can only write text.</p>
-<p>So who does the doing? A piece of ordinary software wrapped around the model, called the <strong>harness</strong>. You can think of the model and the harness as a team:</p>
+<h2 id="the-brain-and-the-harness">The brain and the harness</h2>
+<p>The model never <em>touches</em> anything. It can only write text. The doing happens in ordinary software wrapped around it, called the <strong>harness</strong>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>The model (the brain) 🧠</th>
-<th>The harness (the hands and rules) 🛠️</th>
+<th>The model (the brain)</th>
+<th>The harness (the hands and rules)</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Reads the goal and everything so far</td>
-<td>Gives the model the goal, the history and a list of available tools</td>
+<td>Supplies the goal, history and available tools</td>
 </tr>
 <tr>
 <td>Decides the next step</td>
-<td>Actually runs the tool the model asked for</td>
+<td>Runs the tool the model asked for</td>
 </tr>
 <tr>
 <td>Writes a tool request, like &quot;get the forecast for Pine Ridge&quot;</td>
-<td>Sends the tool&#39;s result back to the model</td>
+<td>Sends the result back to the model</td>
 </tr>
 <tr>
 <td>Decides when the goal is reached</td>
-<td>Enforces limits: step counts, budgets, permissions</td>
+<td>Enforces limits: steps, budgets, permissions</td>
 </tr>
 <tr>
 <td>Writes the final answer</td>
-<td>Asks a human for approval before risky actions</td>
+<td>Asks a human before risky actions</td>
 </tr>
 </tbody></table>
 </div>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>Picture a brilliant expert on a phone call with an assistant sitting at a desk. The expert can&#39;t see the desk or touch anything — they can only talk. &quot;Please look up the weather.&quot; The assistant does it and reads back the answer. &quot;Great, now search for cabins under $150.&quot; The expert supplies the judgment; the assistant supplies the hands — and the assistant can refuse anything that breaks the office rules.</p>
-</div>
-<p>This split is one of the most important ideas in the whole guide. Because every action goes <em>through</em> the harness, the harness can log it, limit it, or pause it for your approval. That&#39;s what makes agents controllable — and it&#39;s why the same model can power a cautious assistant that asks before everything or a fast one that works on its own, depending on how its harness is set up.</p>
+<p>Every action goes <em>through</em> the harness, so it can log, limit or pause any of them for your approval. That makes agents controllable, and lets the same model power a cautious assistant or a fast, independent one.</p>
 <div class="detail">
 
 <p><strong>What a loop really looks like:</strong> under the hood, the harness runs something like this:</p>
@@ -123,21 +107,21 @@
 <li>If it&#39;s a tool call, the harness checks permissions, runs the tool, and adds the result to the conversation.</li>
 <li>Go back to step 1. Stop when the model gives a final answer or a limit is hit.</li>
 </ol>
-<p>That&#39;s genuinely most of it — a real agent loop can be written in about twenty lines of code. Coding agents, research agents and browser agents all differ mainly in <em>which tools</em> they have and <em>what rules</em> the harness enforces. You can watch the messages flow, line by line, in <a href="under-the-hood.html">Under the hood</a>.</p>
+<p>That&#39;s genuinely most of it: a real agent loop fits in about twenty lines of code. Coding, research and browser agents differ mainly in <em>which tools</em> they have and <em>what rules</em> the harness enforces. Watch the messages flow, line by line, in <a href="under-the-hood.html">Under the hood</a>.</p>
 </div>
 
 <div class="detail">
 
-<p><strong>Each turn re-reads everything.</strong> A language model doesn&#39;t keep a running memory between turns of the loop. Each time round, the harness sends it the <em>whole</em> story so far — the goal, its earlier thoughts, every tool result. That&#39;s why long tasks get slower and more expensive as they go, and why agents eventually need ways to summarize or forget. That&#39;s the subject of the <a href="memory.html">Memory</a> chapter.</p>
+<p><strong>Each turn re-reads everything.</strong> A model keeps no running memory between turns. Each time round, the harness sends the <em>whole</em> story so far: the goal, earlier thoughts, every tool result. That&#39;s why long tasks get slower and costlier, and why agents eventually need to summarize or forget, the subject of the <a href="memory.html">Memory</a> chapter.</p>
 </div>
 
-<h2 id="putting-the-loop-to-work">Putting the loop to work</h2>
-<p>You don&#39;t need to build anything to benefit from understanding the loop. Whenever you hand a task to an agent:</p>
+<h2 id="putting-it-to-work">Putting it to work</h2>
+<p>When you hand a task to an agent:</p>
 <ul>
-<li><strong>State the goal and the finish line</strong> so it knows when to stop.</li>
-<li><strong>Say where it should pause</strong> — &quot;ask me before you send, buy or delete anything.&quot;</li>
-<li><strong>Ask it to check its work</strong> — &quot;verify the totals&quot; or &quot;confirm the booking details match.&quot;</li>
-<li><strong>Read the trail.</strong> Many agent apps show each step they took. A quick skim tells you whether it really looked things up or just guessed.</li>
+<li><strong>State the goal and finish line</strong> so it knows when to stop.</li>
+<li><strong>Say where to pause</strong>: &quot;ask me before you send, buy or delete anything.&quot;</li>
+<li><strong>Ask it to check</strong>: &quot;verify the totals&quot; or &quot;confirm the booking matches.&quot;</li>
+<li><strong>Read the trail.</strong> A quick skim of its steps shows whether it looked things up or guessed.</li>
 </ul>
 <div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Goal: [what you want done, e.g. &quot;find a dentist near my office who's open Saturdays and takes new patients&quot;].
 Done means: [what the finished result looks like, e.g. &quot;a short list of 3 options with address, hours and phone number&quot;].
@@ -148,16 +132,16 @@ At the end, tell me what you checked and anything you couldn't confirm.</pre></d
 <div class="quiz" data-quiz="the-agent-loop">
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>What makes the agent loop different from a chatbot answering once?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">It runs on a bigger and more capable language model</button><button type="button" class="quiz-opt" data-i="1">It follows the same fixed list of steps every time</button><button type="button" class="quiz-opt" data-i="2">It feeds each result back into its next decision</button><button type="button" class="quiz-opt" data-i="3">It writes longer replies with much more detail in them</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The heart of the loop is &quot;observe&quot;: the agent reads what happened and uses it to choose the next step. A bigger model or longer replies don&#39;t add that, and a fixed list of steps is the opposite — a script that can&#39;t adapt.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The heart of the loop is &quot;observe&quot;: the agent reads what happened and uses it to choose the next step. A bigger model or longer replies don&#39;t add that, and a fixed list of steps is the opposite: a script that can&#39;t adapt.</div></div>
 <div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">2</span>In the weekend-trip run, the forecast showed storms on Saturday. What did the loop let the agent do?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Book all three cabins in case the plan changed again</button><button type="button" class="quiz-opt" data-i="1">Stop and ask Jordan to plan the weekend themselves</button><button type="button" class="quiz-opt" data-i="2">Book the Saturday hike anyway, since that was the plan</button><button type="button" class="quiz-opt" data-i="3">Move the hike to Sunday, still staying Saturday night</button></div>
 <div class="quiz-expl" hidden><strong class="verdict"></strong> Observing a surprising result and changing course is exactly what the loop is for. Sticking to the old plan would be unsafe, while giving up or booking everything ignores what Jordan asked for.</div></div>
 <div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">3</span>Who actually runs a tool, like booking a cabin, when an agent decides to use it?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Nobody, because tools are only described, never run</button><button type="button" class="quiz-opt" data-i="1">The language model, which clicks the buttons itself</button><button type="button" class="quiz-opt" data-i="2">The tool runs by itself whenever the model is thinking</button><button type="button" class="quiz-opt" data-i="3">The harness, the ordinary software around the model</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The model can only write a request. The harness carries it out, sends back the result, and can block or pause actions for approval — which is what keeps agents controllable.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The model can only write a request. The harness carries it out, sends back the result, and can block or pause actions for approval, which is what keeps agents controllable.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 <h2 id="whats-next">What&#39;s next</h2>
-<p>You&#39;ve seen the loop that drives every agent. But an agent is only as capable as the actions it can take. Next, we&#39;ll open the toolbox: <strong>Tools</strong> — what they are, how an agent chooses between them, and why a good description makes all the difference.</p>
+<p>An agent is only as capable as the actions it can take. Next, open the toolbox: <strong>Tools</strong>, how an agent chooses between them, and why a good description makes all the difference.</p>
 </article>
 <section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="the-agent-loop">Mark as done</button></section>
 <nav class="pager"><a href="the-ai-brain.html"><small>← Previous</small>The AI brain inside every agent</a><a class="next" href="tools.html"><small>Next →</small>Tools: giving agents hands</a></nav>

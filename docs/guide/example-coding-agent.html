@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The coding agent · Agents Made Simple</title><meta name="description" content="Watch an agent find and fix a real bug in an online shop — reading code, running tests, and asking before it goes live."><meta name="theme-color" content="#fbfbfa">
+<title>The coding agent · Agents Made Simple</title><meta name="description" content="Watch an agent find and fix a real bug, then ask before it goes live."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,62 +16,59 @@
   </div>
 </header>
 <main id="main" class="page example" data-slug="example-coding-agent">
-<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg></div><p class="eyebrow">Software · Intermediate</p><h1>The coding agent</h1><p class="lead">Watch an agent find and fix a real bug in an online shop — reading code, running tests, and asking before it goes live.</p>
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/></svg></div><p class="eyebrow">Software · Intermediate</p><h1>The coding agent</h1><p class="lead">Watch an agent find and fix a real bug, then ask before it goes live.</p>
 <p class="concepts">Uses ideas from: <a class="chip" href="the-agent-loop.html">The agent loop</a> <a class="chip" href="tools.html">Tools: giving agents hands</a> <a class="chip" href="staying-safe.html">Staying safe with agents</a> <a class="chip" href="reliable-agents.html">Making agents reliable</a></p></div>
-<article class="prose wide"><p>Coding is where agents first became truly useful — and it&#39;s a perfect window into how <em>all</em> agents work. Code gives an agent something precious: <strong>a way to check its own work</strong>. Most software projects come with <strong>tests</strong>: small programs that check the code does what it should. Tests either pass or fail, so the agent knows whether it&#39;s done.</p>
-<p>In this example, a shop owner named Maya asks her coding agent to fix a broken discount code. She doesn&#39;t explain <em>how</em> — just <em>what&#39;s wrong</em>.</p>
+<article class="prose wide"><p>Code comes with <strong>tests</strong>, small programs that pass or fail, so an agent can check its own work. Here, shop owner Maya asks hers to fix a broken discount code: she says <em>what&#39;s</em> wrong, not <em>how</em>.</p>
 <div class="sim" data-sim="coding-agent"></div>
 
-<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Be the human in the loop</div><p>When the agent asks to publish the fix, try clicking <strong>✋ Not yet</strong>. A well-designed agent respects your decision and stops — that&#39;s exactly what approval steps are for.</p>
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Be the human in the loop</div><p>When asked to publish, click <strong>Not yet</strong> and watch the agent respect it.</p>
 </div>
 <h2 id="how-it-works">How it works</h2>
 <div class="steps-strip">
-<div><strong>Reproduce</strong>Run the tests to see the failure with its own eyes.</div>
-<div><strong>Investigate</strong>Search the code and read only the relevant file.</div>
-<div><strong>Check the rules</strong>Look up how discounts <em>should</em> work instead of guessing.</div>
+<div><strong>Reproduce</strong>Run the tests to see the failure.</div>
+<div><strong>Investigate</strong>Search the code; read only the relevant file.</div>
+<div><strong>Check the rules</strong>Look up how discounts <em>should</em> work.</div>
 <div><strong>Small fix</strong>Change as little as possible.</div>
-<div><strong>Prove it</strong>Re-run every test — not just the broken one.</div>
+<div><strong>Prove it</strong>Re-run every test, not just the broken one.</div>
 <div><strong>Ask, then ship</strong>Get approval before changing the live shop.</div>
 </div>
 
-<p>The agent used only a handful of simple tools — <strong>run a command</strong>, <strong>search files</strong>, <strong>read a file</strong>, <strong>edit a file</strong> — but combined them with judgment, in a loop, until the job was done. That&#39;s the whole trick.</p>
+<p>Four simple tools (<strong>run</strong>, <strong>search</strong>, <strong>read</strong>, <strong>edit</strong>), used with judgment in a loop until the job is done. That&#39;s the whole trick.</p>
 <div class="detail">
 
-<p><strong>What&#39;s really happening under the hood:</strong> each &quot;Act&quot; step is the language model asking its <strong>harness</strong> (the program wrapped around the model that actually runs tools) to run a tool (for example, a <code>bash</code> tool for terminal commands and an <code>edit</code> tool that replaces exact lines of text). The harness runs the command in a safe sandbox, sends the output back, and the model decides what to do next. Popular coding agents as of 2026, such as Claude Code, OpenAI&#39;s Codex, GitHub Copilot&#39;s agent features and Cursor, all follow this same pattern, with permission settings that control which commands can run without asking.</p>
+<p><strong>Under the hood:</strong> each &quot;Act&quot; step is the model asking its <strong>harness</strong> (the program around the model that actually runs tools) to use a tool, such as <code>bash</code> for terminal commands or <code>edit</code> to replace exact lines. The harness runs it in a sandbox and returns the output; the model decides what&#39;s next. Popular coding agents as of 2026, such as Claude Code, OpenAI&#39;s Codex, GitHub Copilot&#39;s agent features and Cursor, all follow this pattern, with permission settings for which commands run without asking.</p>
 </div>
 
 <h2 id="why-coding-agents-work-so-well">Why coding agents work so well</h2>
 <ul>
-<li><strong>Instant feedback.</strong> Tests and error messages tell the agent exactly what&#39;s wrong.</li>
-<li><strong>Everything is text.</strong> Code, errors and docs are all things language models read well.</li>
-<li><strong>Mistakes are reversible.</strong> Programmers use <strong>version control</strong> (most often a tool called git), which saves every version of the code, so any change can be undone.</li>
+<li><strong>Instant feedback.</strong> Tests and errors say exactly what&#39;s wrong.</li>
+<li><strong>Everything is text.</strong> Models read code and errors well.</li>
+<li><strong>Reversible.</strong> <strong>Version control</strong> (usually git) saves every version, so any change can be undone.</li>
 </ul>
 <div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
 <ul>
-<li><strong>&quot;Fixing&quot; the test instead of the bug.</strong> An agent under pressure to make tests pass might edit the test itself. Good setups forbid changing tests without permission.</li>
-<li><strong>Overconfident changes.</strong> Large rewrites are harder to review. Ask for small, focused changes.</li>
-<li><strong>Running risky commands.</strong> Agents should work in a sandbox and ask before anything destructive.</li>
+<li><strong>&quot;Fixing&quot; the test instead of the bug.</strong> Forbid changing tests without permission.</li>
+<li><strong>Overconfident changes.</strong> Big rewrites are hard to review; ask for small, focused ones.</li>
+<li><strong>Risky commands.</strong> Agents should work in a sandbox and ask before anything destructive.</li>
 </ul>
 </div>
 <h2 id="try-it-yourself">Try it yourself</h2>
-<p>You don&#39;t need to be a programmer to try this with a coding agent (such as Claude Code, Codex or Copilot) on a small project:</p>
-<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">There's a bug: [describe what's wrong in plain words, e.g. &quot;the contact form doesn't send emails&quot;].
-Please:
-1. Reproduce the problem first (run the app or tests) and show me the error.
-2. Find the cause and explain it to me in simple terms before changing anything.
-3. Make the smallest fix that solves it.
-4. Run all the tests again to prove it works.
-5. Don't change any tests, and ask me before deleting anything or publishing.</pre></div>
+<p>No programming needed: try a coding agent (such as Claude Code, Codex or Copilot) on a small project.</p>
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">There's a bug: [what's wrong, e.g. &quot;the contact form doesn't send emails&quot;].
+1. Reproduce it first and show me the error.
+2. Explain the cause simply before changing anything.
+3. Make the smallest fix, then run all the tests.
+4. Don't change any tests, and ask me before deleting anything or publishing.</pre></div>
 <div class="quiz" data-quiz="example-coding-agent">
 <div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">1</span>Why did the agent run the tests <em>before</em> changing any code?</p>
-<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">To see the failure itself, so it can prove the fix later</button><button type="button" class="quiz-opt" data-i="1">Because running the tests repairs simple bugs automatically</button><button type="button" class="quiz-opt" data-i="2">To find out which failing tests it could safely delete first</button><button type="button" class="quiz-opt" data-i="3">To warm up the shop&#39;s server so the fix would run faster later</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> Reproducing the problem gives the agent a clear &quot;before&quot; and a way to prove the &quot;after&quot;. Tests only <em>report</em> problems; they never fix them. And deleting a failing test would hide the bug, not solve it.</div></div>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">To see the failure itself, so it can prove the fix later</button><button type="button" class="quiz-opt" data-i="1">Because running the tests repairs simple bugs automatically</button><button type="button" class="quiz-opt" data-i="2">To find out which failing tests it could safely delete</button><button type="button" class="quiz-opt" data-i="3">To warm up the shop&#39;s server so the fix would run faster</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Reproducing the problem gives a clear &quot;before&quot; and a way to prove the &quot;after&quot;. Tests only <em>report</em> problems; they never fix them. Deleting a failing test would hide the bug, not solve it.</div></div>
 <div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">2</span>After its fix, why did the agent re-run <em>all</em> the tests, not just the failing one?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Because running more tests makes the shop&#39;s code run faster</button><button type="button" class="quiz-opt" data-i="1">To check the fix hadn&#39;t quietly broken something elsewhere</button><button type="button" class="quiz-opt" data-i="2">Because the two failing tests had been deleted during the fix</button><button type="button" class="quiz-opt" data-i="3">Because the test tool can&#39;t run a single test on its own</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> A change in one place can break another, so running the full suite checks for side effects. The tool <em>can</em> run just a few tests: the agent did exactly that at the start with <code>npm test -- discounts</code>.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> A change in one place can break another, so the full suite checks for side effects. The tool <em>can</em> run a few tests: the agent did exactly that at the start with <code>npm test -- discounts</code>.</div></div>
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">3</span>What&#39;s the main reason the agent asked before publishing?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Asking first is simply a polite way to end a conversation</button><button type="button" class="quiz-opt" data-i="1">It wasn&#39;t sure its fix was correct, despite the tests</button><button type="button" class="quiz-opt" data-i="2">Publishing changes the live shop that real customers use</button><button type="button" class="quiz-opt" data-i="3">Coding agents aren&#39;t technically able to publish code</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> Approval steps belong in front of actions with real-world impact. All 24 tests passed, so the agent wasn&#39;t unsure. The point is that the human stays in charge of changes that affect customers.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Approval steps belong in front of actions with real-world impact. All 24 tests passed, so the agent wasn&#39;t unsure; the point is that the human stays in charge of changes that affect customers.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 </article>
 <nav class="pager"><a href="examples.html"><small>←</small>All examples</a><a class="next" href="example-research-agent.html"><small>Next example →</small>The deep research agent</a></nav>

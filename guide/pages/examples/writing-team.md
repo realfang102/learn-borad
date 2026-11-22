@@ -1,74 +1,69 @@
 ---
 title: "The writing team (writer + editor)"
 emoji: "✍️"
-subtitle: "Watch a writer agent and an editor agent improve a newsletter in rounds, while a fact-checker catches an invented statistic."
+subtitle: "A writer and an editor agent refine a newsletter while a fact-checker catches an invented statistic."
 category: "Writing"
 level: "Intermediate"
 concepts: [agent-teams, reliable-agents, great-instructions]
 sim: writing-team
 ---
 
-Ask an AI to write something and you'll get a fluent first draft in seconds. Fluent, though, isn't the same as *good*. First drafts ramble, miss details from the brief, slip into a salesy tone, and sometimes include "facts" that were never true. Human writers deal with this by working with an editor. AI can work the same way.
-
-In this example, Nadia runs a small tea shop and needs her December newsletter. Her setup uses a small **team of agents**: a **writer** that drafts, an **editor** that grades each draft against a checklist, and a **fact-checker** that verifies every claim. Watch the draft improve over two rounds, and look for the moment the fact-checker discovers the writer made up a statistic.
+AI first drafts are fluent, but fluent isn't *good*: they ramble, miss the brief, and sometimes include "facts" that were never true. Nadia's tea-shop newsletter goes to a small **team of agents** instead: a **writer** drafts, an **editor** grades against a checklist, and a **fact-checker** verifies every claim.
 
 <div class="sim" data-sim="writing-team"></div>
 
 > [!TRY] Compare the drafts
-> Use **Step ⏭** and pause on draft 1. Before the editor speaks, see how many problems you can find by checking it against the **Editor's checklist**. Then watch whether the editor catches the same ones and whether it catches the one problem a checklist alone can't.
+> Use **Step** to pause on draft 1 and check it against the **Editor's checklist** before the editor does.
 
 ## How it works
 
 <div class="steps-strip">
-<div><strong>Brief → checklist</strong>Turn the request into clear pass/fail criteria.</div>
+<div><strong>Brief → checklist</strong>Turn the request into pass/fail criteria.</div>
 <div><strong>Draft</strong>The writer produces a complete first version.</div>
-<div><strong>Critique</strong>The editor grades it item by item with specific notes.</div>
+<div><strong>Critique</strong>The editor grades it item by item.</div>
 <div><strong>Revise</strong>The writer fixes exactly what was flagged.</div>
-<div><strong>Verify facts</strong>A fact-checker searches for evidence for each claim.</div>
+<div><strong>Verify facts</strong>A fact-checker searches for evidence.</div>
 <div><strong>Human sign-off</strong>The owner approves before anything is sent.</div>
 </div>
 
-This pattern, where one agent generates and another evaluates and the loop repeats until the work passes, is often called an **evaluator-optimizer** loop. It works for the same reason human editing works: **judging is easier than creating**. It's hard to write a perfect paragraph in one go, but it's easy to check "is this under 350 words?" or "does it mention the event time?" A separate editor also has no attachment to the draft, so it's more willing to say "cut this."
-
-The checklist is what makes the critique useful. Vague feedback ("make it better") leads to random changes. Specific feedback ("add the time: 2–4 pm"; "keep ONE call to action", meaning one thing you ask readers to do) leads to targeted fixes. And notice that the checklist came straight from Nadia's brief. That's why [great instructions](great-instructions.html) matter so much. Your request becomes the test the work has to pass.
+One agent generates, another evaluates, and the loop repeats until the work passes: an **evaluator-optimizer** loop, which works because **judging is easier than creating**. The checklist came straight from Nadia's brief, which is why [great instructions](great-instructions.html) matter: your request becomes the test the work must pass.
 
 <div class="detail">
 
-**The real technology, as of 2026.** "Evaluator-optimizer" is one of the common agent workflow patterns described in Anthropic's guide *Building effective agents* (December 2024). The general idea of a model grading another model's output is often called **LLM-as-a-judge**. Developers build these teams with frameworks such as the Claude Agent SDK (which supports subagents), the OpenAI Agents SDK, LangGraph and CrewAI. The writer, editor and fact-checker might even be the same underlying model with different instructions. What makes them a team is their separate roles.
+**The real technology, as of 2026.** "Evaluator-optimizer" is one of the common agent workflow patterns in Anthropic's guide *Building effective agents* (December 2024). A model grading another model's output is often called **LLM-as-a-judge**. Developers build these teams with frameworks such as the Claude Agent SDK (which supports subagents), the OpenAI Agents SDK, LangGraph and CrewAI. The three roles might even be the same model with different instructions; separate roles are what make them a team.
 
-The fact-checker relies on **web search** (or a company's own documents), so its claims are grounded in sources rather than memory. This helps a lot, but it isn't perfect: search results can be wrong too, which is why a human still signs off. See [agent teams](agent-teams.html) and [reliable agents](reliable-agents.html).
+The fact-checker relies on **web search** (or a company's own documents), so its claims rest on sources rather than memory. Search results can be wrong too, which is why a human still signs off. See [agent teams](agent-teams.html) and [reliable agents](reliable-agents.html).
 
 </div>
 
 ## Why this works
 
-- **Separate roles catch different problems.** The editor caught length, tone and missing details. Only the fact-checker, which actually *searched*, could catch the invented survey.
-- **A checklist makes "done" clear.** The loop stops when every item passes, not when the writer feels finished.
-- **Rounds are cheap.** An extra round of critique and revision takes an AI team seconds, so two or three rounds usually give noticeably better work.
-- **The human sees the change log.** Nadia learns what was fixed, including the fake statistic, so she can judge how much to trust the result.
+- **Separate roles catch different problems.** The editor caught length, tone and missing details; only the fact-checker, which *searched*, caught the invented survey.
+- **A checklist defines "done".** The loop stops when every item passes, not when the writer feels finished.
+- **Rounds are cheap.** An extra round takes seconds; two or three usually give noticeably better work.
+- **The human sees the change log.** Nadia learns what was fixed, so she can judge how far to trust it.
 
-The invented statistic deserves a closer look. "A 2025 survey found 8 in 10 tea drinkers brew green tea too hot" sounds exactly like a real fact, and that's the danger. Language models sometimes produce plausible details that have no source, which is called **hallucination**. The editor checked it against the checklist and couldn't tell it was false. Only *looking for evidence* revealed it. The fix was simple and honest: drop the number and keep the useful point.
+The "2025 survey" sounded exactly like a real fact: models sometimes produce plausible details with no source, called **hallucination**. Only *looking for evidence* revealed it, and the honest fix was to drop the number and keep the point.
 
 > [!WARNING] What can go wrong
-> - **The editor agrees too easily.** An AI critic can be too generous, especially if it's the same model judging its own style. Give it a strict checklist and ask it to find at least one problem.
-> - **Endless polishing.** Without a clear finish line, loops can keep making tiny changes (or make things worse). Set a maximum number of rounds.
-> - **Fact-checks that "find" a source.** A weak checker might cite something that doesn't really support the claim. Ask for links and spot-check them yourself.
-> - **Everything sounds the same.** AI-polished writing can lose your voice. Give the team samples of your own writing to match.
+> - **The editor agrees too easily.** Give it a strict checklist and ask it to find at least one problem.
+> - **Endless polishing.** Without a finish line, loops keep tweaking. Set a maximum number of rounds.
+> - **Fact-checks that "find" a source.** Ask for links and spot-check them yourself.
 
 ## Try it yourself
 
-You can run a simple version of this in one chat with any capable AI assistant:
+Run a simple version in one chat with any capable AI assistant:
 
 ```prompt
-I need [type of writing, e.g. a newsletter] about [topic] for [audience].
-Must include: [key details, e.g. event date and time]. Tone: [tone]. Length: under [N] words.
-Work in three roles, and show each step:
-1. EDITOR: turn my brief into a pass/fail checklist (5–7 items).
+Write [type of writing] about [topic] for [audience].
+Must include: [key details]. Tone: [tone]. Under [N] words.
+Work in three roles and show each step:
+1. EDITOR: turn my brief into a 5–7 item pass/fail checklist.
 2. WRITER: write draft 1.
-3. EDITOR: grade draft 1 against the checklist, item by item, with specific fixes.
-4. WRITER: revise. Repeat steps 3–4 at most twice.
-5. FACT-CHECKER: list every factual claim (numbers, dates, studies). Mark each as verified, needs a source, or remove. Never invent sources.
-Finish with the final draft and a short change log.
+3. EDITOR: grade it item by item, with specific fixes.
+4. WRITER: revise. Repeat 3–4 at most twice.
+5. FACT-CHECKER: mark every claim verified, needs a source, or remove. Never invent sources.
+End with the final draft and a short change log.
 ```
 
 ```quiz
@@ -77,19 +72,19 @@ Q: Why does splitting the work into a writer and an editor tend to give better r
 - [x] Judging a draft is easier than writing it perfectly
 - [ ] The editor knows facts that the writer has never seen
 - [ ] The editor is always a bigger, more powerful model
-E: Judging ("is it under 350 words? is the time included?") is easier than creating perfect text in one try, and a separate critic with a clear checklist turns that into specific fixes. The roles can even use the same model, so "a more powerful editor" isn't the reason.
+E: Checking "is it under 350 words?" is easier than writing perfect text in one try, and a critic with a clear checklist turns that into specific fixes. The roles can even share one model, so "a more powerful editor" isn't the reason.
 
 Q: Which problem could only the fact-checker catch?
 - [ ] The draft was 412 words, over the limit
 - [ ] The tasting time was missing from the draft
 - [x] The "2025 survey" statistic had no real source
 - [ ] There were three calls to action instead of one
-E: Length, missing details and tone can all be checked by reading. A made-up statistic looks just like a real one, so only searching for evidence revealed it was invented.
+E: Length, missing details and tone can be checked by reading. A made-up statistic looks just like a real one; only searching for evidence exposed it.
 
 Q: What did the team do when it couldn't find the survey?
 - [ ] Kept the claim, because it sounded believable
 - [ ] Kept searching until something similar turned up
 - [ ] Asked the writer to come up with a citation
 - [x] Removed the number and rewrote the line honestly
-E: When a claim can't be backed up, the honest fixes are to remove it or reword it so it doesn't claim more than you know. Hunting for a "similar" source to fit a claim you already believe is how misinformation spreads.
+E: When a claim can't be backed up, remove it or reword it so it claims no more than you know. Hunting for a "similar" source to fit a belief is how misinformation spreads.
 ```

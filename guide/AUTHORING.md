@@ -8,13 +8,16 @@ more done at work*. Build: `node guide/build.mjs` → `docs/guide/`. Look at the
 
 ## Voice & style
 
-- Warm, encouraging, concrete, short sentences. Explain like a great teacher talking to a smart friend.
+- Concise, warm, concrete. Short sentences, 1–3 per paragraph. Let widgets and sims carry the explanation:
+  one line before a demo (what to do), at most two after (what to notice).
+- Clean and premium: **no emoji** in body text, lists, tables, sims or widgets (✓/✗ in tool output are fine).
+  At most ~4 callouts per page; a `[!KEY]` is one crisp sentence (it renders large, in serif).
 - **Intuition first**: analogy or demo → plain explanation → (optional) detail. Never open with jargon.
 - Define every term in plain words the first time (bold it). Avoid acronyms unless explained.
 - Use everyday examples (email, homework, trips, shopping, spreadsheets) more than programming examples.
 - Accurate: never invent statistics, products, dates or quotes. Frame fast-changing facts "as of 2026".
 - Honest about limits: agents make mistakes; show the habits that keep people in control.
-- Chapters: ~1,200–2,000 words. Example pages: ~700–1,200 words + the simulation.
+- Chapters: ~900–1,600 words. Example pages: ~600–900 words + the simulation.
 
 ## Page format
 
@@ -46,7 +49,7 @@ sim: research-agent         # the guide/sims/<id>.js file to play
 
 - `## Heading` sections (the first few become a mini table of contents). No `#` H1.
 - **Callouts**: `> [!KEY] Optional title`, `> [!TIP]`, `> [!NOTE]`, `> [!WARNING]`, `> [!TRY]`, `> [!ANALOGY]`, `> [!EXAMPLE]` — then the text on the next `>` lines.
-- **Detailed explanations** (hidden unless the reader switches the header toggle to "🤓 Detailed"):
+- **Detailed explanations** (hidden unless the reader switches the header toggle to "Detailed"):
   ```html
   <div class="detail">
 
@@ -55,7 +58,7 @@ sim: research-agent         # the guide/sims/<id>.js file to play
   </div>
   ```
   Use 1–4 per page for nuance/technical depth. The main text must make sense without them.
-- **Copyable prompts**: a fenced block with language `prompt` renders as a "✨ Prompt you can use" card with a Copy button. Use `[square brackets]` for parts to fill in.
+- **Copyable prompts**: a fenced block with language `prompt` renders as a "Prompt" card with a Copy button. Use `[square brackets]` for parts to fill in.
 - **Tables** (GitHub Markdown) for comparisons.
 - **Quiz** ("Quick check", 3 questions, at the end of each chapter and example):
   ````
@@ -84,7 +87,7 @@ Each is already implemented in `guide/assets/widgets.js`. Introduce each with a 
 
 | Widget | What it does | Assigned chapter |
 |---|---|---|
-| `hero-loop` | Animated robot cycling Think → Act → Observe | (home) — may also be used in the-agent-loop |
+| `hero-loop` | Line-art loop: a point of light orbiting Think → Act → Observe | (home) — may also be used in the-agent-loop |
 | `chat-vs-agent` | Same request, chatbot vs agent, animated | what-is-an-agent (done) |
 | `agent-or-not` | 8-card "agent or not?" sorting game | what-is-an-agent (done) |
 | `next-word` | Next-word probabilities + temperature slider + sampling | the-ai-brain |
@@ -117,7 +120,7 @@ A sim file registers one object:
 window.SIMS = window.SIMS || {};
 window.SIMS["research-agent"] = {
   title: "Short title shown in the player",
-  intro: "HTML shown before playing: the scenario in 1–2 sentences. Ends with: Press <strong>▶ Play</strong>.",
+  intro: "HTML shown before playing: the scenario in 1–2 sentences. Ends with: Press <strong>Play</strong>.",
   panes: [                       // 2–6 panes; laid out automatically in a responsive grid
     { id: "chat", type: "chat", title: "Chat" },
     { id: "think", type: "thoughts", title: "Agent's thinking" }

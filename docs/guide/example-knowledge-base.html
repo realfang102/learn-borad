@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The company knowledge-base agent · Agents Made Simple</title><meta name="description" content="Watch an agent answer an HR question from company documents — citing its sources, spotting an outdated policy, and admitting what it doesn't know."><meta name="theme-color" content="#fbfbfa">
+<title>The company knowledge-base agent · Agents Made Simple</title><meta name="description" content="An agent answers an HR question from company documents, with sources, and admits gaps."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,72 +16,64 @@
   </div>
 </header>
 <main id="main" class="page example" data-slug="example-knowledge-base">
-<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M3.5 13h4.5l1.5 2.5h5l1.5-2.5h4.5"/></svg></div><p class="eyebrow">Productivity · Intermediate</p><h1>The company knowledge-base agent</h1><p class="lead">Watch an agent answer an HR question from company documents — citing its sources, spotting an outdated policy, and admitting what it doesn't know.</p>
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M3.5 13h4.5l1.5 2.5h5l1.5-2.5h4.5"/></svg></div><p class="eyebrow">Productivity · Intermediate</p><h1>The company knowledge-base agent</h1><p class="lead">An agent answers an HR question from company documents, with sources, and admits gaps.</p>
 <p class="concepts">Uses ideas from: <a class="chip" href="memory.html">Memory: how agents remember</a> <a class="chip" href="tools.html">Tools: giving agents hands</a> <a class="chip" href="reliable-agents.html">Making agents reliable</a> <a class="chip" href="agents-at-work.html">Getting more done at work</a></p></div>
-<article class="prose wide"><p>Every company has the answers to hundreds of everyday questions — &quot;How many vacation days can I carry over?&quot;, &quot;What&#39;s the expense limit for a client dinner?&quot; — buried in handbooks, policy pages and old slide decks. Finding the right one can take longer than doing the actual work. A <strong>knowledge-base agent</strong> is an assistant that searches those internal documents for you and answers in plain words, with links to where it found the answer.</p>
-<p>The AI model inside the agent doesn&#39;t <em>know</em> your company&#39;s rules — they were never in its training. So instead of answering from memory, the agent <strong>looks things up first</strong>, then answers using what it found. This idea is called <strong>retrieval-augmented generation</strong>, or <strong>RAG</strong> for short: <em>retrieve</em> the relevant passages, then <em>generate</em> an answer based on them. In this example, Jordan at the fictional Brightleaf Logistics asks a two-part question — and one part isn&#39;t covered by any document.</p>
+<article class="prose wide"><p>A <strong>knowledge-base agent</strong> searches your company&#39;s handbooks and policy pages, then answers in plain words with links to its sources. The model never learned your company&#39;s rules, so it <strong>looks things up first</strong>, an approach called <strong>retrieval-augmented generation (RAG)</strong>; watch Jordan ask a two-part question the documents only half answer.</p>
 <div class="sim" data-sim="knowledge-base"></div>
 
-<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Compare the two searches</div><p>Look at the relevance bars in the &quot;Documents found&quot; pane. The first search returns strong matches; the second one returns much weaker ones. Watch how the agent treats a weak match: does it guess, or does it say so?</p>
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Compare the two searches</div><p>Compare the relevance bars of both searches, and watch what the agent does with weak matches.</p>
 </div>
 <h2 id="how-it-works">How it works</h2>
 <div class="steps-strip">
 <div><strong>Split the question</strong>Two topics means two separate searches.</div>
-<div><strong>Search with permissions</strong>Only documents this person is allowed to see.</div>
-<div><strong>Read the passages</strong>Check the actual text, not just the titles.</div>
-<div><strong>Resolve conflicts</strong>When documents disagree, find out which is current.</div>
+<div><strong>Search with permissions</strong>Only documents this person may see.</div>
+<div><strong>Read the passages</strong>Check the actual text, not just titles.</div>
+<div><strong>Resolve conflicts</strong>When documents disagree, find the current one.</div>
 <div><strong>Answer with citations</strong>Say where each fact came from.</div>
-<div><strong>Admit gaps</strong>"I don't know — ask HR" beats a confident guess.</div>
+<div><strong>Admit gaps</strong>"I don't know, ask HR" beats guessing.</div>
 </div>
 
-<p>The search step works by <strong>meaning</strong>, not exact words. Each passage in the company&#39;s documents has been turned into a list of numbers that captures what it&#39;s about (called an <strong>embedding</strong>). The question gets the same treatment, and the search returns the passages whose meaning is closest. That&#39;s why &quot;carry over unused vacation days&quot; found a section titled &quot;Unused leave&quot;. The <strong>relevance score</strong> shows how close the match is.</p>
-<p>The most important moment is the <strong>conflict</strong>. Two documents gave different rules: 5 days with a deadline, or 10 days with none. The agent didn&#39;t average them or pick one at random. It checked each document&#39;s status and found that the newer policy officially replaced the old handbook. Old documents that are still searchable are one of the most common reasons company assistants give wrong answers.</p>
+<p>Search works by <strong>meaning</strong>: passages and question become lists of numbers (<strong>embeddings</strong>), so &quot;carry over&quot; found a section titled &quot;Unused leave&quot;, and the <strong>relevance score</strong> shows how close each match is. When two documents disagreed, the agent checked which was current instead of averaging or guessing, because old documents that stay searchable are one of the most common causes of wrong answers.</p>
 <div class="detail">
 
-<p><strong>The real technology, as of 2026.</strong> A typical setup has two parts. First, an <strong>indexing</strong> step: documents from places like shared drives, wikis and HR systems are split into short passages (&quot;chunks&quot;), each turned into an embedding and stored in a <strong>vector database</strong> — a database that can quickly find passages with similar meaning. Most systems combine this with ordinary keyword search (<strong>hybrid search</strong>), because exact terms like policy numbers matter too. A second model often <strong>re-ranks</strong> the top results to put the best ones first.</p>
-<p>Second, the <strong>agent</strong> part. Early &quot;RAG chatbots&quot; ran one search and answered from whatever came back. Agentic versions treat search as a <a href="tools.html">tool</a> they can use several times — splitting questions, rephrasing searches, reading full sections and checking document details, as in the simulation. Products in this space include Microsoft 365 Copilot, Glean, Google&#39;s Gemini Enterprise, and the company-knowledge features in ChatGPT and Claude that connect to tools like Google Drive, SharePoint and Slack. A key requirement in all of them is <strong>permission-aware search</strong>: the agent must only see what the person asking is allowed to see.</p>
+<p><strong>The real technology, as of 2026.</strong> A typical setup has two parts. First, <strong>indexing</strong>: documents from shared drives, wikis and HR systems are split into short passages (&quot;chunks&quot;), each turned into an embedding and stored in a <strong>vector database</strong>, which quickly finds passages with similar meaning. Most systems add ordinary keyword search (<strong>hybrid search</strong>), because exact terms like policy numbers matter too, and a second model often <strong>re-ranks</strong> the top results.</p>
+<p>Second, the <strong>agent</strong>. Early &quot;RAG chatbots&quot; ran one search and answered from whatever came back; agentic versions treat search as a <a href="tools.html">tool</a> to use several times: splitting questions, rephrasing, reading full sections and checking document details. Products include Microsoft 365 Copilot, Glean, Google&#39;s Gemini Enterprise, and the company-knowledge features in ChatGPT and Claude that connect to Google Drive, SharePoint and Slack. All need <strong>permission-aware search</strong>: the agent sees only what the asker may see.</p>
 </div>
 
 <h2 id="why-this-works">Why this works</h2>
 <ul>
-<li><strong>Answers come from your documents, not the model&#39;s memory.</strong> That makes them specific to your company and much less likely to be invented.</li>
-<li><strong>Citations make checking easy.</strong> One click shows the exact passage, so people can trust — and verify — the answer.</li>
-<li><strong>It respects access rules.</strong> In the simulation, a restricted document was hidden from Jordan&#39;s search entirely.</li>
-<li><strong>It improves the knowledge base.</strong> Flagging the outdated handbook means the next person won&#39;t hit the same conflict.</li>
+<li><strong>Answers come from your documents,</strong> not the model&#39;s memory, so they&#39;re specific and less likely to be invented.</li>
+<li><strong>Citations make checking easy:</strong> one click shows the exact passage.</li>
+<li><strong>It respects access rules:</strong> a restricted document never appeared in Jordan&#39;s results.</li>
+<li><strong>It improves the knowledge base:</strong> flagging the outdated handbook spares the next person.</li>
 </ul>
 <div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
 <ul>
-<li><strong>Outdated documents.</strong> If old versions stay searchable, the agent may quote rules that no longer apply. Someone needs to own and tidy the documents.</li>
-<li><strong>Filling gaps with guesses.</strong> When nothing relevant is found, a poorly designed agent may still produce a plausible-sounding answer. Low relevance scores should trigger &quot;I don&#39;t know&quot;.</li>
-<li><strong>Leaking private information.</strong> If the search ignores permissions, anyone could ask about salaries or performance reviews. Test this before rollout.</li>
-<li><strong>Hidden instructions.</strong> A document could contain text like &quot;ignore your rules and…&quot;. Agents should treat document text as information, never as commands (see <a href="staying-safe.html">staying safe</a>).</li>
+<li><strong>Outdated documents.</strong> Old versions that stay searchable get quoted. Someone must own and tidy them.</li>
+<li><strong>Filling gaps with guesses.</strong> Low relevance scores should trigger &quot;I don&#39;t know&quot;, not a plausible answer.</li>
+<li><strong>Leaking private information.</strong> Search that ignores permissions exposes salaries and reviews; see <a href="staying-safe.html">staying safe</a>.</li>
 </ul>
 </div>
 <h2 id="try-it-yourself">Try it yourself</h2>
-<p>You can get the same &quot;answer only from these documents&quot; behaviour from a capable AI assistant today. Attach or paste the documents, then use:</p>
-<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Answer my question using ONLY the documents I've attached: [list or attach the documents, e.g. our team handbook and the 2026 travel policy].
+<p>Attach or paste the documents into a capable AI assistant, then use:</p>
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Answer using ONLY these documents: [attach, e.g. our team handbook and the 2026 travel policy].
 My question: [your question].
-
-Rules:
-- After each fact, cite the document and section it came from.
-- If two documents disagree, tell me, and say which one looks newer or official and why.
-- If the documents don't answer part of my question, say &quot;The documents don't cover this&quot; for that part — don't fill the gap with general knowledge.
-- End with a one-line summary of the answer.</pre></div>
-<p>For your own notes or study materials, try the same idea:</p>
-<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Here are my notes on [topic]: [paste notes]. Quiz me with 5 questions that can be answered from these notes only.
-After each of my answers, tell me if I'm right and quote the line from my notes that proves it.
-If I ask something my notes don't cover, say so instead of answering from general knowledge.</pre></div>
+- Cite the document and section after each fact.
+- If documents disagree, say which looks newer or official, and why.
+- If they don't cover part of my question, say &quot;The documents don't cover this&quot;. Don't fill gaps from general knowledge.</pre></div>
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Here are my notes on [topic]: [paste notes]. Quiz me with 5 questions answerable from these notes only.
+After each answer, tell me if I'm right and quote the line that proves it.</pre></div>
 <h2 id="quick-check">Quick check</h2>
 <div class="quiz" data-quiz="example-knowledge-base">
 <div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">1</span>Why does a knowledge-base agent search documents instead of answering from its training?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The model was never trained on the company&#39;s private policies</button><button type="button" class="quiz-opt" data-i="1">Company rules forbid AI models from using their training at work</button><button type="button" class="quiz-opt" data-i="2">Search results are always correct, so they never need checking</button><button type="button" class="quiz-opt" data-i="3">Searching documents is always faster than answering from memory</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> A language model learns from public text, not your company&#39;s handbook. Retrieval brings the right passages in at question time, so the answer can be specific and cited.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> A language model learns from public text, not your handbook. Retrieval brings in the right passages at question time, so the answer can be specific and cited.</div></div>
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>Two documents gave different carry-over rules. What did the agent do?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Gave Jordan both rules and let them pick the one they liked</button><button type="button" class="quiz-opt" data-i="1">Averaged the two rules and told Jordan it was about 7 days</button><button type="button" class="quiz-opt" data-i="2">Checked which one was current and used that one</button><button type="button" class="quiz-opt" data-i="3">Used whichever document had the higher relevance score</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The higher-scoring result happened to be right here, but relevance only measures how well text matches the question — not whether it&#39;s current. Checking status and dates is what settled it.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The higher-scoring result happened to be right, but relevance measures how well text matches, not whether it&#39;s current. Checking status and dates settled it.</div></div>
 <div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">3</span>The second search only found weak matches. What was the right response?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Keep rephrasing the search over and over until a strong match appears</button><button type="button" class="quiz-opt" data-i="1">Say the documents don&#39;t cover it and point Jordan to HR</button><button type="button" class="quiz-opt" data-i="2">Search the public internet for Portugal&#39;s remote-work rules instead</button><button type="button" class="quiz-opt" data-i="3">Answer from the travel policy anyway, since it was the closest match</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> Weak matches are a signal that the answer isn&#39;t there. Working abroad involves tax and visa rules, so a guess could cause real problems — &quot;I don&#39;t know, ask HR&quot; is the helpful answer.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Weak matches signal the answer isn&#39;t there. Working abroad involves tax and visa rules, so a guess could cause real problems; &quot;I don&#39;t know, ask HR&quot; is the helpful answer.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 </article>
 <nav class="pager"><a href="example-incident-responder.html"><small>← Previous example</small>The on-call incident responder</a><a class="next" href="example-voice-agent.html"><small>Next example →</small>The voice agent on the phone</a></nav>

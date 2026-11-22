@@ -181,7 +181,7 @@
       case "terminal:cmd": { var c = this.add(p, "", "cmd"); this.typeInto(c, op.text, p); len = op.text.length; break; }
       case "terminal:out": this.add(p, esc(op.text), op.style === "err" ? "err" : op.style === "ok" ? "ok" : "out"); len = op.text.length; break;
       case "editor:open": {
-        p.state.lines = op.code.split("\n"); p.body.innerHTML = '<div class="file-tab">📄 ' + esc(op.file) + '</div><div class="code-lines"></div>';
+        p.state.lines = op.code.split("\n"); p.body.innerHTML = '<div class="file-tab">' + esc(op.file) + '</div><div class="code-lines"></div>';
         this.renderCode(p); len = op.code.length; break;
       }
       case "editor:highlight": p.state.hi = op.lines || []; this.renderCode(p); break;

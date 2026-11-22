@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Making agents reliable · Agents Made Simple</title><meta name="description" content="Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one."><meta name="theme-color" content="#fbfbfa">
+<title>Making agents reliable · Agents Made Simple</title><meta name="description" content="Why small slips add up, and the checks that make agents dependable."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,76 +16,74 @@
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="reliable-agents">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">Going Further</a><p class="eyebrow">Chapter 13 <span aria-hidden="true">/</span> 14</p><h1>Making agents reliable</h1><p class="lead">Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one.</p><p class="meta">12 min read · 2 interactive demos</p>
-<nav class="mini-toc" aria-label="In this chapter"><a href="#why-small-errors-snowball">Why small errors snowball</a><a href="#your-verification-habits">Your verification habits</a><a href="#give-the-agent-a-way-to-check-its-own-work">Give the agent a way to check its own work</a><a href="#evals-test-driving-an-agent-before-you-trust-it">Evals: test-driving an agent before you trust it</a><a href="#limits-budgets-and-human-review">Limits, budgets and human review</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
-<article class="prose"><p>Think about baking a cake from a recipe with 20 steps. You&#39;re a careful baker: you get each step right 95% of the time. Sounds great — until you realize that a single mistake anywhere (salt instead of sugar, a forgotten egg) can ruin the whole cake. Twenty steps, twenty chances to slip.</p>
-<p>Agents face exactly this problem. A long task is a chain of many small steps, and every step is a chance for something to go a little wrong. This chapter explains why that matters so much, and the simple habits — for you <em>and</em> for the agent — that make agents dependable.</p>
-<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The reliability recipe</div><p>Small errors compound over many steps. The cure is <strong>checking</strong>: give the agent ways to verify its own work, check the important parts yourself, test the agent on example tasks before you rely on it, and set <strong>limits</strong> so mistakes stay small.</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">Going Further</a><p class="eyebrow">Chapter 13 <span aria-hidden="true">/</span> 14</p><h1>Making agents reliable</h1><p class="lead">Why small slips add up, and the checks that make agents dependable.</p><p class="meta">10 min read · 2 interactive demos</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#why-small-errors-snowball">Why small errors snowball</a><a href="#your-verification-habits">Your verification habits</a><a href="#let-the-agent-check-itself">Let the agent check itself</a><a href="#evals-test-drive-before-you-trust">Evals: test-drive before you trust</a><a href="#limits-and-human-review">Limits and human review</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
+<article class="prose"><p>Picture a 20-step cake recipe. You&#39;re careful: each step goes right 95% of the time. But one slip anywhere — salt for sugar, a forgotten egg — ruins the cake. Twenty steps, twenty chances.</p>
+<p>Agents face the same problem. A long task is a chain of small steps, and each is a chance to go slightly wrong.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>Big idea</div><p>Small errors compound; checking is the cure.</p>
 </div>
 <h2 id="why-small-errors-snowball">Why small errors snowball</h2>
-<p>Here&#39;s the arithmetic behind the cake. If each step goes right 95% of the time, the chance that <em>all</em> steps go right shrinks with every step you add. Use the sliders to explore — then tick the box to let the agent check its work:</p>
+<p>If each step is 95% right, the chance that <em>all</em> go right shrinks with every step. Move the sliders, then tick the box to let the agent check its work.</p>
 <div data-widget="error-chain"></div>
 
-<p>Did that surprise you? With 95% per step and 20 steps, the whole task succeeds only about <strong>36%</strong> of the time — worse than a coin flip. But when the agent checks its work and fixes most of its mistakes, the same 20-step task succeeds about <strong>82%</strong> of the time. Same agent, same task; the only difference is the habit of checking.</p>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>The game of telephone</div><p>In the children&#39;s game, a message whispered down a line of ten people comes out garbled — not because anyone is careless, but because tiny changes pile up. Now imagine each person could quickly check the message against the original card. The garbling would almost vanish. Checking against reality is what stops errors from piling up.</p>
+<p>At 95% per step, a 20-step task succeeds only about <strong>36%</strong> of the time — worse than a coin flip. With checking, it&#39;s about <strong>82%</strong>. Same agent, same task; only the habit changed.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>The game of telephone</div><p>A message whispered down ten people comes out garbled — not from carelessness, but because tiny changes pile up. Let each person check against the original card, and the garbling almost vanishes.</p>
 </div>
 <div class="detail">
 
-<p><strong>The math, and its limits:</strong> the widget multiplies the per-step success rate by itself once per step: 0.95 × 0.95 × ... twenty times ≈ 0.36. With checking on, it assumes 80% of the mistakes that would have happened get caught and fixed, which makes each step about 99% reliable, and 0.99²⁰ ≈ 0.82. Real tasks are messier: some mistakes are harmless, some steps are much harder than others, and a good agent can notice a problem several steps later and go back. But the core lesson holds and is the reason agent builders obsess over verification: <strong>on long tasks, the ability to notice and recover from mistakes matters as much as raw intelligence.</strong></p>
+<p><strong>The math, and its limits:</strong> the widget multiplies the per-step success rate by itself once per step: 0.95 × 0.95 × ... twenty times ≈ 0.36. With checking on, it assumes 80% of the mistakes that would have happened get caught and fixed, which makes each step about 99% reliable, and 0.99²⁰ ≈ 0.82. Real tasks are messier: some mistakes are harmless, some steps are much harder than others, and a good agent can notice a problem several steps later and go back. But the core lesson holds, and it&#39;s why agent builders obsess over verification: <strong>on long tasks, the ability to notice and recover from mistakes matters as much as raw intelligence.</strong></p>
 </div>
 
 <h2 id="your-verification-habits">Your verification habits</h2>
-<p>When an agent hands you a result, three habits catch most problems:</p>
+<p>Three habits catch most problems:</p>
 <ol>
-<li><strong>Test it.</strong> Does it actually work? Open the spreadsheet and see if the totals add up. Click the link. Run the formula on a row you know the answer to. If the agent wrote code, run it.</li>
-<li><strong>Check the sources.</strong> Did the facts come from somewhere real? Open two or three of the cited sources and confirm they say what the agent claims.</li>
-<li><strong>Double-check what matters most.</strong> Recalculate the one number your decision depends on. Re-read the paragraph that goes to your boss. Compare the agent&#39;s summary against the original for anything important.</li>
+<li><strong>Test it.</strong> Do the totals add up? Does the link open? Try the formula on a row you know. If it&#39;s code, run it.</li>
+<li><strong>Check the sources.</strong> Open two or three citations and confirm they say what&#39;s claimed.</li>
+<li><strong>Double-check what matters most.</strong> Recalculate the number your decision rests on. Reread what goes to your boss.</li>
 </ol>
-<p>Let&#39;s practice. Here&#39;s a short report an agent wrote after analyzing a customer survey. Two sentences contain the kind of mistakes agents really make. Can you find them?</p>
+<p>This agent&#39;s survey report hides two typical mistakes. Find them.</p>
 <div data-widget="spot-the-mistake"></div>
 
-<p>Those two mistakes are the classics: an <strong>arithmetic slip</strong> and an <strong>invented citation</strong>. Both sound completely convincing — confident tone, specific numbers, a plausible name. That&#39;s what makes them dangerous, and why &quot;it sounds right&quot; is never enough. Language models produce <em>likely-sounding</em> text, so a fake source can look exactly like a real one.</p>
-<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Ask &quot;how do you know?&quot;</div><p>A simple question works wonders: <em>&quot;For each key claim, tell me where it came from.&quot;</em> Claims the agent can&#39;t trace back to a source or a calculation are the ones to check — or remove.</p>
-</div>
-<h2 id="give-the-agent-a-way-to-check-its-own-work">Give the agent a way to check its own work</h2>
-<p>Here&#39;s the single biggest idea in agent reliability: <strong>agents do best when they can check their own work.</strong></p>
-<p>It&#39;s why coding agents became useful first. Code comes with <strong>tests</strong> — small programs that say &quot;pass&quot; or &quot;fail&quot;. In the <a href="example-coding-agent.html">coding agent</a> example, the agent ran the tests <em>before</em> changing anything (to see the bug) and <em>after</em> (to prove the fix). It didn&#39;t have to guess whether it was done; it could see.</p>
-<p>You can give agents the same superpower for everyday work. Before the agent starts, tell it how to recognize success:</p>
+<p>The classics: an <strong>arithmetic slip</strong> and an <strong>invented citation</strong>. Both sound convincing — confident tone, specific numbers, a plausible name. Models produce <em>likely-sounding</em> text, so a fake source can look exactly like a real one. &quot;It sounds right&quot; is never enough.</p>
+<p>Ask <em>&quot;For each key claim, tell me where it came from.&quot;</em> Anything it can&#39;t trace to a source or calculation — check it or cut it.</p>
+<h2 id="let-the-agent-check-itself">Let the agent check itself</h2>
+<p>The biggest idea in reliability: <strong>agents do best when they can check their own work.</strong></p>
+<p>That&#39;s why coding agents became useful first. Code has <strong>tests</strong> — small programs that say &quot;pass&quot; or &quot;fail&quot;. The <a href="example-coding-agent.html">coding agent</a> ran tests <em>before</em> changing anything (to see the bug) and <em>after</em> (to prove the fix). It didn&#39;t guess; it saw.</p>
+<p>Give everyday tasks the same superpower. Tell the agent how to recognize success:</p>
 <ul>
-<li><strong>A checklist or rubric</strong> — &quot;the brief must cover price, features and reviews for each of the five products.&quot;</li>
-<li><strong>An example of a great result</strong> — &quot;match the structure and tone of this report from last month.&quot;</li>
-<li><strong>A number to match</strong> — &quot;the cleaned spreadsheet should still have 1,248 customers, and the revenue total should still be $84,210.&quot;</li>
-<li><strong>A second opinion</strong> — ask the agent (or a separate agent) to review the work as a strict critic, looking for errors.</li>
+<li><strong>A checklist or rubric</strong> — &quot;cover price, features and reviews for all five products.&quot;</li>
+<li><strong>An example</strong> — &quot;match the structure and tone of last month&#39;s report.&quot;</li>
+<li><strong>A number to match</strong> — &quot;still 1,248 customers, revenue total still $84,210.&quot;</li>
+<li><strong>A second opinion</strong> — the agent (or another one) reviews the work as a strict critic.</li>
 </ul>
 <div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">[Describe the task.]
 You're done only when ALL of these are true:
-- [Success check 1, e.g. &quot;every company in the list has a price and a source link&quot;]
-- [Success check 2, e.g. &quot;the totals match the original spreadsheet&quot;]
-- [Success check 3, e.g. &quot;the summary is under 300 words&quot;]
-When you think you're finished, go through this list one item at a time and show me how you checked each one. If any check fails, fix it before handing the work over.</pre></div>
-<p>This works because it turns a vague goal (&quot;make a good report&quot;) into something the agent can <strong>verify</strong>. You&#39;ll see the same idea in the <a href="example-data-analyst.html">data analyst</a> and <a href="example-research-agent.html">research agent</a> examples, where the agents double-check numbers and sources before reporting.</p>
-<h2 id="evals-test-driving-an-agent-before-you-trust-it">Evals: test-driving an agent before you trust it</h2>
-<p>How do you know if an agent is good enough for a job you&#39;ll repeat many times — answering customer questions, say, or summarizing contracts? You don&#39;t judge it on one lucky try. You give it a <strong>practice exam</strong>.</p>
-<p>In AI, a practice exam like this is called an <strong>eval</strong> (short for <em>evaluation</em>): a set of example tasks where you know what a good answer looks like, used to measure how well an agent performs.</p>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>The restaurant&#39;s tasting night</div><p>Before a restaurant opens, the chef cooks every dish on the menu and the team tastes each one. Not once — several times, because consistency matters. When they change a recipe, they taste again to make sure nothing else got worse. An eval is a tasting night for your agent.</p>
+- [Check 1, e.g. &quot;every company has a price and a source link&quot;]
+- [Check 2, e.g. &quot;totals match the original spreadsheet&quot;]
+- [Check 3, e.g. &quot;summary under 300 words&quot;]
+Before handing over, go through each check, show how you verified it, and fix any that fail.</pre></div>
+<p>A vague goal becomes something the agent can <strong>verify</strong>. The <a href="example-data-analyst.html">data analyst</a> and <a href="example-research-agent.html">research agent</a> examples double-check numbers and sources the same way.</p>
+<h2 id="evals-test-drive-before-you-trust">Evals: test-drive before you trust</h2>
+<p>Will an agent handle a job you&#39;ll repeat — customer questions, contract summaries? Don&#39;t judge one lucky try. Give it a <strong>practice exam</strong>: an <strong>eval</strong> (short for <em>evaluation</em>), a set of example tasks with known good answers.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Tasting night</div><p>Before opening, a restaurant team tastes every dish — several times, because consistency matters. Change a recipe, taste again. An eval is tasting night for your agent.</p>
 </div>
-<p>You can run a simple eval yourself, no code needed:</p>
+<p>Run one yourself, no code needed:</p>
 <div class="steps-strip">
-<div><strong>Collect examples</strong>Gather 10–20 real tasks, including a few tricky ones.</div>
-<div><strong>Define "good"</strong>Write down what a correct answer must include for each.</div>
-<div><strong>Run the agent</strong>Give it every task, ideally more than once.</div>
-<div><strong>Score it</strong>Mark each pass or fail in a simple spreadsheet.</div>
-<div><strong>Improve, re-test</strong>Fix your instructions, then run the whole set again.</div>
+<div><strong>Collect examples</strong>10–20 real tasks, a few of them tricky.</div>
+<div><strong>Define "good"</strong>What each correct answer must include.</div>
+<div><strong>Run the agent</strong>Every task, ideally more than once.</div>
+<div><strong>Score it</strong>Pass or fail, in a simple spreadsheet.</div>
+<div><strong>Improve, re-test</strong>Fix your instructions; rerun the whole set.</div>
 </div>
 
-<p>That last step is the real magic. When you tweak your instructions to fix one problem, re-running the whole set tells you whether you accidentally broke something else. And now you have a number — &quot;17 out of 20&quot; — instead of a vague feeling.</p>
+<p>The last step is the magic. Rerunning everything shows whether a fix broke something else. And you get a number — &quot;17 out of 20&quot; — instead of a feeling.</p>
 <div class="detail">
 
-<p><strong>How professionals do it:</strong> companies that build agents run evals with hundreds or thousands of tasks, automatically, every time they change a prompt, a tool or the model. Scoring can be done by exact checks (did the code pass its tests? does the number match?), by human reviewers, or by another AI model grading answers against a rubric — often called &quot;LLM-as-a-judge&quot;, which is useful but needs its own spot-checks. Because AI output varies from run to run, they run each task several times and look at the pass rate, not a single result. Public <strong>benchmarks</strong> are simply big, shared evals that let people compare models — useful, but your own eval on your own tasks tells you far more about your specific job.</p>
+<p><strong>How professionals do it:</strong> companies that build agents run evals with hundreds or thousands of tasks, automatically, every time they change a prompt, a tool or the model. Scoring can be done by exact checks (did the code pass its tests? does the number match?), by human reviewers, or by another AI model grading answers against a rubric — often called &quot;LLM-as-a-judge&quot;, which is useful but needs its own spot-checks. Because AI output varies from run to run, they run each task several times and look at the pass rate, not a single result. Public <strong>benchmarks</strong> are big, shared evals that let people compare models — useful, but your own eval on your own tasks tells you far more about your specific job.</p>
 </div>
 
-<h2 id="limits-budgets-and-human-review">Limits, budgets and human review</h2>
-<p>Even a well-tested agent should work inside sensible limits — guardrails that keep a bad run small:</p>
+<h2 id="limits-and-human-review">Limits and human review</h2>
+<p>Even a well-tested agent needs guardrails that keep a bad run small:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -95,30 +93,30 @@ When you think you're finished, go through this list one item at a time and show
 </tr>
 </thead>
 <tbody><tr>
-<td>⏱️ <strong>Step or time limit</strong></td>
+<td><strong>Step or time limit</strong></td>
 <td>Stop after, say, 30 actions or 20 minutes</td>
-<td>Prevents endless loops when the agent is stuck</td>
+<td>No endless loops when stuck</td>
 </tr>
 <tr>
-<td>💰 <strong>Budget</strong></td>
-<td>A cap on spending — money or AI usage</td>
-<td>A confused agent can&#39;t run up a huge bill</td>
+<td><strong>Budget</strong></td>
+<td>A cap on money or AI usage</td>
+<td>No huge bill from a confused agent</td>
 </tr>
 <tr>
-<td>✋ <strong>Stop-and-ask rules</strong></td>
+<td><strong>Stop-and-ask rules</strong></td>
 <td>Pause when unsure or before risky actions</td>
-<td>Turns guesses into questions</td>
+<td>Guesses become questions</td>
 </tr>
 <tr>
-<td>🚩 <strong>Checkpoints</strong></td>
-<td>Show progress at key moments, like after the plan</td>
-<td>You catch a wrong direction early</td>
+<td><strong>Checkpoints</strong></td>
+<td>Show progress at key moments, like the plan</td>
+<td>Catch a wrong direction early</td>
 </tr>
 </tbody></table>
 </div>
-<p>Checkpoints deserve special mention. The cheapest moment to fix a mistake is <strong>right at the start</strong>. Asking an agent to show you its plan before it begins (as you saw in <a href="planning.html">Planning</a>) takes 30 seconds and can save an hour of work in the wrong direction.</p>
-<p>Finally, <strong>human review</strong> stays essential for anything that matters. The goal isn&#39;t to watch every step — that would defeat the purpose. It&#39;s to put your attention where it counts: the plan at the start, the risky actions in the middle, and the important details at the end.</p>
-<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Watch out for &quot;teaching to the test&quot;</div><p>An agent under pressure to pass a check may find a shortcut — like a coding agent editing a test so it passes, instead of fixing the bug. Make it clear the checks must be passed honestly, and look at <em>how</em> the agent passed, not just <em>that</em> it passed.</p>
+<p>The cheapest moment to fix a mistake is <strong>the start</strong>. Reviewing the plan first (see <a href="planning.html">Planning</a>) takes 30 seconds and can save an hour.</p>
+<p><strong>Human review</strong> stays essential for anything that matters — not every step, but where it counts: the plan, the risky actions, the important details.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>&quot;Teaching to the test&quot;</div><p>Under pressure to pass, an agent may cheat — like editing a test instead of fixing the bug. Say checks must be passed honestly, and look at <em>how</em> it passed, not just <em>that</em> it did.</p>
 </div>
 <h2 id="quick-check">Quick check</h2>
 <div class="quiz" data-quiz="reliable-agents">
@@ -133,7 +131,7 @@ When you think you're finished, go through this list one item at a time and show
 <div class="quiz-expl" hidden><strong class="verdict"></strong> An eval is like a practice exam: many sample tasks, a clear idea of a good answer, and a score you can re-check every time you change something. A single trial run isn&#39;t enough because results vary from run to run, and public leaderboards don&#39;t test your specific job.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 <h2 id="whats-next">What&#39;s next</h2>
-<p>You&#39;ve learned what agents are, how they work, and how to use them safely and reliably. In the <a href="whats-next.html">final chapter</a>, we&#39;ll look ahead: how fast agents are improving, what&#39;s still hard, and a simple plan to make agents part of your own week.</p>
+<p>You know what agents are, how they work, and how to use them safely and reliably. The <a href="whats-next.html">final chapter</a> looks ahead: how fast agents improve, what&#39;s still hard, and a plan for your own week.</p>
 </article>
 <section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="reliable-agents">Mark as done</button></section>
 <nav class="pager"><a href="under-the-hood.html"><small>← Previous</small>A peek under the hood</a><a class="next" href="whats-next.html"><small>Next →</small>What's next for agents (and for you)</a></nav>

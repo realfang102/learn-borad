@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tools: giving agents hands · Agents Made Simple</title><meta name="description" content="How agents search, calculate, send and click — and why the way a tool is described matters as much as the tool itself."><meta name="theme-color" content="#fbfbfa">
+<title>Tools: giving agents hands · Agents Made Simple</title><meta name="description" content="How agents search, calculate, send and click, and why descriptions matter."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,14 +16,14 @@
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="tools">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">The Basics</a><p class="eyebrow">Chapter 04 <span aria-hidden="true">/</span> 14</p><h1>Tools: giving agents hands</h1><p class="lead">How agents search, calculate, send and click — and why the way a tool is described matters as much as the tool itself.</p><p class="meta">10 min read · 1 interactive demo</p>
-<nav class="mini-toc" aria-label="In this chapter"><a href="#what-is-a-tool-exactly">What is a tool, exactly?</a><a href="#try-it-give-the-agent-tools">Try it: give the agent tools</a><a href="#the-tools-agents-use-most">The tools agents use most</a><a href="#why-descriptions-matter-so-much">Why descriptions matter so much</a><a href="#tools-that-look-vs-tools-that-touch">Tools that look vs. tools that touch</a><a href="#where-do-tools-come-from">Where do tools come from?</a><a href="#practical-tips">Practical tips</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
-<article class="prose"><p>Picture a brilliant new colleague on their first day. They know a lot and they&#39;re eager to help. But nobody has given them a laptop, a login, or access to the shared drive yet. Ask them to &quot;send the client the updated price list&quot; and the best they can do is say, &quot;Happy to — but I can&#39;t get into anything yet. Here&#39;s what I&#39;d write…&quot;</p>
-<p>That&#39;s a language model without tools. In <a href="the-ai-brain.html">the AI brain</a> you saw that a model can only produce text. In <a href="the-agent-loop.html">the agent loop</a> you saw it ask for actions, and a harness carry them out. The actions it can ask for are its <strong>tools</strong> — and they decide what an agent can actually do in the world.</p>
-<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>A <strong>tool</strong> is a specific ability an agent is allowed to use — like searching the web, reading a file or sending an email. The model chooses <em>when</em> and <em>how</em> to use each one; the harness does the actual work and hands back the result.</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">The Basics</a><p class="eyebrow">Chapter 04 <span aria-hidden="true">/</span> 14</p><h1>Tools: giving agents hands</h1><p class="lead">How agents search, calculate, send and click, and why descriptions matter.</p><p class="meta">8 min read · 1 interactive demo</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#what-is-a-tool">What is a tool?</a><a href="#common-tools">Common tools</a><a href="#descriptions-matter">Descriptions matter</a><a href="#look-vs-touch">Look vs. touch</a><a href="#where-tools-come-from">Where tools come from</a><a href="#practical-tips">Practical tips</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
+<article class="prose"><p>Picture a brilliant new colleague on day one, with no laptop or logins yet. Ask them to &quot;send the client the updated price list&quot; and the best they can say is, &quot;Here&#39;s what I&#39;d write…&quot;</p>
+<p>That&#39;s a model without tools. <a href="the-ai-brain.html">The AI brain</a> only produces text; in <a href="the-agent-loop.html">the agent loop</a> it asks for actions and a harness carries them out. Those actions are its <strong>tools</strong>.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>Big idea</div><p>A <strong>tool</strong> is a specific ability an agent may use, like searching the web or sending an email: the model chooses <em>when</em>, the harness does the work.</p>
 </div>
-<h2 id="what-is-a-tool-exactly">What is a tool, exactly?</h2>
-<p>From the agent&#39;s point of view, a tool is surprisingly simple. It&#39;s a short entry on a menu with three parts:</p>
+<h2 id="what-is-a-tool">What is a tool?</h2>
+<p>To the agent, a tool is a short menu entry with three parts:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -39,26 +39,26 @@
 </tr>
 <tr>
 <td><strong>Description</strong></td>
-<td>What it does, and when to use it, in plain words</td>
+<td>What it does, and when to use it</td>
 <td>&quot;Send an email for the user. Only use after the user has approved the text.&quot;</td>
 </tr>
 <tr>
 <td><strong>Inputs</strong></td>
-<td>The details it needs to work</td>
+<td>The details it needs</td>
 <td><code>to</code>, <code>subject</code>, <code>body</code></td>
 </tr>
 </tbody></table>
 </div>
-<p>That&#39;s all the model sees. It never sees the code behind the tool, the email server, or the login details. It reads the menu, decides &quot;I need <code>send_email</code> now&quot;, and writes a request filling in the inputs. The harness takes it from there.</p>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>Ordering in a restaurant, you read a menu: a dish name, a short description, maybe some options (&quot;rare, medium or well done?&quot;). You don&#39;t go into the kitchen. You just order clearly, and the food comes back. An agent&#39;s tools work the same way — the menu is all it knows, so the menu had better be clear.</p>
+<p>That&#39;s all the model sees: no code, no server, no logins. It picks <code>send_email</code>, fills in the inputs, and the harness does the rest.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>In a restaurant you order from the menu and never enter the kitchen. An agent works the same way, so the menu must be clear.</p>
 </div>
-<h2 id="try-it-give-the-agent-tools">Try it: give the agent tools</h2>
-<p>In this playground, you decide which tools the agent gets. Start with only web search switched on, pick a task, and press <strong>▶ Run the agent</strong>. Then switch tools on or off and try again. Click a tool to read its description.</p>
+<h3 id="try-it-give-the-agent-tools">Try it: give the agent tools</h3>
+<p>Pick a task with only web search on and press <strong>Run the agent</strong>. Then toggle tools and retry.</p>
 <div data-widget="toolbox"></div>
 
-<p>Did you notice? With the right tool, the agent&#39;s answer is <strong>grounded in a real result</strong> — the actual weather, the exact sum, a real calendar slot. Without it, the very same brain can only guess from memory or hand the work back to you. Some tasks also needed <strong>more than one tool</strong>: booking a call and emailing Ana required both the calendar and email. Agents often chain several tools together in one task.</p>
-<h2 id="the-tools-agents-use-most">The tools agents use most</h2>
-<p>As of 2026, these are the tools you&#39;ll meet most often in AI assistants and agents:</p>
+<p>With the right tool, the answer is <strong>grounded in a real result</strong>; without it, the brain guesses or hands the work back. Some tasks <strong>chain tools</strong>, like calendar plus email to book a call with Ana.</p>
+<h2 id="common-tools">Common tools</h2>
+<p>As of 2026, the most common:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -68,70 +68,64 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>🔍 <strong>Web search &amp; fetch</strong></td>
+<td><strong>Web search &amp; fetch</strong></td>
 <td>Find current information and read web pages</td>
-<td>News, prices, opening hours, research (<a href="example-research-agent.html">example</a>)</td>
+<td>News, prices, opening hours (<a href="example-research-agent.html">example</a>)</td>
 </tr>
 <tr>
-<td>🧮 <strong>Code / calculator</strong></td>
-<td>Run small programs to do exact math or analyze data</td>
-<td>Budgets, charts, cleaning a spreadsheet (<a href="example-data-analyst.html">example</a>)</td>
+<td><strong>Code / calculator</strong></td>
+<td>Run small programs for exact math or data</td>
+<td>Budgets, charts, spreadsheets (<a href="example-data-analyst.html">example</a>)</td>
 </tr>
 <tr>
-<td>📁 <strong>Files &amp; documents</strong></td>
+<td><strong>Files &amp; documents</strong></td>
 <td>Open, search, create and edit documents</td>
-<td>Summarizing a report, drafting a slide outline</td>
+<td>Summarizing a report</td>
 </tr>
 <tr>
-<td>✉️ <strong>Email &amp; messaging</strong></td>
+<td><strong>Email &amp; messaging</strong></td>
 <td>Read, sort and draft (or send) messages</td>
 <td>Clearing an inbox (<a href="example-inbox-assistant.html">example</a>)</td>
 </tr>
 <tr>
-<td>📅 <strong>Calendar</strong></td>
+<td><strong>Calendar</strong></td>
 <td>Check availability and create events</td>
 <td>Scheduling meetings</td>
 </tr>
 <tr>
-<td>🌐 <strong>Browser &amp; computer use</strong></td>
-<td>Click, type and scroll in websites and apps, like a person would</td>
-<td>Filling in forms, comparing products (<a href="example-browser-agent.html">example</a>)</td>
+<td><strong>Browser &amp; computer use</strong></td>
+<td>Click, type and scroll like a person</td>
+<td>Forms, comparing products (<a href="example-browser-agent.html">example</a>)</td>
 </tr>
 <tr>
-<td>🗂️ <strong>Business systems</strong></td>
-<td>Look up orders, customers or tickets in a company&#39;s software</td>
+<td><strong>Business systems</strong></td>
+<td>Look up orders, customers or tickets</td>
 <td>Customer support (<a href="example-support-agent.html">example</a>)</td>
 </tr>
 </tbody></table>
 </div>
-<p>The last two rows are worth a moment. A <strong>browser</strong> or <strong>computer-use</strong> tool lets an agent look at a screen (through screenshots) and operate a mouse and keyboard. That means it can use websites and apps that were never built for AI. It&#39;s powerful and flexible — but slower and more error-prone than a tool built for the job, so agents usually prefer a direct tool when one exists.</p>
+<p><strong>Computer use</strong> means working from screenshots with a mouse and keyboard, so agents can use apps never built for AI. It&#39;s slower and more error-prone, so agents prefer a direct tool when one exists.</p>
 <div class="detail">
 
-<p><strong>How does a model &quot;decide&quot; to use a tool?</strong> Models are specially trained for this. When the harness sends a request, it includes the tool menu in a structured format. If the model thinks a tool will help, it replies not with ordinary text but with a structured <strong>tool call</strong>: the tool&#39;s name plus its inputs, for example <code>get_forecast</code> with <code>place: &quot;Oslo&quot;</code>. The harness spots this, runs the tool, and sends the result back as a new message. The model can call one tool, several in a row, or sometimes several at once — then it writes its answer using what came back. This ability is often called <strong>tool use</strong> or <strong>function calling</strong>.</p>
+<p><strong>How does a model &quot;decide&quot; to use a tool?</strong> Models are specially trained for this. The harness includes the tool menu in a structured format. If the model thinks a tool will help, it replies not with ordinary text but with a structured <strong>tool call</strong>: the tool&#39;s name plus its inputs, for example <code>get_forecast</code> with <code>place: &quot;Oslo&quot;</code>. The harness runs the tool and sends the result back as a new message. The model can call one tool, several in a row, or sometimes several at once, then writes its answer from what came back. This is often called <strong>tool use</strong> or <strong>function calling</strong>.</p>
 </div>
 
-<h2 id="why-descriptions-matter-so-much">Why descriptions matter so much</h2>
-<p>Because the agent only knows what the menu tells it, a tool&#39;s <strong>description</strong> is like a job briefing. A vague briefing leads to confused choices.</p>
-<p>Imagine an agent with two tools:</p>
+<h2 id="descriptions-matter">Descriptions matter</h2>
+<p>A <strong>description</strong> is a job briefing; vague ones cause confused choices. Given <code>search</code> (&quot;Searches.&quot;) and <code>lookup</code> (&quot;Looks things up.&quot;), which answers &quot;What&#39;s the status of order #4471?&quot; No way to tell. Compare:</p>
 <ul>
-<li><code>search</code> — &quot;Searches.&quot;</li>
-<li><code>lookup</code> — &quot;Looks things up.&quot;</li>
+<li><code>web_search</code>: &quot;Search the public internet for current information. Don&#39;t use for customer data.&quot;</li>
+<li><code>order_lookup</code>: &quot;Find a customer order by its order number. Returns status, items and delivery date.&quot;</li>
 </ul>
-<p>Asked &quot;What&#39;s the status of order #4471?&quot;, which should it use? There&#39;s no way to tell! Now compare:</p>
-<ul>
-<li><code>web_search</code> — &quot;Search the public internet for current information. Don&#39;t use for customer data.&quot;</li>
-<li><code>order_lookup</code> — &quot;Find a customer order by its order number. Returns status, items and delivery date.&quot;</li>
-</ul>
-<p>Now the choice is obvious. The same model, with clearer descriptions, makes better decisions.</p>
-<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>This applies to you, too</div><p>When you connect an assistant to your own tools or write instructions for one, be specific: what each tool or source is <em>for</em>, when to use it, and when <em>not</em> to. &quot;Use the HR policy folder for questions about leave; never search the web for internal policies&quot; saves a lot of wrong turns. More on this in <a href="great-instructions.html">Great instructions</a>.</p>
+<p>Same model, clearer descriptions, better decisions.</p>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>This applies to you, too</div><p>Say what each source is <em>for</em> and when <em>not</em> to use it: &quot;Use the HR policy folder for leave questions; never search the web for internal policies.&quot; More in <a href="great-instructions.html">Great instructions</a>.</p>
 </div>
-<h2 id="tools-that-look-vs-tools-that-touch">Tools that look vs. tools that touch</h2>
-<p>Not all tools carry the same risk. A really useful way to sort them is into two groups:</p>
+<h2 id="look-vs-touch">Look vs. touch</h2>
+<p>Tools fall into two risk groups:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>👀 Tools that <strong>look</strong> (read-only)</th>
-<th>✋ Tools that <strong>touch</strong> (change things)</th>
+<th>Tools that <strong>look</strong> (read-only)</th>
+<th>Tools that <strong>touch</strong> (change things)</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -156,29 +150,29 @@
 </tr>
 </tbody></table>
 </div>
-<p>If a &quot;look&quot; tool is used wrongly, you usually just get a less helpful answer. If a &quot;touch&quot; tool is used wrongly, something real happens: an email goes to the wrong person, a file disappears, money moves. Some of those can&#39;t be undone.</p>
-<p>That&#39;s why well-designed agents treat the two groups differently. Read-only tools often run freely. Tools that change things typically need <strong>permission</strong> — either set up in advance (&quot;you may create calendar events, but ask before sending email&quot;) or asked for in the moment (&quot;Shall I send this?&quot;). You saw this in the weekend-trip run, when the agent paused before booking.</p>
-<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Give agents the fewest tools they need</div><p>Every tool is a new way to help — and a new way to go wrong. If an agent only needs to <em>read</em> your inbox to summarize it, don&#39;t give it permission to <em>send</em>. Security people call this the <strong>principle of least privilege</strong>, and it&#39;s one of the simplest ways to stay safe. You&#39;ll practice it in <a href="staying-safe.html">Staying safe</a>.</p>
+<p>A misused &quot;look&quot; tool gives a weaker answer. A misused &quot;touch&quot; tool does something real, sometimes irreversibly: a misdirected email, a lost file, moved money.</p>
+<p>So &quot;look&quot; tools often run freely, while &quot;touch&quot; tools need <strong>permission</strong>, in advance (&quot;create events, but ask before emailing&quot;) or in the moment (&quot;Shall I send this?&quot;).</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Fewest tools needed</div><p>If an agent only needs to <em>read</em> your inbox, don&#39;t let it <em>send</em>. This is the <strong>principle of least privilege</strong>; practise it in <a href="staying-safe.html">Staying safe</a>.</p>
 </div>
-<h2 id="where-do-tools-come-from">Where do tools come from?</h2>
-<p>You rarely have to think about building tools yourself. They usually arrive in one of three ways:</p>
+<h2 id="where-tools-come-from">Where tools come from</h2>
+<p>Tools usually arrive one of three ways:</p>
 <ol>
-<li><strong>Built in.</strong> Many AI assistants come with web search, file reading and a code tool already switched on.</li>
-<li><strong>Connectors.</strong> Apps let you link your email, calendar, documents or work software, often with a simple &quot;Connect&quot; button and a sign-in.</li>
-<li><strong>Custom tools.</strong> Companies build tools for their own systems — an order database, an internal wiki — so their agents can use them.</li>
+<li><strong>Built in.</strong> Web search, file reading, a code tool.</li>
+<li><strong>Connectors.</strong> Link email, calendar or work apps with a &quot;Connect&quot; button and a sign-in.</li>
+<li><strong>Custom tools.</strong> Companies build their own, like an order database.</li>
 </ol>
-<p>To make connecting easier, the industry has been adopting a shared standard called the <strong>Model Context Protocol (MCP)</strong>. You can think of it like USB-C for AI: a tool built once as an &quot;MCP server&quot; can plug into many different AI apps and agents. You&#39;ll see how it works, and plug some in yourself, in <a href="under-the-hood.html">Under the hood</a>.</p>
+<p>The <strong>Model Context Protocol (MCP)</strong> is a shared standard, like USB-C for AI: a tool built once as an &quot;MCP server&quot; plugs into many AI apps. Try it in <a href="under-the-hood.html">Under the hood</a>.</p>
 <div class="detail">
 
-<p><strong>A bit more about MCP:</strong> Anthropic introduced the Model Context Protocol as an open standard in November 2024. Through 2025 it was taken up across the industry, including in tools from other major AI companies, and in December 2025 Anthropic donated it to the Agentic AI Foundation, part of the non-profit Linux Foundation, so no single company controls it. An MCP server can offer <strong>tools</strong> (actions), <strong>resources</strong> (things to read, like files or records) and <strong>prompts</strong> (ready-made instructions). The AI app connects to the server, learns its tool menu, and adds those tools to what the model can use. Because anyone can write an MCP server, it&#39;s also important to only connect ones you trust — a tool&#39;s description is read by the model, so a malicious one could try to mislead it.</p>
+<p><strong>A bit more about MCP:</strong> Anthropic introduced the Model Context Protocol as an open standard in November 2024. Through 2025 it was taken up across the industry, including in tools from other major AI companies, and in December 2025 Anthropic donated it to the Agentic AI Foundation, part of the non-profit Linux Foundation, so no single company controls it. An MCP server can offer <strong>tools</strong> (actions), <strong>resources</strong> (things to read, like files or records) and <strong>prompts</strong> (ready-made instructions). The AI app connects, learns the server&#39;s tool menu, and adds those tools to what the model can use. Anyone can write an MCP server, so only connect ones you trust: the model reads each tool&#39;s description, and a malicious one could try to mislead it.</p>
 </div>
 
 <h2 id="practical-tips">Practical tips</h2>
 <ul>
-<li><strong>Pick assistants with the right tools for the job.</strong> For anything recent, choose one with web search. For numbers, one that can run code.</li>
-<li><strong>Check which tools are switched on.</strong> Most apps show connected tools or a settings page. If an answer seems made up, it may simply have lacked the tool to check.</li>
-<li><strong>Watch the tool trail.</strong> Many agents show each tool call. &quot;Searched: 3 sources&quot; or &quot;Ran code&quot; tells you the answer came from somewhere real.</li>
-<li><strong>Grant permissions gradually.</strong> Start with read-only access. Add &quot;touch&quot; permissions once you trust how the agent behaves.</li>
+<li><strong>Match tools to the job.</strong> Web search for anything recent; code for numbers.</li>
+<li><strong>Check what&#39;s on.</strong> A made-up answer may mean a missing tool.</li>
+<li><strong>Watch the tool trail.</strong> &quot;Searched: 3 sources&quot; shows a real basis.</li>
+<li><strong>Grant permissions gradually.</strong> Start read-only; add &quot;touch&quot; permissions once you trust the agent.</li>
 </ul>
 <div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Before you start: list the tools you have access to right now (for example web search, files, code, email or calendar).
 Then, for this task — [describe your task] — tell me which tools you plan to use and why.
@@ -187,16 +181,16 @@ Use only read-only actions until I approve; ask me before sending, booking, buyi
 <div class="quiz" data-quiz="tools">
 <div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">1</span>What does an agent actually &quot;see&quot; about a tool when deciding whether to use it?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">A short video showing the tool being used correctly</button><button type="button" class="quiz-opt" data-i="1">Its name, a short description and the inputs it needs</button><button type="button" class="quiz-opt" data-i="2">The tool&#39;s full program code and the server it runs on</button><button type="button" class="quiz-opt" data-i="3">Nothing at all, because the harness picks every tool</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The model chooses tools from a short &quot;menu&quot; entry: name, description and inputs. It never sees the code or the server, and the harness only runs the tool the model asks for — it doesn&#39;t choose. That&#39;s why clear descriptions lead to better tool choices.</div></div>
-<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>Which of these is a tool that &quot;touches&quot; — that is, changes something in the world?</p>
-<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Searching the web for a restaurant&#39;s opening hours</button><button type="button" class="quiz-opt" data-i="1">Checking tomorrow&#39;s calendar for free slots</button><button type="button" class="quiz-opt" data-i="2">Cancelling a meeting on someone&#39;s calendar</button><button type="button" class="quiz-opt" data-i="3">Reading a PDF report from your documents</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The model chooses tools from a short &quot;menu&quot; entry: name, description and inputs. It never sees the code or the server, and the harness only runs the tool the model asks for; it doesn&#39;t choose. That&#39;s why clear descriptions lead to better tool choices.</div></div>
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>Which of these is a tool that &quot;touches&quot;, that is, changes something in the world?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Reading a PDF report from your documents</button><button type="button" class="quiz-opt" data-i="1">Checking tomorrow&#39;s calendar for free slots</button><button type="button" class="quiz-opt" data-i="2">Cancelling a meeting on someone&#39;s calendar</button><button type="button" class="quiz-opt" data-i="3">Searching the web for a restaurant&#39;s opening hours</button></div>
 <div class="quiz-expl" hidden><strong class="verdict"></strong> Cancelling a meeting changes something real and affects other people, so it deserves more care (and often an approval step). The other three only read information.</div></div>
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">3</span>An agent only needs to summarize your inbox each morning. Which tool permissions should it have?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Send-only access, so it can email you the summary</button><button type="button" class="quiz-opt" data-i="1">No access at all, since agents shouldn&#39;t touch email</button><button type="button" class="quiz-opt" data-i="2">Read-only access to your inbox, and nothing more</button><button type="button" class="quiz-opt" data-i="3">Full access to read, send and delete, just in case</button></div>
 <div class="quiz-expl" hidden><strong class="verdict"></strong> Give agents the fewest permissions they need (least privilege). Summarizing only requires reading. Send-only access can&#39;t even see the inbox, and extra powers like sending or deleting add risk without helping with this task.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 <h2 id="whats-next">What&#39;s next</h2>
-<p>You&#39;ve given the agent a brain, a loop and a set of hands. But how does it keep track of everything it has read and done — and what happens when there&#39;s too much to hold at once? Next up: <strong>Memory</strong>, and the agent&#39;s surprisingly small backpack.</p>
+<p>Brain, loop, hands. But how does an agent keep track of everything, and what happens when there&#39;s too much? Next: <strong>Memory</strong>, and the agent&#39;s surprisingly small backpack.</p>
 </article>
 <section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="tools">Mark as done</button></section>
 <nav class="pager"><a href="the-agent-loop.html"><small>← Previous</small>The agent loop</a><a class="next" href="memory.html"><small>Next →</small>Memory: how agents remember</a></nav>

@@ -1,77 +1,65 @@
 ---
 title: "The data analyst agent"
 emoji: "📊"
-subtitle: "Watch an agent clean up a messy sales spreadsheet, calculate with code, build a chart — and catch a number that's too good to be true."
+subtitle: "Watch an agent clean messy sales data, calculate with code and question a suspicious number."
 category: "Data"
 level: "Beginner"
 concepts: [tools, reliable-agents, agents-at-work, the-agent-loop]
 sim: data-analyst
 ---
 
-Almost every job involves a spreadsheet someone doesn't have time to dig into. Sales exports, survey results, budgets, sign-up lists — the answers are in there, but so are duplicates, typos and half-empty columns. A **data analyst agent** takes the file, tidies it up, does the maths and tells you what matters, in plain words.
-
-In this example, Amara, who manages four cafés, uploads three months of sales and asks which café and product did best. The interesting part isn't the chart — it's everything the agent checks *before* it draws one.
+Every spreadsheet hides duplicates, typos and blanks among its answers. Here, café manager Amara asks a **data analyst agent** which café and product did best, and the interesting part is everything it checks *before* drawing a chart.
 
 <div class="sim" data-sim="data-analyst"></div>
 
 > [!TRY] Spot the problems first
-> When the spreadsheet first appears, pause and look at the nine rows yourself. How many problems can you find? (There are at least five.) Then step on and compare your list with the agent's.
+> When the spreadsheet appears, pause and find at least five problems in its nine rows, then compare with the agent.
 
 ## How it works
 
 <div class="steps-strip">
-<div><strong>Look first</strong>Peek at the rows to understand what the data is.</div>
-<div><strong>Check quality</strong>Count duplicates, formats, blanks — across every row.</div>
-<div><strong>Clean carefully</strong>Fix what's certain; flag what isn't. Keep the original.</div>
-<div><strong>Calculate with code</strong>Add columns and totals with a program, not mental maths.</div>
+<div><strong>Look first</strong>Peek at rows to understand the data.</div>
+<div><strong>Check quality</strong>Count duplicates, formats and blanks everywhere.</div>
+<div><strong>Clean carefully</strong>Fix what's certain; flag the rest. Keep the original.</div>
+<div><strong>Calculate with code</strong>Use a program, not mental maths.</div>
 <div><strong>Question outliers</strong>Check surprising numbers against other evidence.</div>
-<div><strong>Show and tell</strong>A simple chart plus a few plain-language insights.</div>
+<div><strong>Show and tell</strong>One simple chart, a few plain insights.</div>
 </div>
 
-The most important habit is that the agent **doesn't do arithmetic in its head**. Language models are good with words but can slip on long calculations, so the agent writes small programs and runs them — the same way a person would use spreadsheet formulas instead of a calculator. The program counts all 1,248 rows exactly; the agent's job is deciding *what* to count and *what it means*.
-
-The second habit is **suspicion of surprises**. An **outlier** is a value far away from all the others, and it deserves a second look. One entry claimed 940 cold brews sold in a single day — about twenty times a normal day. Taken at face value, it made Riverside the clear winner. The agent checked it against the till's records (only 212 transactions that day, across all products), concluded it was almost certainly a typo, and — crucially — didn't invent a "corrected" number. It left the row flagged and asked Amara.
+The agent **doesn't do arithmetic in its head**: it writes small programs (like using spreadsheet formulas) and decides *what* to count and *what it means*. It also distrusts surprises: an **outlier** (a value far from the rest) of 940 cold brews in one day didn't fit the till's 212 transactions, so it flagged the row and asked Amara instead of inventing a "corrected" number.
 
 <div class="detail">
 
-**The real technology (as of 2026):** most major AI assistants can analyze uploaded files by writing and running code in a safe, isolated environment (a *sandbox*). ChatGPT's data analysis feature (first launched as "Code Interpreter"), Claude's ability to run code on files you upload, and Google's Gemini all work this way, usually with the Python programming language and its data libraries. Spreadsheet apps have also added assistants: Microsoft Copilot in Excel (which can also use Python in Excel) and Gemini in Google Sheets.
+**The real technology (as of 2026):** most major AI assistants analyze uploaded files by writing and running code in an isolated *sandbox*: ChatGPT's data analysis feature (first launched as "Code Interpreter"), Claude's ability to run code on uploaded files, and Google's Gemini, usually in Python. Spreadsheet apps have assistants too: Microsoft Copilot in Excel (which can also use Python in Excel) and Gemini in Google Sheets.
 
-Because the calculations happen in real code, you can ask to see it — a big advantage for checking. The weak points are elsewhere: misunderstanding what a column means, picking the wrong way to read ambiguous dates, or quietly dropping rows. That's why a good agent reports *what it changed* during cleaning, not just the final answer.
+Because the maths is real code, you can ask to see it. The weak points are elsewhere: misreading what a column means, misreading ambiguous dates, or quietly dropping rows. That's why a good agent reports *what it changed* while cleaning.
 
 </div>
 
 ## Why this works
 
-- **Cleaning first prevents wrong answers.** The six duplicates would have inflated totals, and the seven different spellings of four café names would have split real cafés into several fake ones.
-- **Code makes the numbers trustworthy.** Every total can be re-run and checked, like a formula.
-- **Reasoning handles the ambiguity.** Whether 03/07 means 3 July or 7 March is a judgment call; the agent used the file's own date range to decide, then verified.
-- **Honest insights beat impressive ones.** "Neck and neck, and here's a number to double-check" is more useful to a team than a confident but wrong winner.
+- **Cleaning first prevents wrong answers.** Six duplicates inflate totals; seven spellings split four cafés.
+- **Code makes numbers trustworthy.** Every total can be re-run, like a formula.
+- **Reasoning handles ambiguity.** The file's own date range settled what 03/07 meant.
+- **Honest beats impressive.** "Neck and neck, check this number" beats a confident wrong winner.
 
-This pattern fits many everyday tasks: survey results for a class project, a team's expenses, website sign-ups, or exam scores. See [agents at work](agents-at-work.html) for which tasks to hand over and which to keep, and [making agents reliable](reliable-agents.html) for more checking habits.
+The same pattern fits surveys, team expenses, sign-ups or exam scores. See [agents at work](agents-at-work.html) and [making agents reliable](reliable-agents.html).
 
 > [!WARNING] What can go wrong
-> - **Silent "fixes".** An agent might delete outliers, fill blanks with guesses or merge things that shouldn't be merged. Ask it to list every change it made.
-> - **Misread columns.** "Units" could mean items, boxes or kilograms. Tell the agent what columns mean when it isn't obvious.
-> - **Ambiguous dates and currencies.** Day/month order and decimal commas differ between countries. Check a few converted rows yourself.
-> - **Private data.** Sales, salaries and customer lists may be confidential. Only upload files to tools your school or employer has approved.
+> - **Silent "fixes".** Deleted outliers or guessed blanks; ask it to list every change.
+> - **Misread columns and dates.** "Units" or "03/07" can mean different things; check a few rows.
+> - **Private data.** Only upload files to tools your school or employer has approved.
 
 ## Try it yourself
 
 Attach a spreadsheet (CSV or Excel) to an AI assistant that can run code, and paste:
 
 ```prompt
-I've attached [describe the file, e.g. "our team's expenses for this year"]. Please:
-1. Describe what's in it and list any data problems (duplicates, inconsistent formats, blanks, odd values) before analysing anything.
-2. Clean it in a copy, and tell me every change you made. Don't guess missing values — flag them.
-3. Answer: [your question, e.g. "which category grew the most, month by month?"]. Use code for all calculations.
-4. Make one simple chart, and write 3 short insights in plain language.
-5. Point out any number that looks suspicious and how you checked it.
-```
-
-Then make it double-check its own work:
-
-```prompt
-Re-check your analysis: re-run the key totals a different way, confirm the numbers in your chart match the cleaned data, and tell me which of your 3 insights is least certain and why.
+I've attached [describe the file]. Please:
+1. List any data problems (duplicates, formats, blanks, odd values) before analysing.
+2. Clean a copy and tell me every change. Flag missing values; don't guess.
+3. Answer: [your question], using code for all calculations.
+4. Make one simple chart and 3 plain-language insights. Point out any suspicious number and how you checked it.
 ```
 
 ```quiz
@@ -80,19 +68,19 @@ Q: Why did the agent check the data for problems before calculating anything?
 - [x] Duplicates and name variants would quietly skew the totals
 - [ ] Charts can't be drawn at all until a file has zero problems
 - [ ] It needed to fix Amara's original file before anyone saw it
-E: Messy data gives confident-looking but wrong answers. Cleaning first, in a copy with every change reported, is what makes the results trustworthy. The agent deliberately left Amara's original file untouched.
+E: Messy data gives confident-looking but wrong answers. Cleaning first, in a copy with every change reported, makes results trustworthy. The agent left Amara's original file untouched.
 
 Q: Why did the agent run small programs instead of adding up the numbers itself?
 - [ ] Programs produce nicer-looking charts than a language model
 - [ ] The spreadsheet was locked, so only code could open it
 - [x] Code calculates exactly, and the totals can be re-run
 - [ ] Language models can't read numbers in a spreadsheet at all
-E: Language models can read numbers fine, but long arithmetic done "in their head" is error-prone. Code gives exact, repeatable results, like using spreadsheet formulas instead of mental maths.
+E: Models read numbers fine, but long arithmetic "in their head" is error-prone. Code gives exact, repeatable results, like spreadsheet formulas instead of mental maths.
 
 Q: What did the agent do with the entry showing 940 cold brews in one day?
 - [ ] Replaced it with 94, the most likely correct value
 - [ ] Kept it in, since data from the till is always right
 - [ ] Deleted the row permanently so it couldn't cause trouble
 - [x] Flagged it, left it out of the chart and asked Amara
-E: The evidence pointed to a typo, but the agent couldn't know the real number (94? 40?), so "correcting" it would have meant inventing data. It kept the row, flagged it, and let Amara decide.
+E: The evidence pointed to a typo, but the real number (94? 40?) was unknown, so "correcting" it would have meant inventing data. It kept the row, flagged it, and let Amara decide.
 ```

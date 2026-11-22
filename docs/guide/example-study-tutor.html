@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The personal study tutor · Agents Made Simple</title><meta name="description" content="Watch an AI tutor help a student prepare for a biology exam — quizzing, adapting, and refusing to just do the homework."><meta name="theme-color" content="#fbfbfa">
+<title>The personal study tutor · Agents Made Simple</title><meta name="description" content="Watch an AI tutor quiz a student, adapt its plan and refuse to do his homework."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,69 +16,64 @@
   </div>
 </header>
 <main id="main" class="page example" data-slug="example-study-tutor">
-<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5L12 4l9 4.5-9 4.5z"/><path d="M7 10.5v4.5c0 1.5 2.2 3 5 3s5-1.5 5-3v-4.5M21 8.5v5"/></svg></div><p class="eyebrow">Learning · Beginner</p><h1>The personal study tutor</h1><p class="lead">Watch an AI tutor help a student prepare for a biology exam — quizzing, adapting, and refusing to just do the homework.</p>
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">Agents in action</a><div class="ch-hero-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5L12 4l9 4.5-9 4.5z"/><path d="M7 10.5v4.5c0 1.5 2.2 3 5 3s5-1.5 5-3v-4.5M21 8.5v5"/></svg></div><p class="eyebrow">Learning · Beginner</p><h1>The personal study tutor</h1><p class="lead">Watch an AI tutor quiz a student, adapt its plan and refuse to do his homework.</p>
 <p class="concepts">Uses ideas from: <a class="chip" href="learn-faster.html">Learn anything faster with an AI tutor</a> <a class="chip" href="memory.html">Memory: how agents remember</a> <a class="chip" href="planning.html">Planning: breaking big goals into steps</a> <a class="chip" href="great-instructions.html">Giving great instructions</a></p></div>
-<article class="prose wide"><p>Most people use AI to get answers. But if you&#39;re trying to <em>learn</em> something, getting answers is the wrong goal: the struggle of remembering is what makes things stick. A good <strong>study tutor agent</strong> flips the usual pattern. It asks <em>you</em> questions, notices what you get wrong, and changes its plan to fix your weak spots.</p>
-<p>In this example, a student named Leo has a biology exam on Friday. He shares his class notes and asks for help. Watch how the tutor finds a mistake hiding in his notes, explains it with an everyday analogy, and politely says no when Leo asks it to do his graded homework.</p>
+<article class="prose wide"><p>To <em>learn</em>, answers are the wrong goal: the effort of remembering is what makes things stick. A <strong>study tutor agent</strong> asks <em>you</em> questions and adapts to your mistakes, as Leo finds while preparing for Friday&#39;s biology exam.</p>
 <div class="sim" data-sim="study-tutor"></div>
 
-<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Watch the tracker</div><p>Use <strong>Step ⏭</strong> to go one move at a time and keep an eye on the <strong>Progress tracker</strong>. Notice how each answer changes what the tutor does next: a wrong answer pauses the quiz, and a right one moves things along. At the end, try clicking <strong>✋ No thanks</strong> on the calendar request.</p>
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Watch the tracker</div><p>Use <strong>Step</strong> and watch the <strong>Progress tracker</strong> change with each answer; at the end, click <strong>No thanks</strong>.</p>
 </div>
 <h2 id="how-it-works">How it works</h2>
 <div class="steps-strip">
-<div><strong>Read first</strong>Study the student's own notes to see what the class covered.</div>
-<div><strong>Diagnose</strong>Ask a few quick questions before teaching anything.</div>
-<div><strong>Fix misconceptions</strong>Explain with an analogy, then ask the student to explain it back.</div>
-<div><strong>Hint, don't tell</strong>Give a nudge so the student finds the answer.</div>
-<div><strong>Adapt the plan</strong>Spend more time on weak topics and less on strong ones.</div>
-<div><strong>Space it out</strong>Make flashcards and schedule reviews over several days.</div>
+<div><strong>Read first</strong>Study the student's own notes.</div>
+<div><strong>Diagnose</strong>Ask quick questions before teaching.</div>
+<div><strong>Fix misconceptions</strong>Explain with an analogy; ask for it back.</div>
+<div><strong>Hint, don't tell</strong>Nudge so the student finds the answer.</div>
+<div><strong>Adapt the plan</strong>More time on weak topics, less on strong.</div>
+<div><strong>Space it out</strong>Flashcards and reviews over several days.</div>
 </div>
 
-<p>The tutor uses just a few tools: reading a document, keeping a <strong>memory</strong> of which topics are strong or weak, writing flashcards, and (with permission) adding events to a calendar. What makes it a <em>tutor</em> rather than an answer machine is its strategy. It keeps Leo doing the thinking, and it keeps changing its plan based on what it observes. That&#39;s <a href="the-agent-loop.html">the agent loop</a> applied to learning.</p>
-<p>Notice the moment it catches the mistake in Leo&#39;s notes (&quot;mitosis makes 4 cells&quot;). It doesn&#39;t correct the notes right away. It <strong>tests</strong> first, to find out whether the mix-up is only on paper or in Leo&#39;s head too. That one question tells it where to spend the session.</p>
+<p>Its tools are simple (reading a document, a <strong>memory</strong> of strong and weak topics, flashcards, a calendar with permission), but its strategy makes it a tutor: Leo does the thinking, and the plan changes with every answer, <a href="the-agent-loop.html">the agent loop</a> applied to learning. When it spotted &quot;mitosis makes 4 cells&quot; in his notes, it <strong>tested</strong> before correcting, to learn whether the mix-up was in Leo&#39;s head too.</p>
 <div class="detail">
 
-<p><strong>The learning science behind it.</strong> Two of the best-supported findings in the psychology of learning drive this tutor. <strong>Retrieval practice</strong> means testing yourself instead of re-reading, and it strengthens memory more than reviewing does. <strong>Spaced repetition</strong> means reviewing material at growing intervals, just before you&#39;d forget it. Flashcard apps such as Anki schedule cards this way automatically. (Recent Anki versions offer an algorithm called FSRS, which predicts when you&#39;re likely to forget each card.)</p>
-<p><strong>The products, as of 2026.</strong> The major assistants now have tutoring modes built on these ideas. ChatGPT has <em>study mode</em>, Claude has a <em>learning mode</em>, and Google&#39;s Gemini has <em>Guided Learning</em>. Each one is designed to ask guiding questions instead of handing over answers. Khan Academy&#39;s Khanmigo is built specifically for students and teachers, and Google&#39;s NotebookLM can turn your own notes into quizzes and flashcards. Features change quickly, so check what your tool currently offers. Many schools also have their own rules about AI use.</p>
+<p><strong>The learning science.</strong> Two of the best-supported findings in the psychology of learning drive this tutor. <strong>Retrieval practice</strong> (testing yourself instead of re-reading) strengthens memory more than reviewing. <strong>Spaced repetition</strong> means reviewing at growing intervals, just before you&#39;d forget. Flashcard apps such as Anki schedule cards this way; recent versions offer an algorithm called FSRS, which predicts when you&#39;re likely to forget each card.</p>
+<p><strong>The products, as of 2026.</strong> ChatGPT has <em>study mode</em>, Claude has a <em>learning mode</em>, and Google&#39;s Gemini has <em>Guided Learning</em>, each designed to ask guiding questions instead of handing over answers. Khan Academy&#39;s Khanmigo is built for students and teachers, and Google&#39;s NotebookLM can turn your notes into quizzes and flashcards. Features change quickly, and many schools have their own AI rules.</p>
 </div>
 
 <h2 id="why-this-works">Why this works</h2>
 <ul>
-<li><strong>It starts from what you know.</strong> Reading your notes and quizzing you first means no time is wasted on topics you&#39;ve already mastered.</li>
-<li><strong>Mistakes become signals.</strong> Every wrong answer tells the tutor exactly what to teach next, which is something a textbook can&#39;t do.</li>
-<li><strong>You do the work.</strong> Hints, &quot;explain it back&quot; and worked examples keep your brain active. That&#39;s the part that builds memory.</li>
-<li><strong>It never gets tired.</strong> A tutor agent can quiz you at 11 pm the night before as patiently as it did on Monday.</li>
+<li><strong>Starts from what you know.</strong> No time wasted on mastered topics.</li>
+<li><strong>Mistakes become signals.</strong> Each wrong answer shows what to teach next.</li>
+<li><strong>You do the work.</strong> Hints and &quot;explain it back&quot; keep your brain active.</li>
+<li><strong>It never gets tired.</strong> As patient at 11 pm as on Monday.</li>
 </ul>
-<p>The refusal matters too. When Leo asks the tutor to complete his graded worksheet, it says no and explains why: the worksheet is the exact practice he needs, and handing in work you didn&#39;t do may break school rules. Then it offers a deal that still saves him time. A good tutor protects your learning even when you&#39;re tired enough to want a shortcut. You can read more about this in <a href="learn-faster.html">learning faster with AI</a>.</p>
+<p>The refusal matters too: Leo&#39;s worksheet was graded and was exactly the practice he needed, so the tutor declined and offered to do question 1 together and check the rest. More in <a href="learn-faster.html">learning faster with AI</a>.</p>
 <div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
 <ul>
-<li><strong>Confident mistakes.</strong> AI tutors can explain things wrongly with total confidence. Cross-check key facts with your textbook or teacher, especially formulas, dates and definitions.</li>
-<li><strong>The illusion of learning.</strong> Reading a perfect AI explanation <em>feels</em> like understanding. If you can&#39;t explain it back without looking, you haven&#39;t learned it yet.</li>
-<li><strong>Drifting from your course.</strong> A tutor might teach a topic differently from how your class does, or include things that aren&#39;t on your exam. Share your syllabus and notes so it stays on track.</li>
-<li><strong>Crossing honesty lines.</strong> Using AI to write graded work can count as cheating. Know your school&#39;s AI policy, and use the tutor to <em>practise</em>, not to submit.</li>
+<li><strong>Confident mistakes.</strong> Cross-check key facts, formulas and dates with your textbook or teacher.</li>
+<li><strong>The illusion of learning.</strong> If you can&#39;t explain it back without looking, you haven&#39;t learned it yet.</li>
+<li><strong>Crossing honesty lines.</strong> AI-written graded work can count as cheating; know your school&#39;s policy.</li>
 </ul>
 </div>
 <h2 id="try-it-yourself">Try it yourself</h2>
-<p>Paste this into a capable AI assistant (ChatGPT, Claude, Gemini or similar). Attach your notes if you can:</p>
-<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I have a [subject] exam on [date] covering [topics]. I can study about [time] per day.
-Please act as my tutor, not an answer machine:
-1. Read my attached notes and tell me if anything in them looks wrong or missing.
-2. Give me a short diagnostic quiz, one question at a time. Wait for my answer each time.
-3. When I get something wrong, give me a hint first, and only explain fully if I'm still stuck. Then ask me to explain it back in my own words.
-4. Keep a running list of my strong and weak topics.
-5. At the end, make a day-by-day study plan and 10 flashcards on my weakest topics, with a spaced review schedule.
+<p>Paste this into a capable AI assistant (ChatGPT, Claude, Gemini or similar), with your notes attached:</p>
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I have a [subject] exam on [date] covering [topics], with [time] a day to study.
+Be my tutor, not an answer machine:
+1. Check my notes for anything wrong or missing.
+2. Quiz me one question at a time; give hints before full explanations, then ask me to explain back.
+3. Track my strong and weak topics, then make a day-by-day plan and 10 spaced-review flashcards.
 Don't do any graded homework for me, even if I ask.</pre></div>
-<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Quiz me on [topic] using spaced repetition. Start with 5 questions. Bring back the ones I miss later in the session, mixed in with new ones, until I've got each one right twice.</pre></div>
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Quiz me on [topic] with spaced repetition: 5 questions to start, bringing back the ones I miss until I've got each right twice.</pre></div>
 <div class="quiz" data-quiz="example-study-tutor">
 <div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">1</span>Why did the tutor quiz Leo <em>before</em> explaining mitosis and meiosis?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">To see if the error in his notes was in his head too</button><button type="button" class="quiz-opt" data-i="1">It couldn&#39;t read his notes properly, so it had to ask</button><button type="button" class="quiz-opt" data-i="2">Quizzing is faster than explaining, so it saves time</button><button type="button" class="quiz-opt" data-i="3">To give him a score it could pass on to his teacher</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The tutor had read the notes fine and spotted the error, but didn&#39;t know whether Leo actually believed it. One diagnostic question showed the mix-up was real, so it knew exactly what to fix first.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The tutor had read the notes and spotted the error, but didn&#39;t know whether Leo believed it. One diagnostic question showed the mix-up was real, so it knew what to fix first.</div></div>
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>When Leo answered the Punnett square question wrong, what did the tutor do?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Marked genetics as a strong topic and finished</button><button type="button" class="quiz-opt" data-i="1">Skipped genetics for now because it was too hard</button><button type="button" class="quiz-opt" data-i="2">Gave a hint so he could find the answer himself</button><button type="button" class="quiz-opt" data-i="3">Gave him the right answer straight away and moved on</button></div>
 <div class="quiz-expl" hidden><strong class="verdict"></strong> A hint (&quot;draw the 2×2 grid&quot;) kept Leo doing the thinking. Handing over the answer is quicker, but answers you work out yourself are remembered far better.</div></div>
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">3</span>Why did the tutor refuse to complete Leo&#39;s worksheet?</p>
 <div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The worksheet was too long for it to read in time</button><button type="button" class="quiz-opt" data-i="1">It wanted Leo to stay up later and study more</button><button type="button" class="quiz-opt" data-i="2">It was graded, and it was the practice he needed</button><button type="button" class="quiz-opt" data-i="3">AI tools can&#39;t reliably solve genetics problems</button></div>
-<div class="quiz-expl" hidden><strong class="verdict"></strong> The tutor could easily have solved it; it had just walked Leo through a Punnett square. But doing graded work for a student can break academic honesty rules, and here it would also have skipped practice on Leo&#39;s weakest topic. So it offered to check his answers instead.</div></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> It had just walked Leo through a Punnett square, so it could have solved it. But doing graded work can break academic honesty rules and would skip practice on his weakest topic, so it offered to check his answers instead.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 </article>
 <nav class="pager"><a href="example-data-analyst.html"><small>← Previous example</small>The data analyst agent</a><a class="next" href="example-inbox-assistant.html"><small>Next example →</small>The inbox &amp; calendar assistant</a></nav>

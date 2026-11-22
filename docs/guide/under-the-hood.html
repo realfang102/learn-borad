@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A peek under the hood · Agents Made Simple</title><meta name="description" content="What really happens inside an agent — messages, tool calls, a surprisingly short loop of code, and the 'USB-C' standard that plugs agents into your apps."><meta name="theme-color" content="#fbfbfa">
+<title>A peek under the hood · Agents Made Simple</title><meta name="description" content="Messages, tool calls, a short loop of code, and the standard that plugs agents in."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -16,14 +16,13 @@
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="under-the-hood">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">Going Further</a><p class="eyebrow">Chapter 12 <span aria-hidden="true">/</span> 14</p><h1>A peek under the hood</h1><p class="lead">What really happens inside an agent — messages, tool calls, a surprisingly short loop of code, and the 'USB-C' standard that plugs agents into your apps.</p><p class="meta">13 min read · 2 interactive demos</p>
-<nav class="mini-toc" aria-label="In this chapter"><a href="#three-parts-the-model-the-tools-and-the-harness">Three parts: the model, the tools and the harness</a><a href="#messages-and-tool-calls">Messages and tool calls</a><a href="#the-system-prompt-the-agents-job-description">The system prompt: the agent's job description</a><a href="#mcp-usb-c-for-ai">MCP: &quot;USB-C for AI&quot;</a><a href="#frameworks-and-sdks-building-blocks-for-builders">Frameworks and SDKs: building blocks for builders</a><a href="#want-to-go-deeper">Want to go deeper?</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
-<article class="prose"><p>When you watch an agent search the web, edit a file and write a report, it can feel like magic. Here&#39;s a secret that surprises almost everyone: the machinery that makes it work is <strong>simple</strong>. The clever part is the AI model. Everything around it is mostly plumbing — a few dozen lines of code passing notes back and forth.</p>
-<p>You don&#39;t need to be a programmer to follow this chapter. If you understand passing notes, you&#39;ll understand how agents work.</p>
-<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>The AI model never <em>does</em> anything directly. It only writes text — including structured requests like &quot;please run this tool&quot;. A regular program called the <strong>harness</strong> carries out those requests and reports back. Repeat until done: that&#39;s an agent.</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">Going Further</a><p class="eyebrow">Chapter 12 <span aria-hidden="true">/</span> 14</p><h1>A peek under the hood</h1><p class="lead">Messages, tool calls, a short loop of code, and the standard that plugs agents in.</p><p class="meta">10 min read · 2 interactive demos</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#model-tools-harness">Model, tools, harness</a><a href="#messages-and-tool-calls">Messages and tool calls</a><a href="#the-system-prompt">The system prompt</a><a href="#mcp-usb-c-for-ai">MCP: &quot;USB-C for AI&quot;</a><a href="#frameworks-and-sdks">Frameworks and SDKs</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
+<article class="prose"><p>Watching an agent work can feel like magic. The surprise: the machinery is <strong>simple</strong>. The model is the clever part; the rest is plumbing — a few dozen lines of code passing notes. If you understand passing notes, you&#39;ll understand agents.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>Big idea</div><p>The model only writes text; the harness turns that text into action.</p>
 </div>
-<h2 id="three-parts-the-model-the-tools-and-the-harness">Three parts: the model, the tools and the harness</h2>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>The genius in the room</div><p>Imagine a brilliant consultant sitting in a closed room. They can&#39;t leave, can&#39;t use a phone, can&#39;t open a drawer. They can only pass notes under the door. Outside sits an assistant who reads each note — &quot;please look up tomorrow&#39;s weather in Oslo&quot; — does it, and slides the answer back in. The consultant reads it, thinks, and passes the next note. Eventually the note says: &quot;Here&#39;s my final answer.&quot;</p>
+<h2 id="model-tools-harness">Model, tools, harness</h2>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>The genius in the room</div><p>A brilliant consultant sits in a closed room. They can&#39;t leave or use a phone — only pass notes under the door. An assistant outside reads each note (&quot;look up tomorrow&#39;s weather in Oslo&quot;), does it, and slides the answer back. Eventually a note says: &quot;Here&#39;s my final answer.&quot;</p>
 </div>
 <p>That&#39;s an agent, exactly:</p>
 <div class="table-wrap"><table>
@@ -35,74 +34,69 @@
 </tr>
 </thead>
 <tbody><tr>
-<td>🧠 <strong>The model</strong></td>
+<td><strong>The model</strong></td>
 <td>The consultant</td>
 <td>A large language model, like Claude, that reads and writes text</td>
 </tr>
 <tr>
-<td>🛠️ <strong>The tools</strong></td>
+<td><strong>The tools</strong></td>
 <td>Phone, files, calculator</td>
-<td>Functions the agent can use: search, send email, run code, read a file</td>
+<td>Functions it can use: search, send email, run code, read a file</td>
 </tr>
 <tr>
-<td>🧑‍💻 <strong>The harness</strong></td>
-<td>The assistant outside the door</td>
-<td>The app or program that talks to the model, runs tools and keeps the conversation</td>
+<td><strong>The harness</strong></td>
+<td>The assistant outside</td>
+<td>The program that talks to the model, runs tools and keeps the conversation</td>
 </tr>
 </tbody></table>
 </div>
-<p>The <strong>harness</strong> is the part people rarely hear about, but it&#39;s where control lives. Because every action passes through it, the harness can log actions, block them, or stop and ask you for permission. All the safety habits from <a href="staying-safe.html">Staying safe</a> are, at bottom, rules the harness enforces.</p>
+<p>The <strong>harness</strong> is where control lives. Every action passes through it, so it can log, block, or pause to ask you. The habits from <a href="staying-safe.html">Staying safe</a> are rules the harness enforces.</p>
 <h2 id="messages-and-tool-calls">Messages and tool calls</h2>
-<p>The &quot;notes under the door&quot; have a specific shape. The harness and the model exchange <strong>messages</strong> — a running list of who said what. Each message has a <strong>role</strong>: the <em>user</em> (you, or the harness speaking for you) or the <em>assistant</em> (the model).</p>
-<p>Along with the messages, the harness sends a <strong>tool list</strong>: for each tool, a name, a plain-language description of what it does, and what information it needs. For example: <em>&quot;get_weather — gets current weather for a city. Needs: city name.&quot;</em></p>
-<p>When the model decides it needs a tool, it doesn&#39;t write a normal reply. It writes a <strong>tool call</strong>: a small, structured request like <em>&quot;call get_weather with city = Oslo&quot;</em>. The harness spots this, runs the real tool, and sends back a <strong>tool result</strong> as a new message. The model reads it and decides what to do next.</p>
-<p>Press <strong>Play</strong> to follow one question — &quot;What should I wear in Oslo?&quot; — through the whole process. Watch the packets move between the boxes, and the highlighted line in the code on the right:</p>
+<p>The harness and model exchange <strong>messages</strong> — a running list of who said what. Each has a <strong>role</strong>: <em>user</em> (you, or the harness for you) or <em>assistant</em> (the model).</p>
+<p>The harness also sends a <strong>tool list</strong>: each tool&#39;s name, a plain description and the inputs it needs — <em>&quot;get_weather — gets current weather for a city. Needs: city name.&quot;</em></p>
+<p>When the model needs a tool, it writes a <strong>tool call</strong> instead of a reply: <em>&quot;call get_weather with city = Oslo&quot;</em>. The harness runs the real tool and sends back a <strong>tool result</strong>. The model reads it and decides what&#39;s next.</p>
+<p>Press <strong>Play</strong> and follow &quot;What should I wear in Oslo?&quot; through the loop.</p>
 <div data-widget="message-flow"></div>
 
-<p>That&#39;s it — the whole agent loop in about 20 lines. Notice how the loop ends: when the model replies <em>without</em> asking for a tool, the harness knows it&#39;s the final answer and stops. Every agent you&#39;ve met in this guide, from the <a href="example-coding-agent.html">coding agent</a> to the <a href="example-research-agent.html">research agent</a>, runs on this same pattern — just with more tools and many more trips around the loop.</p>
+<p>The whole loop fits in about 20 lines, and ends when the model replies <em>without</em> a tool call. Every agent in this guide, from the <a href="example-coding-agent.html">coding agent</a> to the <a href="example-research-agent.html">research agent</a>, runs this pattern — just with more tools and laps.</p>
 <div class="detail">
 
 <p><strong>Reading the code line by line:</strong> <code>messages</code> starts with your question. Inside <code>while True:</code> (repeat forever), the harness calls the model with three things: which model to use, the tool list, and all the messages so far. It appends the model&#39;s reply to the conversation. Then it checks <code>stop_reason</code> — the model&#39;s signal for <em>why</em> it stopped writing. If the reason isn&#39;t <code>&quot;tool_use&quot;</code>, the model is done and the loop <code>break</code>s. Otherwise, the harness finds each tool request, runs the real function with the inputs the model chose, and appends a <code>tool_result</code> message, tagged with the request&#39;s id so the model knows which result answers which call. Then round again.</p>
 <p>One more surprise: the model has no memory between calls. <strong>The harness re-sends the entire conversation every time.</strong> That&#39;s why long tasks fill up the model&#39;s context window, and why the techniques in <a href="memory.html">Memory</a> matter.</p>
 </div>
 
-<h2 id="the-system-prompt-the-agents-job-description">The system prompt: the agent&#39;s job description</h2>
-<p>Before your first message, the harness quietly adds one more thing: a <strong>system prompt</strong>. It&#39;s a set of standing instructions that frames the whole conversation — the agent&#39;s job description and house rules, all in one.</p>
-<p>A simple system prompt for a support agent might read:</p>
+<h2 id="the-system-prompt">The system prompt</h2>
+<p>Before your first message, the harness adds a <strong>system prompt</strong>: standing instructions that frame the whole conversation — the agent&#39;s job description and house rules.</p>
 <div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-btn">Copy</button></div><pre><code class="hljs">You are the support assistant for Willow &amp; Pine, a small online furniture shop.
 Be friendly and brief. Use the order_lookup tool to check orders before answering.
 You may offer refunds up to $50. For anything larger, hand over to a human.
 Never share one customer&#x27;s details with another customer.</code></pre></div>
-<p>The system prompt is why the same model can behave like a careful coding assistant in one app and a cheerful travel planner in another. Real ones are often much longer, with detailed guidance on tone, tools, safety and when to ask for help.</p>
-<p>You have your own version of this power. The &quot;custom instructions&quot; or &quot;project instructions&quot; in chat apps work much like a personal system prompt. Everything you learned in <a href="great-instructions.html">Giving great instructions</a> applies.</p>
+<p>That&#39;s how one model becomes a careful coding assistant in one app and a cheerful travel planner in another. Real ones are often much longer.</p>
+<p>&quot;Custom instructions&quot; or &quot;project instructions&quot; in chat apps are your personal system prompt — <a href="great-instructions.html">Giving great instructions</a> applies.</p>
 <h2 id="mcp-usb-c-for-ai">MCP: &quot;USB-C for AI&quot;</h2>
-<p>Here&#39;s a problem early agent builders hit. Every AI app wanted to connect to every service — email, calendars, files, databases, project trackers. That meant custom wiring for each combination: ten apps times a hundred services is a thousand separate connectors.</p>
-<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Remember drawers full of chargers?</div><p>Every phone and gadget used to have its own charger. Then USB-C arrived: one standard plug, and suddenly any cable works with any device. <strong>MCP</strong> does the same for AI: one standard way to plug tools into any AI app that supports it.</p>
+<p>Every AI app wanted every service — email, calendars, files, databases. Ten apps times a hundred services meant a thousand custom connectors.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Remember drawers full of chargers?</div><p>Every gadget had its own charger. Then USB-C: one plug, any device. <strong>MCP</strong> does the same for AI — one standard way to plug tools into any app that supports it.</p>
 </div>
-<p><strong>MCP</strong> stands for <strong>Model Context Protocol</strong> — an open standard for connecting AI apps to tools and data. Anthropic introduced it in November 2024. It was quickly adopted across the industry, and in late 2025 it was handed to the newly formed <strong>Agentic AI Foundation</strong>, part of the Linux Foundation, so that no single company controls it.</p>
-<p>It has two sides:</p>
+<p><strong>MCP</strong> — the <strong>Model Context Protocol</strong> — is an open standard for connecting AI apps to tools and data. Anthropic introduced it in November 2024. It spread quickly, and in late 2025 it was handed to the newly formed <strong>Agentic AI Foundation</strong>, part of the Linux Foundation, so no single company controls it.</p>
 <ul>
-<li>An <strong>MCP server</strong> is a small plug-in that offers tools for one service — say, &quot;search files&quot; and &quot;read document&quot; for a cloud drive.</li>
-<li>An <strong>MCP client</strong> is built into an AI app — a chat assistant, a coding agent, a desktop app — and can connect to any MCP server.</li>
+<li>An <strong>MCP server</strong> is a small plug-in offering tools for one service — say, &quot;search files&quot; and &quot;read document&quot; for a cloud drive.</li>
+<li>An <strong>MCP client</strong> is built into an AI app and can connect to any MCP server.</li>
 </ul>
-<p>Write a server once, and it works with every app that speaks MCP. Try connecting some servers and watch your agent&#39;s toolbox grow:</p>
+<p>Write a server once; it works with every app that speaks MCP. Connect some servers and watch the toolbox grow.</p>
 <div data-widget="mcp-plugs"></div>
 
-<p>Did you notice two things? First, each new server instantly added tools — the agent &quot;learned&quot; a new skill without any change to the model. Second, connecting servers that can <em>change</em> things (post messages, create events) asked for your permission first, and those tools were marked &quot;can change things&quot;. That&#39;s the harness doing its job.</p>
-<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Only plug in what you trust</div><p>An MCP server is software that your agent will trust and use. Install servers only from sources you trust, check what tools they add, and keep the <a href="staying-safe.html">lethal trifecta</a> in mind: connecting your private files, a web browser and a messaging tool to the same agent is exactly the risky combination.</p>
+<p>Each server added tools instantly, with no change to the model. Servers that <em>change</em> things asked permission first — the harness at work.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Only plug in what you trust</div><p>Your agent will trust and use any server you add. Install only from trusted sources, check the tools they add, and remember the <a href="staying-safe.html">lethal trifecta</a>: private files, a browser and a messaging tool on one agent is exactly the risky mix.</p>
 </div>
 <div class="detail">
 
-<p><strong>Beyond tools:</strong> besides <strong>tools</strong> (actions the model can call), an MCP server can also offer <strong>resources</strong> (data the app can read, such as files or database records) and <strong>prompts</strong> (ready-made templates for common tasks). Servers can run on your own computer, talking to the app directly, or remotely over the internet, usually with a proper sign-in so you never paste a password into the AI. As of 2026, MCP is supported by most major AI assistants and coding agents, and there are thousands of servers for popular services.</p>
+<p><strong>Beyond tools:</strong> besides <strong>tools</strong> (actions the model can call), an MCP server can offer <strong>resources</strong> (data the app can read, such as files or database records) and <strong>prompts</strong> (ready-made templates for common tasks). Servers can run on your own computer, talking to the app directly, or remotely over the internet, usually with a proper sign-in so you never paste a password into the AI. As of 2026, MCP is supported by most major AI assistants and coding agents, and there are thousands of servers for popular services.</p>
 </div>
 
-<h2 id="frameworks-and-sdks-building-blocks-for-builders">Frameworks and SDKs: building blocks for builders</h2>
-<p>If the core loop is only 20 lines, why do developers use special toolkits? Because real agents need lots of extras: handling errors, managing long conversations, running tools safely, saving progress, tracing what happened, and coordinating several agents.</p>
-<p>An <strong>SDK</strong> (software development kit) or <strong>agent framework</strong> is a ready-made toolkit that provides these extras. As of 2026, popular ones include the <strong>Claude Agent SDK</strong>, the <strong>OpenAI Agents SDK</strong>, Google&#39;s <strong>Agent Development Kit</strong>, <strong>LangGraph</strong>, <strong>CrewAI</strong> and Microsoft&#39;s <strong>Agent Framework</strong>. They differ in style and features, but underneath every one of them is the same loop you just watched: send messages, receive tool calls, run tools, send results, repeat.</p>
-<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Why this matters even if you never code</div><p>Knowing the loop helps you understand agent behavior. When an agent &quot;gets stuck&quot;, it&#39;s going round the loop without making progress. When it forgets something, the conversation got too long. When it asks permission, the harness paused the loop for you. You can now reason about <em>why</em> an agent does what it does.</p>
-</div>
-<h2 id="want-to-go-deeper">Want to go deeper?</h2>
-<p>This guide gives you the intuition. If you want the full engineering story — tool design, context management, evaluation, multi-agent architectures and real code — head to our in-depth course, <a href="../index.html">Agent Academy</a>. It&#39;s written for people who want to build agents themselves.</p>
+<h2 id="frameworks-and-sdks">Frameworks and SDKs</h2>
+<p>Real agents need extras around the 20-line loop: error handling, long conversations, safe tool runs, saved progress, tracing, coordinating several agents. An <strong>SDK</strong> (software development kit) or <strong>agent framework</strong> provides them. As of 2026, popular ones include the <strong>Claude Agent SDK</strong>, the <strong>OpenAI Agents SDK</strong>, Google&#39;s <strong>Agent Development Kit</strong>, <strong>LangGraph</strong>, <strong>CrewAI</strong> and Microsoft&#39;s <strong>Agent Framework</strong>. Underneath each is the same loop: send messages, receive tool calls, run tools, send results, repeat.</p>
+<p>Even if you never code, the loop explains behavior. Stuck? It&#39;s circling without progress. Forgetful? The conversation got too long. Asking permission? The harness paused the loop for you.</p>
+<p>For the full engineering story — tool design, context, evaluation, multi-agent architectures, real code — see our in-depth course, <a href="../index.html">Agent Academy</a>.</p>
 <h2 id="quick-check">Quick check</h2>
 <div class="quiz" data-quiz="under-the-hood">
 <div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>In an agent, what actually runs a tool like &quot;send email&quot;?</p>
@@ -116,7 +110,7 @@ Never share one customer&#x27;s details with another customer.</code></pre></div
 <div class="quiz-expl" hidden><strong class="verdict"></strong> Like USB-C for chargers, MCP replaces many custom connectors with one shared standard: write a server once, and any MCP-compatible app can use it. It doesn&#39;t change the model&#39;s intelligence or memory, and it doesn&#39;t make tools safe: you still choose which servers to trust.</div></div>
 <div class="quiz-score" aria-live="polite"></div></div>
 <h2 id="whats-next">What&#39;s next</h2>
-<p>Now you know how agents work inside, you can see why they sometimes go wrong: every trip around the loop is a chance for a small mistake. Next, we&#39;ll look at <a href="reliable-agents.html">making agents reliable</a> — and why checking work changes everything.</p>
+<p>Every lap of the loop is a chance for a small mistake. Next: <a href="reliable-agents.html">making agents reliable</a> — and why checking work changes everything.</p>
 </article>
 <section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="under-the-hood">Mark as done</button></section>
 <nav class="pager"><a href="staying-safe.html"><small>← Previous</small>Staying safe with agents</a><a class="next" href="reliable-agents.html"><small>Next →</small>Making agents reliable</a></nav>
