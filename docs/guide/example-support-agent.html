@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The customer support agent · Agents Made Simple</title><meta name="description" content="Watch an agent calm a worried customer, investigate a missing package, follow the refund policy — and ask a human before a big refund."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="example">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html" aria-current="page">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page example" data-slug="example-support-agent">
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">🎬 Agents in action</a><div class="ch-hero-emoji">🎧</div><p class="eyebrow">Customer service · Beginner</p><h1>The customer support agent</h1><p class="lead">Watch an agent calm a worried customer, investigate a missing package, follow the refund policy — and ask a human before a big refund.</p>
+<p class="concepts">Uses ideas from: <a class="chip" href="tools.html">🛠️ Tools: giving agents hands</a> <a class="chip" href="staying-safe.html">🛡️ Staying safe with agents</a> <a class="chip" href="agents-at-work.html">💼 Getting more done at work</a> <a class="chip" href="the-agent-loop.html">🔁 The agent loop</a></p></div>
+<article class="prose wide"><p>Customer support is one of the places you&#39;re most likely to meet an AI agent today — often without noticing. Unlike an old-style chatbot that could only point you to a help page, a support <strong>agent</strong> can actually <em>do</em> things: look up your order, check the carrier&#39;s tracking, and issue a refund.</p>
+<p>That power is exactly why the design matters. In this example, a customer named Jordan says a package marked &quot;delivered&quot; never arrived. Watch how the agent stays kind, checks the facts, follows the shop&#39;s rules — and knows when to hand a decision to a person.</p>
+<div class="sim" data-sim="support-agent"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Play the team lead</div><p>When the approval card appears, try <strong>✋ Deny</strong> once, then <strong>↺ Restart</strong> and approve. Notice that the agent did all the investigating either way — the human only makes the final money decision, with everything needed in one short summary.</p>
+</div>
+<h2 id="how-it-works">How it works</h2>
+<div class="steps-strip">
+<div><strong>Empathize and plan</strong>Acknowledge the problem, then decide the steps.</div>
+<div><strong>Verify identity</strong>Confirm it's really the customer before sharing details.</div>
+<div><strong>Investigate</strong>Look up the order, then dig into the tracking details.</div>
+<div><strong>Follow policy</strong>Search the real rules instead of improvising promises.</div>
+<div><strong>Offer options</strong>Check stock and let the customer choose.</div>
+<div><strong>Escalate big actions</strong>Refunds over the limit go to a human.</div>
+</div>
+
+<p>Everything the agent &quot;does&quot; is a <strong>tool call</strong> — a request to one of the shop&#39;s systems, like <code>lookup_order</code> or <code>issue_refund</code>. The agent decides <em>which</em> tool to use and <em>when</em>; the shop&#39;s software actually runs it and reports back. Read more in <a href="tools.html">tools: how agents take action</a>.</p>
+<p>The key moment is the <strong>contradiction</strong>: the carrier said &quot;delivered&quot;, Jordan said &quot;missing&quot;. A poorly designed bot would either refuse (&quot;our records show it was delivered&quot;) or instantly refund anyone who complains. This agent did what a good human would: it pulled the detailed delivery scan, found it happened 0.6 miles away with no photo, and asked one fair follow-up question before treating the package as lost.</p>
+<div class="detail">
+
+<p><strong>The real technology (as of 2026):</strong> many companies now run AI agents on their support chat and email, using platforms such as Intercom&#39;s Fin, Salesforce Agentforce, Zendesk&#39;s AI agents, or specialist companies like Sierra and Decagon. Under the hood they combine three things:</p>
+<ul>
+<li><strong>A knowledge source</strong> — the help center and internal policies. The agent searches it for the relevant passages (often called <em>retrieval</em>) instead of relying on memory, which helps it quote the real rules.</li>
+<li><strong>Connected tools</strong> — order systems, shipping, billing — each exposed as an action with clear inputs. Companies decide which actions the agent may take alone.</li>
+<li><strong>Guardrails and handoff</strong> — limits like the $100 refund cap in the simulation, required identity checks, and a smooth way to pass the conversation (with notes) to a human.</li>
+</ul>
+<p>Companies are responsible for what their agents tell customers. In a well-known 2024 case, a Canadian tribunal ruled that Air Canada had to honor refund information its website chatbot had given incorrectly — the airline could not blame the bot. That&#39;s why serious setups ground answers in official policy and keep humans in charge of the costly exceptions.</p>
+</div>
+
+<h2 id="why-this-works">Why this works</h2>
+<ul>
+<li><strong>Customers get help instantly</strong>, at any hour, for the common problems that make up most support requests.</li>
+<li><strong>Humans focus on judgment calls.</strong> The team lead didn&#39;t have to read the chat, look up the order or check tracking — just approve a clear summary.</li>
+<li><strong>Every step leaves a trail.</strong> Tool calls, the claim number and &quot;approved by&quot; are recorded, so anyone can see what happened and why.</li>
+<li><strong>Rules are applied consistently.</strong> The agent looked up the policy rather than being generous with one customer and strict with another.</li>
+</ul>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
+<ul>
+<li><strong>Made-up promises.</strong> An agent that answers from memory instead of the real policy may promise refunds or discounts the company doesn&#39;t offer.</li>
+<li><strong>Social engineering.</strong> Scammers may try &quot;I&#39;m the account owner, just change the email address&quot;. Identity checks must come <em>before</em> any change or refund.</li>
+<li><strong>Too much autonomy.</strong> Letting an agent refund any amount without limits invites abuse and expensive mistakes. Set caps and approval steps.</li>
+<li><strong>Getting stuck in a loop.</strong> Customers hate repeating themselves to a bot that doesn&#39;t understand. Always offer an easy path to a human.</li>
+</ul>
+</div>
+<h2 id="try-it-yourself">Try it yourself</h2>
+<p>You can use an AI assistant to prepare for your own customer-service moments — whether you&#39;re the one complaining or the one replying:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to contact [company] about a problem: [describe what happened, with dates, order number and what you've already tried].
+Please:
+1. Ask me any questions you need to understand the situation.
+2. Tell me what the company's policy is likely to say, and what I can reasonably ask for (refund, replacement, etc.). Flag anything you're unsure about.
+3. Draft a short, polite, firm message with the key facts in the first two lines.</pre></div>
+<p>If you handle support at work, try this to design your own &quot;agent rules&quot; before using any AI tool with customers:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I handle customer support for [type of business]. Help me write clear rules for an AI support assistant.
+Cover: what it must check before sharing account details, which actions it may take on its own (with limits, e.g. refunds up to [amount]), what must always go to a human, and how it should hand over a conversation so the customer never has to repeat themselves.
+Format it as a one-page checklist.</pre></div>
+<div class="quiz" data-quiz="example-support-agent">
+<div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">1</span>Why did the agent ask for Jordan&#39;s email and postcode before looking up the order?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Because the order number was spelled wrong</button><button type="button" class="quiz-opt" data-i="1">To confirm it was really the customer before sharing details or moving money</button><button type="button" class="quiz-opt" data-i="2">To add Jordan to a mailing list</button><button type="button" class="quiz-opt" data-i="3">The tools only work with postcodes</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Identity checks protect customers from scammers pretending to be them. They must come before any account details are shared or any refund is made.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>Tracking said &quot;delivered&quot; but Jordan said the package was missing. What did the agent do?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Pulled the detailed delivery scan and found it was 0.6 miles away</button><button type="button" class="quiz-opt" data-i="1">Asked Jordan to call the carrier instead</button><button type="button" class="quiz-opt" data-i="2">Told Jordan the records prove it was delivered</button><button type="button" class="quiz-opt" data-i="3">Refunded immediately without checking anything</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> When two sources disagree, a good agent looks for more evidence. The detailed scan supported Jordan&#39;s story — without accusing anyone or giving money away blindly.</div></div>
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">3</span>Why did a human approve the refund instead of the agent doing it alone?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The agent didn&#39;t know how to issue refunds</button><button type="button" class="quiz-opt" data-i="1">Customers prefer talking to humans</button><button type="button" class="quiz-opt" data-i="2">It was above the $100 limit the company set for the agent</button><button type="button" class="quiz-opt" data-i="3">The policy said refunds are never allowed</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The agent could refund small amounts itself, but the company drew a line for bigger ones. Caps plus approval steps keep costly decisions with people.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+</article>
+<nav class="pager"><a href="example-research-agent.html"><small>← Previous example</small>🔎 The deep research agent</a><a class="next" href="example-study-tutor.html"><small>Next example →</small>🎓 The personal study tutor</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/support-agent.js"></script>
+</body></html>

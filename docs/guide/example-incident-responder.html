@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The on-call incident responder · Agents Made Simple</title><meta name="description" content="Watch an agent investigate a 3 a.m. outage — testing ideas one by one, asking before it touches anything, and writing up what happened."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="example">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html" aria-current="page">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page example" data-slug="example-incident-responder">
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">🎬 Agents in action</a><div class="ch-hero-emoji">🚨</div><p class="eyebrow">Operations · Advanced</p><h1>The on-call incident responder</h1><p class="lead">Watch an agent investigate a 3 a.m. outage — testing ideas one by one, asking before it touches anything, and writing up what happened.</p>
+<p class="concepts">Uses ideas from: <a class="chip" href="the-agent-loop.html">🔁 The agent loop</a> <a class="chip" href="tools.html">🛠️ Tools: giving agents hands</a> <a class="chip" href="reliable-agents.html">🎯 Making agents reliable</a> <a class="chip" href="staying-safe.html">🛡️ Staying safe with agents</a></p></div>
+<article class="prose wide"><p>Every website and app you use is watched around the clock. When something breaks — say, customers suddenly can&#39;t pay — an <strong>alert</strong> goes off and an <strong>on-call engineer</strong> gets woken up, sometimes in the middle of the night. Their first half hour is usually detective work: looking at graphs, reading error messages, and asking &quot;what changed?&quot;</p>
+<p>That detective work is a great job for an agent. It doesn&#39;t get groggy at 3 a.m., it can read thousands of log lines in seconds, and it can have the evidence ready by the time the human logs in. But fixing a live system is risky, so the human stays firmly in charge of every change. In this example, the grocery website of the fictional company Larkspur Grocer starts failing at checkout.</p>
+<div class="sim" data-sim="incident-responder"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Watch the hypotheses</div><p>Press <strong>Step ⏭</strong> and follow the &quot;Agent&#39;s thinking&quot; pane. Notice how the agent lists three possible causes and crosses them off one at a time. Then, as Sam, try clicking <strong>✋ Hold off</strong> on the rollback and see what the agent does.</p>
+</div>
+<h2 id="how-it-works">How it works</h2>
+<div class="steps-strip">
+<div><strong>Triage</strong>Measure how bad it is and when it started.</div>
+<div><strong>Hypothesize</strong>List possible causes instead of guessing one.</div>
+<div><strong>Test each one</strong>Run a quick check that proves or rules out each idea.</div>
+<div><strong>Propose a fix</strong>One small, reversible change, with the evidence.</div>
+<div><strong>Wait for a human</strong>The on-call engineer approves or says no.</div>
+<div><strong>Verify &amp; record</strong>Confirm recovery, then write a short summary.</div>
+</div>
+
+<p>The agent worked like a careful detective. The graph showed a sudden <strong>jump</strong> in errors at 03:05, which hinted that <em>something changed</em>. It tested the cheapest idea first (a traffic surge — ruled out), followed the clue in the logs, and then <strong>double-checked</strong> that clue: the logs blamed the database, but the database itself turned out to be healthy. That surprise steered it to the real cause — an automated job had changed one setting from 50 to 5, just one minute before the trouble began.</p>
+<p>Two habits matter most here. First, the agent kept <strong>investigating</strong> (reading graphs and logs, which is safe) separate from <strong>changing</strong> things (risky). It could look at anything on its own, but the rollback needed Sam&#39;s approval. Second, it didn&#39;t stop when the command said &quot;success&quot;. It <strong>verified</strong> the fix on the dashboard and with 20 test checkouts. You can read more about these habits in <a href="reliable-agents.html">making agents reliable</a>.</p>
+<div class="detail">
+
+<p><strong>The real technology, as of 2026.</strong> Engineers call this field <strong>incident response</strong>, and the people who keep services running are often called <strong>SREs</strong> (site reliability engineers). Several companies now offer &quot;AI SRE&quot; agents. Monitoring companies such as Datadog, incident-management tools such as PagerDuty and incident.io, and cloud providers such as Microsoft Azure have all released agents that can investigate alerts. Teams also build their own on top of general-purpose agents, connecting them to monitoring and logging systems as tools — often through <strong>MCP</strong> (Model Context Protocol), a standard way to plug tools into an agent. Grafana, for example, publishes an MCP server for its dashboards.</p>
+<p>Under the hood, it&#39;s the same <a href="the-agent-loop.html">agent loop</a> as any other agent: the model asks to run a query, reads the result, and decides what to try next. What makes it safe is the setup around the model: <strong>read-only access by default</strong>, a short list of pre-approved fixes (such as &quot;roll back the last config change&quot;), a human approval step before any change, and a log of every command for later review. Most teams start with &quot;investigate and suggest&quot; and only let the agent take action on its own, if ever, for small and easily undone fixes.</p>
+</div>
+
+<h2 id="where-this-is-used-today">Where this is used today</h2>
+<ul>
+<li><strong>Faster first look.</strong> Agents gather graphs, logs and recent changes into one summary, so the engineer starts from evidence instead of a blank screen.</li>
+<li><strong>Runbooks.</strong> Many teams have written step-by-step guides for common problems. Agents can follow them and report each step.</li>
+<li><strong>Write-ups.</strong> After the incident, agents draft the timeline and summary — a chore engineers are often glad to hand off.</li>
+<li><strong>Humans still decide.</strong> In most teams, changes to live systems still need a person&#39;s approval, especially at night when mistakes are costly.</li>
+</ul>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
+<ul>
+<li><strong>Confident but wrong.</strong> The first clue can mislead — here, the logs blamed a healthy database. An agent that skips the double-check might &quot;fix&quot; the wrong thing.</li>
+<li><strong>Making it worse.</strong> A risky change during an outage can turn a small problem into a big one. Keep fixes small, reversible, and approved.</li>
+<li><strong>Too much access.</strong> An agent that can change everything is dangerous if it misunderstands, or if someone tricks it with planted text in a log or ticket (see <a href="staying-safe.html">staying safe</a>).</li>
+<li><strong>Hiding the reasoning.</strong> If the agent doesn&#39;t show its evidence, the human can&#39;t check it. Always ask &quot;how do you know?&quot;</li>
+</ul>
+</div>
+<h2 id="try-it-yourself">Try it yourself</h2>
+<p>You don&#39;t need to run a website to practise this way of thinking. Paste a problem into a capable AI assistant and ask it to investigate like an on-call engineer:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Act as a calm, careful incident responder. Here's the problem: [describe what's broken, e.g. &quot;our shared team drive stopped syncing this morning&quot;].
+Here's what I know so far: [error messages, when it started, anything that changed recently].
+
+Please:
+1. Ask me up to 3 questions if anything important is missing.
+2. List 3–4 possible causes, most likely first, and say what evidence supports each.
+3. For each cause, suggest one quick, safe check I can do to rule it in or out.
+4. Don't suggest anything that deletes data or can't be undone without warning me first.</pre></div>
+<p>After a problem is solved, use this to write it up:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Turn these notes into a short, blame-free incident summary for my team: [paste your notes or chat log].
+Use these headings: What happened, Impact, Cause, How we fixed it, How we confirmed it was fixed, Follow-ups.
+Keep it under 200 words, use plain language, and mark anything you're unsure about with &quot;(to confirm)&quot;.</pre></div>
+<h2 id="quick-check">Quick check</h2>
+<div class="quiz" data-quiz="example-incident-responder">
+<div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">1</span>Why did the agent list several hypotheses instead of acting on its first idea?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">So it could apply three fixes at once and see which one worked</button><button type="button" class="quiz-opt" data-i="1">Because the alert told it exactly which three causes to check</button><button type="button" class="quiz-opt" data-i="2">Listing more ideas uses more tokens, which makes the agent smarter</button><button type="button" class="quiz-opt" data-i="3">So it could test each one and rule out wrong causes before changing anything</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Testing hypotheses one at a time is how good investigators avoid jumping to conclusions. Applying several fixes at once is tempting, but it makes things riskier and hides which change actually helped.</div></div>
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">2</span>The logs blamed the payments database. What did the agent do next?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Asked Sam to read the logs himself</button><button type="button" class="quiz-opt" data-i="1">Restarted the database straight away to be safe</button><button type="button" class="quiz-opt" data-i="2">Checked the database directly — and found it was healthy</button><button type="button" class="quiz-opt" data-i="3">Reported the database as the cause and stopped</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The first clue can mislead. By checking the database directly, the agent discovered the real bottleneck was checkout&#39;s own connection limit — saving it from &quot;fixing&quot; something that wasn&#39;t broken.</div></div>
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">3</span>The rollback command reported success. Why wasn&#39;t the agent finished yet?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The summary has to be written before the error rate can drop</button><button type="button" class="quiz-opt" data-i="1">It had to wait for Sam to approve the command a second time</button><button type="button" class="quiz-opt" data-i="2">A successful command doesn&#39;t prove the problem is gone, so it verified the fix</button><button type="button" class="quiz-opt" data-i="3">It still needed to roll back the code deploy as well</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> &quot;The command worked&quot; and &quot;customers can check out again&quot; are different things. The agent watched the error rate drop and ran 20 test checkouts before calling it resolved.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+</article>
+<nav class="pager"><a href="example-study-tutor.html"><small>← Previous example</small>🎓 The personal study tutor</a><a class="next" href="example-knowledge-base.html"><small>Next example →</small>📚 The company knowledge-base agent</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/incident-responder.js"></script>
+</body></html>

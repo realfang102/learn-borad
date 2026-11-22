@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory: how agents remember · Agents Made Simple</title><meta name="description" content="Why an agent can forget something you said an hour ago, how it keeps track of long tasks, and how to stay in control of what it remembers."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="chapter">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page chapter" data-slug="memory">
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🧠 How Agents Think</a><div class="ch-hero-emoji">🎒</div><p class="eyebrow">Chapter 5 of 13</p><h1>Memory: how agents remember</h1><p class="lead">Why an agent can forget something you said an hour ago, how it keeps track of long tasks, and how to stay in control of what it remembers.</p><p class="meta">⏱ 11 min read · 🎮 1 interactive demo</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#short-term-memory-the-context-window">Short-term memory: the context window</a><a href="#try-it-pack-the-backpack">Try it: pack the backpack</a><a href="#when-the-backpack-fills-up">When the backpack fills up</a><a href="#long-term-memory-the-notebook">Long-term memory: the notebook</a><a href="#memory-in-the-assistants-you-use">Memory in the assistants you use</a><a href="#privacy-you-re-in-charge-of-the-notebook">Privacy: you re in charge of the notebook</a><a href="#quick-check">Quick check</a><a href="#what-s-next">What s next</a></nav></div>
+<article class="prose"><p>Have you ever had a long chat with an AI assistant, and near the end it seemed to forget something you told it at the start? Or opened a new chat the next day, and it had no idea who you were?</p>
+<p>It&#39;s not being careless. It comes down to how agents remember — which works quite differently from how <em>we</em> remember. Once you see it, a lot of puzzling AI behavior suddenly makes sense, and you&#39;ll know exactly how to work with it.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>Agents have two kinds of memory. <strong>Short-term memory</strong> is everything the model can see <em>right now</em>, and it has a size limit. <strong>Long-term memory</strong> is information saved somewhere outside the model — notes, files, saved preferences — that the agent can look up later.</p>
+</div>
+<h2 id="short-term-memory-the-context-window">Short-term memory: the context window</h2>
+<p>Here&#39;s a fact that surprises most people: a language model doesn&#39;t remember your conversation <em>at all</em> between replies. Every time it answers, the software around it (the harness you met in <a href="the-agent-loop.html">the agent loop</a>) sends it the <strong>whole conversation so far</strong> — your messages, its replies, any documents and every tool result — and the model reads it all again from the top.</p>
+<p>Everything the model can see in that moment is called its <strong>context window</strong>. It&#39;s the model&#39;s short-term memory, its working desk. If something is in the context window, the model can use it. If it isn&#39;t, then as far as the model is concerned, it never happened.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>The context window is like a <strong>backpack</strong> the agent carries on a hike. Everything it needs for the current trip must fit inside: your instructions, the conversation, the documents it&#39;s reading, the results of its searches. The backpack is big — but not bottomless. Pack too much and something has to come out.</p>
+</div>
+<p>The size of the backpack is measured in <a href="the-ai-brain.html">tokens</a>, those word-pieces you met earlier. As of 2026, leading models have context windows of hundreds of thousands of tokens, and many now reach about a million — enough for several long books. That sounds like plenty, and for a normal chat it is. But agents fill it surprisingly fast: a long web page, a big spreadsheet or a lengthy tool result can each take thousands of tokens, and an agent working for an hour might read hundreds of them.</p>
+<h2 id="try-it-pack-the-backpack">Try it: pack the backpack</h2>
+<p>In this playground, the agent&#39;s context window is a backpack with room for 12 units. Add chat messages, a long document and some tool results. Make sure to add the important fact — <strong>&quot;Sam is allergic to peanuts&quot;</strong> — early on, then keep adding things until the backpack overflows. Now press <strong>❓ Ask</strong> and see what happens.</p>
+<p>Then reset and try again, this time using <strong>🗜️ Summarize old stuff</strong> or <strong>📓 Save the fact to the notebook</strong> before the backpack fills up.</p>
+<div data-widget="context-backpack"></div>
+
+<p>Did you see it? When the backpack overflowed, the oldest things fell out first — including, quite possibly, Sam&#39;s allergy. Once it was gone, the agent simply couldn&#39;t answer. But if you summarized first, the important fact survived in the short summary. And if you saved it to the notebook, the agent could look it up even after the backpack was emptied.</p>
+<p>Those two buttons are the two main tricks real agents use.</p>
+<h2 id="when-the-backpack-fills-up">When the backpack fills up</h2>
+<p>A full context window causes two kinds of trouble:</p>
+<ol>
+<li><strong>Things get dropped.</strong> Depending on the app, the oldest parts of the conversation may be cut off, or the agent may hit its limit and stop. Either way, information is lost.</li>
+<li><strong>Attention gets thinner.</strong> Even before it&#39;s full, a very crowded context makes it harder for the model to notice what matters. Like finding your keys in an overstuffed bag, an important detail buried in the middle of a huge conversation is easier to overlook.</li>
+</ol>
+<p>So agents — and the apps they run in — manage the backpack actively:</p>
+<ul>
+<li><strong>Summarizing (compaction).</strong> When the context gets long, the agent writes a short summary of what&#39;s happened so far — the goal, key decisions, important facts, what&#39;s left to do — and continues with that summary in place of the full history. Many coding agents and chat apps now do this automatically; it&#39;s often called <strong>compaction</strong>.</li>
+<li><strong>Keeping only what&#39;s needed.</strong> Instead of pasting a whole 300-page manual into the backpack, a good agent searches it and pulls in just the relevant pages.</li>
+<li><strong>Handing off work.</strong> Some agents send a sub-task to a helper agent with its own fresh backpack, and get back only the short answer. You&#39;ll see this in <a href="agent-teams.html">Agent teams</a>.</li>
+</ul>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Start fresh when you switch topics</div><p>In everyday chat, a long conversation that wanders across many topics is a backpack full of clutter. When you move to something new, <strong>start a new chat</strong>. If the old conversation has something important, ask the AI to &quot;summarize the key points so I can continue in a new chat&quot;, then paste that summary in. You&#39;ll often get sharper answers.</p>
+</div>
+<div class="detail">
+
+<p><strong>Why not just make the backpack infinite?</strong> Context windows have grown enormously, but there are real costs. The model re-reads the whole context on every turn of the loop, so a bigger context means <strong>slower and more expensive</strong> replies (services usually charge per token read). And research has found that models can be less reliable at using information buried deep in a very long context — sometimes described as being &quot;lost in the middle&quot;. Features like <strong>prompt caching</strong> make re-reading the same text cheaper and faster, but good context management — keeping the backpack tidy — still matters.</p>
+</div>
+
+<h2 id="long-term-memory-the-notebook">Long-term memory: the notebook</h2>
+<p>Short-term memory disappears when the conversation ends. For anything that should last, agents need <strong>long-term memory</strong>: information stored <em>outside</em> the model, which it can read back into its backpack when needed.</p>
+<p>Long-term memory comes in a few everyday shapes:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>What it stores</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>📓 <strong>Notes the agent writes</strong></td>
+<td>Progress, decisions, lessons learned</td>
+<td>A coding agent keeps a project notes file listing how to run the tests and what it changed</td>
+</tr>
+<tr>
+<td>⭐ <strong>Saved preferences</strong></td>
+<td>Facts about you and how you like things</td>
+<td>&quot;Prefers short answers&quot;, &quot;works in a school&quot;, &quot;vegetarian&quot;</td>
+</tr>
+<tr>
+<td>📁 <strong>Files and documents</strong></td>
+<td>Your own material</td>
+<td>A project folder of reports and meeting notes</td>
+</tr>
+<tr>
+<td>🔍 <strong>A searchable knowledge base</strong></td>
+<td>Large collections the agent looks things up in</td>
+<td>A company&#39;s help articles and policies (<a href="example-knowledge-base.html">example</a>)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The pattern is always the same: <strong>save</strong> something important, and later <strong>look it up</strong> and put it back into the backpack. The model itself doesn&#39;t change or &quot;learn&quot; from your conversation. It&#39;s more like a person who keeps an excellent diary and checks it before every meeting.</p>
+<div class="callout c-example" role="note"><div class="callout-title"><span aria-hidden="true">👀</span>Long-term memory at work</div><p>A <a href="example-meeting-assistant.html">meeting assistant</a> listens to your weekly team call and saves the decisions and action items. Next week, before the call, it reads last week&#39;s notes and reminds everyone: &quot;Last time, Priya agreed to send the budget draft — is that done?&quot; Without long-term memory, every meeting would start from zero.</p>
+</div>
+<div class="detail">
+
+<p><strong>How agents search a big memory:</strong> for large collections, a common technique is <strong>retrieval-augmented generation (RAG)</strong>. Documents are split into chunks and stored in a way that makes them searchable by <em>meaning</em>, not just exact words (often using mathematical fingerprints called <strong>embeddings</strong>). When a question comes in, the system finds the most relevant chunks and adds only those to the context window. More recently, agents also simply use ordinary search and file tools to explore a folder of notes themselves, just as you would. Either way, the principle is the same: fetch what&#39;s relevant, don&#39;t carry everything.</p>
+</div>
+
+<h2 id="memory-in-the-assistants-you-use">Memory in the assistants you use</h2>
+<p>You&#39;ve probably already met long-term memory, even if it wasn&#39;t called that. As of 2026, many popular AI assistants offer features like these (the exact names and options vary between apps and plans):</p>
+<ul>
+<li><strong>Memory or personalization.</strong> The assistant can remember facts you share — your job, your preferences, ongoing projects — and use them in future chats. Usually you can view, edit or delete what it remembers, or switch it off.</li>
+<li><strong>Custom instructions.</strong> A place to write standing preferences once (&quot;I&#39;m a beginner, explain simply, use metric units&quot;) so you don&#39;t repeat them in every chat.</li>
+<li><strong>Projects or workspaces.</strong> A shared space with your files and instructions, so every chat about that project starts with the right background.</li>
+<li><strong>Temporary or incognito chats.</strong> Conversations that aren&#39;t saved to memory, for one-off or sensitive questions.</li>
+</ul>
+<p>These features are genuinely handy. A <a href="example-study-tutor.html">study tutor</a> that remembers which topics you&#39;ve mastered and which ones you struggle with can pick up right where you left off, instead of starting over every evening.</p>
+<h2 id="privacy-you-re-in-charge-of-the-notebook">Privacy: you&#39;re in charge of the notebook</h2>
+<p>Long-term memory means information about you is being <strong>stored</strong>. That&#39;s useful, but it&#39;s worth being thoughtful about. A few simple habits go a long way:</p>
+<ul>
+<li><strong>Check what&#39;s remembered.</strong> Open your assistant&#39;s memory or personalization settings now and then. Delete anything outdated, wrong or more personal than you&#39;d like.</li>
+<li><strong>Never share secrets.</strong> Passwords, bank details, ID numbers and similar information don&#39;t belong in an AI chat — remembered or not.</li>
+<li><strong>Think twice about other people&#39;s information.</strong> Colleagues&#39;, clients&#39; or friends&#39; personal details deserve the same care as your own.</li>
+<li><strong>Use temporary chats for sensitive topics</strong> you don&#39;t want saved.</li>
+<li><strong>Follow your workplace&#39;s rules.</strong> Many organizations have approved AI tools with specific data settings. Use those for work material rather than a personal account.</li>
+<li><strong>Remember that memory can be wrong.</strong> If the assistant &quot;remembers&quot; something incorrect about you, it will keep using it until you correct or delete it.</li>
+</ul>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Saved memories shape future answers</div><p>Whatever ends up in long-term memory gets quietly added to future conversations. That&#39;s great when it&#39;s accurate and relevant, but an outdated or mistaken memory can skew answers without you noticing. If an assistant keeps assuming something odd, check its memory first.</p>
+</div>
+<p>Here&#39;s a prompt you can use to see what an assistant knows and tidy it up:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Please list everything you currently remember about me or have saved from our past conversations (preferences, facts, projects).
+For each item, tell me where it came from if you can.
+Then I'll tell you which ones to keep, correct or forget.</pre></div>
+<p>And one for handing a long conversation over to a fresh chat:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">We've covered a lot. Write a compact summary I can paste into a new chat so you can continue without losing anything important. Include: my goal, key facts and decisions so far, open questions, and the next steps.</pre></div>
+<h2 id="quick-check">Quick check</h2>
+<div class="quiz" data-quiz="memory">
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>What is an agent&#39;s &quot;context window&quot;?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The part of the screen where the AI&#39;s answer appears</button><button type="button" class="quiz-opt" data-i="1">A settings page for choosing which tools are allowed</button><button type="button" class="quiz-opt" data-i="2">Everything the model can see at once while it works, up to a limit</button><button type="button" class="quiz-opt" data-i="3">A permanent record of every conversation it has ever had</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The context window is short-term memory: the instructions, conversation, documents and tool results the model can see right now. It&#39;s limited in size, and it isn&#39;t permanent — that&#39;s what long-term memory is for.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>Early in a very long task, you told an agent an important fact. Now it&#39;s acting as if it never heard it. What&#39;s the most likely reason?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The fact dropped out of its context window as it filled up</button><button type="button" class="quiz-opt" data-i="1">The agent decided the fact wasn&#39;t true</button><button type="button" class="quiz-opt" data-i="2">Agents ignore anything said before the first tool call</button><button type="button" class="quiz-opt" data-i="3">The model was retrained during the conversation</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> As the backpack fills, older material can be dropped or compressed. If the fact wasn&#39;t kept in a summary or saved to long-term memory, the model can no longer see it. The model doesn&#39;t retrain itself mid-chat.</div></div>
+<div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">3</span>Which is the best way for an agent to remember your preferences between separate conversations?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Keep one endless chat open so nothing is ever lost</button><button type="button" class="quiz-opt" data-i="1">Save them to long-term memory it can look up next time</button><button type="button" class="quiz-opt" data-i="2">Rely on the model learning from each conversation automatically</button><button type="button" class="quiz-opt" data-i="3">Repeat your preferences at the end of every message</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Separate chats start with an empty backpack, and models don&#39;t learn from your chats on the fly. Saved memory (or custom instructions) puts your preferences back into the context when needed. An endless chat just overfills the backpack.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+<h2 id="what-s-next">What&#39;s next</h2>
+<p>You now know how agents hold onto information, both for the task at hand and over time. Next, we&#39;ll look at how they use it to work out <em>what to do</em> on big, multi-step goals: <strong>Planning</strong> — breaking a goal into steps, and changing the plan when reality gets in the way.</p>
+</article>
+<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="memory">Mark as done</button></section>
+<nav class="pager"><a href="tools.html"><small>← Previous</small>🛠️ Tools: giving agents hands</a><a class="next" href="planning.html"><small>Next →</small>🗺️ Planning: breaking big goals into steps</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+
+</body></html>

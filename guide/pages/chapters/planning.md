@@ -107,7 +107,7 @@ You don't need to plan for the agent — that's its job — but you can make its
 - **Expect replanning — and welcome it.** An agent that says "the first approach didn't work, so I'm trying X" is doing its job well. An agent that never reports a problem on a messy task should make you *more* suspicious, not less.
 
 > [!TRY] See planning in action
-> Watch the [research agent](example-research-agent.html) plan its searches and drop weak sources, or the [incident responder](example-incident-responder.html) form a theory, test it, and change course when the evidence points elsewhere.
+> Watch the [research agent](example-research-agent.html) split a big question into smaller ones and adapt its plan when two sources disagree, or the [incident responder](example-incident-responder.html) form a theory, test it, and change course when the evidence points elsewhere.
 
 ```prompt
 I need to [describe your big goal, e.g. "organize a one-day workshop for 25 people next month"].

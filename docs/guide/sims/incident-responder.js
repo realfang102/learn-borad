@@ -22,7 +22,7 @@ window.SIMS["incident-responder"] = {
     { phase: "observe", say: "The errors didn't creep up slowly — they **jumped** at 03:05. A sudden jump usually means *something changed*, rather than a slow build-up like running out of disk space.",
       do: [{ pane: "term", op: "out", style: "err", text: "error_rate: 0.4% → 9.8% (03:05) → 18.2% (03:10)\nfailing endpoint: POST /checkout (98% of errors)" }] },
     { phase: "think", say: "Now the agent lists possible explanations — **hypotheses** — so it can test them one by one instead of jumping to conclusions.",
-      do: [{ pane: "think", op: "think", text: "Hypotheses:\nH1 — a traffic surge is overloading us\nH2 — the payments database is down or slow\nH3 — a recent code deploy or config change broke something\nCheapest to test first: H1 (one query)." }] },
+      do: [{ pane: "think", op: "think", text: "Hypotheses: H1 — a traffic surge is overloading us. H2 — the payments database is down or slow. H3 — a recent code deploy or config change broke something. Cheapest to test first: H1 (one query)." }] },
     { phase: "act", say: "Testing H1: is there unusual traffic?",
       do: [{ pane: "term", op: "cmd", text: "ops metrics checkout-api --metric requests_per_min --last 40m" },
            { pane: "term", op: "out", text: "requests/min: 1,180 avg (normal range for 3 a.m.: 1,100–1,400)" }] },

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The deep research agent · Agents Made Simple</title><meta name="description" content="Watch a lead agent split a real-life question, send out helper agents, untangle a contradiction and write a report with sources."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="example">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html" aria-current="page">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page example" data-slug="example-research-agent">
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">🎬 Agents in action</a><div class="ch-hero-emoji">🔎</div><p class="eyebrow">Research · Intermediate</p><h1>The deep research agent</h1><p class="lead">Watch a lead agent split a real-life question, send out helper agents, untangle a contradiction and write a report with sources.</p>
+<p class="concepts">Uses ideas from: <a class="chip" href="agent-teams.html">🤝 Teams of agents</a> <a class="chip" href="planning.html">🗺️ Planning: breaking big goals into steps</a> <a class="chip" href="tools.html">🛠️ Tools: giving agents hands</a> <a class="chip" href="reliable-agents.html">🎯 Making agents reliable</a></p></div>
+<article class="prose wide"><p>Some questions can&#39;t be answered with one search. &quot;Is a heat pump worth it for my house?&quot; depends on the weather, the building, energy prices and money available to help pay for it — and the web is full of advice that is outdated, one-sided or selling something. Normally you&#39;d open twenty tabs and lose an evening.</p>
+<p>A <strong>deep research agent</strong> does that evening for you. It plans what it needs to find out, reads many sources, compares them, and writes a report where every claim points back to where it came from. In this example, a homeowner named Priya asks exactly that question, and a small <em>team</em> of agents goes to work.</p>
+<div class="sim" data-sim="research-agent"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Watch the token counter</div><p>Press <strong>Step ⏭</strong> one move at a time and keep an eye on the 🔤 tokens number. See how it jumps when the helpers start searching? That&#39;s the price of a research <em>team</em>: faster and more thorough, but much more computing than a single chat.</p>
+</div>
+<h2 id="how-it-works">How it works</h2>
+<div class="steps-strip">
+<div><strong>Clarify</strong>Ask the one or two questions the answer really depends on.</div>
+<div><strong>Plan</strong>Split the big question into smaller, independent sub-questions.</div>
+<div><strong>Fan out</strong>Send helper agents to research each sub-question at the same time.</div>
+<div><strong>Judge sources</strong>Prefer independent, recent evidence; skip adverts.</div>
+<div><strong>Resolve conflicts</strong>When sources disagree, find out <em>why</em> before writing.</div>
+<div><strong>Write and check</strong>Cite every claim, then verify each citation.</div>
+</div>
+
+<p>The clever part is the <strong>lead agent</strong> — the &quot;manager&quot; that plans the work and writes the final report. It doesn&#39;t read every web page itself. Each <strong>helper agent</strong> (sometimes called a <em>subagent</em>) gets one focused task, does its own searching and reading, and hands back a short summary. That keeps the lead agent&#39;s memory uncluttered, so it can think clearly about the big picture. You can read more about this pattern in <a href="agent-teams.html">teams of agents</a>.</p>
+<p>The most important moment in the run is the <strong>contradiction</strong>. One source said heat pumps &quot;lose most of their power below -10 °C&quot;; another said modern models heat well at -25 °C. Instead of picking one, the lead agent sent a fact-checker to compare them — and discovered they were describing different machines from different years. Good research isn&#39;t collecting quotes; it&#39;s noticing when things don&#39;t fit.</p>
+<div class="detail">
+
+<p><strong>The real technology (as of 2026):</strong> &quot;deep research&quot; is now a standard feature of the big AI assistants. Google launched Gemini Deep Research in late 2024; OpenAI (ChatGPT deep research), Perplexity and Anthropic (Claude&#39;s Research feature) followed in 2025. They differ in the details, but share the same loop: plan, search, read, take notes, repeat, then write a cited report — often taking several minutes per question.</p>
+<p>Anthropic has described its own setup publicly: a lead agent plans the research and starts several subagents that search in parallel, then combines their findings, with a separate citation step that links each claim to the source it came from. It also reported the downside you saw in the token counter — its multi-agent research used roughly 15 times more tokens than an ordinary chat. That&#39;s why these tools save the team approach for questions that are genuinely broad.</p>
+</div>
+
+<h2 id="why-this-works">Why this works</h2>
+<ul>
+<li><strong>Parallel work.</strong> Three helpers researching at once finish much sooner than one agent doing everything in turn.</li>
+<li><strong>Fresh eyes for each sub-question.</strong> Each helper starts with a clean memory, so it isn&#39;t distracted by everything else the team has read.</li>
+<li><strong>Citations make checking easy.</strong> Because each sentence points to a source, you (and the agent) can verify any claim in seconds.</li>
+<li><strong>Honest wording.</strong> A good report says &quot;likely&quot; and &quot;depends&quot; when the evidence does. That&#39;s not weakness — it&#39;s accuracy.</li>
+</ul>
+<p>It&#39;s ideal for decisions like this one: comparing products or options, getting up to speed on a new topic for school or work, or preparing a briefing before a meeting. See <a href="agents-at-work.html">agents at work</a> and <a href="learn-faster.html">learn faster with AI</a> for more ideas.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
+<ul>
+<li><strong>Invented or mismatched citations.</strong> An agent can attach a real-looking source to a claim the source doesn&#39;t make. Spot-check two or three citations, especially for the claims you&#39;ll act on.</li>
+<li><strong>Trusting weak sources.</strong> Adverts, old guides and copied content can sneak in. Ask the agent to say how recent and how independent each source is.</li>
+<li><strong>Answering a different question.</strong> Without clarifying, the agent might research heat pumps in general instead of <em>your</em> house in <em>your</em> climate.</li>
+<li><strong>False confidence.</strong> A polished report still isn&#39;t professional advice. For big money decisions, use it to ask better questions of real experts — like installers giving quotes.</li>
+</ul>
+</div>
+<h2 id="try-it-yourself">Try it yourself</h2>
+<p>Paste this into an AI assistant with a research or web-search mode (such as ChatGPT, Gemini, Claude or Perplexity):</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I want a short research report on: [your question, e.g. &quot;Should I buy an electric car if I can't charge at home?&quot;].
+My situation: [a few key details: where you live, budget, what matters most].
+Please:
+1. Ask me up to 2 clarifying questions first if the answer depends on details I haven't given.
+2. Break the question into 3–4 sub-questions and research each one.
+3. Prefer recent, independent sources; tell me the year and type of each source.
+4. If sources disagree, explain why instead of picking one.
+5. Cite every claim with a numbered source, and end with a clear &quot;bottom line&quot; plus what I should check myself.</pre></div>
+<p>When the report arrives, follow up with this to make the agent check its own work:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Go through your report claim by claim. For each citation, quote the exact sentence from the source that supports it. Flag any claim that isn't directly supported, and tell me which parts are most uncertain.</pre></div>
+<div class="quiz" data-quiz="example-research-agent">
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">1</span>Why did the lead agent send helper agents instead of researching everything itself?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Independent sub-questions could be researched in parallel, each with a clean memory</button><button type="button" class="quiz-opt" data-i="1">The lead agent wasn&#39;t allowed to use web search</button><button type="button" class="quiz-opt" data-i="2">Helpers are always cheaper than one agent</button><button type="button" class="quiz-opt" data-i="3">Helpers can&#39;t make mistakes</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Splitting independent sub-questions lets helpers work at the same time and keeps each one focused. It&#39;s actually <em>more</em> expensive in tokens — that&#39;s the trade-off.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>Two sources disagreed about heat pumps in deep cold. What did the agent do?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Investigated why they disagreed, then explained it in the report</button><button type="button" class="quiz-opt" data-i="1">Left the topic out of the report entirely</button><button type="button" class="quiz-opt" data-i="2">Asked Priya which source she preferred</button><button type="button" class="quiz-opt" data-i="3">Picked the source with the higher relevance score</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The sources described different kinds of machines from different years, so both were right about what they described. Explaining that is far more useful than silently choosing one.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">3</span>What&#39;s the best quick habit when you get a cited research report from an agent?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Spot-check a few citations, especially for claims you&#39;ll act on</button><button type="button" class="quiz-opt" data-i="1">Ask for a longer report with more sources</button><button type="button" class="quiz-opt" data-i="2">Delete any claim that says &quot;likely&quot;</button><button type="button" class="quiz-opt" data-i="3">Trust it fully, since it has citations</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Citations make checking easy, but agents can still attach a source to a claim it doesn&#39;t support. A two-minute spot-check catches most problems.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+</article>
+<nav class="pager"><a href="example-coding-agent.html"><small>← Previous example</small>👩‍💻 The coding agent</a><a class="next" href="example-support-agent.html"><small>Next example →</small>🎧 The customer support agent</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/research-agent.js"></script>
+</body></html>

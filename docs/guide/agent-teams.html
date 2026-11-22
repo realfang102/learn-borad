@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teams of agents · Agents Made Simple</title><meta name="description" content="Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="chapter">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page chapter" data-slug="agent-teams">
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🧠 How Agents Think</a><div class="ch-hero-emoji">🤝</div><p class="eyebrow">Chapter 7 of 13</p><h1>Teams of agents</h1><p class="lead">Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more.</p><p class="meta">⏱ 10 min read · 🎮 1 interactive demo · ▶ animated walkthrough</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#why-use-more-than-one-agent">Why use more than one agent?</a><a href="#the-race-one-agent-vs-a-team">The race: one agent vs. a team</a><a href="#how-a-lead-agent-runs-a-team">How a lead agent runs a team</a><a href="#handoffs-passing-the-baton">Handoffs: passing the baton</a><a href="#the-catch-teams-are-expensive">The catch: teams are expensive</a><a href="#when-one-agent-is-better">When one agent is better</a><a href="#quick-check">Quick check</a><a href="#what-s-next">What s next</a></nav></div>
+<article class="prose"><p>Imagine a newspaper on a busy evening. One editor can&#39;t write every story alone, so she hands them out: one reporter covers the election, another the football, a third the weather. They all work at the same time. Then the editor reads every story, fixes the clashes (&quot;you both said the match was on different days!&quot;) and puts the paper together.</p>
+<p>Some AI systems work exactly like that newsroom. Instead of one agent doing everything, a <strong>lead agent</strong> splits a big job into parts and hands each part to a <strong>helper agent</strong>. The helpers work in parallel, report back, and the lead combines their work into one result.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>A <strong>team of agents</strong> (often called a <strong>multi-agent system</strong>) is several agents working on one goal, usually with a lead that divides the work and helpers that each handle one piece. Teams can be faster and more thorough — but they use many more tokens, so they&#39;re worth it only for the right kind of job.</p>
+</div>
+<h2 id="why-use-more-than-one-agent">Why use more than one agent?</h2>
+<p>You already know from <a href="planning.html">Planning</a> that agents break big goals into steps. A team takes that one step further: instead of doing the steps one after another, it does several <em>at the same time</em>, each with its own agent. That brings three benefits.</p>
+<p><strong>1. Parallel work — it&#39;s faster.</strong> If you need to compare six apps, one agent researches them one by one. Six helpers can research one each, at the same time. Like six friends each grabbing one item in the supermarket instead of one person walking every aisle.</p>
+<p><strong>2. Specialists — each one is focused.</strong> Each helper can be set up for one kind of work, with its own instructions and only the tools it needs. A &quot;fact-checker&quot; agent can be told to be picky and sceptical; a &quot;writer&quot; agent can be told to be clear and friendly. It&#39;s easier to be excellent at one thing than at everything at once.</p>
+<p><strong>3. A fresh, uncluttered memory.</strong> This one is less obvious, but it&#39;s often the biggest win. Remember from <a href="memory.html">Memory</a> that an agent&#39;s working memory — its context window — fills up as it reads. A single agent researching six apps ends up with a backpack stuffed with web pages, and older details start to fall out. Each helper starts with an <strong>empty backpack</strong>, reads only what its task needs, and sends back a short summary. The lead stays focused on the big picture instead of drowning in details.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Like a group project done right</div><p>A good group project has one person who splits up the work, gives everyone a clear piece, and stitches it together at the end. A bad group project has four people all rewriting the same introduction. Agent teams succeed or fail for exactly the same reasons: <strong>clear division of work, clear briefs, and someone responsible for the final result.</strong></p>
+</div>
+<h2 id="the-race-one-agent-vs-a-team">The race: one agent vs. a team</h2>
+<p>Here&#39;s a job that suits a team: comparing six project-management apps. Set the number of helper agents with the slider, then press <strong>▶ Race!</strong> Watch both the finishing time <em>and</em> the token count. Try it with 1 helper, then with 3, then with 6.</p>
+<div data-widget="team-race"></div>
+
+<p>What did you notice? With three helpers, the team finished roughly twice as fast — but used well over twice as many tokens. Adding more helpers makes it faster still, but the gains shrink: the lead still has to plan at the start and merge at the end, and those steps don&#39;t get shorter no matter how many helpers you add. And with only <strong>one</strong> helper, the team was actually <em>slower</em> than the solo agent, because it paid for planning and merging without gaining any parallel work. (The numbers in the race are illustrative, but the pattern is real.)</p>
+<h2 id="how-a-lead-agent-runs-a-team">How a lead agent runs a team</h2>
+<p>The most common setup is called the <strong>lead and helpers</strong> pattern (engineers often say <strong>orchestrator and workers</strong> — an orchestrator being the conductor who keeps everyone in time). Here&#39;s how it usually goes:</p>
+<div class="steps-strip">
+<div><strong>Plan</strong>The lead breaks the goal into parts that can be done separately.</div>
+<div><strong>Brief</strong>Each helper gets a clear task, what to return, and what to avoid.</div>
+<div><strong>Work in parallel</strong>Helpers search, read and write on their own.</div>
+<div><strong>Report back</strong>Each sends a short summary, not everything it read.</div>
+<div><strong>Merge &amp; check</strong>The lead combines the pieces and fixes conflicts.</div>
+</div>
+
+<p>The <strong>briefs</strong> matter enormously. A helper starts with an empty memory, so it knows nothing except what the lead tells it. A vague brief like &quot;research competitors&quot; leads to helpers duplicating each other or wandering off. A good brief says exactly which part is theirs, what format to return, and where to stop — just like the instructions <em>you</em> give an agent (you&#39;ll practise that in <a href="great-instructions.html">Giving great instructions</a>).</p>
+<p>And the <strong>merge</strong> is where the lead earns its keep. Each helper only sees its own piece, so only the lead can notice that two pieces contradict each other. Watch it happen in this short run, where a lead agent plans a product launch with three helpers:</p>
+<div class="sim" data-sim="ch-agent-teams"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Watch the merge step closely</div><p>Around step 7, the lead spots that the timeline and the FAQ disagree about when orders ship. Neither helper could have caught that alone. Also notice Helper A marking a price as <strong>unconfirmed</strong> instead of guessing — a habit you want in every agent.</p>
+</div>
+<div class="detail">
+
+<p><strong>What a &quot;helper&quot; really is:</strong> technically, a helper (often called a <strong>subagent</strong>) is just another run of a language model with its own instructions, its own tools and its own fresh context. The lead creates one by calling a tool — something like &quot;start a subagent with this task&quot; — and receives the helper&#39;s final message back as the tool&#39;s result. The helper&#39;s full working notes stay in its own context and are thrown away; only its summary reaches the lead. As of 2026, several agent products and developer kits offer this built in — for example, Claude Code can start subagents, and the OpenAI Agents SDK and Google&#39;s Agent Development Kit both support multi-agent setups.</p>
+</div>
+
+<h2 id="handoffs-passing-the-baton">Handoffs: passing the baton</h2>
+<p>Not every team works in parallel. Sometimes agents work <strong>in a relay</strong>, each one doing its part and then passing the job — and everything learned so far — to the next specialist. This is called a <strong>handoff</strong>.</p>
+<p>Customer service is the classic example. A front-desk agent greets the customer and works out what they need. If it&#39;s a refund, it hands off to a billing agent that has access to the payment system. If it&#39;s a broken product, it hands off to a technical support agent. Each specialist only gets the tools it needs, which is both tidier and safer: the front-desk agent can&#39;t touch payments at all. You can watch a customer-service agent at work in the <a href="example-support-agent.html">support agent example</a>.</p>
+<p>The danger in a relay is the same as in the children&#39;s game of telephone: details get lost along the way. Good handoffs pass on a clear summary — <em>who the customer is, what they asked, what&#39;s been tried</em> — so the customer never has to repeat themselves.</p>
+<div class="callout c-example" role="note"><div class="callout-title"><span aria-hidden="true">👀</span>See teams and specialists at work</div>
+<ul>
+<li>The <a href="example-research-agent.html">research agent</a> splits a big question about heat pumps among three helpers — and sends out a fourth when two sources disagree.</li>
+<li>The <a href="example-writing-team.html">writing team</a> shows specialist agents sharing one writing job.</li>
+</ul>
+</div>
+<h2 id="the-catch-teams-are-expensive">The catch: teams are expensive</h2>
+<p>Here&#39;s the honest trade-off. Every helper reads, thinks and writes on its own — and you pay for every one of those tokens. Three helpers reading ten web pages each means thirty pages of reading, plus the lead&#39;s planning, briefing and merging on top. A team can easily cost several times what a single agent would for the same goal.</p>
+<div class="detail">
+
+<p><strong>A real-world data point:</strong> in a 2025 write-up about building its multi-agent research feature, Anthropic reported that agents used roughly 4 times as many tokens as an ordinary chat, and its multi-agent system roughly 15 times as many. It also found the team setup did substantially better than a single agent on its internal research tests — mainly because spreading the work across helpers let the system read and reason over far more material. The lesson they drew: multi-agent systems pay off when the task is valuable enough, and broad enough, to justify the extra cost.</p>
+</div>
+
+<p>Speed and thoroughness aren&#39;t free. So it&#39;s worth asking, before reaching for a team: <em>is the extra cost buying me something I actually need?</em></p>
+<h2 id="when-one-agent-is-better">When one agent is better</h2>
+<p>Teams shine on <strong>wide</strong> tasks: lots of separate pieces that don&#39;t depend on each other, like researching many companies, checking many documents, or exploring several possible explanations at once.</p>
+<p>One agent is usually better when:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Why one agent wins</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✍️ Editing a single document or email</td>
+<td>Every sentence depends on the others; several writers would clash</td>
+</tr>
+<tr>
+<td>🔗 Steps that depend on each other</td>
+<td>Step 3 needs the result of step 2, so there&#39;s nothing to do in parallel</td>
+</tr>
+<tr>
+<td>🧩 Everyone needs the same full picture</td>
+<td>Splitting it up means each helper misses context the others have</td>
+</tr>
+<tr>
+<td>🐣 Small or quick tasks</td>
+<td>The planning and merging overhead costs more than it saves</td>
+</tr>
+<tr>
+<td>💸 Tight budgets</td>
+<td>A team multiplies the token bill</td>
+</tr>
+</tbody></table>
+</div>
+<p>Teams also bring their own new kinds of mistakes: two helpers doing the same work, helpers making conflicting choices (one picks a blue theme, another a green one), or a lead that merges confidently without checking. More agents means more to coordinate — and more to review.</p>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>A simple rule of thumb</div><p>Start with <strong>one agent</strong>. Reach for a team only when the job naturally splits into several big, independent chunks — and when finishing faster or covering more ground is worth paying more.</p>
+</div>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to research [topic, e.g. &quot;five project-management apps for a 10-person team&quot;].
+If you can use helper agents (subagents), split the work so each helper covers one [item/angle] independently. Give each helper a clear brief and ask for a short summary with sources.
+Then merge the results into one comparison table, point out any places where the helpers' findings disagree, and mark anything you couldn't confirm as &quot;unconfirmed&quot; rather than guessing.</pre></div>
+<h2 id="quick-check">Quick check</h2>
+<div class="quiz" data-quiz="agent-teams">
+<div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">1</span>Which task is the best fit for a team of agents working in parallel?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Doing a calculation where each step needs the last result</button><button type="button" class="quiz-opt" data-i="1">Answering a quick question about a single fact</button><button type="button" class="quiz-opt" data-i="2">Polishing the wording of one short email</button><button type="button" class="quiz-opt" data-i="3">Researching twelve different suppliers and comparing them</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Researching many suppliers splits naturally into independent pieces, so helpers can work at the same time. Editing one email or a chain of dependent steps leaves nothing to do in parallel — one agent is better.</div></div>
+<div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">2</span>Besides speed, why does giving each helper its own fresh context help?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Fresh helpers are smarter than the lead agent</button><button type="button" class="quiz-opt" data-i="1">It means nobody needs to check the final result</button><button type="button" class="quiz-opt" data-i="2">It makes the whole team use fewer tokens in total</button><button type="button" class="quiz-opt" data-i="3">Each helper reads only what its task needs, so no single memory overflows</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Each helper starts with an empty &quot;backpack&quot; and returns just a short summary, keeping the lead focused. But it doesn&#39;t reduce total tokens — the team as a whole usually uses many more.</div></div>
+<div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">3</span>In the product-launch run, what job could only the lead agent do?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Reading the product specification</button><button type="button" class="quiz-opt" data-i="1">Spotting that the timeline and the FAQ contradicted each other</button><button type="button" class="quiz-opt" data-i="2">Writing the launch-week timeline</button><button type="button" class="quiz-opt" data-i="3">Searching rival companies&#39; websites</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Each helper only saw its own piece. Only the lead, comparing all the pieces side by side, could notice the shipping-date clash — that&#39;s why the merge-and-check step matters so much.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+<h2 id="what-s-next">What&#39;s next</h2>
+<p>Whether it&#39;s one agent or a whole team, everything starts with what <em>you</em> ask for. Next: <a href="great-instructions.html">giving great instructions</a> — the simple recipe that turns a vague request into exactly the result you wanted.</p>
+</article>
+<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="agent-teams">Mark as done</button></section>
+<nav class="pager"><a href="planning.html"><small>← Previous</small>🗺️ Planning: breaking big goals into steps</a><a class="next" href="great-instructions.html"><small>Next →</small>🎯 Giving great instructions</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/ch-agent-teams.js"></script>
+</body></html>

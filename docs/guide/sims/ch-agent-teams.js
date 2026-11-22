@@ -1,7 +1,7 @@
 window.SIMS = window.SIMS || {};
 window.SIMS["ch-agent-teams"] = {
   title: "A lead agent splits a launch plan among three helpers",
-  intro: "Priya is the marketing manager at Brightwell, a small (fictional) company about to launch the <strong>Lumi smart water bottle</strong>. She asks her agent for a launch plan with three separate parts. Watch the lead agent hand them to helpers who work at the same time. Press <strong>▶ Play</strong>.",
+  intro: "Dana is the marketing manager at Brightwell, a small (fictional) company about to launch the <strong>Lumi smart water bottle</strong>. She asks her agent for a launch plan with three separate parts. Watch the lead agent hand them to helpers who work at the same time. Press <strong>▶ Play</strong>.",
   panes: [
     { id: "chat", type: "chat", title: "Chat with the lead agent" },
     { id: "team", type: "agents", title: "The agent team" },
@@ -9,7 +9,7 @@ window.SIMS["ch-agent-teams"] = {
     { id: "doc", type: "doc", title: "Launch plan (draft)" }
   ],
   steps: [
-    { phase: "user", say: "Priya asks for three things at once: a competitor snapshot, a launch-week timeline and a customer FAQ.",
+    { phase: "user", say: "Dana asks for three things at once: a competitor snapshot, a launch-week timeline and a customer FAQ.",
       do: [{ pane: "chat", op: "msg", from: "user", text: "We launch the Lumi bottle on March 3. Can you put together a launch plan: a quick competitor snapshot, a launch-week timeline, and a customer FAQ? Our product spec is in the shared drive." }],
       tokens: 400, t: 2 },
     { phase: "think", say: "The lead agent notices the three parts **don't depend on each other** much. That makes them a good fit for helpers working in parallel.",
@@ -44,14 +44,14 @@ window.SIMS["ch-agent-teams"] = {
       do: [{ pane: "team", op: "progress", name: "🗓️ Helper B", pct: 60, status: "Revising: orders open Mar 3, shipping starts Mar 10, move review push to Mar 17." },
            { pane: "team", op: "done", name: "🗓️ Helper B", result: "Updated plan: orders open Mar 3, ship from Mar 10, review push Mar 17." }],
       tokens: 3500, t: 12 },
-    { phase: "act", say: "The lead writes the merged plan, keeping the **unconfirmed price clearly flagged** so Priya knows what still needs checking.",
+    { phase: "act", say: "The lead writes the merged plan, keeping the **unconfirmed price clearly flagged** so Dana knows what still needs checking.",
       do: [{ pane: "doc", op: "heading", text: "Lumi launch plan — draft" },
            { pane: "doc", op: "bullets", items: ["**Competitors:** Lumi is the only bottle with refill reminders. Fizzwell Go $39; HydroNudge price *unconfirmed* (page removed).", "**Launch week:** teaser Mar 1 · orders open Mar 3 · shipping from Mar 10 · review push Mar 17.", "**FAQ:** 6 questions, incl. battery life (about 3 weeks per charge, per the spec) and shipping date."] },
            { pane: "team", op: "progress", name: "🧭 Lead", pct: 90, status: "Plan drafted, ready for review" }],
       tokens: 4500, t: 10 },
-    { phase: "human", say: "Sharing the plan with the whole launch team affects other people, so the lead **asks Priya first**. You're Priya — approve or deny!",
+    { phase: "human", say: "Sharing the plan with the whole launch team affects other people, so the lead **asks Dana first**. You're Dana — approve or deny!",
       do: [{ pane: "chat", op: "msg", from: "agent", text: "Draft ready. I fixed one conflict: orders open March 3 but ship March 10, so I moved the review push. One rival's price is unconfirmed. Post it to the #launch-team channel?" },
-           { pane: "chat", op: "approval", title: "Post the launch plan to #launch-team?", detail: "1 document · 3 sections · 1 item flagged as unconfirmed", approve: "✅ Post it", deny: "✋ I'll review first", deniedSay: "Priya wants to review first, so the lead keeps the draft private and stops here. Nothing is shared until she says so." }],
+           { pane: "chat", op: "approval", title: "Post the launch plan to #launch-team?", detail: "1 document · 3 sections · 1 item flagged as unconfirmed", approve: "✅ Post it", deny: "✋ I'll review first", deniedSay: "Dana wants to review first, so the lead keeps the draft private and stops here. Nothing is shared until she says so." }],
       tokens: 600, t: 2 },
     { phase: "done", say: "Done in about 2 minutes instead of roughly 5 for one agent working alone — but the team used **about three times the tokens**. Parallel work buys speed with extra cost. (Illustrative numbers.)",
       do: [{ pane: "team", op: "done", name: "🧭 Lead", result: "Plan merged, checked and shared" },
