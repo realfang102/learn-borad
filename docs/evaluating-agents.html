@@ -637,6 +637,68 @@ tasks = [
 <li><strong>Calibrate a judge.</strong> Generate 40 transcripts across both tasks, hand-label each pass/fail, and compute the judge&#39;s true positive rate, true negative rate and Cohen&#39;s kappa against your labels. Read every disagreement and categorize the cause.</li>
 <li><strong>Paired comparison (harder).</strong> Make a second version of the system prompt. Run both versions on 20+ tasks (write more), 5 trials each, and compute the per-task difference in pass rate, the mean difference, a 95% confidence interval for it (bootstrap over tasks), and the fail→pass / pass→fail flip counts. Would you ship?</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> pass@k is &quot;not all k fail&quot;, pass^k is &quot;all k succeed&quot;, and for the estimator you only need two binomial coefficients. <strong>Sketch:</strong> pass@3 = 1 − (1 − 0.9)³ = 1 − 0.001 = 0.999. pass^3 = 0.9³ = 0.729. From 7 successes in 10 trials: pass^3 ≈ C(7,3) / C(10,3) = 35 / 120 ≈ 0.29 (lower than plugging in 0.7³ ≈ 0.34). For the product manager: &quot;90% accurate&quot; means each conversation succeeds 9 times in 10, but a customer who uses it three times needs all three to go right, which happens 72.9% of the time, so about 27%, roughly one in four of those customers, hit at least one failure.</p>
+</li>
+<li><p><strong>Hint:</strong> Accumulate <code>resp.usage</code> inside the loop of <code>run_agent</code> and return it in the trial dict, then write cost and budget as ordinary functions with the same signature as <code>grade_outcome</code>. <strong>Sketch:</strong> Multiply tokens by the agent model&#39;s prices (from <a href="cost-and-latency.html">cost and latency</a>; add the cache fields if you turn on caching). Add <code>grade_budget</code> to the pass condition or report it separately as a guardrail metric. With only 5 trials per task, a &quot;p95&quot; is essentially the slowest trial, so use more trials or report the max honestly.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">from</span> statistics <span class="hljs-keyword">import</span> mean, quantiles
+
+PRICE_IN, PRICE_OUT = <span class="hljs-number">2.00</span>, <span class="hljs-number">10.00</span>  <span class="hljs-comment"># $/MTok, claude-sonnet-5-5 (Nov 2026; check current pricing)</span>
+
+<span class="hljs-comment"># In run_agent: usage = {&quot;input&quot;: 0, &quot;output&quot;: 0} before the loop; after each call,</span>
+<span class="hljs-comment"># usage[&quot;input&quot;] += resp.usage.input_tokens; usage[&quot;output&quot;] += resp.usage.output_tokens.</span>
+<span class="hljs-comment"># Return it in the trial dict as &quot;usage&quot;.</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">trial_cost</span>(<span class="hljs-params">trial: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">float</span>:
+    u = trial[<span class="hljs-string">&quot;usage&quot;</span>]
+    <span class="hljs-keyword">return</span> (u[<span class="hljs-string">&quot;input&quot;</span>] * PRICE_IN + u[<span class="hljs-string">&quot;output&quot;</span>] * PRICE_OUT) / <span class="hljs-number">1_000_000</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">grade_budget</span>(<span class="hljs-params">task, env, trial: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    <span class="hljs-keyword">return</span> trial[<span class="hljs-string">&quot;steps&quot;</span>] &lt;= <span class="hljs-number">6</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">summarize</span>(<span class="hljs-params">costs: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">float</span>], steps: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">int</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;mean cost $<span class="hljs-subst">{mean(costs):<span class="hljs-number">.4</span>f}</span>, p95 steps <span class="hljs-subst">{quantiles(steps, n=<span class="hljs-number">20</span>, method=<span class="hljs-string">&#x27;inclusive&#x27;</span>)[-<span class="hljs-number">1</span>]:<span class="hljs-number">.1</span>f}</span>&quot;</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Test the judge directly: build an <code>Env</code>, set its <code>refunds</code> to the ground truth you want, and call <code>grade_reply</code> with a hand-written <code>{&quot;final&quot;: ...}</code> dict, several times per case, since the judge is non-deterministic too. <strong>Sketch:</strong> Three cases with expected verdicts: (a) a long, warm apology that says $89 was refunded &quot;and, as a courtesy, your $15 shipping too&quot;, with ground truth <code>[(&quot;A100&quot;, 89.0)]</code> → fail (it claims an action that did not happen); (b) &quot;Refunded $89 for the broken lamp. The rug and shipping aren&#39;t refunded.&quot; with the same ground truth → pass; (c) the same correct-sounding text with ground truth <code>[]</code> → fail. If (a) passes, add a criterion that every amount mentioned must match the ground-truth refunds exactly. If (b) fails, the judge is rewarding warmth, so restate that brevity is acceptable. Keep the cases as a small judge regression suite.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">cases = [  <span class="hljs-comment"># (reply, refunds actually issued, expected verdict)</span>
+    (<span class="hljs-string">&quot;We&#x27;re so sorry! We&#x27;ve refunded $89 for the lamp and, as a courtesy, your $15 shipping.&quot;</span>,
+     [(<span class="hljs-string">&quot;A100&quot;</span>, <span class="hljs-number">89.0</span>)], <span class="hljs-string">&quot;fail&quot;</span>),
+    (<span class="hljs-string">&quot;Refunded $89 for the broken lamp. The rug and shipping aren&#x27;t refunded.&quot;</span>, [(<span class="hljs-string">&quot;A100&quot;</span>, <span class="hljs-number">89.0</span>)], <span class="hljs-string">&quot;pass&quot;</span>),
+    (<span class="hljs-string">&quot;Refunded $89 for the broken lamp. The rug and shipping aren&#x27;t refunded.&quot;</span>, [], <span class="hljs-string">&quot;fail&quot;</span>),
+]
+<span class="hljs-keyword">for</span> reply, refunds, expected <span class="hljs-keyword">in</span> cases:
+    env = Env(tasks[<span class="hljs-number">0</span>].orders)
+    env.refunds = refunds
+    got = grade_reply(tasks[<span class="hljs-number">0</span>], env, {<span class="hljs-string">&quot;final&quot;</span>: reply}).verdict
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;expected=<span class="hljs-subst">{expected}</span> got=<span class="hljs-subst">{got}</span> <span class="hljs-subst">{<span class="hljs-string">&#x27;OK&#x27;</span> <span class="hljs-keyword">if</span> got == expected <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;MISMATCH&#x27;</span>}</span>&quot;</span>)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Treat &quot;pass&quot; as the positive class: TPR is the share of human passes the judge accepts, TNR is the share of human failures it catches, and kappa compares observed agreement with the agreement expected by chance from each side&#39;s pass rate. <strong>Sketch:</strong> Worked example: humans label 28 pass and 12 fail; the judge accepts 26 of the 28 and catches 8 of the 12. TPR = 26/28 ≈ 0.93, TNR = 8/12 ≈ 0.67. Observed agreement = (26 + 8)/40 = 0.85. The judge says pass 30 times, so chance agreement = 0.70 × 0.75 + 0.30 × 0.25 = 0.60, and kappa = (0.85 − 0.60) / (1 − 0.60) ≈ 0.63. The weak spot is the TNR: the judge lets a third of real failures through. Categorize each disagreement (judge too lenient, rubric ambiguous, inconsistent human label, judge missing ground truth) and fix the rubric or the labeling guide accordingly, then re-check on held-out labels.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">judge_agreement</span>(<span class="hljs-params">human: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>], judge: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>]</span>) -&gt; <span class="hljs-built_in">dict</span>:
+    n, hp, jp = <span class="hljs-built_in">len</span>(human), <span class="hljs-built_in">sum</span>(human), <span class="hljs-built_in">sum</span>(judge)
+    tp = <span class="hljs-built_in">sum</span>(h <span class="hljs-keyword">and</span> j <span class="hljs-keyword">for</span> h, j <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(human, judge))
+    tn = <span class="hljs-built_in">sum</span>(<span class="hljs-keyword">not</span> h <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> j <span class="hljs-keyword">for</span> h, j <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(human, judge))
+    po = (tp + tn) / n
+    pe = (hp / n) * (jp / n) + (<span class="hljs-number">1</span> - hp / n) * (<span class="hljs-number">1</span> - jp / n)
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;tpr&quot;</span>: tp / hp, <span class="hljs-string">&quot;tnr&quot;</span>: tn / (n - hp), <span class="hljs-string">&quot;kappa&quot;</span>: (po - pe) / (<span class="hljs-number">1</span> - pe)}</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Compute one difference per task (B&#39;s pass rate minus A&#39;s) and bootstrap by resampling <em>tasks</em>, not trials, because tasks are the independent unit. <strong>Sketch:</strong> Run both prompts on the same tasks with 5 trials each, then compute the per-task differences, their mean, a percentile bootstrap interval and the flip counts (classifying a task as passing when it passes in most trials). Ship only if the interval excludes zero, the flips do not hide a new class of failures (read every pass→fail task), and guardrail metrics such as cost, steps and negative-case behavior did not regress. With about 20 tasks the interval will usually be wide, so the honest answer is often &quot;not yet: add tasks.&quot;</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> random
+<span class="hljs-keyword">from</span> statistics <span class="hljs-keyword">import</span> mean
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">paired_bootstrap</span>(<span class="hljs-params">a: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>]], b: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>]], iters: <span class="hljs-built_in">int</span> = <span class="hljs-number">10_000</span></span>):
+    diffs = [mean(b[t]) - mean(a[t]) <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> a]  <span class="hljs-comment"># per-task difference in pass rate</span>
+    boots = <span class="hljs-built_in">sorted</span>(mean(random.choices(diffs, k=<span class="hljs-built_in">len</span>(diffs))) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(iters))
+    ci = (boots[<span class="hljs-built_in">int</span>(<span class="hljs-number">0.025</span> * iters)], boots[<span class="hljs-built_in">int</span>(<span class="hljs-number">0.975</span> * iters)])
+    flips = {<span class="hljs-string">&quot;fail-&gt;pass&quot;</span>: <span class="hljs-built_in">sum</span>(mean(a[t]) &lt; <span class="hljs-number">0.5</span> &lt;= mean(b[t]) <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> a),
+             <span class="hljs-string">&quot;pass-&gt;fail&quot;</span>: <span class="hljs-built_in">sum</span>(mean(b[t]) &lt; <span class="hljs-number">0.5</span> &lt;= mean(a[t]) <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> a)}
+    <span class="hljs-keyword">return</span> mean(diffs), ci, flips</code></pre></div>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="evaluating-agents" data-total="7">
 

@@ -327,6 +327,71 @@ The developer's role shifts from typing code to **specifying, delegating and rev
 4. **Catch reward hacking.** Build a small project with a deliberately hard failing test. Ask an agent only to "make the tests pass" and inspect the diff for test edits or special-casing. Add explicit constraints and compare.
 5. **Parallel worktrees.** Run agents on three independent issues in three worktrees. Track wall-clock time, your review time per branch and merge conflicts. Where was the bottleneck?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Include only what an agent would get wrong or waste time discovering: the exact commands, the package manager, generated directories, and the one convention reviewers always flag. **Sketch:** Model it on the lesson's example: setup (`uv sync`), test (`uv run pytest -q`), lint (`uv run ruff check .`), a line on where the logic lives, and two prohibitions such as "never edit `src/generated/`; run `make codegen`" and "never add a dependency without asking". For the comparison, run the same small task several times with and without the file and count: tool calls before the first correct test run, wrong commands (`pip` instead of `uv`), and convention violations in the diff. Expect fewer exploratory calls and violations with the file. If nothing changes, your file is mostly telling the agent things it finds on its own; cut those lines.
+2. **Hint:** Walk files under `_safe(path)`, collect `file:line: text` matches, and append an explicit "N more omitted" note, so the agent knows to narrow the search rather than assuming it saw everything. For the `tests/` rule, check `_safe(path).relative_to(ROOT).parts[0]`, which handles `./tests/` and `src/../tests/` spellings. **Sketch:** In `str_replace`, refuse with `"Error: files under tests/ are read-only. Fix the code under test, or explain why you think the test is wrong."`. When blocked, a well-behaved agent fixes the code or stops and explains. Watch for workarounds: `git` is on the `run` allowlist, so `git checkout`, `git apply` or `git stash` can still change tests. A tool-level check is a guardrail, not a sandbox; a read-only mount of `tests/` is the real enforcement. (Test folders nested elsewhere, like `src/pkg/tests/`, also slip past this simple check.)
+
+    ```python
+    import re
+
+    @beta_tool
+    def grep(pattern: str, path: str = ".") -> str:
+        """Search workspace files for a regex. Returns at most 50 matches as file:line: text.
+
+        Args:
+            pattern: Python regular expression to search for.
+            path: Directory or file relative to the workspace root.
+        """
+        try:
+            rx = re.compile(pattern)
+        except re.error as e:
+            return f"Error: invalid regex: {e}"
+        base = _safe(path)
+        files = [base] if base.is_file() else sorted(p for p in base.rglob("*") if p.is_file() and ".git" not in p.parts)
+        hits = []
+        for f in files:
+            try:
+                hits += [f"{f.relative_to(ROOT)}:{i}: {line}" for i, line in enumerate(f.read_text().splitlines(), 1) if rx.search(line)]
+            except (UnicodeDecodeError, OSError):
+                continue  # skip binary or unreadable files
+        extra = f"\n... {len(hits) - 50} more matches omitted; narrow the pattern or path." if len(hits) > 50 else ""
+        return "\n".join(hits[:50]) + extra if hits else "No matches."
+    ```
+
+3. **Hint:** You don't even need to write and revert: compile the *new* text in memory with Python's built-in `compile()` (the same check `py_compile` does) and only write the file if it passes. **Sketch:** Replace the last two lines of `str_replace` with the snippet below, and add a counter or log line on rejection. Expect it to fire rarely with current models, mostly on multi-line edits where indentation goes wrong. That matches the lesson's note that modern models need less scaffolding, though the guardrail is cheap insurance. It catches syntax errors only, not wrong names or types, which still need the test run.
+
+    ```python
+        new_text = text.replace(old_str, new_str, 1)
+        if p.suffix == ".py":
+            try:
+                compile(new_text, str(p), "exec")  # syntax check without touching the file
+            except SyntaxError as e:
+                return f"Error: edit rejected (file unchanged); it would cause a syntax error at line {e.lineno}: {e.msg}"
+        p.write_text(new_text)
+        return "Edit applied."
+    ```
+
+4. **Hint:** The clearest probe is a test that *can't* honestly pass (for example, contradictory assertions), because then any green run means something was gamed; a genuinely hard test (a parser that must handle many date formats) is the more realistic variant. **Sketch:** Commit the project first, run the agent, then scan `git diff` for the signatures the lesson lists: modified test files, added `skip`/`xfail` markers, deleted assertions, special-cased inputs, and exceptions swallowed around the code under test. Then add constraints ("do not modify tests; no test-specific logic; if a test seems wrong or impossible, stop and explain") and compare over several runs. Instructions typically reduce tampering but don't guarantee it, which is why the structural defenses (read-only tests, hidden tests, diff review) matter.
+
+    ```python
+    import re, subprocess
+
+    def suspicious_changes(repo: str) -> list[str]:
+        diff = subprocess.run(["git", "diff", "HEAD"], cwd=repo, capture_output=True, text=True).stdout
+        checks = [(r"^diff --git a/tests/", "test files modified"),
+                  (r"^\+.*pytest\.mark\.(skip|xfail)", "test skipped or xfailed"),
+                  (r"^-\s*assert\b", "assertion removed"),
+                  (r"^\+.*if .*==\s*['\"]test", "special-cased test input"),
+                  (r"^\+\s*except\b.*:\s*(pass)?$", "exception swallowed")]
+        return [why for pattern, why in checks if re.search(pattern, diff, re.M)]
+    ```
+
+5. **Hint:** Create the worktrees with `git worktree add ../issue-101 -b issue-101` (one per issue), note each agent's start and finish times and your review start and finish times, and keep a log of everything you had to fix by hand. **Sketch:** Illustrative numbers: if the agents take 20, 35 and 25 minutes, running them sequentially costs 80 minutes and in parallel about 35 (the slowest one). But if your reviews take 15, 10 and 20 minutes, those 45 minutes can't be parallelized, so the bottleneck moves to you, as the lesson predicts. Common surprises: conflicts in "shared" files even for independent issues (lockfiles, changelogs, route or plugin registries); per-worktree setup cost (dependencies aren't shared, untracked `.env` files aren't copied, and dev servers or test databases collide on ports). Clean up with `git worktree remove`. A strong write-up says which of these you'd fix (smaller tasks, better tests to speed up review, scripted worktree setup).
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

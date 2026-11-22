@@ -482,6 +482,74 @@ This harness gets the essentials right: fresh state per trial, outcome graded fr
 4. **Calibrate a judge.** Generate 40 transcripts across both tasks, hand-label each pass/fail, and compute the judge's true positive rate, true negative rate and Cohen's kappa against your labels. Read every disagreement and categorize the cause.
 5. **Paired comparison (harder).** Make a second version of the system prompt. Run both versions on 20+ tasks (write more), 5 trials each, and compute the per-task difference in pass rate, the mean difference, a 95% confidence interval for it (bootstrap over tasks), and the fail→pass / pass→fail flip counts. Would you ship?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** pass@k is "not all k fail", pass^k is "all k succeed", and for the estimator you only need two binomial coefficients. **Sketch:** pass@3 = 1 − (1 − 0.9)³ = 1 − 0.001 = 0.999. pass^3 = 0.9³ = 0.729. From 7 successes in 10 trials: pass^3 ≈ C(7,3) / C(10,3) = 35 / 120 ≈ 0.29 (lower than plugging in 0.7³ ≈ 0.34). For the product manager: "90% accurate" means each conversation succeeds 9 times in 10, but a customer who uses it three times needs all three to go right, which happens 72.9% of the time, so about 27%, roughly one in four of those customers, hit at least one failure.
+2. **Hint:** Accumulate `resp.usage` inside the loop of `run_agent` and return it in the trial dict, then write cost and budget as ordinary functions with the same signature as `grade_outcome`. **Sketch:** Multiply tokens by the agent model's prices (from [cost and latency](cost-and-latency.html); add the cache fields if you turn on caching). Add `grade_budget` to the pass condition or report it separately as a guardrail metric. With only 5 trials per task, a "p95" is essentially the slowest trial, so use more trials or report the max honestly.
+
+    ```python
+    from statistics import mean, quantiles
+
+    PRICE_IN, PRICE_OUT = 2.00, 10.00  # $/MTok, claude-sonnet-5-5 (Nov 2026; check current pricing)
+
+    # In run_agent: usage = {"input": 0, "output": 0} before the loop; after each call,
+    # usage["input"] += resp.usage.input_tokens; usage["output"] += resp.usage.output_tokens.
+    # Return it in the trial dict as "usage".
+
+    def trial_cost(trial: dict) -> float:
+        u = trial["usage"]
+        return (u["input"] * PRICE_IN + u["output"] * PRICE_OUT) / 1_000_000
+
+    def grade_budget(task, env, trial: dict) -> bool:
+        return trial["steps"] <= 6
+
+    def summarize(costs: list[float], steps: list[int]) -> str:
+        return f"mean cost ${mean(costs):.4f}, p95 steps {quantiles(steps, n=20, method='inclusive')[-1]:.1f}"
+    ```
+3. **Hint:** Test the judge directly: build an `Env`, set its `refunds` to the ground truth you want, and call `grade_reply` with a hand-written `{"final": ...}` dict, several times per case, since the judge is non-deterministic too. **Sketch:** Three cases with expected verdicts: (a) a long, warm apology that says $89 was refunded "and, as a courtesy, your $15 shipping too", with ground truth `[("A100", 89.0)]` → fail (it claims an action that did not happen); (b) "Refunded $89 for the broken lamp. The rug and shipping aren't refunded." with the same ground truth → pass; (c) the same correct-sounding text with ground truth `[]` → fail. If (a) passes, add a criterion that every amount mentioned must match the ground-truth refunds exactly. If (b) fails, the judge is rewarding warmth, so restate that brevity is acceptable. Keep the cases as a small judge regression suite.
+
+    ```python
+    cases = [  # (reply, refunds actually issued, expected verdict)
+        ("We're so sorry! We've refunded $89 for the lamp and, as a courtesy, your $15 shipping.",
+         [("A100", 89.0)], "fail"),
+        ("Refunded $89 for the broken lamp. The rug and shipping aren't refunded.", [("A100", 89.0)], "pass"),
+        ("Refunded $89 for the broken lamp. The rug and shipping aren't refunded.", [], "fail"),
+    ]
+    for reply, refunds, expected in cases:
+        env = Env(tasks[0].orders)
+        env.refunds = refunds
+        got = grade_reply(tasks[0], env, {"final": reply}).verdict
+        print(f"expected={expected} got={got} {'OK' if got == expected else 'MISMATCH'}")
+    ```
+4. **Hint:** Treat "pass" as the positive class: TPR is the share of human passes the judge accepts, TNR is the share of human failures it catches, and kappa compares observed agreement with the agreement expected by chance from each side's pass rate. **Sketch:** Worked example: humans label 28 pass and 12 fail; the judge accepts 26 of the 28 and catches 8 of the 12. TPR = 26/28 ≈ 0.93, TNR = 8/12 ≈ 0.67. Observed agreement = (26 + 8)/40 = 0.85. The judge says pass 30 times, so chance agreement = 0.70 × 0.75 + 0.30 × 0.25 = 0.60, and kappa = (0.85 − 0.60) / (1 − 0.60) ≈ 0.63. The weak spot is the TNR: the judge lets a third of real failures through. Categorize each disagreement (judge too lenient, rubric ambiguous, inconsistent human label, judge missing ground truth) and fix the rubric or the labeling guide accordingly, then re-check on held-out labels.
+
+    ```python
+    def judge_agreement(human: list[bool], judge: list[bool]) -> dict:
+        n, hp, jp = len(human), sum(human), sum(judge)
+        tp = sum(h and j for h, j in zip(human, judge))
+        tn = sum(not h and not j for h, j in zip(human, judge))
+        po = (tp + tn) / n
+        pe = (hp / n) * (jp / n) + (1 - hp / n) * (1 - jp / n)
+        return {"tpr": tp / hp, "tnr": tn / (n - hp), "kappa": (po - pe) / (1 - pe)}
+    ```
+5. **Hint:** Compute one difference per task (B's pass rate minus A's) and bootstrap by resampling *tasks*, not trials, because tasks are the independent unit. **Sketch:** Run both prompts on the same tasks with 5 trials each, then compute the per-task differences, their mean, a percentile bootstrap interval and the flip counts (classifying a task as passing when it passes in most trials). Ship only if the interval excludes zero, the flips do not hide a new class of failures (read every pass→fail task), and guardrail metrics such as cost, steps and negative-case behavior did not regress. With about 20 tasks the interval will usually be wide, so the honest answer is often "not yet: add tasks."
+
+    ```python
+    import random
+    from statistics import mean
+
+    def paired_bootstrap(a: dict[str, list[bool]], b: dict[str, list[bool]], iters: int = 10_000):
+        diffs = [mean(b[t]) - mean(a[t]) for t in a]  # per-task difference in pass rate
+        boots = sorted(mean(random.choices(diffs, k=len(diffs))) for _ in range(iters))
+        ci = (boots[int(0.025 * iters)], boots[int(0.975 * iters)])
+        flips = {"fail->pass": sum(mean(a[t]) < 0.5 <= mean(b[t]) for t in a),
+                 "pass->fail": sum(mean(b[t]) < 0.5 <= mean(a[t]) for t in a)}
+        return mean(diffs), ci, flips
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz
