@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning: breaking big goals into steps · Agents Made Simple</title><meta name="description" content="How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="chapter">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page chapter" data-slug="planning">
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🧠 How Agents Think</a><div class="ch-hero-emoji">🗺️</div><p class="eyebrow">Chapter 3 of 3</p><h1>Planning: breaking big goals into steps</h1><p class="lead">How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong.</p><p class="meta">⏱ 10 min read · 🎮 1 interactive demo</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#why-big-goals-need-small-steps">Why big goals need small steps</a><a href="#watch-an-agent-plan-and-replan">Watch an agent plan (and replan)</a><a href="#the-to-do-list-agents-keep">The to-do list agents keep</a><a href="#plan-first-or-plan-as-you-go">Plan first, or plan as you go?</a><a href="#checking-its-own-work">Checking its own work</a><a href="#a-word-about-thinking-models">A word about thinking models</a><a href="#helping-an-agent-plan-well">Helping an agent plan well</a><a href="#quick-check">Quick check</a><a href="#what-s-next">What s next</a></nav></div>
+<article class="prose"><p>Think about the last time you organized something big: a birthday party, a move to a new flat, a group trip. You didn&#39;t do it all in one go. You probably grabbed a piece of paper (or your phone) and wrote a list: <em>pick a date, book the place, invite people, order food.</em> Then you worked through it — and when the restaurant you wanted was full, you crossed that line out and wrote a new one.</p>
+<p>That&#39;s planning, and it&#39;s exactly what capable agents do. Give an agent a big goal like &quot;organize our team offsite&quot; and it doesn&#39;t jump straight into clicking buttons. It first breaks the goal into smaller steps, then works through them one at a time, adjusting as it learns more.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p><strong>Planning</strong> means turning one large goal into a list of small, doable steps — and updating that list as you go. Small steps are easier to do, easier to check, and easier to fix when they go wrong.</p>
+</div>
+<h2 id="why-big-goals-need-small-steps">Why big goals need small steps</h2>
+<p>A big goal is vague. &quot;Write a report on e-bikes&quot; doesn&#39;t tell you what to do <em>right now</em>. But &quot;search for recent sales data&quot; does. Breaking a goal into pieces is called <strong>decomposition</strong> — a fancy word for &quot;chopping a big job into bite-sized ones.&quot;</p>
+<p>This matters even more for an agent than for you. As you saw in <a href="the-agent-loop.html">the agent loop</a>, an agent works one step at a time: think, act, look at the result, repeat. If it doesn&#39;t know what the steps are, it can wander — doing things in the wrong order, forgetting a part of the job, or declaring victory too early. A plan keeps it on track.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Like a satellite navigation app</div><p>When you type a destination into a navigation app, it first works out the whole route: <em>turn left, motorway for 20 km, exit 14…</em> Then it guides you one turn at a time. And if there&#39;s a road closure, it doesn&#39;t give up — it <strong>reroutes</strong>. A good agent plans the same way: a route first, one turn at a time, and a new route when the road is blocked.</p>
+</div>
+<h2 id="watch-an-agent-plan-and-replan">Watch an agent plan (and replan)</h2>
+<p>Pick a goal below, press <strong>🧠 Make a plan</strong> to watch the agent break it down, then press <strong>▶ Run the plan</strong> to watch it work through the steps. Keep an eye out — something is going to go wrong.</p>
+<div data-widget="plan-tree"></div>
+
+<p>Did you notice what happened when a step failed? The agent didn&#39;t stop, and it didn&#39;t pretend everything was fine. It marked the step as failed, added a <strong>new step</strong> to work around the problem (like reserving the second-choice venue), and carried on with the rest of the plan. That&#39;s the heart of good planning: not a perfect plan, but a plan that bends instead of breaks.</p>
+<h2 id="the-to-do-list-agents-keep">The to-do list agents keep</h2>
+<p>Many agents literally keep a to-do list while they work, just like you would. If you watched the <a href="example-coding-agent.html">coding agent example</a>, you saw one: <em>Reproduce the bug, Find the discount code, Fix it, Run all tests, Explain the fix.</em> Each item got ticked off as the agent finished it.</p>
+<p>Why bother writing it down? Three reasons:</p>
+<ol>
+<li><strong>It helps the agent remember.</strong> On a long job, an agent can read and do a lot. A written list keeps the goal in view, so it doesn&#39;t lose the thread halfway through. (You&#39;ll recall from <a href="memory.html">Memory</a> that an agent&#39;s working memory is limited — a short list is a cheap way to hold on to what matters.)</li>
+<li><strong>It shows you what&#39;s happening.</strong> You can glance at the list and see where the agent is, what&#39;s done and what&#39;s next — instead of guessing.</li>
+<li><strong>It stops &quot;done too soon.&quot;</strong> If two items are still unticked, the job isn&#39;t finished, no matter how confident the agent feels.</li>
+</ol>
+<div class="detail">
+
+<p><strong>How this works in real tools:</strong> as of 2026, several coding and research agents (Claude Code is one example) give the model a dedicated &quot;to-do&quot; tool. The model calls it to write or update its task list, and the app shows that list to you. Other agents simply keep a plan in a notes file they can re-read. Either way, the list lives <em>outside</em> the model&#39;s head, so it survives even when older parts of the conversation are summarized or forgotten.</p>
+</div>
+
+<h2 id="plan-first-or-plan-as-you-go">Plan first, or plan as you go?</h2>
+<p>There are two broad styles, and good agents mix them:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Style</th>
+<th>How it works</th>
+<th>Best when…</th>
+<th>Everyday example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🗺️ <strong>Plan, then act</strong></td>
+<td>Write the full plan up front, then follow it</td>
+<td>The steps are fairly predictable</td>
+<td>Following a recipe</td>
+</tr>
+<tr>
+<td>🧭 <strong>Step by step</strong></td>
+<td>Decide only the next step, look at the result, decide again</td>
+<td>You can&#39;t know the steps until you see what happens</td>
+<td>Exploring a new city</td>
+</tr>
+</tbody></table>
+</div>
+<p>In practice, most agents do a bit of both: they sketch a rough plan, start working, and <strong>replan</strong> whenever they learn something that changes the picture. A website is down, a file is missing, a test fails, a source contradicts another — each of these is a signal to stop, think, and update the list.</p>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Ask to see the plan first</div><p>For any bigger task, try adding: <em>&quot;Before you start, show me your plan and wait for my OK.&quot;</em> You&#39;ll catch misunderstandings in ten seconds instead of after ten minutes of wasted work — and you can add steps the agent didn&#39;t think of. Many agents also offer a dedicated &quot;plan mode&quot; that does exactly this.</p>
+</div>
+<div class="detail">
+
+<p><strong>The names engineers use:</strong> the &quot;step by step&quot; style is often called <strong>ReAct</strong> (short for <em>reason + act</em>), from a 2022 research paper that had a model alternate between writing a thought and taking an action. The &quot;plan, then act&quot; style is often called <strong>plan-and-execute</strong>. Plan-and-execute can be cheaper and more predictable because the expensive thinking happens once; ReAct handles surprises better. Modern agents usually blend the two: a plan that gets revised after each observation.</p>
+</div>
+
+<h2 id="checking-its-own-work">Checking its own work</h2>
+<p>Planning isn&#39;t only about <em>what to do next</em>. It&#39;s also about pausing to ask: <em>&quot;Did that actually work? Am I still on track?&quot;</em> This habit is called <strong>reflection</strong> or <strong>self-checking</strong>.</p>
+<p>A careful agent checks in a few ways:</p>
+<ul>
+<li><strong>After each step:</strong> &quot;The search returned results from 2019 — that&#39;s too old. I&#39;ll search again for recent data.&quot;</li>
+<li><strong>Before finishing:</strong> &quot;Does my report answer all three questions the user asked? Did I cite a source for every number?&quot;</li>
+<li><strong>Against the real world, whenever possible:</strong> running the tests, re-opening the file it just saved, or re-reading the email before sending.</li>
+</ul>
+<p>That last kind of check is the strongest. An agent re-reading its own answer and thinking &quot;looks good to me&quot; can miss its own mistakes — just like proofreading your own essay. A check that uses an outside signal (a test that passes or fails, a calculator, the actual web page) is much harder to fool. That&#39;s why coding agents are so reliable at fixing bugs: the tests tell them the truth. You&#39;ll dig deeper into this in <a href="reliable-agents.html">Making agents reliable</a>.</p>
+<div class="steps-strip">
+<div><strong>Plan</strong>Break the goal into small, checkable steps.</div>
+<div><strong>Do one step</strong>Act with a tool.</div>
+<div><strong>Check</strong>Did it work? Look at the real result.</div>
+<div><strong>Update</strong>Tick it off — or add a new step to fix the problem.</div>
+<div><strong>Final review</strong>Does the result match the original goal?</div>
+</div>
+
+<h2 id="a-word-about-thinking-models">A word about &quot;thinking&quot; models</h2>
+<p>You may have seen AI apps with a &quot;thinking&quot; or &quot;reasoning&quot; mode, where the AI pauses before answering and you can sometimes peek at its notes. These are models trained to work through a problem in a private scratchpad before giving their answer — a bit like doing rough working on scrap paper before writing the final answer in an exam.</p>
+<p>For agents, this extra thinking time helps most with planning: weighing options, spotting steps that depend on each other, and noticing when a plan has a gap. It costs more time and money, so it&#39;s most worth it for tricky, many-step tasks — not for &quot;what&#39;s the capital of France?&quot;</p>
+<div class="detail">
+
+<p><strong>What&#39;s going on inside:</strong> a &quot;thinking&quot; model generates extra text — often called reasoning or thinking tokens — before its final reply. Nothing magical happens: it&#39;s the same next-word prediction you met in <a href="the-ai-brain.html">The AI brain</a>, just given room to work things out step by step. Models are specifically trained to make this scratchpad useful, and many products let you set a &quot;thinking budget&quot; (how much it may think). One honest caveat: the visible reasoning is a helpful window, but researchers have found it doesn&#39;t always perfectly reflect <em>why</em> the model reached its answer — so judge the agent by its results, not only by its notes.</p>
+</div>
+
+<h2 id="helping-an-agent-plan-well">Helping an agent plan well</h2>
+<p>You don&#39;t need to plan for the agent — that&#39;s its job — but you can make its planning much better:</p>
+<ul>
+<li><strong>Describe the finish line.</strong> &quot;Done means a one-page summary with three options and prices&quot; gives the agent something to plan <em>toward</em>. (More on this in <a href="great-instructions.html">Giving great instructions</a>.)</li>
+<li><strong>Mention what you already know is tricky.</strong> &quot;The venue must be step-free&quot; or &quot;our sales data is in the second tab&quot; saves the agent from planning around a wrong guess.</li>
+<li><strong>Review the plan for big jobs.</strong> A thirty-second look at the plan is the cheapest quality check there is.</li>
+<li><strong>Expect replanning — and welcome it.</strong> An agent that says &quot;the first approach didn&#39;t work, so I&#39;m trying X&quot; is doing its job well. An agent that never reports a problem on a messy task should make you <em>more</em> suspicious, not less.</li>
+</ul>
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>See planning in action</div><p>Watch the <a href="example-research-agent.html">research agent</a> plan its searches and drop weak sources, or the <a href="example-incident-responder.html">incident responder</a> form a theory, test it, and change course when the evidence points elsewhere.</p>
+</div>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to [describe your big goal, e.g. &quot;organize a one-day workshop for 25 people next month&quot;].
+Before doing anything:
+1. Break this into a step-by-step plan with no more than 8 main steps.
+2. For each step, say how you'll know it's done.
+3. Flag any step where you need information or a decision from me.
+Then wait for my OK before starting. If a step fails while you're working, tell me what happened and how you're changing the plan.</pre></div>
+<h2 id="quick-check">Quick check</h2>
+<div class="quiz" data-quiz="planning">
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">1</span>Why do agents break a big goal into smaller steps before acting?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Small steps are easier to do, check and fix, and they keep the agent on track</button><button type="button" class="quiz-opt" data-i="1">So the agent never has to change its plan later</button><button type="button" class="quiz-opt" data-i="2">Because language models can only read short sentences</button><button type="button" class="quiz-opt" data-i="3">Because it makes the agent&#39;s final answer longer and more detailed</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Decomposition turns a vague goal into concrete, checkable steps. It doesn&#39;t mean the plan never changes — good agents replan whenever a step fails or they learn something new.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>In the planning playground, a step failed (for example, the venue was fully booked). What did the agent do?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">It marked the failure and added a new step to work around it</button><button type="button" class="quiz-opt" data-i="1">It stopped and told the user the goal was impossible</button><button type="button" class="quiz-opt" data-i="2">It skipped the step and pretended it had succeeded</button><button type="button" class="quiz-opt" data-i="3">It started the whole plan again from the very beginning</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> That&#39;s replanning: notice the failure honestly, adapt the plan with a new step, and keep going with everything else. Restarting from scratch would waste all the work already done.</div></div>
+<div class="quiz-q" data-correct="3"><p class="quiz-question"><span class="qn">3</span>Which kind of self-check is hardest for an agent to fool itself with?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Re-reading its own answer and deciding it looks fine</button><button type="button" class="quiz-opt" data-i="1">Writing a longer explanation of its reasoning</button><button type="button" class="quiz-opt" data-i="2">Asking itself whether it feels confident</button><button type="button" class="quiz-opt" data-i="3">Checking against an outside signal, like a test result or the real web page</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Re-reading your own work misses your own blind spots. An outside check — a test that passes or fails, a calculator, the actual source — tells the agent the truth even when it&#39;s confident and wrong.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+<h2 id="what-s-next">What&#39;s next</h2>
+<p>One agent with a good plan can do a lot. But some jobs are so big — or have so many separate parts — that it helps to split them among <strong>several agents working at once</strong>. Next: <a href="agent-teams.html">teams of agents</a>, and why they&#39;re faster but more expensive.</p>
+</article>
+<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="planning">Mark as done</button></section>
+<nav class="pager"><a href="the-ai-brain.html"><small>← Previous</small>🧠 The AI brain inside every agent</a><a class="next" href="examples.html"><small>Next →</small>🎬 Agents in action</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+
+</body></html>

@@ -1,0 +1,46 @@
+window.SIMS = window.SIMS || {};
+window.SIMS["ch-the-agent-loop"] = {
+  title: "The agent loop plans a hiking weekend",
+  intro: "Jordan wants a hiking weekend in the (fictional) mountain town of Pine Ridge and asks an agent with a <strong>weather tool</strong> and a <strong>cabin-booking tool</strong> to sort it out. Watch each turn of the loop. Press <strong>▶ Play</strong>.",
+  panes: [
+    { id: "chat", type: "chat", title: "Chat with the agent" },
+    { id: "think", type: "thoughts", title: "Agent's thinking" },
+    { id: "tools", type: "tools", title: "Tool calls & results" },
+    { id: "plan", type: "checklist", title: "Agent's plan" }
+  ],
+  steps: [
+    { phase: "user", say: "The goal arrives. Jordan says *what* they want, not *how* to do it.",
+      do: [{ pane: "chat", op: "msg", from: "user", text: "Plan a hiking weekend in Pine Ridge this Saturday–Sunday. Book me a cabin for Saturday night, under $150." }], tokens: 300, t: 2 },
+    { phase: "think", say: "**Think:** before doing anything, the agent makes a rough plan. Hiking depends on the weather, so it decides to check that first.",
+      do: [{ pane: "think", op: "think", text: "Outdoor plans depend on the weather, so I'll check the forecast before picking a hiking day or booking anything." },
+           { pane: "plan", op: "set", items: ["Check the weekend forecast", "Choose the best day to hike", "Find a cabin under $150", "Book it (with Jordan's OK)", "Confirm the booking"] }], tokens: 500, t: 3 },
+    { phase: "act", say: "**Act:** the agent asks for the weather tool to be run. It can't look out of a window — the tool is its eyes.",
+      do: [{ pane: "plan", op: "mark", i: 0, state: "doing" }, { pane: "tools", op: "call", name: "get_forecast", args: { place: "Pine Ridge", days: "Sat–Sun" } }], tokens: 200, t: 2 },
+    { phase: "observe", say: "**Observe:** a surprise! Thunderstorms are likely on Saturday afternoon — the worst time to be on a mountain trail.",
+      do: [{ pane: "tools", op: "result", text: "Sat: thunderstorms likely from 12:00 (80%), 14°C\nSun: sunny, light wind, 19°C" }, { pane: "plan", op: "mark", i: 0, state: "done" }], tokens: 300, t: 1 },
+    { phase: "think", say: "**Think again:** the agent **adapts** instead of sticking to its first idea. A Saturday-night cabin still works perfectly — Jordan can arrive Saturday and hike early Sunday.",
+      do: [{ pane: "think", op: "think", text: "Hiking Saturday would be unsafe. Better: travel and relax on Saturday, hike Sunday morning in the sun. The Saturday-night cabin fits this even better — ideally one close to the trailhead." },
+           { pane: "plan", op: "mark", i: 1, state: "done", text: "Hike on Sunday (storms Saturday)" }], tokens: 600, t: 3 },
+    { phase: "act", say: "**Act:** now it uses the booking tool to search, passing along Jordan's budget so it doesn't waste time on options that don't fit.",
+      do: [{ pane: "plan", op: "mark", i: 2, state: "doing" }, { pane: "tools", op: "call", name: "search_cabins", args: { place: "Pine Ridge", night: "Saturday", max_price: 150 } }], tokens: 200, t: 2 },
+    { phase: "observe", say: "**Observe:** three cabins come back. The cheapest isn't automatically the best.",
+      do: [{ pane: "tools", op: "result", text: "1. Birch Hut — $95, rating 4.1, 18 km from trailhead\n2. Cedar Hollow — $135, rating 4.7, 1.5 km from trailhead\n3. Lakeview Lodge — $149, rating 3.8, 9 km from trailhead" }], tokens: 400, t: 1 },
+    { phase: "think", say: "The agent weighs the options against the plan it just made: an early Sunday hike makes being near the trailhead worth the extra $40. It also **checks** the cancellation policy, in case the weather changes again.",
+      do: [{ pane: "think", op: "think", text: "Cedar Hollow: under budget, best reviews, a short walk to the trail for an early start. Let me check it can be cancelled if the forecast changes." },
+           { pane: "tools", op: "call", name: "cabin_details", args: { cabin: "Cedar Hollow", night: "Saturday" } },
+           { pane: "tools", op: "result", text: "Available ✓ · $135 total · free cancellation until Thursday 18:00" },
+           { pane: "plan", op: "mark", i: 2, state: "done", text: "Found Cedar Hollow — $135" }], tokens: 700, t: 4 },
+    { phase: "human", say: "Booking spends Jordan's money, so the agent **stops and asks** before acting. You're Jordan — approve or deny!",
+      do: [{ pane: "plan", op: "mark", i: 3, state: "doing" },
+           { pane: "chat", op: "msg", from: "agent", text: "Heads-up: storms are likely Saturday afternoon, so I suggest arriving Saturday and hiking Sunday morning (sunny, 19°C). Cedar Hollow is $135, rated 4.7, 1.5 km from the trailhead, with free cancellation until Thursday. Shall I book it?" },
+           { pane: "chat", op: "approval", title: "Book Cedar Hollow for Saturday night?", detail: "1 night · $135 total\nFree cancellation until Thursday 18:00", approve: "✅ Book it", deny: "✋ Not yet", deniedSay: "Jordan said not yet — so the agent books nothing. It keeps the plan ready and stops, because spending money needs a yes." }], tokens: 400, t: 2 },
+    { phase: "act", say: "**Act:** with permission, the agent uses the booking tool to make the reservation.",
+      do: [{ pane: "tools", op: "call", name: "book_cabin", args: { cabin: "Cedar Hollow", night: "Saturday", guests: 1 } }], tokens: 200, t: 3 },
+    { phase: "observe", say: "**Observe and check:** the agent doesn't just assume it worked. It reads the confirmation and compares it with what Jordan asked for: right night, right price.",
+      do: [{ pane: "tools", op: "result", text: "Confirmed ✓ Booking #CH-4821 · Saturday, 1 night · $135" },
+           { pane: "think", op: "think", text: "Confirmation matches: Saturday night, 1 night, $135, under the $150 budget. Goal reached — time to stop and report." },
+           { pane: "plan", op: "mark", i: 3, state: "done" }, { pane: "plan", op: "mark", i: 4, state: "done" }], tokens: 400, t: 1 },
+    { phase: "done", say: "Done! Four trips around **think → act → observe**, one surprise it adapted to, one check, and one human decision. Then it **stopped**, because the goal was met.",
+      do: [{ pane: "chat", op: "msg", from: "agent", text: "All set! Cedar Hollow is booked for Saturday night (#CH-4821, $135). Plan: arrive Saturday and relax while the storms pass, then hike Sunday morning in the sunshine. I can check the forecast again on Thursday, before free cancellation ends, if you'd like." }], tokens: 300, t: 2 }
+  ]
+};

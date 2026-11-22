@@ -68,6 +68,7 @@ ${body}
     <div class="footer-cols">
       <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Beginners</p><a href="guide/index.html">Agents Made Simple</a><a href="guide/examples.html">Animated examples</a><a href="guide/prompts.html">Prompt library</a></div>
       <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
@@ -201,6 +202,7 @@ export function homePage(site) {
       <a class="btn btn-primary btn-lg continue-btn" href="${first ? first.slug + ".html" : "#"}" data-first="${first ? first.slug : ""}">Start learning →</a>
       <a class="btn btn-ghost btn-lg" href="paths.html">Choose a path</a>
     </div>
+    <p class="hero-sub" style="font-size:16px;margin-top:18px">🌱 Brand new to AI agents? Start with <a href="guide/index.html"><strong>Agents Made Simple</strong></a> — a gentle, animated beginner's guide.</p>
   </div>
   <div class="hero-visual" aria-hidden="true">
     <svg viewBox="0 0 360 320" class="loop-svg">
