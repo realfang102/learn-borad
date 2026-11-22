@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multi-Agent Systems · Agent Academy</title>
+<meta name="description" content="When and how to use multiple cooperating agents: topologies, communication, delegation, failure modes, the 'don't build multi-agents' debate, and a working orchestrator-subagent system.">
+<meta property="og:title" content="Multi-Agent Systems · Agent Academy">
+<meta property="og:description" content="When and how to use multiple cooperating agents: topologies, communication, delegation, failure modes, the 'don't build multi-agents' debate, and a working orchestrator-subagent system.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="multi-agent-systems">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#architectures">Module 3: Architectures &amp; Patterns</a></nav>
+  <header class="lesson-header">
+    <h1>Multi-Agent Systems</h1>
+    <p class="lead">When and how to use multiple cooperating agents: topologies, communication, delegation, failure modes, the 'don't build multi-agents' debate, and a working orchestrator-subagent system.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 45 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 16 of 35</span>
+      <span class="lesson-status" data-status-for="multi-agent-systems"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain the real benefits of multiple agents (context isolation, parallelism, specialization) and their real costs (token multiplier, coordination overhead)</li><li>Compare multi-agent topologies, from orchestrator-subagents to handoffs, debate and simulated societies</li><li>Write delegation briefs and handoff payloads that subagents can act on without shared context</li><li>Diagnose multi-agent failures using the MAST taxonomy and decide when a single agent is the better design</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="workflow-patterns.html">Workflow Patterns</a>, <a href="agent-architectures.html">Single-Agent Architectures</a>, <a href="context-engineering.html">Context Engineering</a></p>
+  </section>
+  <article class="prose">
+<p>Picture asking an assistant to &quot;map every company building solid-state batteries, their funding, and their manufacturing partners.&quot; A single agent works through it serially: search, read, note, search again, while its context window fills with dozens of web pages until the earliest findings blur. Now picture a lead agent that splits the job into eight angles, hands each to a separate <strong>subagent</strong> with its own fresh context, and lets them all search at once. Each subagent returns a few hundred tokens of distilled findings. The lead never sees the raw pages; it sees eight clean reports. That is the promise of <strong>multi-agent systems</strong>: more total thinking than any one context window can hold, done in parallel.</p>
+<p>It is also a trap. The same architecture applied to &quot;build me a web app&quot; produces eight subagents making eight incompatible design decisions. Multi-agent systems burn tokens at a dramatic rate, fail in new and confusing ways, and are harder to debug than any single agent. In 2025 two respected teams published blog posts with nearly opposite titles: Cognition&#39;s &quot;Don&#39;t Build Multi-Agents&quot; and Anthropic&#39;s &quot;How we built our multi-agent research system.&quot; Both were right, about different tasks.</p>
+<p>This lesson teaches you to tell those tasks apart. We cover why to use multiple agents, what it costs, the main topologies, how agents communicate, how to delegate well, how these systems fail, and finally a working orchestrator-subagent system with the Anthropic SDK.</p>
+<h2 id="what-counts-as-multi-agent"><a class="anchor" href="#what-counts-as-multi-agent" aria-hidden="true">#</a>What Counts as Multi-Agent?</h2>
+<p>A <strong>multi-agent system (MAS)</strong> is a system in which two or more LLM-driven agents, each with its own context, instructions and often its own tools, interact to accomplish a task. The key phrase is <strong>its own context</strong>. Two prompts in a fixed pipeline are a workflow (<a href="workflow-patterns.html">Workflow Patterns</a>); they become agents when each runs its own loop and makes its own decisions about what to do next.</p>
+<p>Two vocabulary notes:</p>
+<ul>
+<li>A <strong>subagent</strong> is an agent spawned by another agent to perform a delegated task, usually returning a result and then terminating. Claude Code, the Claude Agent SDK and most research agents use subagents.</li>
+<li><strong>Agent</strong> here does not imply a different model. Many multi-agent systems run the same model with different system prompts, tools and context. Specialization comes mostly from <em>context</em>, not weights.</li>
+</ul>
+<h2 id="why-multiple-agents"><a class="anchor" href="#why-multiple-agents" aria-hidden="true">#</a>Why Multiple Agents?</h2>
+<p>There are four genuine reasons to split work across agents. Notice that &quot;it mirrors a human org chart&quot; is not one of them.</p>
+<p><strong>1. Context isolation (compression).</strong> Every agent&#39;s context window is a scarce resource (<a href="context-engineering.html">Context Engineering</a>). A subagent can read 50,000 tokens of documents and return a 500-token summary. The parent gets the signal without the noise. This is the single most important benefit. It lets a system effectively process far more information than one context window holds, and it keeps the lead agent&#39;s reasoning sharp because its context stays clean.</p>
+<p><strong>2. Parallelism.</strong> Independent subtasks can run simultaneously. For breadth-first work (survey ten sources, check five hypotheses, scan twenty files) wall-clock time drops toward the time of the slowest branch. Anthropic reported that parallelizing subagents (and tool calls within them) cut research time dramatically for complex queries.</p>
+<p><strong>3. Specialization.</strong> Different subtasks benefit from different system prompts, tools, models and permissions. A &quot;security reviewer&quot; subagent with read-only tools and a focused checklist behaves differently from the general agent. You can also route cheap subtasks to cheaper models.</p>
+<p><strong>4. Separation of concerns.</strong> Splitting roles can create useful independence: the agent that writes code is not the one that judges it, so the reviewer is not biased by the writer&#39;s reasoning. It also creates natural security boundaries: an agent that reads untrusted web content need not hold the credentials of the agent that sends email (<a href="agent-security.html">Agent Security</a>).</p>
+<h2 id="what-it-costs"><a class="anchor" href="#what-it-costs" aria-hidden="true">#</a>What It Costs</h2>
+<p><strong>The token multiplier.</strong> Anthropic reported that in its data, agents typically used about 4× more tokens than chat interactions, and its multi-agent research system used about <strong>15× more tokens than chat</strong>. Every subagent has its own system prompt, its own tool definitions, its own reasoning and its own tool results. The same post found that token usage by itself explained most of the variance in performance on a browsing benchmark: multi-agent systems work partly <em>because</em> they spend more tokens. That means they only make economic sense for tasks valuable enough to pay for it (<a href="cost-and-latency.html">Cost &amp; Latency</a>).</p>
+<p><strong>Coordination overhead.</strong> Someone has to decompose the task, write briefs, wait for results, reconcile contradictions and decide when to stop. Each of those is an LLM decision that can go wrong.</p>
+<p><strong>Information loss.</strong> Every handoff is a lossy compression. The subagent does not know what the lead knows; the lead sees only what the subagent chose to report. Researchers call the resulting degradation a &quot;game of telephone.&quot;</p>
+<p><strong>Debuggability.</strong> A failure might originate in the plan, a brief, a subagent&#39;s search, a summary, or the synthesis. Traces span multiple concurrent conversations (<a href="observability.html">Observability</a>).</p>
+<p><strong>Non-determinism compounds.</strong> Small differences early (which subagents were spawned, which sources they found) cascade into very different final outputs, which makes evaluation harder (<a href="evaluating-agents.html">Evaluating Agents</a>).</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The core trade</div><div class="callout-body"><p>Multi-agent systems trade tokens and coordination complexity for <strong>context capacity and parallelism</strong>. They pay off when a task is broad, decomposable into independent parts, and valuable. They hurt when parts are tightly coupled and must agree with each other.</p>
+</div></aside>
+<h2 id="topologies"><a class="anchor" href="#topologies" aria-hidden="true">#</a>Topologies</h2>
+<p>The <strong>topology</strong> of a multi-agent system is who talks to whom and who decides what happens next.</p>
+<h3 id="orchestratorsubagents-supervisor"><a class="anchor" href="#orchestratorsubagents-supervisor" aria-hidden="true">#</a>Orchestrator–subagents (supervisor)</h3>
+<p>A lead agent decomposes the task, spawns subagents with briefs, and synthesizes their results. Subagents do not talk to each other; all coordination flows through the lead. This is the agentic version of the orchestrator-workers workflow, and by far the most common production topology.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TB
+    U([User]) --&gt; L[&quot;Lead agent: plan, delegate, synthesize&quot;]
+    L --&gt;|brief| S1[&quot;Subagent 1 (own context)&quot;]
+    L --&gt;|brief| S2[&quot;Subagent 2 (own context)&quot;]
+    L --&gt;|brief| S3[&quot;Subagent 3 (own context)&quot;]
+    S1 --&gt;|condensed result| L
+    S2 --&gt;|condensed result| L
+    S3 --&gt;|condensed result| L
+    L --&gt; Out([Answer])</pre></figure>
+<p><strong>Best for:</strong> breadth-first research, parallel code search, any read-heavy fan-out.</p>
+<h3 id="hierarchical"><a class="anchor" href="#hierarchical" aria-hidden="true">#</a>Hierarchical</h3>
+<p>Orchestrator–subagents, recursively: a top-level manager delegates to team leads, who delegate to workers. It scales to very large tasks in principle, but every level adds latency, cost and another lossy handoff. In practice deep hierarchies are rare; two levels is common, three is unusual.</p>
+<h3 id="sequential-pipeline"><a class="anchor" href="#sequential-pipeline" aria-hidden="true">#</a>Sequential pipeline</h3>
+<p>Agents arranged in an assembly line: researcher → writer → editor → fact-checker. Each consumes the previous agent&#39;s output. This is prompt chaining where each stage is a full agent. It is easy to reason about, but errors propagate forward and later stages cannot easily send work back unless you add explicit feedback edges.</p>
+<h3 id="peer-network-decentralized"><a class="anchor" href="#peer-network-decentralized" aria-hidden="true">#</a>Peer network (decentralized)</h3>
+<p>Agents communicate directly with each other, with no central controller, through messages or a shared space. Flexible and robust to any single agent failing, but hard to control: conversations can loop, drift or never terminate. Mostly seen in research and simulation rather than production.</p>
+<h3 id="debate-and-critic"><a class="anchor" href="#debate-and-critic" aria-hidden="true">#</a>Debate and critic</h3>
+<p>Multiple agents propose answers, critique each other over several rounds, and converge. Du et al. (2023) showed that <strong>multiagent debate</strong> improved factuality and reasoning over single-model baselines on several tasks. A simpler production version is the <strong>critic</strong>: one agent produces, another reviews with a different prompt or model, much like the evaluator-optimizer workflow but with agentic reviewers that can run tools (execute tests, check sources).</p>
+<h3 id="handoffs-swarm"><a class="anchor" href="#handoffs-swarm" aria-hidden="true">#</a>Handoffs (swarm)</h3>
+<p>Instead of a supervisor calling subagents and getting results back, control is <strong>transferred</strong>: the current agent decides another agent is better suited and hands the conversation over, and the new agent takes over talking to the user. OpenAI popularized this with <strong>Swarm</strong> (October 2024), an explicitly experimental, educational framework built around two primitives, <em>routines</em> and <em>handoffs</em>. Its ideas moved into the production <strong>OpenAI Agents SDK</strong> (2025), where a handoff is exposed to the model as a tool. A minimal sketch in the Agents SDK&#39;s documented style (APIs evolve; check current docs):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> agents <span class="hljs-keyword">import</span> Agent, Runner
+
+billing = Agent(name=<span class="hljs-string">&quot;Billing&quot;</span>, instructions=<span class="hljs-string">&quot;Resolve billing questions. You can issue credits up to $50.&quot;</span>)
+tech = Agent(name=<span class="hljs-string">&quot;Tech support&quot;</span>, instructions=<span class="hljs-string">&quot;Debug technical problems step by step.&quot;</span>)
+triage = Agent(
+    name=<span class="hljs-string">&quot;Triage&quot;</span>,
+    instructions=<span class="hljs-string">&quot;Figure out what the customer needs and hand off to the right specialist.&quot;</span>,
+    handoffs=[billing, tech],          <span class="hljs-comment"># each becomes a transfer_to_... tool for the model</span>
+)
+
+result = Runner.run_sync(triage, <span class="hljs-string">&quot;I was charged twice for my subscription this month.&quot;</span>)
+<span class="hljs-built_in">print</span>(result.final_output)</code></pre></div>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant U as User
+    participant T as Triage agent
+    participant B as Billing agent
+    U-&gt;&gt;T: I was charged twice
+    T-&gt;&gt;B: handoff (conversation + context)
+    B-&gt;&gt;U: I see two charges on Nov 3. I've issued a refund for one.</pre></figure>
+<p><strong>Best for:</strong> customer-facing assistants with distinct domains, where each specialist has its own tools and policies. The key design question is what context travels with the handoff: the full conversation, or a filtered summary.</p>
+<h3 id="role-playing-societies"><a class="anchor" href="#role-playing-societies" aria-hidden="true">#</a>Role-playing societies</h3>
+<p>A line of research builds whole &quot;societies&quot; of role-playing agents:</p>
+<ul>
+<li><strong>CAMEL</strong> (Li et al., 2023) introduced <strong>role-playing</strong> with <strong>inception prompting</strong>: an &quot;AI user&quot; agent instructs an &quot;AI assistant&quot; agent toward a task, with carefully designed prompts keeping both in role. It was used both to study cooperative behavior and to generate conversational datasets.</li>
+<li><strong>ChatDev</strong> (Qian et al., 2023) simulates a software company. Agents in roles such as CEO, CTO, programmer, reviewer and tester move through waterfall-style phases (design, coding, testing, documentation) via structured &quot;chat chains.&quot;</li>
+<li><strong>MetaGPT</strong> (Hong et al., 2023) encodes <strong>Standard Operating Procedures (SOPs)</strong> into the agent team. Agents produce structured artifacts (requirements documents, design specs, interfaces) rather than free chat, and communicate through a shared publish-subscribe message pool. Its insight, that structured intermediate documents beat unstructured dialogue, generalizes well beyond software.</li>
+<li><strong>AutoGen</strong> (Wu et al., 2023, Microsoft) provided a general framework for &quot;conversable agents&quot; and group chats, and became a common substrate for such experiments.</li>
+</ul>
+<p>These systems demonstrated the paradigm and produced useful ideas (structured artifacts, explicit phases, role prompts), but their headline demos were small projects. Treat claims of &quot;an AI company that builds software end-to-end&quot; with care.</p>
+<h3 id="generative-agent-simulations"><a class="anchor" href="#generative-agent-simulations" aria-hidden="true">#</a>Generative-agent simulations</h3>
+<p><strong>Generative Agents</strong> (Park et al., 2023) populated a small virtual town with 25 agents, each with a <strong>memory stream</strong> of observations, periodic <strong>reflection</strong> that synthesized higher-level insights, and <strong>planning</strong> of daily schedules. Believable social behavior emerged; most famously, one agent&#39;s intention to host a Valentine&#39;s Day party spread through the town by conversation, and others showed up. The goal here is not task completion but <strong>simulation</strong>: modeling human behavior for social science, game NPCs, and testing products or policies. The memory-reflection-planning architecture has been hugely influential on <a href="memory.html">agent memory</a> design.</p>
+<h2 id="communication-shared-state-vs-message-passing"><a class="anchor" href="#communication-shared-state-vs-message-passing" aria-hidden="true">#</a>Communication: Shared State vs. Message Passing</h2>
+<p>Agents coordinate in two basic ways.</p>
+<p><strong>Message passing.</strong> Agents send each other explicit messages: a brief down, a report up, a handoff across. Each agent&#39;s context contains only what was sent to it. This gives strong isolation and makes data flow explicit and auditable, but anything not in the message is lost.</p>
+<p><strong>Shared state (blackboard).</strong> Agents read from and write to a common store: a document, a database, a file system, a task board. This is the <strong>blackboard architecture</strong> from <a href="agent-architectures.html#blackboard-architecture">Single-Agent Architectures</a> applied across agents. Information is not lost in transit, and late-arriving agents can catch up, but you need conventions for structure, ownership and concurrent writes, or agents overwrite each other.</p>
+<p>Many production systems blend the two: briefs and status by message, bulky artifacts in shared storage. Anthropic described having subagents write substantial outputs to a file system and pass lightweight references back to the coordinator, rather than routing every token through the lead&#39;s context.</p>
+<h3 id="structured-handoff-payloads"><a class="anchor" href="#structured-handoff-payloads" aria-hidden="true">#</a>Structured handoff payloads</h3>
+<p>Whatever the channel, structure the payload. Free-text &quot;here&#39;s what I found&quot; invites omissions. A good <strong>handoff payload</strong> has a schema:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;task_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;battery-landscape/funding&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;complete&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;summary&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Identified 9 solid-state battery startups with disclosed funding over $50M.&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;findings&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;claim&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Company X raised a Series D in 2025&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;source&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://...&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;confidence&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;high&quot;</span><span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;artifacts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;files/funding_table.csv&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;open_questions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Two companies&#x27; 2026 rounds unconfirmed&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;decisions_made&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Excluded companies focused only on semi-solid electrolytes&quot;</span><span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>The <code>decisions_made</code> field matters more than it looks. It surfaces the <strong>implicit choices</strong> a subagent made, which, as we will see, are the root of many multi-agent failures. Enforce schemas with <a href="structured-outputs.html">structured outputs</a> or strict tool definitions.</p>
+<h2 id="delegation-the-brief-is-everything"><a class="anchor" href="#delegation-the-brief-is-everything" aria-hidden="true">#</a>Delegation: The Brief Is Everything</h2>
+<p>A subagent starts with <strong>nothing</strong>: no conversation history, no knowledge of the user, no idea what the other subagents are doing. Its entire understanding of the task is the brief you write. Short briefs are the most common cause of poor multi-agent results.</p>
+<p>Anthropic reported that early versions of its research system had the lead agent issue short instructions like &quot;research the semiconductor shortage.&quot; Subagents misinterpreted the task or duplicated each other&#39;s work; in the example Anthropic gave, one subagent explored the 2021 automotive chip crisis while two others duplicated each other&#39;s investigation of current supply chains, with no effective division of labor. The fix was teaching the orchestrator to write detailed briefs. Every brief should specify:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Question it answers</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Objective</strong></td>
+<td>What exactly should you find or produce, and why?</td>
+<td>&quot;Find disclosed funding rounds for solid-state battery startups since 2023, for an investor landscape map.&quot;</td>
+</tr>
+<tr>
+<td><strong>Output format</strong></td>
+<td>What shape should the result take?</td>
+<td>&quot;A table: company, round, amount, date, lead investor, source URL. Then up to 5 bullets of caveats.&quot;</td>
+</tr>
+<tr>
+<td><strong>Tool and source guidance</strong></td>
+<td>How should you go about it?</td>
+<td>&quot;Prefer company press releases and filings over aggregator sites. Use 5–15 searches.&quot;</td>
+</tr>
+<tr>
+<td><strong>Boundaries</strong></td>
+<td>What is out of scope? Who covers what?</td>
+<td>&quot;Do NOT research manufacturing partners; another agent covers that. Exclude semi-solid batteries.&quot;</td>
+</tr>
+<tr>
+<td><strong>Effort and stopping</strong></td>
+<td>How much is enough?</td>
+<td>&quot;Stop when you have 8+ companies or after 15 searches, whichever comes first.&quot;</td>
+</tr>
+</tbody></table>
+</div>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Scale effort to complexity, explicitly</div><div class="callout-body"><p>Orchestrators are bad at judging how much work a task deserves; early systems reportedly spawned dozens of subagents for simple questions. Anthropic embedded scaling rules in its prompts: simple fact-finding needs one agent with a few tool calls, direct comparisons a few subagents, complex research many subagents with clearly divided responsibilities. Write your own rules for your domain.</p>
+</div></aside>
+<h2 id="how-multi-agent-systems-fail"><a class="anchor" href="#how-multi-agent-systems-fail" aria-hidden="true">#</a>How Multi-Agent Systems Fail</h2>
+<p>In 2025, Cemri et al. published &quot;Why Do Multi-Agent LLM Systems Fail?&quot;, analyzing execution traces from several popular open-source multi-agent frameworks. They built <strong>MAST</strong> (Multi-Agent System Failure Taxonomy), with 14 failure modes in three categories:</p>
+<p><strong>1. Specification and system design issues</strong>: failures rooted in how the system and tasks were defined.</p>
+<ul>
+<li>Disobeying the task specification; disobeying role specification (an agent doing another&#39;s job)</li>
+<li>Step repetition; loss of conversation history</li>
+<li>Being unaware of termination conditions</li>
+</ul>
+<p><strong>2. Inter-agent misalignment</strong>: failures in how agents interact.</p>
+<ul>
+<li>Conversation reset; failing to ask for clarification</li>
+<li>Task derailment; information withholding</li>
+<li>Ignoring other agents&#39; input; mismatch between an agent&#39;s reasoning and its actions</li>
+</ul>
+<p><strong>3. Task verification and termination</strong>: failures in checking the result.</p>
+<ul>
+<li>Premature termination</li>
+<li>No or incomplete verification; incorrect verification</li>
+</ul>
+<p>Two findings deserve emphasis. First, failures were spread across all three categories, not concentrated in one; there is no single fix. Second, the authors tried simple interventions, improving role prompts and changing the orchestration topology, and found they helped only modestly. Many failures stem from <strong>system design</strong>, not from the model being too weak, so better models alone will not eliminate them. Their recommendation echoes organizational theory: well-designed systems need clear roles, explicit protocols and robust verification, just as human organizations do.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>The verification gap</div><div class="callout-body"><p>A striking share of MAST failures involve verification: agents declaring success without checking, or checking superficially (does the code compile?) rather than substantively (does it do what was asked?). If your multi-agent system has a &quot;reviewer&quot; agent, give it real tools (execute tests, open sources) and a concrete checklist, not just &quot;review this.&quot;</p>
+</div></aside>
+<h2 id="the-great-debate-dont-build-multi-agents"><a class="anchor" href="#the-great-debate-dont-build-multi-agents" aria-hidden="true">#</a>The Great Debate: Don&#39;t Build Multi-Agents?</h2>
+<p>In June 2025, Walden Yan of Cognition (makers of the Devin coding agent) published <strong>&quot;Don&#39;t Build Multi-Agents&quot;</strong>. Its argument rests on two principles:</p>
+<ol>
+<li><strong>Share context, and share full agent traces, not just individual messages.</strong> A subagent that receives only a task description lacks the reasoning and decisions that preceded it.</li>
+<li><strong>Actions carry implicit decisions, and conflicting decisions carry bad results.</strong> When two agents work in parallel, each makes countless small choices (style, assumptions, interfaces) the other does not see.</li>
+</ol>
+<p>Its example: ask a system to build a Flappy Bird clone, split into &quot;make the background&quot; and &quot;make the bird.&quot; One subagent builds a background in the style of a different game; the other builds a bird that matches neither the background nor the intended game. The combiner is left with incompatible parts. Cognition&#39;s recommendation: a <strong>single-threaded linear agent</strong> whose context is continuous, plus a context-compression step for very long tasks.</p>
+<p>The same month, Anthropic published <strong>&quot;How we built our multi-agent research system&quot;</strong>, describing the orchestrator-subagent architecture behind Claude&#39;s Research feature. On its internal research evaluation, a multi-agent configuration (a stronger lead model with lighter subagents) substantially outperformed a single agent using the stronger model alone, with the biggest gains on <strong>breadth-first queries</strong> that involve pursuing many independent directions at once.</p>
+<h3 id="reconciling-them"><a class="anchor" href="#reconciling-them" aria-hidden="true">#</a>Reconciling them</h3>
+<p>Both posts describe the same trade-off from different sides of it. The deciding variable is <strong>how coupled the subtasks are</strong>, particularly whether they <strong>write</strong> shared state or merely <strong>read</strong> the world.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Read-heavy, parallelizable tasks</th>
+<th>Write-heavy, tightly coupled tasks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Examples</td>
+<td>Research, search, code exploration, due diligence, data gathering</td>
+<td>Building an app, editing one codebase, writing one coherent document</td>
+</tr>
+<tr>
+<td>Do subtasks&#39; decisions interact?</td>
+<td>Rarely: findings from different sources can be merged</td>
+<td>Constantly: every choice constrains the others</td>
+</tr>
+<tr>
+<td>Cost of a handoff&#39;s information loss</td>
+<td>Low: the subagent returns facts</td>
+<td>High: lost decisions cause incompatibility</td>
+</tr>
+<tr>
+<td>Benefit of context isolation</td>
+<td>High: each subagent digests lots of raw material</td>
+<td>Low: the work needs a shared, consistent picture</td>
+</tr>
+<tr>
+<td>Verdict</td>
+<td>Multi-agent often wins</td>
+<td>Single agent (perhaps with read-only helpers) usually wins</td>
+</tr>
+</tbody></table>
+</div>
+<p>Notice that even Anthropic&#39;s architecture fits Cognition&#39;s principles where they matter: subagents gather information (read), and the <strong>lead alone synthesizes and writes</strong> the final report. Coding agents converged on a similar compromise: one main agent owns all edits, and it spawns subagents for <strong>read-only</strong> work such as searching the codebase, reading documentation or reviewing a diff, getting back compact summaries. Context isolation without conflicting writes.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The rule that reconciles the debate</div><div class="callout-body"><p><strong>Parallelize reading; serialize writing.</strong> Use subagents to explore, gather and verify. Keep decisions that must be mutually consistent in a single context, owned by one agent.</p>
+</div></aside>
+<h2 id="building-an-orchestratorsubagent-system"><a class="anchor" href="#building-an-orchestratorsubagent-system" aria-hidden="true">#</a>Building an Orchestrator–Subagent System</h2>
+<p>Below is a compact research system with the Anthropic SDK. The lead agent has one tool, <code>delegate</code>, whose strict schema <em>forces</em> every brief to include objective, output format, tool guidance and boundaries. Subagents run concurrently with the server-side web search tool and return condensed findings.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.AsyncAnthropic()
+LEAD_MODEL, WORKER_MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, <span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>
+WEB_SEARCH = {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;web_search_20260209&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;web_search&quot;</span>}
+
+DELEGATE = {
+    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;delegate&quot;</span>,
+    <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Assign a self-contained research subtask to a subagent with web search. &quot;</span>
+                   <span class="hljs-string">&quot;Call several times in one turn to run subagents in parallel.&quot;</span>,
+    <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,
+    <span class="hljs-string">&quot;input_schema&quot;</span>: {
+        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+        <span class="hljs-string">&quot;properties&quot;</span>: {
+            <span class="hljs-string">&quot;objective&quot;</span>:     {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;What to find and why it matters&quot;</span>},
+            <span class="hljs-string">&quot;output_format&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Exact shape of the report&quot;</span>},
+            <span class="hljs-string">&quot;tool_guidance&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Preferred sources, search budget&quot;</span>},
+            <span class="hljs-string">&quot;boundaries&quot;</span>:    {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Out of scope; what other subagents cover&quot;</span>},
+        },
+        <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;objective&quot;</span>, <span class="hljs-string">&quot;output_format&quot;</span>, <span class="hljs-string">&quot;tool_guidance&quot;</span>, <span class="hljs-string">&quot;boundaries&quot;</span>],
+        <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+    },
+}
+
+LEAD_SYSTEM = <span class="hljs-string">&quot;&quot;&quot;You lead a research team. Plan the angles, then delegate.
+Scale effort: simple facts -&gt; 1 subagent; comparisons -&gt; 2-4; broad surveys -&gt; up to 6.
+Give each subagent a distinct, non-overlapping angle. You write the final answer yourself,
+citing sources from the reports. Never fabricate a source.&quot;&quot;&quot;</span>
+
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">run_subagent</span>(<span class="hljs-params">brief: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    prompt = <span class="hljs-string">&quot;\n&quot;</span>.join(<span class="hljs-string">f&quot;<span class="hljs-subst">{k.upper()}</span>: <span class="hljs-subst">{v}</span>&quot;</span> <span class="hljs-keyword">for</span> k, v <span class="hljs-keyword">in</span> brief.items())
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: prompt}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>):                                   <span class="hljs-comment"># resume budget for paused server-tool turns</span>
+        resp = <span class="hljs-keyword">await</span> client.messages.create(
+            model=WORKER_MODEL, max_tokens=<span class="hljs-number">16000</span>, tools=[WEB_SEARCH], messages=messages,
+            system=<span class="hljs-string">&quot;You are a research subagent. Follow the brief exactly. Report only what &quot;</span>
+                   <span class="hljs-string">&quot;sources support, with URLs. End with &#x27;Gaps:&#x27; listing what you could not verify.&quot;</span>,
+        )
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;pause_turn&quot;</span>:
+            <span class="hljs-keyword">break</span>
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})  <span class="hljs-comment"># let the server continue</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">research</span>(<span class="hljs-params">question: <span class="hljs-built_in">str</span>, max_rounds: <span class="hljs-built_in">int</span> = <span class="hljs-number">4</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: question}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_rounds):
+        resp = <span class="hljs-keyword">await</span> client.messages.create(
+            model=LEAD_MODEL, max_tokens=<span class="hljs-number">16000</span>, system=LEAD_SYSTEM,
+            tools=[DELEGATE], messages=messages,
+        )
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:               <span class="hljs-comment"># end_turn (or max_tokens/refusal): stop here</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+        calls = [b <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>]
+        reports = <span class="hljs-keyword">await</span> asyncio.gather(*(run_subagent(c.<span class="hljs-built_in">input</span>) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> calls),
+                                       return_exceptions=<span class="hljs-literal">True</span>)   <span class="hljs-comment"># one failure must not sink the rest</span>
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: [
+            {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: c.<span class="hljs-built_in">id</span>,
+             <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Subagent failed: <span class="hljs-subst">{r}</span>&quot;</span> <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(r, Exception) <span class="hljs-keyword">else</span> r,
+             <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-built_in">isinstance</span>(r, Exception)}
+            <span class="hljs-keyword">for</span> c, r <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(calls, reports)
+        ]})
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Stopped: round budget exhausted.&quot;</span>
+
+<span class="hljs-built_in">print</span>(asyncio.run(research(<span class="hljs-string">&quot;Compare the funding and manufacturing partners of the top solid-state battery startups.&quot;</span>)))</code></pre></div>
+<p>Design choices worth noticing:</p>
+<ul>
+<li><strong>The brief schema is the delegation policy.</strong> Making <code>boundaries</code> required pushes the lead to divide work explicitly, attacking the duplication failure mode.</li>
+<li><strong>Parallel by construction.</strong> The lead can emit several <code>delegate</code> calls in one turn; <code>asyncio.gather</code> runs them concurrently.</li>
+<li><strong>Failures are contained.</strong> A crashed subagent becomes an <code>is_error</code> tool result the lead can react to (retry, re-scope), not an exception that kills the run.</li>
+<li><strong>Cheaper workers.</strong> Subagents use a faster model; the lead, which plans and synthesizes, uses the strongest one.</li>
+<li><strong>Budgets at both levels</strong>: rounds for the lead, resumes for each subagent. In production you would add token budgets and tracing per subagent.</li>
+</ul>
+<p>To go further: have subagents write long outputs to storage and return references; add a citation-checking agent that verifies each claim against its source before the final answer; and log every brief, since brief quality is the first thing to inspect when results disappoint.</p>
+<h2 id="should-you-go-multi-agent"><a class="anchor" href="#should-you-go-multi-agent" aria-hidden="true">#</a>Should You Go Multi-Agent?</h2>
+<p>Work through these questions in order:</p>
+<ol>
+<li><strong>Does a single agent with good tools fail on this task?</strong> If you have not measured it, start there (<a href="agent-architectures.html#one-agent-with-good-tools-the-default">Single-Agent Architectures</a>).</li>
+<li><strong>Is the failure about context capacity or speed?</strong> If the agent drowns in information or takes too long on breadth-first work, multi-agent may help. If it fails on reasoning quality, more agents rarely fix that.</li>
+<li><strong>Are the subtasks mostly independent and read-heavy?</strong> If subtasks must make mutually consistent decisions or edit shared artifacts, keep those in one agent.</li>
+<li><strong>Is the task valuable enough for a large token multiplier?</strong> Estimate cost per task before building.</li>
+<li><strong>Can you verify the output?</strong> Multi-agent systems need stronger verification than single agents, not weaker.</li>
+</ol>
+<p>If you answer yes to 2 through 5, start with the simplest topology, <strong>orchestrator–subagents</strong> with read-only workers, and add complexity only as evaluations justify it.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Multi-agent systems buy <strong>context isolation, parallelism, specialization and separation of concerns</strong>, at the price of a large <strong>token multiplier</strong> (Anthropic reported about 15× chat for its research system), coordination overhead and harder debugging.</li>
+<li><strong>Orchestrator–subagents</strong> is the workhorse topology; handoffs suit customer-facing specialists; debate and critics improve verification; role-playing societies and generative-agent simulations are mostly research and simulation tools.</li>
+<li>Communicate through <strong>structured payloads</strong> (including decisions made and open questions), via messages, shared state, or both.</li>
+<li>Subagents know only their brief: specify <strong>objective, output format, tool guidance, boundaries and effort</strong>.</li>
+<li>The <strong>MAST</strong> taxonomy groups failures into specification/design, inter-agent misalignment and verification; many are design problems that better models alone will not fix.</li>
+<li>Reconcile Cognition and Anthropic with one rule: <strong>parallelize reading, serialize writing.</strong></li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Classify the task.</strong> For each, decide single-agent or multi-agent and justify with the read/write coupling test: (a) competitive analysis of 12 SaaS products, (b) refactoring an authentication module, (c) triaging 200 bug reports, (d) writing a 30-page technical book chapter.</li>
+<li><strong>Write the brief.</strong> Rewrite the vague brief &quot;look into EV battery recycling&quot; into a full brief with all five elements. Then write the brief for a second, non-overlapping subagent.</li>
+<li><strong>Instrument the orchestrator.</strong> Extend the example to record, per subagent, the brief, number of searches, input and output tokens, and wall-clock time. Run three questions of different complexity. Does the lead scale the number of subagents appropriately?</li>
+<li><strong>Add verification.</strong> Add a <code>verify_citations</code> step after synthesis: a separate agent that fetches each cited URL (web fetch tool) and flags claims the source does not support. Measure how many claims get flagged.</li>
+<li><strong>Failure hunt.</strong> Deliberately induce three MAST failure modes in the example (for instance: remove <code>boundaries</code> from the schema, drop the subagent&#39;s &quot;Gaps&quot; instruction, raise <code>max_rounds</code> with no stopping guidance). Describe each failure as observed in traces and the design fix.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="multi-agent-systems" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>What is the most important benefit subagents provide in a research system?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>They reduce total token usage compared with a single agent</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Context isolation: each digests large amounts of material in its own window and returns a condensed result, keeping the lead&#39;s context clean</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They eliminate the need for tools</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They use a different, smarter model than the lead</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Subagents act as context compressors and run in parallel. They usually increase total tokens; the benefit is effective context capacity and speed.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Anthropic reported its multi-agent research system used roughly how many times the tokens of a chat interaction?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>About 4×</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>About 15×</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>About 1.5×</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 100×</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anthropic reported agents use about 4× chat tokens and its multi-agent system about 15×, which is why multi-agent designs need high-value tasks to be economical.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>In Cognition&#39;s Flappy Bird example, why did the parallel subagents produce incompatible parts?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The orchestrator used the wrong topology</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Each made implicit decisions (style, assumptions) the other could not see, and the decisions conflicted</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The subagents ran out of context</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model was not capable enough to draw sprites</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> &quot;Actions carry implicit decisions, and conflicting decisions carry bad results.&quot; Tightly coupled creative or write tasks suffer when split across isolated contexts.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Which rule best reconciles &quot;Don&#39;t Build Multi-Agents&quot; with Anthropic&#39;s multi-agent research system?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Use multi-agent only with peer-to-peer topologies</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Always use exactly one agent</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Parallelize read-heavy, independent work across subagents; keep decisions that must be consistent (writes) in a single agent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Use multi-agent for coding and single-agent for research</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Research subtasks rarely conflict and benefit from isolation; coupled write tasks need one consistent context. Anthropic&#39;s lead agent, notably, does the synthesis itself.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>A subagent returns a thorough report on exactly the same angle another subagent covered, while an important angle is missing. Which brief element was most likely missing?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool guidance</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Boundaries (what is out of scope and what other subagents cover)</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Output format</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Model selection</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without explicit boundaries, subagents cannot know how work is divided, which leads to duplication and gaps.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>According to the MAST study, what happened when the authors applied simple fixes such as better role prompts and changed topologies?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Only verification failures remained</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Improvements were modest, suggesting many failures stem from deeper system design issues</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Failures were eliminated</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Performance got worse in all cases</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tactical fixes helped only somewhat. The authors argued for structural changes: clear roles, explicit protocols and robust verification.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>What distinguishes a handoff topology from orchestrator–subagents?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Handoffs cannot use tools</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Subagents talk directly to the user</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Handoffs use multiple models</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>In a handoff, control of the conversation transfers to the new agent; with subagents, the orchestrator delegates and gets a result back while keeping control</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Swarm-style handoffs move ownership of the interaction; supervisor-style delegation treats subagents like function calls that return results.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener">How we built our multi-agent research system (Anthropic)</a> — the most detailed public account of a production orchestrator-subagent system, with lessons on prompting and evaluation.</li>
+<li><a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener">Don&#39;t Build Multi-Agents (Cognition)</a> — the essential counterpoint on context sharing and conflicting decisions.</li>
+<li><a href="https://arxiv.org/abs/2503.13657" target="_blank" rel="noopener">Why Do Multi-Agent LLM Systems Fail? (Cemri et al., 2025)</a> — the MAST failure taxonomy.</li>
+<li><a href="https://arxiv.org/abs/2305.14325" target="_blank" rel="noopener">Improving Factuality and Reasoning through Multiagent Debate (Du et al., 2023)</a> — the debate topology and its benefits.</li>
+<li><a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener">Generative Agents: Interactive Simulacra of Human Behavior (Park et al., 2023)</a> — memory, reflection and planning in a simulated town.</li>
+<li><a href="https://arxiv.org/abs/2308.00352" target="_blank" rel="noopener">MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework (Hong et al., 2023)</a> — SOPs and structured artifacts for agent teams.</li>
+<li><a href="https://arxiv.org/abs/2303.17760" target="_blank" rel="noopener">CAMEL: Communicative Agents for &quot;Mind&quot; Exploration (Li et al., 2023)</a> — role-playing and inception prompting.</li>
+<li><a href="https://arxiv.org/abs/2307.07924" target="_blank" rel="noopener">ChatDev: Communicative Agents for Software Development (Qian et al., 2023)</a> — a simulated software company.</li>
+<li><a href="https://arxiv.org/abs/2308.08155" target="_blank" rel="noopener">AutoGen (Wu et al., 2023)</a> — a general framework for multi-agent conversations.</li>
+<li><a href="https://openai.github.io/openai-agents-python/" target="_blank" rel="noopener">OpenAI Agents SDK documentation</a> — handoffs as a first-class primitive (successor to Swarm).</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="multi-agent-systems">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-multi-agent-systems"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-multi-agent-systems" class="notes" data-slug="multi-agent-systems" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="agent-architectures.html"><small>← Previous</small><span>Single-Agent Architectures</span></a>
+    <a class="pager-next" href="human-in-the-loop.html"><small>Next →</small><span>Human-in-the-Loop &amp; Agent UX</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#what-counts-as-multi-agent">What Counts as Multi-Agent?</a></li>
+<li class="toc-h2"><a href="#why-multiple-agents">Why Multiple Agents?</a></li>
+<li class="toc-h2"><a href="#what-it-costs">What It Costs</a></li>
+<li class="toc-h2"><a href="#topologies">Topologies</a></li>
+<li class="toc-h3"><a href="#orchestratorsubagents-supervisor">Orchestrator–subagents (supervisor)</a></li>
+<li class="toc-h3"><a href="#hierarchical">Hierarchical</a></li>
+<li class="toc-h3"><a href="#sequential-pipeline">Sequential pipeline</a></li>
+<li class="toc-h3"><a href="#peer-network-decentralized">Peer network (decentralized)</a></li>
+<li class="toc-h3"><a href="#debate-and-critic">Debate and critic</a></li>
+<li class="toc-h3"><a href="#handoffs-swarm">Handoffs (swarm)</a></li>
+<li class="toc-h3"><a href="#role-playing-societies">Role-playing societies</a></li>
+<li class="toc-h3"><a href="#generative-agent-simulations">Generative-agent simulations</a></li>
+<li class="toc-h2"><a href="#communication-shared-state-vs-message-passing">Communication: Shared State vs. Message Passing</a></li>
+<li class="toc-h3"><a href="#structured-handoff-payloads">Structured handoff payloads</a></li>
+<li class="toc-h2"><a href="#delegation-the-brief-is-everything">Delegation: The Brief Is Everything</a></li>
+<li class="toc-h2"><a href="#how-multi-agent-systems-fail">How Multi-Agent Systems Fail</a></li>
+<li class="toc-h2"><a href="#the-great-debate-dont-build-multi-agents">The Great Debate: Don't Build Multi-Agents?</a></li>
+<li class="toc-h3"><a href="#reconciling-them">Reconciling them</a></li>
+<li class="toc-h2"><a href="#building-an-orchestratorsubagent-system">Building an Orchestrator–Subagent System</a></li>
+<li class="toc-h2"><a href="#should-you-go-multi-agent">Should You Go Multi-Agent?</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

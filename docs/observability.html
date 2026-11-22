@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observability &amp; Debugging · Agent Academy</title>
+<meta name="description" content="How to see what your agent actually did: traces, spans and sessions, what to capture, OpenTelemetry's GenAI conventions, a practical debugging workflow, dashboards, alerting and privacy.">
+<meta property="og:title" content="Observability &amp; Debugging · Agent Academy">
+<meta property="og:description" content="How to see what your agent actually did: traces, spans and sessions, what to capture, OpenTelemetry's GenAI conventions, a practical debugging workflow, dashboards, alerting and privacy.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="observability">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Observability &amp; Debugging</h1>
+    <p class="lead">How to see what your agent actually did: traces, spans and sessions, what to capture, OpenTelemetry's GenAI conventions, a practical debugging workflow, dashboards, alerting and privacy.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 26 of 35</span>
+      <span class="lesson-status" data-status-for="observability"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain why agents need tracing rather than just logs</li><li>Model an agent run as a trace of spans grouped into sessions</li><li>Decide what to capture on each span, including tokens, cost, latency and versions</li><li>Instrument an agent loop with a minimal JSONL tracer and with OpenTelemetry GenAI conventions</li><li>Debug a failing agent by localizing and classifying the bad step, then turning it into an eval</li><li>Choose dashboard metrics and alerts, and handle PII redaction and retention</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="evaluating-agents.html">Evaluating Agents</a></p>
+  </section>
+  <article class="prose">
+<p>A user reports that your research agent &quot;gave a confidently wrong answer about our Q3 revenue.&quot; Your application log has exactly one relevant line: <code>request completed in 94s, status=200</code>. The agent took 31 steps, made 12 tool calls and spent $1.90 — and you have no idea which of those steps went wrong. Was the search tool returning a stale document? Did the agent misread a table? Did the context get truncated at step 20, dropping the key fact? Without a record of what happened inside the run, debugging is guesswork.</p>
+<p><strong>Observability</strong> is the ability to answer arbitrary questions about what your system did, from the data it emits — without shipping new code to find out. For traditional services, that means logs, metrics and traces. For agents, the <strong>trace</strong> — a structured, step-by-step record of every model call, tool call and decision in a run — becomes the central artifact. It&#39;s what you debug from, what you build evals from, and what you monitor in production.</p>
+<p>In this lesson you&#39;ll learn the data model (traces, spans, sessions), what to capture, the OpenTelemetry GenAI conventions that are becoming the industry standard, a repeatable debugging workflow, the metrics worth putting on a dashboard, and how to handle privacy. You&#39;ll also write a minimal tracer for an agent loop.</p>
+<h2 id="why-agents-need-observability"><a class="anchor" href="#why-agents-need-observability" aria-hidden="true">#</a>Why agents need observability</h2>
+<p>Agents break the assumptions that make ordinary logging good enough:</p>
+<ul>
+<li><strong>Non-determinism.</strong> The same input can take a different path each time. You often can&#39;t reproduce a failure by re-running it, so you need a record of the run that failed.</li>
+<li><strong>Long, branching executions.</strong> A single request can involve dozens of model calls, tool calls, retrievals and sub-agents. A flat log of interleaved lines from concurrent runs is unreadable.</li>
+<li><strong>Silent failures.</strong> Most agent failures don&#39;t throw exceptions. The agent calls the wrong tool, misreads a result, or confidently answers from a stale document, and returns HTTP 200. The &quot;error&quot; is semantic and visible only in the content.</li>
+<li><strong>Errors that surface far from their cause.</strong> A bad retrieval at step 4 produces a wrong answer at step 30. You need the whole causal chain.</li>
+<li><strong>Cost and latency variance.</strong> One request costs $0.03, another $3.00, depending on the path. Averages hide runaway loops.</li>
+<li><strong>Behavior lives in data, not code.</strong> The prompt, the tool descriptions and the context <em>are</em> the program. If you don&#39;t record them, you can&#39;t know what program ran.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>For agents, the trace <em>is</em> the debugger, the test-case source and the monitoring feed. If a model call, tool call or piece of context isn&#39;t in the trace, then for debugging purposes it didn&#39;t happen.</p>
+</div></aside>
+<h2 id="traces-spans-and-sessions"><a class="anchor" href="#traces-spans-and-sessions" aria-hidden="true">#</a>Traces, spans and sessions</h2>
+<p>Observability for agents borrows the data model of distributed tracing, pioneered for microservices (Google&#39;s Dapper paper, later standardized by OpenTelemetry).</p>
+<ul>
+<li>A <strong>span</strong> is one timed unit of work with a name, a start and end time, a status (ok/error), and key-value <strong>attributes</strong>. In an agent: one model call, one tool execution, one retrieval, one guardrail check.</li>
+<li>Spans nest: each span has a <strong>parent</strong>. The agent run is the root span; model calls and tool calls are its children; a sub-agent&#39;s run is a child span with its own children.</li>
+<li>A <strong>trace</strong> is the full tree of spans for one end-to-end operation — typically one agent run in response to one user request — linked by a shared <strong>trace ID</strong>.</li>
+<li>A <strong>session</strong> (also called a <strong>thread</strong> or <strong>conversation</strong>) groups multiple traces that belong together: every turn of a multi-turn chat, or all the runs of a long-lived task. Sessions let you see how context accumulated and where a conversation went sideways.</li>
+</ul>
+<p>Here&#39;s the trace tree of one support-agent run, with the failure visible at a glance:</p>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    R[&quot;invoke_agent support-bot (8.4s, $0.042)&quot;] --&gt; C1[&quot;chat step 1 (1.9s)&quot;]
+    R --&gt; T1[&quot;execute_tool search_kb (0.3s)&quot;]
+    R --&gt; C2[&quot;chat step 2 (1.6s)&quot;]
+    R --&gt; T2[&quot;execute_tool get_order (0.2s, ERROR 404)&quot;]
+    R --&gt; C3[&quot;chat step 3 (1.8s)&quot;]
+    R --&gt; T3[&quot;execute_tool get_order (0.2s, ERROR 404)&quot;]
+    R --&gt; C4[&quot;chat step 4: final answer (2.1s)&quot;]
+    R --&gt; G[&quot;guardrail pii_check (0.1s)&quot;]</pre></figure>
+<p>The two identical failing <code>get_order</code> calls tell the story before you read a single prompt: the agent retried the same bad argument instead of asking the user for a correct order ID. A flat log would have buried this; a tree makes it obvious.</p>
+<h3 id="common-span-types"><a class="anchor" href="#common-span-types" aria-hidden="true">#</a>Common span types</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Span</th>
+<th>Represents</th>
+<th>Key attributes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent / workflow</td>
+<td>One run of an agent or a <a href="workflow-patterns.html">workflow</a></td>
+<td>Agent name and version, input, final output, total steps, total cost</td>
+</tr>
+<tr>
+<td>LLM call</td>
+<td>One model API request</td>
+<td>Model, parameters, messages in/out, tokens, stop reason, latency</td>
+</tr>
+<tr>
+<td>Tool call</td>
+<td>One tool execution</td>
+<td>Tool name, arguments, result, error flag, duration</td>
+</tr>
+<tr>
+<td>Retrieval</td>
+<td>A search/vector query (<a href="rag-and-retrieval.html">RAG</a>)</td>
+<td>Query, top-k results with IDs and scores</td>
+</tr>
+<tr>
+<td>Guardrail</td>
+<td>An input/output check</td>
+<td>Check name, verdict, what was blocked</td>
+</tr>
+<tr>
+<td>Sub-agent</td>
+<td>A delegated agent run (<a href="multi-agent-systems.html">multi-agent systems</a>)</td>
+<td>Child agent name, task given, result returned</td>
+</tr>
+<tr>
+<td>Human step</td>
+<td>Waiting for approval (<a href="human-in-the-loop.html">human-in-the-loop</a>)</td>
+<td>Approver, decision, wait time</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="what-to-capture"><a class="anchor" href="#what-to-capture" aria-hidden="true">#</a>What to capture</h2>
+<p>The rule of thumb: capture enough to <strong>reconstruct exactly what the model saw and did at every step</strong>, plus enough metadata to <strong>slice and aggregate</strong> across runs.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Category</th>
+<th>What to record</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Inputs to the model</strong></td>
+<td>System prompt, full message list (or a reference to it), tool definitions</td>
+<td>The model&#39;s behavior is a function of exactly this. &quot;What did it see?&quot; is the first debugging question</td>
+</tr>
+<tr>
+<td><strong>Model parameters</strong></td>
+<td>Model ID, <code>max_tokens</code>, effort/thinking settings, tool choice, structured-output schema</td>
+<td>Behavior changes with these; misconfigurations hide here</td>
+</tr>
+<tr>
+<td><strong>Model outputs</strong></td>
+<td>Content blocks (text, tool calls, thinking summaries if available), <code>stop_reason</code></td>
+<td><code>max_tokens</code> or <code>refusal</code> stops explain many weird outcomes</td>
+</tr>
+<tr>
+<td><strong>Tool calls</strong></td>
+<td>Tool name, arguments, result (or a truncated preview), <code>is_error</code>, duration</td>
+<td>Most agent bugs are tool bugs or tool-misuse bugs</td>
+</tr>
+<tr>
+<td><strong>Tokens</strong></td>
+<td>Input, output, cache-read and cache-write tokens per call</td>
+<td>Cost, context-growth and <a href="cost-and-latency.html">caching</a> diagnostics</td>
+</tr>
+<tr>
+<td><strong>Cost</strong></td>
+<td>Computed per call and rolled up per run and per session</td>
+<td>Find runaway runs and expensive paths</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>Per span; time-to-first-token for streamed calls; end-to-end</td>
+<td>Find the slow step; set SLOs</td>
+</tr>
+<tr>
+<td><strong>Errors</strong></td>
+<td>Exceptions, API errors, retries, timeouts, tool errors</td>
+<td>Distinguish infrastructure failures from reasoning failures</td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>Prompt version, agent code version (git SHA), tool versions, model</td>
+<td>Compare behavior before and after a change; essential for A/B tests</td>
+</tr>
+<tr>
+<td><strong>Identity &amp; context</strong></td>
+<td>Session ID, (pseudonymized) user ID, tenant, environment, feature flags</td>
+<td>Group, filter and segment</td>
+</tr>
+<tr>
+<td><strong>Feedback</strong></td>
+<td>Thumbs up/down, user corrections, escalations, downstream outcomes</td>
+<td>Ground-truth quality signal to join with traces</td>
+</tr>
+<tr>
+<td><strong>Request IDs</strong></td>
+<td>The provider&#39;s request ID for each API call (e.g., <code>response._request_id</code> in the Anthropic SDK)</td>
+<td>Needed when reporting issues to the provider</td>
+</tr>
+</tbody></table>
+</div>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Version everything</div><div class="callout-body"><p>The single most common observability regret is not knowing which prompt version produced a bad trace. Put a prompt version (or content hash) and code version on every root span from day one.</p>
+</div></aside>
+<p>Two practical notes. First, full prompts are large — a long-running agent can resend 100k+ tokens of context every step. Many systems store each message once and reference it, or record per-step <em>deltas</em>, rather than duplicating the full context on every span. Second, decide deliberately between <strong>metadata-only</strong> tracing (IDs, timings, tokens, names — cheap and low-risk) and <strong>full-content</strong> tracing (prompts and responses — essential for debugging, but expensive and sensitive). Many teams capture full content for a sample, or for internal and opted-in users, and metadata for everything. More on this under privacy.</p>
+<h2 id="opentelemetry-and-the-genai-conventions"><a class="anchor" href="#opentelemetry-and-the-genai-conventions" aria-hidden="true">#</a>OpenTelemetry and the GenAI conventions</h2>
+<p><strong>OpenTelemetry</strong> (OTel) is the open, vendor-neutral standard for traces, metrics and logs. Your code creates spans through the OTel API; an <strong>exporter</strong> sends them, usually via the <strong>OTLP</strong> protocol, to a <strong>collector</strong> or directly to any compatible backend. Instrument once, and you can switch backends — Jaeger, Grafana Tempo, Honeycomb, Datadog, Langfuse, Phoenix and others — without rewriting code. OTel also handles <strong>context propagation</strong>: passing the trace ID across process and network boundaries (via the W3C <code>traceparent</code> header), so a tool running in another service shows up as a child span in the same trace.</p>
+<p>OTel&#39;s <strong>GenAI semantic conventions</strong> standardize the names of spans and attributes for model calls and agents, so different tools can understand the same data. Key elements (the conventions are still marked as in development, and attribute names have changed between versions — check the version your tools support):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Convention</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Operation name attribute</td>
+<td><code>gen_ai.operation.name</code> = <code>chat</code>, <code>execute_tool</code>, <code>invoke_agent</code>, <code>create_agent</code></td>
+</tr>
+<tr>
+<td>Span names</td>
+<td><code>chat claude-sonnet-5-5</code>, <code>execute_tool get_order</code>, <code>invoke_agent support-bot</code></td>
+</tr>
+<tr>
+<td>Provider and model</td>
+<td><code>gen_ai.provider.name</code>, <code>gen_ai.request.model</code>, <code>gen_ai.response.model</code></td>
+</tr>
+<tr>
+<td>Usage</td>
+<td><code>gen_ai.usage.input_tokens</code>, <code>gen_ai.usage.output_tokens</code></td>
+</tr>
+<tr>
+<td>Outcome</td>
+<td><code>gen_ai.response.finish_reasons</code></td>
+</tr>
+<tr>
+<td>Tools</td>
+<td><code>gen_ai.tool.name</code>, <code>gen_ai.tool.call.id</code></td>
+</tr>
+<tr>
+<td>Agents and sessions</td>
+<td><code>gen_ai.agent.name</code>, <code>gen_ai.agent.id</code>, <code>gen_ai.conversation.id</code></td>
+</tr>
+<tr>
+<td>Content (opt-in)</td>
+<td><code>gen_ai.input.messages</code>, <code>gen_ai.output.messages</code>, <code>gen_ai.system_instructions</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>You rarely have to write all of this by hand. Instrumentation libraries (such as <strong>OpenLLMetry</strong> and <strong>OpenInference</strong>) patch popular SDKs and frameworks to emit spans automatically, and many agent frameworks have built-in tracing. Recent versions of the Anthropic SDKs also emit OpenTelemetry spans for each API request once you register a tracer provider, recording token usage and identifiers by default and prompts and responses only if you opt into a content mode. Your own agent and tool spans then nest those request spans underneath them. (If you use automatic instrumentation, don&#39;t also hand-create duplicate model-call spans.)</p>
+<h2 id="observability-tools"><a class="anchor" href="#observability-tools" aria-hidden="true">#</a>Observability tools</h2>
+<p>The market moves fast; as of 2026 the commonly used options fall into a few groups:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Notable for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>LangSmith</strong></td>
+<td>Hosted platform (LangChain)</td>
+<td>Deep tracing for LangChain/LangGraph, datasets and evals from traces</td>
+</tr>
+<tr>
+<td><strong>Langfuse</strong></td>
+<td>Open source, self-hostable or cloud</td>
+<td>Traces, sessions, prompt management, evals; OTel ingestion</td>
+</tr>
+<tr>
+<td><strong>Arize Phoenix</strong></td>
+<td>Open source</td>
+<td>OpenInference instrumentation, trace analysis, evals, local-first</td>
+</tr>
+<tr>
+<td><strong>Braintrust</strong></td>
+<td>Hosted platform</td>
+<td>Tight loop between production logs, datasets and eval experiments</td>
+</tr>
+<tr>
+<td><strong>W&amp;B Weave</strong></td>
+<td>Hosted (Weights &amp; Biases)</td>
+<td>Tracing with decorators, evaluation, ML-experiment heritage</td>
+</tr>
+<tr>
+<td><strong>Helicone</strong></td>
+<td>Proxy/gateway-based</td>
+<td>Logging by routing API calls through a proxy; minimal code change</td>
+</tr>
+<tr>
+<td><strong>Datadog, Grafana, Honeycomb, New Relic</strong></td>
+<td>General observability platforms</td>
+<td>LLM/agent views on top of existing infra monitoring; OTel-native</td>
+</tr>
+</tbody></table>
+</div>
+<p>There are two integration styles. <strong>SDK/decorator instrumentation</strong> sees everything inside your process — tool calls, retrieval, your own logic. <strong>Proxy/gateway logging</strong> sits between your app and the model API; it&#39;s easy to add and captures every model call, but it can&#39;t see your tool executions or how calls relate to each other unless you pass trace headers. Most serious agent deployments use SDK-level instrumentation, ideally emitting OTel so the backend is swappable. Products change quickly; check current docs before committing.</p>
+<h2 id="hands-on-a-minimal-tracer"><a class="anchor" href="#hands-on-a-minimal-tracer" aria-hidden="true">#</a>Hands-on: a minimal tracer</h2>
+<p>You don&#39;t need a platform to start. Here&#39;s a tiny tracer that writes spans as JSON lines. It uses <code>contextvars</code> so nested <code>with</code> blocks automatically become parent/child spans (and it stays correct under <code>asyncio</code>).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> contextvars
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> re
+<span class="hljs-keyword">import</span> time
+<span class="hljs-keyword">import</span> uuid
+<span class="hljs-keyword">from</span> contextlib <span class="hljs-keyword">import</span> contextmanager
+
+_current_span = contextvars.ContextVar(<span class="hljs-string">&quot;current_span&quot;</span>, default=<span class="hljs-literal">None</span>)
+
+_REDACTIONS = [  <span class="hljs-comment"># crude, illustrative PII/secret scrubbing; see the privacy section</span>
+    (re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;[\w.+-]+@[\w-]+\.[\w.]+&quot;</span>), <span class="hljs-string">&quot;&lt;EMAIL&gt;&quot;</span>),
+    (re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;\b(?:\d[ -]?){13,16}\b&quot;</span>), <span class="hljs-string">&quot;&lt;CARD_NUMBER&gt;&quot;</span>),
+    (re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&quot;\b(?:sk|pk|api)[-_][A-Za-z0-9_-]{16,}\b&quot;</span>), <span class="hljs-string">&quot;&lt;SECRET&gt;&quot;</span>),
+]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">redact</span>(<span class="hljs-params">text: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-keyword">for</span> pattern, replacement <span class="hljs-keyword">in</span> _REDACTIONS:
+        text = pattern.sub(replacement, text)
+    <span class="hljs-keyword">return</span> text
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">JsonlTracer</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, path: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;traces.jsonl&quot;</span></span>):
+        <span class="hljs-variable language_">self</span>.path = path
+
+<span class="hljs-meta">    @contextmanager</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">span</span>(<span class="hljs-params">self, name: <span class="hljs-built_in">str</span>, **attributes</span>):
+        parent = _current_span.get()
+        span = {
+            <span class="hljs-string">&quot;trace_id&quot;</span>: parent[<span class="hljs-string">&quot;trace_id&quot;</span>] <span class="hljs-keyword">if</span> parent <span class="hljs-keyword">else</span> uuid.uuid4().<span class="hljs-built_in">hex</span>,
+            <span class="hljs-string">&quot;span_id&quot;</span>: uuid.uuid4().<span class="hljs-built_in">hex</span>[:<span class="hljs-number">16</span>],
+            <span class="hljs-string">&quot;parent_id&quot;</span>: parent[<span class="hljs-string">&quot;span_id&quot;</span>] <span class="hljs-keyword">if</span> parent <span class="hljs-keyword">else</span> <span class="hljs-literal">None</span>,
+            <span class="hljs-string">&quot;name&quot;</span>: name,
+            <span class="hljs-string">&quot;start&quot;</span>: time.time(),
+            <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;ok&quot;</span>,
+            <span class="hljs-string">&quot;attributes&quot;</span>: <span class="hljs-built_in">dict</span>(attributes),
+        }
+        token = _current_span.<span class="hljs-built_in">set</span>(span)  <span class="hljs-comment"># children created inside this block see us as parent</span>
+        <span class="hljs-keyword">try</span>:
+            <span class="hljs-keyword">yield</span> span
+        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> exc:
+            span[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;error&quot;</span>
+            span[<span class="hljs-string">&quot;attributes&quot;</span>][<span class="hljs-string">&quot;error.type&quot;</span>] = <span class="hljs-built_in">type</span>(exc).__name__
+            span[<span class="hljs-string">&quot;attributes&quot;</span>][<span class="hljs-string">&quot;error.message&quot;</span>] = redact(<span class="hljs-built_in">str</span>(exc))[:<span class="hljs-number">500</span>]
+            <span class="hljs-keyword">raise</span>
+        <span class="hljs-keyword">finally</span>:
+            _current_span.reset(token)
+            span[<span class="hljs-string">&quot;duration_ms&quot;</span>] = <span class="hljs-built_in">round</span>((time.time() - span[<span class="hljs-string">&quot;start&quot;</span>]) * <span class="hljs-number">1000</span>, <span class="hljs-number">1</span>)
+            <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-variable language_">self</span>.path, <span class="hljs-string">&quot;a&quot;</span>) <span class="hljs-keyword">as</span> f:
+                f.write(json.dumps(span, default=<span class="hljs-built_in">str</span>) + <span class="hljs-string">&quot;\n&quot;</span>)
+
+tracer = JsonlTracer()</code></pre></div>
+<p>Now instrument the <a href="the-agent-loop.html">agent loop</a>: one root span per run, one span per model call, one per tool call.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+MODEL = <span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>
+PRICE_PER_MTOK = {<span class="hljs-string">&quot;input&quot;</span>: <span class="hljs-number">2.00</span>, <span class="hljs-string">&quot;output&quot;</span>: <span class="hljs-number">10.00</span>}  <span class="hljs-comment"># USD; check current pricing for your model</span>
+AGENT_VERSION = <span class="hljs-string">&quot;support-bot@2026-11-03&quot;</span>          <span class="hljs-comment"># bump when prompt/tools/code change</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_agent</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span>, tools: <span class="hljs-built_in">list</span>, tool_impls: <span class="hljs-built_in">dict</span>, session_id: <span class="hljs-built_in">str</span>, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">20</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-keyword">with</span> tracer.span(<span class="hljs-string">&quot;invoke_agent&quot;</span>, agent=AGENT_VERSION, session_id=session_id,
+                     model=MODEL, <span class="hljs-built_in">input</span>=redact(task)) <span class="hljs-keyword">as</span> root:
+        messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]
+        total_cost = <span class="hljs-number">0.0</span>
+        <span class="hljs-keyword">for</span> step <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, max_steps + <span class="hljs-number">1</span>):
+            <span class="hljs-keyword">with</span> tracer.span(<span class="hljs-string">&quot;chat&quot;</span>, step=step, model=MODEL) <span class="hljs-keyword">as</span> s:
+                resp = client.messages.create(model=MODEL, max_tokens=<span class="hljs-number">16000</span>,
+                                              tools=tools, messages=messages)
+                u = resp.usage
+                cost = (u.input_tokens * PRICE_PER_MTOK[<span class="hljs-string">&quot;input&quot;</span>]
+                        + u.output_tokens * PRICE_PER_MTOK[<span class="hljs-string">&quot;output&quot;</span>]) / <span class="hljs-number">1e6</span>  <span class="hljs-comment"># ignores cache pricing</span>
+                total_cost += cost
+                s[<span class="hljs-string">&quot;attributes&quot;</span>].update(
+                    input_tokens=u.input_tokens, output_tokens=u.output_tokens,
+                    cache_read_tokens=u.cache_read_input_tokens <span class="hljs-keyword">or</span> <span class="hljs-number">0</span>,
+                    stop_reason=resp.stop_reason, cost_usd=<span class="hljs-built_in">round</span>(cost, <span class="hljs-number">6</span>),
+                    request_id=resp._request_id)
+            messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+            <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:
+                <span class="hljs-keyword">break</span>
+            results = []
+            <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> resp.content:
+                <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> != <span class="hljs-string">&quot;tool_use&quot;</span>:
+                    <span class="hljs-keyword">continue</span>
+                <span class="hljs-keyword">with</span> tracer.span(<span class="hljs-string">&quot;execute_tool&quot;</span>, tool=block.name, tool_call_id=block.<span class="hljs-built_in">id</span>,
+                                 arguments=redact(json.dumps(block.<span class="hljs-built_in">input</span>))) <span class="hljs-keyword">as</span> ts:
+                    <span class="hljs-keyword">try</span>:
+                        output, is_error = <span class="hljs-built_in">str</span>(tool_impls[block.name](**block.<span class="hljs-built_in">input</span>)), <span class="hljs-literal">False</span>
+                    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> exc:  <span class="hljs-comment"># report tool failures to the model, and mark the span</span>
+                        output, is_error = <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(exc).__name__}</span>: <span class="hljs-subst">{exc}</span>&quot;</span>, <span class="hljs-literal">True</span>
+                        ts[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;error&quot;</span>
+                    ts[<span class="hljs-string">&quot;attributes&quot;</span>].update(is_error=is_error, result_preview=redact(output[:<span class="hljs-number">500</span>]))
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: output, <span class="hljs-string">&quot;is_error&quot;</span>: is_error})
+            messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})
+        final = <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+        root[<span class="hljs-string">&quot;attributes&quot;</span>].update(steps=step, final_stop_reason=resp.stop_reason,
+                                  total_cost_usd=<span class="hljs-built_in">round</span>(total_cost, <span class="hljs-number">4</span>), output=redact(final[:<span class="hljs-number">2000</span>]))
+        <span class="hljs-keyword">return</span> final</code></pre></div>
+<p>A few lines turn the JSONL file back into a readable tree:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> defaultdict
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">print_trace</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span>, trace_id: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-literal">None</span>:
+    spans = [s <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> <span class="hljs-built_in">map</span>(json.loads, <span class="hljs-built_in">open</span>(path)) <span class="hljs-keyword">if</span> s[<span class="hljs-string">&quot;trace_id&quot;</span>] == trace_id]
+    children = defaultdict(<span class="hljs-built_in">list</span>)
+    <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> spans:
+        children[s[<span class="hljs-string">&quot;parent_id&quot;</span>]].append(s)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">walk</span>(<span class="hljs-params">parent_id, depth</span>):
+        <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(children[parent_id], key=<span class="hljs-keyword">lambda</span> s: s[<span class="hljs-string">&quot;start&quot;</span>]):
+            a = s[<span class="hljs-string">&quot;attributes&quot;</span>]
+            label = a.get(<span class="hljs-string">&quot;tool&quot;</span>) <span class="hljs-keyword">or</span> (<span class="hljs-string">f&quot;step <span class="hljs-subst">{a[<span class="hljs-string">&#x27;step&#x27;</span>]}</span>&quot;</span> <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;step&quot;</span> <span class="hljs-keyword">in</span> a <span class="hljs-keyword">else</span> a.get(<span class="hljs-string">&quot;agent&quot;</span>, <span class="hljs-string">&quot;&quot;</span>))
+            extra = <span class="hljs-string">f&quot; stop=<span class="hljs-subst">{a[<span class="hljs-string">&#x27;stop_reason&#x27;</span>]}</span>&quot;</span> <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;stop_reason&quot;</span> <span class="hljs-keyword">in</span> a <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>
+            flag = <span class="hljs-string">&quot;  &lt;-- ERROR&quot;</span> <span class="hljs-keyword">if</span> s[<span class="hljs-string">&quot;status&quot;</span>] == <span class="hljs-string">&quot;error&quot;</span> <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>
+            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-string">&#x27;  &#x27;</span> * depth}</span><span class="hljs-subst">{s[<span class="hljs-string">&#x27;name&#x27;</span>]}</span> <span class="hljs-subst">{label}</span> <span class="hljs-subst">{s[<span class="hljs-string">&#x27;duration_ms&#x27;</span>]}</span>ms<span class="hljs-subst">{extra}</span><span class="hljs-subst">{flag}</span>&quot;</span>)
+            walk(s[<span class="hljs-string">&quot;span_id&quot;</span>], depth + <span class="hljs-number">1</span>)
+
+    walk(<span class="hljs-literal">None</span>, <span class="hljs-number">0</span>)</code></pre></div>
+<p>This is genuinely useful for local development and small deployments. Its limits — no sampling, no cross-service propagation, no UI, files that grow forever — are what OpenTelemetry and the platforms solve.</p>
+<h3 id="the-same-idea-with-opentelemetry"><a class="anchor" href="#the-same-idea-with-opentelemetry" aria-hidden="true">#</a>The same idea with OpenTelemetry</h3>
+<p>Here&#39;s a sketch of the equivalent with the OTel Python SDK (<code>pip install opentelemetry-sdk opentelemetry-exporter-otlp</code>), using GenAI attribute names. The exporter reads its endpoint from the standard <code>OTEL_EXPORTER_OTLP_ENDPOINT</code> environment variable.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> opentelemetry <span class="hljs-keyword">import</span> trace
+<span class="hljs-keyword">from</span> opentelemetry.sdk.resources <span class="hljs-keyword">import</span> Resource
+<span class="hljs-keyword">from</span> opentelemetry.sdk.trace <span class="hljs-keyword">import</span> TracerProvider
+<span class="hljs-keyword">from</span> opentelemetry.sdk.trace.export <span class="hljs-keyword">import</span> BatchSpanProcessor
+<span class="hljs-keyword">from</span> opentelemetry.exporter.otlp.proto.http.trace_exporter <span class="hljs-keyword">import</span> OTLPSpanExporter
+<span class="hljs-keyword">from</span> opentelemetry.trace <span class="hljs-keyword">import</span> Status, StatusCode
+
+provider = TracerProvider(resource=Resource.create({<span class="hljs-string">&quot;service.name&quot;</span>: <span class="hljs-string">&quot;support-agent&quot;</span>}))
+provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))  <span class="hljs-comment"># batch in production</span>
+trace.set_tracer_provider(provider)  <span class="hljs-comment"># register BEFORE the first traced call</span>
+otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">traced_tool_call</span>(<span class="hljs-params">name: <span class="hljs-built_in">str</span>, call_id: <span class="hljs-built_in">str</span>, fn, args: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">bool</span>]:
+    <span class="hljs-keyword">with</span> otel.start_as_current_span(<span class="hljs-string">f&quot;execute_tool <span class="hljs-subst">{name}</span>&quot;</span>) <span class="hljs-keyword">as</span> span:
+        span.set_attribute(<span class="hljs-string">&quot;gen_ai.operation.name&quot;</span>, <span class="hljs-string">&quot;execute_tool&quot;</span>)
+        span.set_attribute(<span class="hljs-string">&quot;gen_ai.tool.name&quot;</span>, name)
+        span.set_attribute(<span class="hljs-string">&quot;gen_ai.tool.call.id&quot;</span>, call_id)
+        <span class="hljs-keyword">try</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(fn(**args)), <span class="hljs-literal">False</span>
+        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> exc:
+            span.record_exception(exc)
+            span.set_status(Status(StatusCode.ERROR, <span class="hljs-built_in">type</span>(exc).__name__))
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(exc).__name__}</span>: <span class="hljs-subst">{exc}</span>&quot;</span>, <span class="hljs-literal">True</span>
+
+<span class="hljs-keyword">with</span> otel.start_as_current_span(<span class="hljs-string">&quot;invoke_agent support-bot&quot;</span>) <span class="hljs-keyword">as</span> agent_span:
+    agent_span.set_attribute(<span class="hljs-string">&quot;gen_ai.operation.name&quot;</span>, <span class="hljs-string">&quot;invoke_agent&quot;</span>)
+    agent_span.set_attribute(<span class="hljs-string">&quot;gen_ai.agent.name&quot;</span>, <span class="hljs-string">&quot;support-bot&quot;</span>)
+    agent_span.set_attribute(<span class="hljs-string">&quot;gen_ai.conversation.id&quot;</span>, <span class="hljs-string">&quot;sess_8f2c&quot;</span>)  <span class="hljs-comment"># never put PII here</span>
+    <span class="hljs-comment"># ...run the agent loop here: model calls made inside this block become child spans</span>
+    <span class="hljs-comment"># (via the SDK&#x27;s built-in instrumentation, or your own &quot;chat &lt;model&gt;&quot; spans),</span>
+    <span class="hljs-comment"># and traced_tool_call(...) adds execute_tool spans as siblings.</span></code></pre></div>
+<h2 id="a-debugging-workflow"><a class="anchor" href="#a-debugging-workflow" aria-hidden="true">#</a>A debugging workflow</h2>
+<p>When something goes wrong, follow the same loop every time. It turns debugging from archaeology into a routine.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    F[&quot;1. Find a failing trace&quot;] --&gt; L[&quot;2. Localize the first bad step&quot;]
+    L --&gt; C[&quot;3. Classify the cause&quot;]
+    C --&gt; X[&quot;4. Fix&quot;]
+    X --&gt; E[&quot;5. Add an eval case&quot;]
+    E --&gt; V[&quot;6. Verify on evals + watch prod&quot;]</pre></figure>
+<p><strong>1. Find a failing trace.</strong> Entry points: a user complaint (look up by session or user ID), a thumbs-down, an online-eval failure, an alert, or a query like &quot;runs with more than 25 steps&quot; or &quot;traces where <code>get_order</code> errored twice in a row.&quot; Good trace search is the most underrated feature of any observability tool.</p>
+<p><strong>2. Localize the first bad step.</strong> Read the trace from the start and find the <em>first</em> step where the agent&#39;s behavior diverged from what a competent human would do. Later errors are usually consequences. At each model-call span, ask: given exactly what was in context, was this a reasonable decision? That framing separates &quot;the model reasoned badly&quot; from &quot;the model was given bad information.&quot;</p>
+<p><strong>3. Classify the cause.</strong> Almost every agent bug falls into one of four buckets:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Typical evidence in the trace</th>
+<th>Typical fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prompt / instructions</strong></td>
+<td>The model did something reasonable but not what you wanted; instructions were ambiguous or missing</td>
+<td>Clarify the <a href="prompting-for-agents.html">system prompt</a>, add an example, state the policy explicitly</td>
+</tr>
+<tr>
+<td><strong>Tool</strong></td>
+<td>Tool returned an error, wrong data or an unhelpful format; the model misused a confusing tool; the error message gave no hint how to recover</td>
+<td>Fix the tool&#39;s bug, rewrite its description or schema, return actionable errors (<a href="designing-tools.html">designing tools</a>)</td>
+</tr>
+<tr>
+<td><strong>Context</strong></td>
+<td>The needed fact wasn&#39;t in context, was truncated, was buried in noise, or was stale (bad retrieval)</td>
+<td>Better retrieval, <a href="context-engineering.html">context engineering</a>, compaction, memory</td>
+</tr>
+<tr>
+<td><strong>Model capability</strong></td>
+<td>Everything needed was clearly present and well-specified, and the model still failed</td>
+<td>Break the task down, add a verification step, use a stronger model or higher effort, or accept and route to a human</td>
+</tr>
+</tbody></table>
+</div>
+<p>Be suspicious of blaming the model. In practice, most failures traced carefully turn out to be tool, context or prompt problems — the cheaper ones to fix.</p>
+<p><strong>4. Fix</strong>, and <strong>5. add an eval case</strong> reproducing the failure (<a href="evaluating-agents.html">evaluating agents</a>) — ideally before the fix, to confirm it fails. <strong>6. Verify</strong> the fix on your eval suite (did anything else regress?) and watch production metrics after deploy.</p>
+<p>Here&#39;s a short real-world-style example. A user asked &quot;Cancel my order from last Tuesday.&quot; The trace:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">[chat step 1]   -&gt; tool_use search_orders({&quot;customer_id&quot;: &quot;c_481&quot;, &quot;date&quot;: &quot;2026-11-10&quot;})
+[execute_tool]  search_orders -&gt; []   (0 results)
+[chat step 2]   -&gt; &quot;I couldn&#x27;t find any orders from last Tuesday. Could you share the order number?&quot;</code></pre></div>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>Localizing the failure</div><div class="callout-body"><p>The final answer is wrong (the order exists), but the first bad step is step 1: the run happened on Monday, November 23, 2026, so &quot;last Tuesday&quot; was November 17, not November 10. The model-call span&#39;s inputs show the system prompt contained no current date — the model guessed. Classification: <strong>context</strong>. Fix: inject today&#39;s date into the system prompt. Eval: three relative-date tasks with frozen clocks.</p>
+</div></aside>
+<h3 id="replaying-traces"><a class="anchor" href="#replaying-traces" aria-hidden="true">#</a>Replaying traces</h3>
+<p>Because runs are non-deterministic, the best way to test a fix for a specific failure is to <strong>replay</strong> it: reconstruct the exact state at the failing step and re-run from there.</p>
+<ul>
+<li><strong>Fork from step N.</strong> Take the recorded message history up to the bad step, apply your change (new prompt, new tool description), and call the model again — several times, since one sample proves little. Many platforms offer this as a &quot;playground from span&quot; button; with your own tracer it&#39;s a short script if you recorded full content.</li>
+<li><strong>Mock tools from the trace.</strong> For a full replay, stub each tool to return the recorded result for the recorded arguments. Calls with new arguments (because your fix changed behavior) need a live or simulated tool.</li>
+<li><strong>Stub side effects.</strong> Never replay a trace against production systems with real write actions — use sandboxes (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
+</ul>
+<p>Replay is also how traces become eval cases: a recorded prefix plus an assertion about the next step is a per-step eval; a recorded starting state plus an outcome check is an end-to-end eval.</p>
+<h2 id="dashboards-and-key-metrics"><a class="anchor" href="#dashboards-and-key-metrics" aria-hidden="true">#</a>Dashboards and key metrics</h2>
+<p>Debugging is about single traces; monitoring is about aggregates. A useful agent dashboard answers &quot;is it working, what does it cost, is it getting worse?&quot; Core metrics:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>How to compute</th>
+<th>What it catches</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Task success rate</strong></td>
+<td>From online evals, explicit feedback or downstream outcomes (ticket resolved, PR merged)</td>
+<td>Overall quality, regressions after deploys</td>
+</tr>
+<tr>
+<td><strong>Steps per task</strong></td>
+<td>Distribution (p50, p95) of model calls per root span</td>
+<td>Loops, confusion, prompt regressions (often the earliest warning sign)</td>
+</tr>
+<tr>
+<td><strong>Tool error rate</strong></td>
+<td>Errored tool spans ÷ total, per tool</td>
+<td>Broken integrations, schema mismatches, API outages</td>
+</tr>
+<tr>
+<td><strong>Cost per task</strong></td>
+<td>Sum of span costs per root span; mean and p95</td>
+<td>Runaway runs, cache misses, context bloat</td>
+</tr>
+<tr>
+<td><strong>Latency</strong></td>
+<td>p50/p95/p99 end-to-end; time-to-first-token; per-span breakdown</td>
+<td>Slow tools, oversized contexts, provider slowdowns</td>
+</tr>
+<tr>
+<td><strong>Stop-reason mix</strong></td>
+<td>Share of <code>max_tokens</code>, <code>refusal</code>, step-limit hits</td>
+<td>Truncation and refusal problems</td>
+</tr>
+<tr>
+<td><strong>Token and cache stats</strong></td>
+<td>Input/output tokens per task; cache-read share</td>
+<td>Context growth; broken prompt caching (<a href="cost-and-latency.html">cost and latency</a>)</td>
+</tr>
+<tr>
+<td><strong>Escalation and feedback rates</strong></td>
+<td>Handoffs to humans; thumbs-down rate</td>
+<td>User-perceived quality</td>
+</tr>
+<tr>
+<td><strong>Guardrail triggers</strong></td>
+<td>Blocks per check per day</td>
+<td>Attacks, abuse, over-blocking (<a href="agent-security.html">agent security</a>)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Always make these sliceable by <strong>agent version, model, tenant and task type</strong>. A flat success rate hides that the new prompt fixed billing questions and broke shipping questions. And watch tails, not just means: p95 cost and p95 steps reveal the pathological runs that averages smooth over.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>&quot;Success rate&quot; from implicit signals is easy to misread. A drop in thumbs-down might mean users are happier — or that a UI change hid the button. Pair implicit signals with sampled LLM-judge scores and periodic human review.</p>
+</div></aside>
+<h2 id="online-evaluation-and-alerting"><a class="anchor" href="#online-evaluation-and-alerting" aria-hidden="true">#</a>Online evaluation and alerting</h2>
+<p><strong>Online evaluation</strong> applies graders to production traffic. Common patterns:</p>
+<ul>
+<li><strong>Sampled judging.</strong> Asynchronously run <a href="evaluating-agents.html">LLM-judge</a> rubrics on a sample of completed traces (for instance, a few percent, plus all traces with negative feedback), and chart pass rates by version.</li>
+<li><strong>Rule-based checks on every trace.</strong> Cheap code checks: did the run hit the step limit? Did it call the same tool with identical arguments three times (a loop)? Did the final answer contain a forbidden pattern?</li>
+<li><strong>Annotation queues.</strong> Route flagged traces to humans for review; their labels become calibration data for judges and new eval cases.</li>
+</ul>
+<p><strong>Alerting</strong> turns metrics into action. Alert on things that need a human soon: tool error rate spikes (an integration broke), cost per task or total spend anomalies (a loop or a cache regression), p95 latency SLO breaches, sharp drops in online-eval pass rate after a deploy, and safety-guardrail spikes (possible attack). Use anomaly-relative thresholds where traffic varies, and keep the alert list short — alert fatigue makes teams ignore the one that matters. Tie alerts to rollback procedures in your <a href="deployment.html">deployment</a> and <a href="reliability.html">reliability</a> playbooks.</p>
+<h2 id="privacy-pii-and-retention"><a class="anchor" href="#privacy-pii-and-retention" aria-hidden="true">#</a>Privacy, PII and retention</h2>
+<p>Agent traces are among the most sensitive data you&#39;ll store. They contain everything users typed, everything tools returned (customer records, emails, documents, query results), and sometimes secrets that leaked into tool output. Treat the trace store like a production database of user data.</p>
+<ul>
+<li><strong>Redact at the source.</strong> Scrub PII and secrets <em>before</em> spans leave the process — the collector or vendor should never see them. Combine pattern-based redaction (emails, card numbers, API-key formats) with entity-recognition tools for names and addresses. Regexes alone miss a lot; test your redaction on real samples.</li>
+<li><strong>Capture content deliberately.</strong> Default to metadata-only where you can; enable full content for sampled traffic, internal users, or customers who&#39;ve agreed. The Anthropic SDK&#39;s OpenTelemetry support, for example, defaults to metadata only and requires opting into content capture.</li>
+<li><strong>Pseudonymize identifiers.</strong> Store a hashed or internal user ID, not an email address. Never put PII or secrets in IDs or attributes that are exported regardless of content settings (such as conversation IDs).</li>
+<li><strong>Retention tiers.</strong> Keep full-content traces briefly (days to weeks, long enough to debug), aggregated metrics and metadata longer. Eval datasets built from traces need their own review and consent basis.</li>
+<li><strong>Support deletion.</strong> Regulations like GDPR give users a right to erasure; you need to be able to find and delete one user&#39;s traces across your trace store and any datasets derived from it.</li>
+<li><strong>Control access.</strong> Role-based access to trace content, audit logs of who viewed what, and care with third-party vendors (data residency, their retention, their sub-processors).</li>
+<li><strong>Remember traces can be hostile.</strong> Tool results in traces may contain <a href="agent-security.html">prompt-injection</a> payloads. If you feed traces into LLM judges or &quot;auto-debug&quot; agents, treat that content as untrusted.</li>
+</ul>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Agents fail silently, non-deterministically and far from the cause, so the <strong>trace</strong> — a tree of spans for every model call, tool call and decision — is the essential debugging and monitoring artifact.</li>
+<li>Model runs as <strong>traces</strong> of nested <strong>spans</strong>, grouped into <strong>sessions</strong>. Capture inputs, parameters, outputs, tool calls and results, tokens, cost, latency, errors, versions and feedback.</li>
+<li>Use <strong>OpenTelemetry</strong> with the <strong>GenAI semantic conventions</strong> (<code>invoke_agent</code>, <code>chat</code>, <code>execute_tool</code>, <code>gen_ai.*</code> attributes) to stay vendor-neutral; the conventions are still evolving, so pin versions.</li>
+<li>Debug with a fixed loop: <strong>find</strong> a failing trace → <strong>localize</strong> the first bad step → <strong>classify</strong> (prompt, tool, context, model) → <strong>fix</strong> → <strong>add an eval</strong> → verify. Most failures aren&#39;t the model&#39;s fault.</li>
+<li><strong>Replay</strong> traces by forking from a recorded step with mocked tools to test fixes on the exact failing state.</li>
+<li>Dashboard <strong>success rate, steps per task, tool error rate, cost per task and p95 latency</strong>, sliced by version, and alert on spikes and post-deploy drops.</li>
+<li>Traces are sensitive: <strong>redact at the source</strong>, capture content deliberately, pseudonymize IDs, set retention tiers and support deletion.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Read a trace.</strong> Use the JSONL tracer above with any small agent and two tools. Make one tool fail on certain inputs. Run ten tasks, then use <code>print_trace</code> to find a run where the agent retried a failing call. Which step was the <em>first</em> bad decision?</li>
+<li><strong>Add loop detection.</strong> Write a function that scans <code>traces.jsonl</code> and flags any trace where the same tool was called with identical arguments three or more times, or where steps exceeded 15. Print the offending trace IDs with their total cost.</li>
+<li><strong>Build a mini dashboard.</strong> From the JSONL file, compute per agent version: success rate (from an <code>outcome</code> attribute you add), p50/p95 steps, tool error rate per tool, mean and p95 cost, and p95 latency. Output a table; bonus: chart it.</li>
+<li><strong>Port to OpenTelemetry.</strong> Replace the JSONL tracer with OTel spans using GenAI attribute names, export to a local backend (e.g., run Jaeger or Phoenix in Docker), and confirm your agent, chat and tool spans nest correctly. Add a tool that runs in a separate HTTP service and propagate the trace context so its spans join the same trace.</li>
+<li><strong>Replay a failure (harder).</strong> Extend the tracer to record full message history on each <code>chat</code> span (redacted). Write a <code>replay(trace_id, step, new_system_prompt)</code> function that rebuilds the conversation up to that step, mocks tools from recorded results, and re-runs the model five times with the new prompt. Use it to test a fix for a failure you found in exercise 1, then turn it into an eval case.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="observability" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Why is a flat application log usually insufficient for debugging agents?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Logs can&#39;t store text longer than a few kilobytes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agent runs are long, nested and non-deterministic, and failures are often semantic; you need the full causal tree of model and tool calls for the specific run that failed</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Logs are not supported in Python async code</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents never throw exceptions, so nothing gets logged</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Traces preserve structure (parent/child spans), group everything for one run, and capture the content and context that explain silent, semantic failures.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>A trace shows the agent gave a wrong answer at step 18. Where should you focus first?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The first step where behavior diverged from what a competent human would do given the same context</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The most expensive model call</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The slowest span in the trace</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Step 18, since that&#39;s where the wrong answer appeared</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Later errors are usually consequences of an earlier mistake, such as a bad retrieval or a misread tool result. Fixing the root cause often fixes the cascade.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>At the failing step, the model had all needed facts clearly in context, the instructions were unambiguous, the tools worked, and it still chose wrongly. How would you classify this?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Model capability issue</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Context issue</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Tool issue</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt issue</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> When the inputs were complete and clear, the remaining explanation is the model&#39;s capability — fix by decomposing the task, adding verification, raising effort or using a stronger model.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Which metric is often the earliest warning sign that a prompt change confused the agent, even before success rate visibly drops?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Average output tokens of the final answer</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Number of active users</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of tools defined</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rising p95 of steps per task</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A confused agent flails — more searches, repeated calls, retries — which shows up in step-count tails before aggregate success metrics move.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>What&#39;s the main advantage of emitting OpenTelemetry spans with GenAI semantic conventions rather than a vendor&#39;s proprietary format?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>OTel makes model calls faster</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Vendor neutrality and interoperability: any compatible backend can ingest and understand the spans, and context propagates across services</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>OTel spans are automatically encrypted</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>OTel automatically redacts PII</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> OTel standardizes the data model and transport; GenAI conventions standardize attribute names so tools agree on what a model call or tool span is. Redaction is still your job.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Where should PII redaction for traces happen?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>In your process, before spans are exported</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only in the data warehouse, during monthly cleanup</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In the observability vendor&#39;s UI, when displaying traces</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It isn&#39;t necessary if the vendor is SOC 2 certified</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Redacting at the source means the sensitive data never leaves your boundary. Downstream redaction still leaves copies in transit, in collectors and in vendor storage.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>You want to test a prompt fix against the exact situation that caused a production failure. What&#39;s the best approach?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Re-send the original user message to production and see if it fails again</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask the model whether the new prompt would have helped</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Replay: rebuild the recorded history up to the failing step, mock tools with recorded results, and re-run the model several times with the new prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Re-run the whole eval suite once</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Non-determinism means a fresh run may take a different path. Forking from the recorded state isolates the decision you&#39;re fixing; multiple samples tell you whether the fix is reliable.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/" target="_blank" rel="noopener">OpenTelemetry semantic conventions for generative AI</a> — the emerging standard for span names and attributes for model, tool and agent operations.</li>
+<li><a href="https://opentelemetry.io/docs/" target="_blank" rel="noopener">OpenTelemetry documentation</a> — core concepts (traces, spans, context propagation, collectors) and per-language SDK guides.</li>
+<li><a href="https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/" target="_blank" rel="noopener">Dapper, a Large-Scale Distributed Systems Tracing Infrastructure (Google, 2010)</a> — the paper that established the trace/span model agents now borrow.</li>
+<li><a href="https://sre.google/sre-book/monitoring-distributed-systems/" target="_blank" rel="noopener">Monitoring Distributed Systems (Google SRE Book)</a> — the classic guide to choosing metrics and alerts that matter, and avoiding alert fatigue.</li>
+<li><a href="https://langfuse.com/docs" target="_blank" rel="noopener">Langfuse documentation</a> — a good open-source reference for tracing, sessions and online evals for LLM apps.</li>
+<li><a href="https://github.com/Arize-ai/phoenix" target="_blank" rel="noopener">Arize Phoenix</a> — open-source, OpenTelemetry-based tracing and evaluation you can run locally.</li>
+<li><a href="https://github.com/Arize-ai/openinference" target="_blank" rel="noopener">OpenInference</a> — open instrumentation for LLM frameworks and SDKs built on OpenTelemetry.</li>
+<li><a href="https://docs.smith.langchain.com/" target="_blank" rel="noopener">LangSmith documentation</a> — tracing, datasets and evaluators, especially for LangChain/LangGraph users.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="observability">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-observability"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-observability" class="notes" data-slug="observability" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="benchmarks.html"><small>← Previous</small><span>Agent Benchmarks</span></a>
+    <a class="pager-next" href="reliability.html"><small>Next →</small><span>Reliability &amp; Durable Execution</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-agents-need-observability">Why agents need observability</a></li>
+<li class="toc-h2"><a href="#traces-spans-and-sessions">Traces, spans and sessions</a></li>
+<li class="toc-h3"><a href="#common-span-types">Common span types</a></li>
+<li class="toc-h2"><a href="#what-to-capture">What to capture</a></li>
+<li class="toc-h2"><a href="#opentelemetry-and-the-genai-conventions">OpenTelemetry and the GenAI conventions</a></li>
+<li class="toc-h2"><a href="#observability-tools">Observability tools</a></li>
+<li class="toc-h2"><a href="#hands-on-a-minimal-tracer">Hands-on: a minimal tracer</a></li>
+<li class="toc-h3"><a href="#the-same-idea-with-opentelemetry">The same idea with OpenTelemetry</a></li>
+<li class="toc-h2"><a href="#a-debugging-workflow">A debugging workflow</a></li>
+<li class="toc-h3"><a href="#replaying-traces">Replaying traces</a></li>
+<li class="toc-h2"><a href="#dashboards-and-key-metrics">Dashboards and key metrics</a></li>
+<li class="toc-h2"><a href="#online-evaluation-and-alerting">Online evaluation and alerting</a></li>
+<li class="toc-h2"><a href="#privacy-pii-and-retention">Privacy, PII and retention</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

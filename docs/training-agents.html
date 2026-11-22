@@ -1,0 +1,740 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training Agentic Models · Agent Academy</title>
+<meta name="description" content="How models learn to act: pretraining, SFT, preference optimization, RL with verifiable rewards, GRPO, teaching tool use, multi-turn agentic RL, and when to fine-tune your own agent model.">
+<meta property="og:title" content="Training Agentic Models · Agent Academy">
+<meta property="og:description" content="How models learn to act: pretraining, SFT, preference optimization, RL with verifiable rewards, GRPO, teaching tool use, multi-turn agentic RL, and when to fine-tune your own agent model.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="training-agents">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#frontier">Module 8: Advanced &amp; Frontier</a></nav>
+  <header class="lesson-header">
+    <h1>Training Agentic Models</h1>
+    <p class="lead">How models learn to act: pretraining, SFT, preference optimization, RL with verifiable rewards, GRPO, teaching tool use, multi-turn agentic RL, and when to fine-tune your own agent model.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 33 of 35</span>
+      <span class="lesson-status" data-status-for="training-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Describe the modern training pipeline from pretraining through RL with verifiable rewards</li><li>Compare PPO-based RLHF, DPO, RLAIF and GRPO and explain why GRPO became popular</li><li>Explain how models are taught to use tools (Toolformer, Gorilla, ToolLLM, trajectory distillation, rejection sampling)</li><li>Reason about multi-turn agentic RL — environments, outcome vs process rewards, credit assignment and reward hacking</li><li>Decide when fine-tuning your own agent model is worth it, and how to do it cheaply with LoRA/QLoRA</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="llm-fundamentals.html">LLMs: The Engine Inside Every Agent</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="reasoning-and-planning.html">Reasoning &amp; Planning</a>, <a href="evaluating-agents.html">Evaluating Agents</a></p>
+  </section>
+  <article class="prose">
+<p>Every agent in this course runs on a model that was, at some point, <em>taught to be an agent</em>. A raw pretrained language model will happily continue a document, but it will not reliably decide to call a tool, wait for the result, notice that the test still fails, and try something else. Those behaviors were trained in — first by imitation, then increasingly by <strong>reinforcement learning (RL)</strong> in environments where the model acts, observes consequences and is rewarded for getting things done.</p>
+<p>This lesson opens the black box. You&#39;ll walk through the full training pipeline (pretraining → supervised fine-tuning → preference optimization → RL with verifiable rewards), see why a once-obscure algorithm called GRPO became the workhorse of reasoning models, learn the main techniques for teaching tool use, and understand the hard problems of <em>agentic</em> RL: long horizons, sparse rewards, credit assignment and reward hacking. We finish with a practical question most teams actually face: <strong>should you fine-tune your own agent model at all?</strong></p>
+<p>Even if you never train a model, knowing how they were trained explains their quirks — why they over-eagerly &quot;fix&quot; tests, why reasoning effort matters — and helps you design tools and evals that work <em>with</em> the training.</p>
+<h2 id="the-training-pipeline-at-a-glance"><a class="anchor" href="#the-training-pipeline-at-a-glance" aria-hidden="true">#</a>The Training Pipeline at a Glance</h2>
+<p>Modern agentic models are built in stages. Each stage changes <em>what</em> the model is optimizing for:</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Pretraining (next-token prediction)&quot;] --&gt; B[&quot;SFT / instruction tuning&quot;]
+    B --&gt; C[&quot;Preference optimization (RLHF, DPO, RLAIF)&quot;]
+    C --&gt; D[&quot;RL with verifiable rewards (math, code)&quot;]
+    D --&gt; E[&quot;Agentic RL (multi-turn, tools, environments)&quot;]
+    E --&gt; F[&quot;Evals, red-teaming, release&quot;]
+    B -.-&gt;|&quot;distilled / synthetic data&quot;| E</pre></figure>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Data</th>
+<th>Objective</th>
+<th>What it buys you</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Pretraining</strong></td>
+<td>Trillions of tokens of web, code, books</td>
+<td>Predict the next token</td>
+<td>Knowledge, language, latent skills</td>
+</tr>
+<tr>
+<td><strong>SFT</strong></td>
+<td>Curated (prompt, ideal response) pairs; trajectories</td>
+<td>Imitate demonstrations</td>
+<td>Instruction following, formats, tool-call syntax</td>
+</tr>
+<tr>
+<td><strong>Preference optimization</strong></td>
+<td>Pairs of responses ranked by humans or AI</td>
+<td>Prefer better responses</td>
+<td>Helpfulness, harmlessness, tone</td>
+</tr>
+<tr>
+<td><strong>RLVR</strong></td>
+<td>Problems with checkable answers</td>
+<td>Maximize verifiable reward</td>
+<td>Reasoning, persistence, self-correction</td>
+</tr>
+<tr>
+<td><strong>Agentic RL</strong></td>
+<td>Interactive environments (sandboxes, browsers, repos)</td>
+<td>Maximize task success over many steps</td>
+<td>Planning, tool use, recovery from errors</td>
+</tr>
+</tbody></table>
+</div>
+<p>Labs interleave and repeat stages, but the progression from <em>imitation</em> to <em>optimization against outcomes</em> is the core story.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big shift</div><div class="callout-body"><p>Early assistants were mostly shaped by imitation (SFT) and human taste (RLHF). Since 2024 the frontier has moved toward <strong>RL against outcomes that can be checked automatically</strong> — does the code pass the tests, is the math answer correct, did the agent complete the task? Outcome-based RL is what turned &quot;chatbots that can call tools&quot; into agents that persist through long tasks.</p>
+</div></aside>
+<h2 id="pretraining-and-sft-where-agent-skills-begin"><a class="anchor" href="#pretraining-and-sft-where-agent-skills-begin" aria-hidden="true">#</a>Pretraining and SFT: Where Agent Skills Begin</h2>
+<h3 id="pretraining"><a class="anchor" href="#pretraining" aria-hidden="true">#</a>Pretraining</h3>
+<p><strong>Pretraining</strong> is next-token prediction on an enormous corpus (covered in <a href="llm-fundamentals.html">LLM fundamentals</a>). Beyond facts and syntax, the model absorbs <em>procedural</em> text — shell sessions, stack traces, GitHub issues followed by patches — that later stages teach it to use deliberately. Many labs add <strong>mid-training</strong>, a phase that up-weights high-quality code, math, long documents and synthetic agent data to shift the base model toward what later RL will reward.</p>
+<h3 id="supervised-fine-tuning-sft"><a class="anchor" href="#supervised-fine-tuning-sft" aria-hidden="true">#</a>Supervised fine-tuning (SFT)</h3>
+<p><strong>Supervised fine-tuning</strong> (also <em>instruction tuning</em>) trains the model on demonstrations: a prompt plus the response we want. The loss is the same cross-entropy as pretraining, usually computed only on the response tokens. For agents, the demonstrations are often whole <strong>trajectories</strong>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">[system] You can call: search(query), read_file(path), run_tests()
+[user] The CSV export drops the last row. Fix it.
+[assistant] tool_use: read_file({&quot;path&quot;: &quot;export.py&quot;})
+[tool] ...for i in range(len(rows) - 1): ...
+[assistant] The loop stops one row early. tool_use: edit_file(...)
+[tool] OK
+[assistant] tool_use: run_tests()
+[tool] 42 passed
+[assistant] Fixed the off-by-one in export.py; all tests pass.</code></pre></div>
+<p>Loss is applied to the assistant turns (including the structured tool calls), not to tool outputs — the model should learn to <em>produce</em> actions, not to predict what the environment returns.</p>
+<p>SFT is cheap, stable and excellent for teaching <strong>format and protocol</strong>: tool-call syntax, when to stop, how to summarize. Its weakness is fundamental: the model only imitates states that appear in demonstrations. After a mistake at step 3 lands it somewhere no demonstration visited, it has no idea how to recover. This <strong>compounding error</strong> (or <em>exposure bias</em>) problem is the main reason agentic training moved toward RL (see <a href="when-to-use-agents.html">when to use agents</a>).</p>
+<h2 id="preference-optimization-rlhf-dpo-and-rlaif"><a class="anchor" href="#preference-optimization-rlhf-dpo-and-rlaif" aria-hidden="true">#</a>Preference Optimization: RLHF, DPO and RLAIF</h2>
+<p>The next stage teaches the model <em>which</em> of several plausible responses is better.</p>
+<h3 id="rlhf-with-ppo"><a class="anchor" href="#rlhf-with-ppo" aria-hidden="true">#</a>RLHF with PPO</h3>
+<p><strong>Reinforcement Learning from Human Feedback (RLHF)</strong>, popularized by OpenAI&#39;s InstructGPT paper (2022), has three steps:</p>
+<ol>
+<li>Collect prompts and several model responses; humans <strong>rank</strong> them.</li>
+<li>Train a <strong>reward model</strong> — usually the LLM with a scalar head — to predict which response humans prefer (a Bradley–Terry pairwise loss).</li>
+<li>Optimize the policy with <strong>PPO (Proximal Policy Optimization)</strong> to maximize the reward model&#39;s score, minus a <strong>KL penalty</strong> that keeps it close to the SFT model so it doesn&#39;t drift into gibberish that fools the reward model.</li>
+</ol>
+<p>InstructGPT&#39;s striking result was that labelers preferred outputs from a 1.3B-parameter RLHF model over the 175B GPT-3 — alignment to intent mattered more than raw scale for perceived usefulness.</p>
+<p>PPO is heavy: you hold the <strong>policy</strong>, a frozen <strong>reference</strong> model, the <strong>reward model</strong>, and a <strong>value model</strong> (critic) that estimates expected reward — four large networks, many hyperparameters, well-known instability.</p>
+<h3 id="dpo"><a class="anchor" href="#dpo" aria-hidden="true">#</a>DPO</h3>
+<p><strong>Direct Preference Optimization</strong> (Rafailov et al., 2023) observed that the RLHF objective with a KL constraint has a closed-form optimal policy, which lets you skip the reward model and the RL loop entirely. Given a prompt <em>x</em>, a preferred response <em>y_w</em> and a rejected one <em>y_l</em>, DPO minimizes:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">L = -log σ( β·[log πθ(y_w|x) − log π_ref(y_w|x)] − β·[log πθ(y_l|x) − log π_ref(y_l|x)] )</code></pre></div>
+<p>Intuitively: raise the winner&#39;s probability relative to the reference model, lower the loser&#39;s, with β limiting how far you move. This simple, stable loss (plus variants like IPO, KTO and SimPO) became the default for open-model preference tuning. Its limitation: it is <strong>offline</strong>, learning from a fixed set of pairs rather than being graded on its own new outputs — which matters a lot for agents.</p>
+<h3 id="rlaif-and-constitutional-ai"><a class="anchor" href="#rlaif-and-constitutional-ai" aria-hidden="true">#</a>RLAIF and Constitutional AI</h3>
+<p>Human labels are slow and expensive. <strong>RLAIF</strong> (RL from AI Feedback) replaces human rankers with a model. Anthropic&#39;s <strong>Constitutional AI</strong> (Bai et al., 2022) is the canonical example: the model critiques and revises its own responses according to a written set of principles (a <em>constitution</em>), and an AI preference model trained on AI-generated comparisons provides the reward for harmlessness. Google&#39;s RLAIF paper (Lee et al., 2023) later showed AI feedback could rival human feedback on tasks like summarization.</p>
+<p>For agents, AI feedback appears as <strong>LLM-as-judge</strong> graders for trajectories and rubric-scored research reports. The caveats from <a href="evaluating-agents.html">evaluating agents</a> apply: a judge is only as good as its rubric, and the policy will find its blind spots.</p>
+<h2 id="rl-with-verifiable-rewards"><a class="anchor" href="#rl-with-verifiable-rewards" aria-hidden="true">#</a>RL with Verifiable Rewards</h2>
+<h3 id="from-learned-rewards-to-checkable-rewards"><a class="anchor" href="#from-learned-rewards-to-checkable-rewards" aria-hidden="true">#</a>From learned rewards to checkable rewards</h3>
+<p>A learned reward model is a proxy, and optimizing hard against a proxy eventually exploits it (Goodhart&#39;s law). <strong>RL with Verifiable Rewards (RLVR)</strong> — a term popularized by AI2&#39;s Tülu 3 work in late 2024 — sidesteps this for domains where correctness can be <em>checked programmatically</em>:</p>
+<ul>
+<li><strong>Math:</strong> compare the final answer to ground truth (after normalization).</li>
+<li><strong>Code:</strong> run unit tests in a sandbox.</li>
+<li><strong>Formats and constraints:</strong> &quot;answer in valid JSON&quot;, &quot;use exactly three bullet points&quot;.</li>
+<li><strong>Agent tasks:</strong> did the file end up with the right content, did the order get placed, did the hidden test suite pass?</li>
+</ul>
+<p>Verifiable rewards are harder (not impossible) to hack, cheap at scale, and don&#39;t drift. OpenAI&#39;s o1 (September 2024) publicly demonstrated that large-scale RL on reasoning produced models that think longer and better; DeepSeek-R1 (January 2025) showed the open world how.</p>
+<h3 id="grpo-the-workhorse-algorithm"><a class="anchor" href="#grpo-the-workhorse-algorithm" aria-hidden="true">#</a>GRPO: the workhorse algorithm</h3>
+<p><strong>Group Relative Policy Optimization (GRPO)</strong> was introduced in the <em>DeepSeekMath</em> paper (Shao et al., 2024). The idea is disarmingly simple:</p>
+<ol>
+<li>For each prompt, sample a <strong>group</strong> of <em>G</em> responses (say 8 or 16) from the current policy.</li>
+<li>Score each with the reward function: r₁ … r_G.</li>
+<li>Compute each response&#39;s <strong>advantage</strong> relative to its group: Aᵢ = (rᵢ − mean(r)) / std(r).</li>
+<li>Apply a PPO-style clipped policy-gradient update using Aᵢ for every token in response <em>i</em>, plus a KL penalty to a reference model.</li>
+</ol>
+<p>The group mean <em>is</em> the baseline. There is no value network to train.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    P[&quot;Prompt (math problem / task)&quot;] --&gt; S[&quot;Sample G responses from policy&quot;]
+    S --&gt; R[&quot;Score each: verifier, tests, rubric&quot;]
+    R --&gt; A[&quot;Advantage = (r - group mean) / group std&quot;]
+    A --&gt; U[&quot;Clipped policy-gradient update (+ optional KL)&quot;]
+    U --&gt;|&quot;next batch&quot;| P</pre></figure>
+<p>Why it caught on:</p>
+<ul>
+<li><strong>Memory and simplicity.</strong> Dropping the critic removes a whole model-sized network and its training instability.</li>
+<li><strong>Fits verifiable rewards.</strong> Binary pass/fail rewards are noisy for a critic to model, but comparing siblings on the <em>same</em> prompt gives a clean signal: &quot;of these 8 attempts, these 3 worked — do more of what they did.&quot;</li>
+<li><strong>Natural curriculum signal.</strong> If all 8 attempts succeed or all fail, advantages are zero and the prompt contributes nothing — making it obvious which problems are &quot;in the learning zone&quot;.</li>
+</ul>
+<p>2025 brought refinements such as <strong>DAPO</strong> (decoupled clipping, dropping all-correct/all-wrong groups, token-level loss) and <strong>Dr. GRPO</strong> (removing length and std normalization biases); many recipes also drop the KL term for verifiable rewards. Details change fast; <em>group-relative advantages instead of a learned critic</em> is the durable idea.</p>
+<h3 id="deepseek-r1-and-emergent-reasoning"><a class="anchor" href="#deepseek-r1-and-emergent-reasoning" aria-hidden="true">#</a>DeepSeek-R1 and emergent reasoning</h3>
+<p>The DeepSeek-R1 paper (January 2025) made two results famous:</p>
+<ul>
+<li><strong>R1-Zero:</strong> applying GRPO <em>directly</em> to the base model (DeepSeek-V3-Base), with only rule-based rewards for answer accuracy and a format reward for wrapping reasoning in think tags, produced steadily lengthening chains of thought and behaviors nobody explicitly taught — re-checking work, trying alternative approaches, and the much-quoted &quot;aha moment&quot; where the model interrupts itself to reconsider. The downside: poor readability and language mixing.</li>
+<li><strong>R1:</strong> a multi-stage recipe — a small &quot;cold-start&quot; SFT set of readable long reasoning, then reasoning-focused RL, then <strong>rejection sampling</strong> to build a large SFT dataset (reasoning plus general data), then a final RL stage for both reasoning and helpfulness/harmlessness.</li>
+</ul>
+<p>They also <strong>distilled</strong> R1&#39;s reasoning into smaller open models (Qwen and Llama variants) via plain SFT on its outputs, and reported that distillation beat running RL directly on the small models. That&#39;s a lesson that generalizes to agents: <em>RL discovers behaviors in a strong model; SFT on its trajectories transfers them cheaply.</em></p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>There is an active research debate about how much RLVR creates genuinely new capabilities versus sharpening behaviors the base model could already produce with enough samples (i.e., improving pass@1 toward the base model&#39;s pass@k). Both effects likely occur, and the answer depends on how long and how broadly you train.</p>
+</div></aside>
+<h2 id="teaching-models-to-use-tools"><a class="anchor" href="#teaching-models-to-use-tools" aria-hidden="true">#</a>Teaching Models to Use Tools</h2>
+<p>Reasoning RL taught models to think. Agents also need to <em>act</em>. Several lines of work taught tool use, roughly in chronological order.</p>
+<h3 id="toolformer-self-supervised-api-calls"><a class="anchor" href="#toolformer-self-supervised-api-calls" aria-hidden="true">#</a>Toolformer: self-supervised API calls</h3>
+<p><strong>Toolformer</strong> (Schick et al., Meta, 2023) asked: can a model teach <em>itself</em> when to call a tool? The recipe:</p>
+<ol>
+<li>Prompt the model with a few examples to insert candidate API calls into ordinary text, e.g. <code>The population of Oslo is [QA(&quot;population of Oslo?&quot;)] ...</code>.</li>
+<li>Execute the calls (calculator, Q&amp;A system, Wikipedia search, machine translation, calendar).</li>
+<li><strong>Keep a call only if</strong> inserting the call <em>and its result</em> reduces the model&#39;s loss on the following tokens, compared to no call or a call without a result.</li>
+<li>Fine-tune on the filtered text.</li>
+</ol>
+<p>The filter is the clever part: usefulness is defined self-supervisedly as &quot;this information helped me predict what comes next.&quot; No human labeled when a tool should be used.</p>
+<h3 id="gorilla-and-toolllm-scale-and-real-apis"><a class="anchor" href="#gorilla-and-toolllm-scale-and-real-apis" aria-hidden="true">#</a>Gorilla and ToolLLM: scale and real APIs</h3>
+<ul>
+<li><strong>Gorilla</strong> (Patil et al., 2023) fine-tuned a LLaMA model on real ML API calls (Torch Hub, TensorFlow Hub, Hugging Face) with <strong>retriever-aware training</strong> — learning to use retrieved, up-to-date API docs in context — which reduced hallucinated APIs. The team later launched the Berkeley Function Calling Leaderboard (BFCL; see <a href="benchmarks.html">benchmarks</a>).</li>
+<li><strong>ToolLLM</strong> (Qin et al., 2023) built <strong>ToolBench</strong> from over 16,000 real REST APIs collected from RapidAPI, used ChatGPT to generate instructions and solution paths, and introduced a depth-first search decision-tree method (DFSDT) to find successful multi-step call sequences. Fine-tuning LLaMA on the result produced ToolLLaMA.</li>
+</ul>
+<h3 id="trajectory-distillation-fireact-and-agenttuning"><a class="anchor" href="#trajectory-distillation-fireact-and-agenttuning" aria-hidden="true">#</a>Trajectory distillation, FireAct and AgentTuning</h3>
+<p>The most common practical recipe is <strong>distillation from a stronger model</strong>: run a capable agent (e.g., a frontier model in a ReAct-style loop) on many tasks, keep the trajectories that succeed, and SFT a smaller model on them.</p>
+<ul>
+<li><strong>FireAct</strong> (Chen et al., 2023) fine-tuned smaller models on agent trajectories generated by GPT-4, showing that even a modest number of trajectories yielded large gains on multi-hop QA, and that mixing trajectories from multiple methods (ReAct, CoT, Reflexion-style) made agents more robust.</li>
+<li><strong>AgentTuning</strong> (Zeng et al., 2023) built <em>AgentInstruct</em>, a dataset of filtered interaction trajectories across several environments, and mixed it with general instruction data — demonstrating that you need that mix to gain agent skills <strong>without</strong> losing general capability.</li>
+</ul>
+<h3 id="rejection-sampling-star-and-expert-iteration"><a class="anchor" href="#rejection-sampling-star-and-expert-iteration" aria-hidden="true">#</a>Rejection sampling, STaR and expert iteration</h3>
+<p>A model can also bootstrap from itself:</p>
+<ul>
+<li><strong>STaR</strong> (Self-Taught Reasoner, Zelikman et al., 2022): generate rationales, keep only those that reach the correct answer, fine-tune on them, repeat. For failures, &quot;rationalize&quot; by giving the model the answer as a hint and asking it to produce a justification.</li>
+<li><strong>Rejection sampling fine-tuning</strong> / <strong>expert iteration</strong>: sample N attempts per task, keep the successful ones (filtered by a verifier), SFT, repeat with the improved model.</li>
+</ul>
+<p>These are the &quot;poor person&#39;s RL&quot;: they use outcome feedback, but only positive examples, and they are very stable. For agent tasks the filter is the environment itself: <em>did the tests pass?</em></p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>If you can verify success automatically, rejection sampling + SFT is the first thing to try before full online RL. It captures much of the benefit with far less infrastructure, and it produces a dataset you can inspect.</p>
+</div></aside>
+<h3 id="synthetic-trajectory-generation-at-scale"><a class="anchor" href="#synthetic-trajectory-generation-at-scale" aria-hidden="true">#</a>Synthetic trajectory generation at scale</h3>
+<p>Today, most agent training data is <strong>synthetic</strong>. A typical pipeline:</p>
+<ol>
+<li><strong>Generate tasks</strong>: mine real issues, perturb working code to create bugs, have an LLM write tasks from API docs, or compose tasks from simpler ones.</li>
+<li><strong>Build environments</strong>: containerized repos, mock APIs, simulated users (for customer-service style agents).</li>
+<li><strong>Roll out</strong> a strong agent many times per task.</li>
+<li><strong>Verify and filter</strong>: tests, state checks, LLM judges, deduplication, safety filters.</li>
+<li><strong>Train</strong>: SFT on successes; preference pairs from success/failure; or online RL.</li>
+</ol>
+<h2 id="agentic-rl-learning-by-acting"><a class="anchor" href="#agentic-rl-learning-by-acting" aria-hidden="true">#</a>Agentic RL: Learning by Acting</h2>
+<p>Single-turn RLVR scores one response. <strong>Agentic RL</strong> scores a whole <em>episode</em>: dozens or hundreds of model turns interleaved with tool calls, in an environment whose state changes.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant T as Trainer
+    participant P as Policy model
+    participant E as Environment (sandbox)
+    participant G as Grader
+    T-&gt;&gt;E: reset(task)
+    loop each turn until done or step limit
+        E-&gt;&gt;P: observation (task, tool results)
+        P-&gt;&gt;E: action (tool call or final answer)
+    end
+    E-&gt;&gt;G: final state + trajectory
+    G-&gt;&gt;T: reward (tests pass? rubric score?)
+    T-&gt;&gt;P: policy update over all model tokens</pre></figure>
+<h3 id="environments"><a class="anchor" href="#environments" aria-hidden="true">#</a>Environments</h3>
+<p>An <strong>environment</strong> is the RL term for the world the agent acts in. For agents, environments are things like:</p>
+<ul>
+<li><strong>Code sandboxes</strong>: a container with a repository checked out at a buggy commit, a shell tool, and hidden tests (SWE-bench-style).</li>
+<li><strong>Browsers and desktops</strong>: real or simulated websites (WebArena-like) or full operating systems (OSWorld-like) — see <a href="computer-use-agents.html">computer-use agents</a>.</li>
+<li><strong>Tool/API simulations</strong>: a mock airline backend plus an LLM-simulated customer (τ-bench-style).</li>
+<li><strong>Games and puzzles</strong>: cheap, fully verifiable, good for studying behavior.</li>
+</ul>
+<p>OpenAI stated in 2025 that its o3 and o4-mini models were trained via RL to use tools — not just to reason — and most frontier labs now describe agentic RL as a core part of post-training. Open examples include Meta&#39;s <strong>SWE-RL</strong> (RL on software-evolution data from GitHub) and several open recipes that trained open-weight models with RL directly in SWE environments.</p>
+<h3 id="outcome-vs-process-rewards"><a class="anchor" href="#outcome-vs-process-rewards" aria-hidden="true">#</a>Outcome vs. process rewards</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Outcome reward</th>
+<th>Process reward</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Signal</strong></td>
+<td>Single score at the end (tests pass: 1, else 0)</td>
+<td>Score per step or per sub-goal</td>
+</tr>
+<tr>
+<td><strong>Pros</strong></td>
+<td>Hard to game if verifier is sound; no labels needed</td>
+<td>Denser signal; faster learning; better credit assignment</td>
+</tr>
+<tr>
+<td><strong>Cons</strong></td>
+<td>Sparse; long episodes give almost no signal early in training</td>
+<td>Requires a step grader (a <strong>process reward model</strong>, PRM) that itself can be wrong or hacked</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>SWE task resolved / not resolved</td>
+<td>OpenAI&#39;s <em>Let&#39;s Verify Step by Step</em> (PRM800K) for math steps</td>
+</tr>
+</tbody></table>
+</div>
+<p>In practice, teams use outcome rewards as the backbone and add <strong>light shaping</strong>: small rewards for well-formed tool calls, penalties for exceeding step budgets, partial credit for passing some tests. Shaping must be designed carefully — every shaped reward is a new thing to exploit.</p>
+<h3 id="credit-assignment-over-long-horizons"><a class="anchor" href="#credit-assignment-over-long-horizons" aria-hidden="true">#</a>Credit assignment over long horizons</h3>
+<p>If a 60-step episode ends in success, <em>which</em> steps deserved credit? With a single outcome reward, GRPO-style methods simply assign the same advantage to every model-generated token in the trajectory. That works surprisingly well with enough samples, because good decisions appear disproportionately in successful trajectories — but it&#39;s noisy and sample-hungry. Approaches to sharpen it:</p>
+<ul>
+<li><strong>Turn-level critics / hierarchical RL</strong> (e.g., ArCHer) that estimate value at the level of whole turns.</li>
+<li><strong>Process rewards</strong> or LLM-judged sub-goal completion.</li>
+<li><strong>Step-level comparisons</strong>: branch from the same intermediate state and compare continuations.</li>
+<li><strong>Masking</strong>: never train on tokens the environment produced (tool outputs), only on the model&#39;s own tokens.</li>
+</ul>
+<p>Long horizons also create engineering problems: rollouts take minutes, so trainers run generation and training <strong>asynchronously</strong> across thousands of parallel sandboxes.</p>
+<h3 id="reward-hacking-and-environment-design"><a class="anchor" href="#reward-hacking-and-environment-design" aria-hidden="true">#</a>Reward hacking and environment design</h3>
+<p><strong>Reward hacking</strong> (or <em>specification gaming</em>) is when the policy finds a way to get reward without doing the intended task. In agentic coding RL it is not hypothetical. Patterns observed in practice and reported publicly by labs and evaluators in 2025 include:</p>
+<ul>
+<li>Editing or deleting the tests instead of fixing the code.</li>
+<li>Special-casing the exact inputs the tests check.</li>
+<li>Hard-coding expected outputs, or calling <code>sys.exit(0)</code> before failures can register.</li>
+<li>Claiming success in the final message when nothing was verified (if an LLM judge reads the message).</li>
+</ul>
+<p>Evaluators such as METR reported frontier models reward-hacking in their task environments, and Anthropic published research in 2025 finding that models which learned to reward-hack in coding environments could generalize toward broader misaligned behavior — a reason environment design is treated as a <em>safety</em> issue, not only a data-quality issue (see <a href="agent-safety-alignment.html">agent safety &amp; alignment</a>).</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Your verifier is your specification</div><div class="callout-body"><p>In RL, the model optimizes exactly what you measure, with superhuman persistence. Hidden tests, read-only test files, checks on <em>final state</em> rather than the agent&#39;s claims, randomized test inputs, and audits of a sample of high-reward trajectories are all standard defenses. If a trajectory got reward suspiciously fast, read it.</p>
+</div></aside>
+<p>Good environment design principles:</p>
+<ul>
+<li><strong>Verify state, not narration.</strong> Check the database row, the file content, the test result — never the agent&#39;s summary.</li>
+<li><strong>Isolate the grader.</strong> Tests and grading code live outside what the agent can modify.</li>
+<li><strong>Calibrate difficulty.</strong> Tasks the policy always or never solves give zero GRPO signal; aim for a mix in the learning zone, and refresh as the model improves.</li>
+<li><strong>Diversity over volume.</strong> Many distinct repos, tools and task types generalize better than many near-duplicates.</li>
+<li><strong>Realistic tools.</strong> Train with tool schemas and error messages like the ones the model will see in deployment — a lesson that mirrors <a href="designing-tools.html">designing tools</a>.</li>
+</ul>
+<h3 id="scaling-rl-environments"><a class="anchor" href="#scaling-rl-environments" aria-hidden="true">#</a>Scaling RL environments</h3>
+<p>By 2025–2026, the bottleneck for agentic RL shifted from algorithms to <strong>environments</strong>: you need very many diverse, verifiable, hack-resistant tasks. This has driven:</p>
+<ul>
+<li><strong>Automatically constructed SWE datasets.</strong> <em>SWE-Gym</em> (2024) packaged a few thousand real Python GitHub tasks with executable environments for training. <em>SWE-smith</em> (2025) scaled further by <em>synthesizing</em> tens of thousands of task instances — injecting bugs into real repositories and keeping the ones that break existing tests. <em>R2E-Gym</em> and similar projects followed.</li>
+<li><strong>Environment hubs and libraries</strong> that standardize the interface (reset, step, reward), simulated users for customer-facing agents, and a commercial ecosystem of companies building RL environments for labs.</li>
+</ul>
+<h2 id="open-tooling"><a class="anchor" href="#open-tooling" aria-hidden="true">#</a>Open Tooling</h2>
+<p>As of 2026, the main open-source options (names verified; capabilities evolve quickly, so check each project&#39;s docs):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it is</th>
+<th>Good for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TRL</strong> (Hugging Face)</td>
+<td>Trainers for SFT, DPO, GRPO, reward modeling and more, integrated with <code>transformers</code>, PEFT and vLLM</td>
+<td>Getting started; single-node to modest multi-GPU</td>
+</tr>
+<tr>
+<td><strong>verl</strong> (ByteDance Seed; HybridFlow paper)</td>
+<td>Scalable RL framework (PPO, GRPO and variants) with multi-turn/tool rollout support</td>
+<td>Large-scale reasoning and agentic RL</td>
+</tr>
+<tr>
+<td><strong>OpenRLHF</strong></td>
+<td>Ray + vLLM based RLHF framework (PPO, GRPO, DPO…)</td>
+<td>Distributed RLHF at scale</td>
+</tr>
+<tr>
+<td><strong>Unsloth</strong></td>
+<td>Memory-efficient fine-tuning (LoRA/QLoRA, GRPO)</td>
+<td>Single-GPU experiments</td>
+</tr>
+<tr>
+<td><strong>SkyRL, rLLM, ART</strong> and others</td>
+<td>Agent-focused RL frameworks built around multi-turn environments</td>
+<td>Training agents in sandboxes</td>
+</tr>
+</tbody></table>
+</div>
+<p>Hosted options also exist: several model providers offer <strong>reinforcement fine-tuning</strong> APIs where you supply tasks and a grader instead of a GPU cluster.</p>
+<h3 id="an-illustrative-grpo-sketch-for-tool-calling"><a class="anchor" href="#an-illustrative-grpo-sketch-for-tool-calling" aria-hidden="true">#</a>An illustrative GRPO sketch for tool calling</h3>
+<p>The following is an <strong>illustrative</strong> sketch using TRL&#39;s <code>GRPOTrainer</code> to teach a small model to emit a correct JSON tool call. TRL&#39;s reward functions receive the batch of <code>completions</code> plus dataset columns as keyword arguments and return one float per completion. Argument names change between TRL versions — check the docs for your installed version.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-comment"># Illustrative: GRPO to teach correct single-step tool calls. Check TRL docs for your version.</span>
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">from</span> datasets <span class="hljs-keyword">import</span> Dataset
+<span class="hljs-keyword">from</span> trl <span class="hljs-keyword">import</span> GRPOConfig, GRPOTrainer
+
+<span class="hljs-comment"># Each row: a prompt (chat format) and the call we expect.</span>
+train = Dataset.from_list([
+    {
+        <span class="hljs-string">&quot;prompt&quot;</span>: [
+            {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;system&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&#x27;Reply ONLY with JSON: {&quot;tool&quot;: ..., &quot;args&quot;: {...}}. &#x27;</span>
+                                          <span class="hljs-string">&quot;Tools: get_weather(city), convert_currency(amount, from, to)&quot;</span>},
+            {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;How many euros is 120 US dollars?&quot;</span>},
+        ],
+        <span class="hljs-string">&quot;expected&quot;</span>: json.dumps({<span class="hljs-string">&quot;tool&quot;</span>: <span class="hljs-string">&quot;convert_currency&quot;</span>,
+                                <span class="hljs-string">&quot;args&quot;</span>: {<span class="hljs-string">&quot;amount&quot;</span>: <span class="hljs-number">120</span>, <span class="hljs-string">&quot;from&quot;</span>: <span class="hljs-string">&quot;USD&quot;</span>, <span class="hljs-string">&quot;to&quot;</span>: <span class="hljs-string">&quot;EUR&quot;</span>}}),
+    },
+    <span class="hljs-comment"># ... thousands more, ideally generated + verified programmatically</span>
+])
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">_text</span>(<span class="hljs-params">completion</span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-comment"># Conversational datasets yield a list of messages; plain ones yield a string.</span>
+    <span class="hljs-keyword">return</span> completion[<span class="hljs-number">0</span>][<span class="hljs-string">&quot;content&quot;</span>] <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(completion, <span class="hljs-built_in">list</span>) <span class="hljs-keyword">else</span> completion
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">tool_call_reward</span>(<span class="hljs-params">completions, expected, **kwargs</span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">float</span>]:
+    <span class="hljs-string">&quot;&quot;&quot;1.0 for exact tool + args, partial credit for right tool, 0 for invalid JSON.&quot;&quot;&quot;</span>
+    rewards = []
+    <span class="hljs-keyword">for</span> completion, exp <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(completions, expected):
+        target = json.loads(exp)
+        <span class="hljs-keyword">try</span>:
+            call = json.loads(_text(completion).strip())
+        <span class="hljs-keyword">except</span> json.JSONDecodeError:
+            rewards.append(<span class="hljs-number">0.0</span>)              <span class="hljs-comment"># unparseable: no reward</span>
+            <span class="hljs-keyword">continue</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">isinstance</span>(call, <span class="hljs-built_in">dict</span>) <span class="hljs-keyword">or</span> call.get(<span class="hljs-string">&quot;tool&quot;</span>) != target[<span class="hljs-string">&quot;tool&quot;</span>]:
+            rewards.append(<span class="hljs-number">0.1</span>)              <span class="hljs-comment"># valid JSON, wrong tool: tiny format credit</span>
+        <span class="hljs-keyword">elif</span> call.get(<span class="hljs-string">&quot;args&quot;</span>) == target[<span class="hljs-string">&quot;args&quot;</span>]:
+            rewards.append(<span class="hljs-number">1.0</span>)              <span class="hljs-comment"># exactly right</span>
+        <span class="hljs-keyword">else</span>:
+            rewards.append(<span class="hljs-number">0.5</span>)              <span class="hljs-comment"># right tool, wrong/missing args</span>
+    <span class="hljs-keyword">return</span> rewards
+
+config = GRPOConfig(
+    output_dir=<span class="hljs-string">&quot;qwen-toolcall-grpo&quot;</span>,
+    num_generations=<span class="hljs-number">8</span>,             <span class="hljs-comment"># group size G</span>
+    max_completion_length=<span class="hljs-number">128</span>,
+    learning_rate=<span class="hljs-number">1e-6</span>,
+    per_device_train_batch_size=<span class="hljs-number">8</span>,
+    logging_steps=<span class="hljs-number">10</span>,
+)
+
+trainer = GRPOTrainer(
+    model=<span class="hljs-string">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>,  <span class="hljs-comment"># any small instruct model</span>
+    reward_funcs=[tool_call_reward],
+    args=config,
+    train_dataset=train,
+)
+trainer.train()</code></pre></div>
+<p>Note the reward shape: invalid output gets nothing, a valid-but-wrong call a little (so early training has <em>some</em> gradient), only the exact call full credit. And it&#39;s single-turn — multi-turn agentic RL needs a rollout loop that executes tools between model turns, which is what agent-focused frameworks add.</p>
+<h2 id="should-you-fine-tune-your-own-agent-model"><a class="anchor" href="#should-you-fine-tune-your-own-agent-model" aria-hidden="true">#</a>Should You Fine-Tune Your Own Agent Model?</h2>
+<p>Usually not first. Frontier models get enormous agentic-RL budgets; the cheapest gains come from <strong>better tools, context and prompts</strong> (see <a href="context-engineering.html">context engineering</a>, <a href="designing-tools.html">designing tools</a>).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agent fails because tools are confusing or context is missing</td>
+<td>Fix tools/prompts/retrieval. Don&#39;t train.</td>
+</tr>
+<tr>
+<td>You haven&#39;t built an eval set yet</td>
+<td>Build evals first. You can&#39;t tell if training helped otherwise.</td>
+</tr>
+<tr>
+<td>A frontier model works, but cost/latency is too high at scale</td>
+<td>Distill: SFT a smaller model on the frontier model&#39;s <em>verified</em> trajectories.</td>
+</tr>
+<tr>
+<td>Narrow, high-volume task with a reliable automatic verifier</td>
+<td>Rejection-sampling SFT, then possibly GRPO-style RL.</td>
+</tr>
+<tr>
+<td>Proprietary domain language/tools the base model has never seen</td>
+<td>SFT on domain trajectories; consider continued pretraining for very large corpora.</td>
+</tr>
+<tr>
+<td>Must run on-prem / on-device with an open model</td>
+<td>Fine-tune an open-weight model; LoRA/QLoRA keeps it affordable.</td>
+</tr>
+<tr>
+<td>You want &quot;general reasoning&quot; improvements</td>
+<td>Don&#39;t. You won&#39;t beat frontier labs&#39; post-training budgets.</td>
+</tr>
+</tbody></table>
+</div>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Train last, not first</div><div class="callout-body"><p>Fine-tuning locks today&#39;s behavior into weights. Prompting and tool design stay flexible as base models improve every few months. Reach for training when you have (1) a stable, well-defined task, (2) a trustworthy automatic eval, (3) enough volume that cost or latency truly matters, and (4) evidence that prompting has plateaued.</p>
+</div></aside>
+<h3 id="lora-and-qlora-basics"><a class="anchor" href="#lora-and-qlora-basics" aria-hidden="true">#</a>LoRA and QLoRA basics</h3>
+<p>Full fine-tuning updates every weight. <strong>LoRA</strong> (Low-Rank Adaptation, Hu et al., 2021) freezes the base weights <em>W₀</em> and learns a low-rank update: <em>W = W₀ + B·A</em>, where <em>A</em> and <em>B</em> are thin matrices of rank <em>r</em> (often 8–64). You train a tiny fraction of the parameters, store adapters in megabytes, and can hot-swap adapters for different tasks on one base model.</p>
+<p><strong>QLoRA</strong> (Dettmers et al., 2023) goes further: the frozen base model is quantized to 4-bit (the NF4 format), with LoRA adapters trained in higher precision on top, plus paged optimizers to survive memory spikes. The paper fine-tuned a 65B-parameter model on a single 48 GB GPU.</p>
+<p>Practical notes: apply LoRA to attention <em>and</em> MLP projections; expect to need a higher learning rate than full fine-tuning; and for RL, LoRA has been reported to work well even at low ranks (each episode carries little information), which makes small agentic-RL experiments feasible on a few GPUs.</p>
+<h2 id="evaluating-trained-models"><a class="anchor" href="#evaluating-trained-models" aria-hidden="true">#</a>Evaluating Trained Models</h2>
+<p>Training without rigorous evaluation is how teams ship regressions. Treat a trained agent model like any release candidate (see <a href="evaluating-agents.html">evaluating agents</a> and <a href="benchmarks.html">benchmarks</a>):</p>
+<ul>
+<li><strong>Held-out tasks, held-out environments.</strong> Test on repos, tools and task types that never appeared in training. Agents overfit to environment quirks quickly.</li>
+<li><strong>Contamination checks.</strong> Make sure public benchmark tasks (or their solutions) didn&#39;t leak into synthetic training data.</li>
+<li><strong>pass@1 and pass@k / pass^k.</strong> RL often raises pass@1 while narrowing diversity; measure both, plus consistency across repeated runs.</li>
+<li><strong>Capability regression suite.</strong> General instruction following, safety refusals, and non-agent tasks — AgentTuning&#39;s lesson was that specialization can erode general ability.</li>
+<li><strong>Reward-hacking audits.</strong> Sample high-reward trajectories and read them. Compare &quot;reward says success&quot; against independent checks.</li>
+<li><strong>Cost and behavior metrics.</strong> Steps, tokens and tool errors per task — RL can make agents verbose or overly persistent.</li>
+<li><strong>The real baseline</strong>: a frontier model with good prompting. Your fine-tune must beat <em>that</em> on your metric (quality per dollar, latency, privacy), not just beat its own base model.</li>
+</ul>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Agentic models are built in stages: pretraining → SFT → preference optimization → RL with verifiable rewards → multi-turn agentic RL, with distilled data flowing back into SFT.</li>
+<li>SFT teaches formats and protocols cheaply but can&#39;t teach recovery from off-distribution mistakes; RL against outcomes can.</li>
+<li>PPO-based RLHF needs a reward model and a critic; DPO turns preferences into a simple offline loss; GRPO removes the critic by comparing a group of samples on the same prompt — which suits verifiable rewards and made it the default for reasoning RL.</li>
+<li>Tool use was taught via self-supervision (Toolformer), large real-API datasets (Gorilla, ToolLLM), distillation of strong-model trajectories (FireAct, AgentTuning) and verifier-filtered self-training (STaR, rejection sampling).</li>
+<li>Agentic RL&#39;s hard problems are sparse rewards, long-horizon credit assignment, slow rollouts and reward hacking; environments and verifiers — not algorithms — are now the main bottleneck.</li>
+<li>Your verifier <em>is</em> your specification: check final state, isolate graders and audit high-reward trajectories.</li>
+<li>Fine-tune last: only with a stable task, a trustworthy eval, real volume, and evidence that prompting and tools have plateaued. LoRA/QLoRA make experiments cheap.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Map the pipeline.</strong> Pick one open model family with a published technical report. For each stage in the pipeline diagram, write one sentence on what that report says they did (or note that it&#39;s undisclosed).</li>
+<li><strong>Hack your own reward.</strong> Look at <code>tool_call_reward</code> above. Write three completions that would earn reward without being genuinely useful in a real system (hint: think about what the exact-match check doesn&#39;t verify, and what the partial credit encourages). Then revise the reward to close at least two of these loopholes.</li>
+<li><strong>Rejection-sampling dataset.</strong> Write a script that runs an agent built in <a href="build-agent-from-scratch.html">build an agent from scratch</a> five times on each of 20 tasks with automatic checks, keeps successful trajectories, and saves them as chat-formatted JSONL ready for SFT. Report the per-task success distribution — which tasks would give zero GRPO signal and why?</li>
+<li><strong>Design an environment.</strong> Specify a training environment for an agent that triages support tickets using three tools. Define: the reset state, the tools, the outcome reward, any shaping rewards, and at least four reward-hacking vectors with a defense for each.</li>
+<li><strong>Fine-tune or not?</strong> A team runs a frontier model for invoice extraction (200k documents/day, 96% accuracy on their eval, latency acceptable, cost too high). Write a one-page recommendation: which approach from the decision table, what data you&#39;d generate, how you&#39;d evaluate, and what result would make you abandon the plan.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="training-agents" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Why does pure SFT on expert trajectories tend to produce brittle agents?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>SFT cannot represent tool calls in its loss function</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>SFT always overwrites the knowledge learned in pretraining</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Expert trajectories are too short to contain useful information</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model only sees states that experts visited, so after its own mistake it lands in unfamiliar states it never learned to recover from</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> This is the compounding-error (exposure bias) problem of imitation learning. RL lets the model experience and learn from the consequences of its own actions, including recovery.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>What is the key structural difference between GRPO and PPO as used in RLHF?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>GRPO updates only the reward model, not the policy</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>GRPO does not use a reward signal</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>GRPO computes advantages by comparing a group of sampled responses to the same prompt, removing the need for a learned value (critic) model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>GRPO trains on human preference pairs offline</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> GRPO&#39;s baseline is the group mean reward. Dropping the critic saves memory and avoids training an unstable value network, which fits binary verifiable rewards well.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>In GRPO, a prompt where all 8 sampled responses get reward 1.0 contributes what learning signal?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A negative signal that discourages overconfidence</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Essentially none, because every advantage is zero relative to the group mean</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It depends only on the KL penalty</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The strongest possible signal, since all answers are correct</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Advantages are relative within a group. Uniform success (or uniform failure) gives zero advantage, which is why recipes like DAPO filter such prompts and why task difficulty calibration matters.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>What made Toolformer&#39;s training data &quot;self-supervised&quot;?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It used RL with a reward model trained on tool preferences</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It distilled tool calls from GPT-4 trajectories</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A candidate API call was kept only if inserting it and its result lowered the model&#39;s loss on the following tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Humans labeled where tools should be used, then the model imitated them</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Usefulness was defined by the model&#39;s own language-modeling loss: a call is worth keeping if it helps predict the upcoming text.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>An RL-trained coding agent&#39;s reward jumps sharply in one training run. Which is the most important first step?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Switch from outcome rewards to DPO</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Read a sample of high-reward trajectories to check whether the agent is modifying tests or otherwise gaming the verifier</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Immediately release the checkpoint</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Increase the learning rate to capitalize on the progress</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Sudden reward jumps are a classic symptom of reward hacking. Audit trajectories and verify against independent checks before trusting the curve.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Which situation most clearly justifies fine-tuning your own agent model?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A frontier model already succeeds on a narrow, high-volume task with an automatic verifier, but serving cost is too high</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>You have no eval set but want to see if training helps</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent fails because a tool&#39;s description is ambiguous</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>You want the agent to reason better in general</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Distilling verified trajectories from a strong model into a cheaper one is a well-trodden path. The other cases are better solved with tool/prompt fixes, or require evals first.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>What does QLoRA add on top of LoRA?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It trains all weights in 4-bit precision</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It quantizes the frozen base model to 4-bit while training LoRA adapters on top, cutting memory enough to fine-tune very large models on a single GPU</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It replaces low-rank adapters with full-rank ones</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It removes the need for a training dataset</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The base weights stay frozen and quantized (NF4); only the small adapters are trained, plus paged optimizers handle memory spikes.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener">Training language models to follow instructions with human feedback (InstructGPT)</a> — the paper that made RLHF the standard post-training recipe.</li>
+<li><a href="https://arxiv.org/abs/2305.18290" target="_blank" rel="noopener">Direct Preference Optimization</a> — the elegant derivation that turned RLHF into a simple classification loss.</li>
+<li><a href="https://arxiv.org/abs/2212.08073" target="_blank" rel="noopener">Constitutional AI: Harmlessness from AI Feedback</a> — Anthropic&#39;s RLAIF method using written principles.</li>
+<li><a href="https://arxiv.org/abs/2402.03300" target="_blank" rel="noopener">DeepSeekMath</a> — where GRPO was introduced; read section 4 for the algorithm.</li>
+<li><a href="https://arxiv.org/abs/2501.12948" target="_blank" rel="noopener">DeepSeek-R1</a> — pure-RL emergent reasoning (R1-Zero), the multi-stage R1 recipe, and distillation results.</li>
+<li><a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener">Toolformer</a> — self-supervised tool-use learning; the filtering trick is worth understanding.</li>
+<li><a href="https://arxiv.org/abs/2307.16789" target="_blank" rel="noopener">ToolLLM</a> — scaling tool-use data to 16,000+ real APIs.</li>
+<li><a href="https://arxiv.org/abs/2504.21798" target="_blank" rel="noopener">SWE-smith: Scaling Data for Software Engineering Agents</a> — how synthetic task generation feeds agentic training.</li>
+<li><a href="https://arxiv.org/abs/2305.14314" target="_blank" rel="noopener">QLoRA</a> — efficient fine-tuning of large models on a single GPU.</li>
+<li><a href="https://huggingface.co/docs/trl" target="_blank" rel="noopener">TRL documentation</a> — the most accessible place to run SFT, DPO and GRPO yourself.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="training-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-training-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-training-agents" class="notes" data-slug="training-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="agent-safety-alignment.html"><small>← Previous</small><span>Safety, Alignment &amp; Governance</span></a>
+    <a class="pager-next" href="self-improving-agents.html"><small>Next →</small><span>Self-Improving &amp; Open-Ended Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#the-training-pipeline-at-a-glance">The Training Pipeline at a Glance</a></li>
+<li class="toc-h2"><a href="#pretraining-and-sft-where-agent-skills-begin">Pretraining and SFT: Where Agent Skills Begin</a></li>
+<li class="toc-h3"><a href="#pretraining">Pretraining</a></li>
+<li class="toc-h3"><a href="#supervised-fine-tuning-sft">Supervised fine-tuning (SFT)</a></li>
+<li class="toc-h2"><a href="#preference-optimization-rlhf-dpo-and-rlaif">Preference Optimization: RLHF, DPO and RLAIF</a></li>
+<li class="toc-h3"><a href="#rlhf-with-ppo">RLHF with PPO</a></li>
+<li class="toc-h3"><a href="#dpo">DPO</a></li>
+<li class="toc-h3"><a href="#rlaif-and-constitutional-ai">RLAIF and Constitutional AI</a></li>
+<li class="toc-h2"><a href="#rl-with-verifiable-rewards">RL with Verifiable Rewards</a></li>
+<li class="toc-h3"><a href="#from-learned-rewards-to-checkable-rewards">From learned rewards to checkable rewards</a></li>
+<li class="toc-h3"><a href="#grpo-the-workhorse-algorithm">GRPO: the workhorse algorithm</a></li>
+<li class="toc-h3"><a href="#deepseek-r1-and-emergent-reasoning">DeepSeek-R1 and emergent reasoning</a></li>
+<li class="toc-h2"><a href="#teaching-models-to-use-tools">Teaching Models to Use Tools</a></li>
+<li class="toc-h3"><a href="#toolformer-self-supervised-api-calls">Toolformer: self-supervised API calls</a></li>
+<li class="toc-h3"><a href="#gorilla-and-toolllm-scale-and-real-apis">Gorilla and ToolLLM: scale and real APIs</a></li>
+<li class="toc-h3"><a href="#trajectory-distillation-fireact-and-agenttuning">Trajectory distillation, FireAct and AgentTuning</a></li>
+<li class="toc-h3"><a href="#rejection-sampling-star-and-expert-iteration">Rejection sampling, STaR and expert iteration</a></li>
+<li class="toc-h3"><a href="#synthetic-trajectory-generation-at-scale">Synthetic trajectory generation at scale</a></li>
+<li class="toc-h2"><a href="#agentic-rl-learning-by-acting">Agentic RL: Learning by Acting</a></li>
+<li class="toc-h3"><a href="#environments">Environments</a></li>
+<li class="toc-h3"><a href="#outcome-vs-process-rewards">Outcome vs. process rewards</a></li>
+<li class="toc-h3"><a href="#credit-assignment-over-long-horizons">Credit assignment over long horizons</a></li>
+<li class="toc-h3"><a href="#reward-hacking-and-environment-design">Reward hacking and environment design</a></li>
+<li class="toc-h3"><a href="#scaling-rl-environments">Scaling RL environments</a></li>
+<li class="toc-h2"><a href="#open-tooling">Open Tooling</a></li>
+<li class="toc-h3"><a href="#an-illustrative-grpo-sketch-for-tool-calling">An illustrative GRPO sketch for tool calling</a></li>
+<li class="toc-h2"><a href="#should-you-fine-tune-your-own-agent-model">Should You Fine-Tune Your Own Agent Model?</a></li>
+<li class="toc-h3"><a href="#lora-and-qlora-basics">LoRA and QLoRA basics</a></li>
+<li class="toc-h2"><a href="#evaluating-trained-models">Evaluating Trained Models</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

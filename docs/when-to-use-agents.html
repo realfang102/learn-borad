@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents vs. Workflows: When (Not) to Build an Agent · Agent Academy</title>
+<meta name="description" content="A practical decision framework: the complexity ladder from single call to agent, the math of compounding errors, cost and latency trade-offs, good and bad fits, and a checklist for deciding.">
+<meta property="og:title" content="Agents vs. Workflows: When (Not) to Build an Agent · Agent Academy">
+<meta property="og:description" content="A practical decision framework: the complexity ladder from single call to agent, the math of compounding errors, cost and latency trade-offs, good and bad fits, and a checklist for deciding.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module" open data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="when-to-use-agents">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <header class="lesson-header">
+    <h1>Agents vs. Workflows: When (Not) to Build an Agent</h1>
+    <p class="lead">A practical decision framework: the complexity ladder from single call to agent, the math of compounding errors, cost and latency trade-offs, good and bad fits, and a checklist for deciding.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-beginner">Beginner</span>
+      <span>⏱ 26 min</span>
+      <span>✅ 7-question quiz</span>
+      <span>🧪 Interactive</span>
+      <span>Lesson 5 of 35</span>
+      <span class="lesson-status" data-status-for="when-to-use-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Place a proposed system on the ladder from single LLM call to autonomous agent</li><li>Apply four decision criteria (complexity, value, viability, cost of error) to a real use case</li><li>Calculate how per-step reliability compounds over a multi-step task, and how verification changes the math</li><li>Estimate the cost and latency overhead of an agent compared with a workflow</li><li>Recognize common anti-patterns in agent projects</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="what-is-an-agent.html">What Is an AI Agent?</a>, <a href="the-agent-loop.html">The Agent Loop</a></p>
+  </section>
+  <article class="prose">
+<p>The most valuable skill in agent engineering may be knowing when <em>not</em> to build one. Agents are flexible and impressive, and in the right place they do work no other software can. They&#39;re also slower, more expensive, harder to test and less predictable than the alternatives. Plenty of agent projects fail not because the agent was badly built, but because a deterministic pipeline or a single well-prompted call would have done the job better.</p>
+<p>Anthropic&#39;s <em>Building Effective Agents</em> (December 2024), written from experience with dozens of teams building on its models, opens with advice worth memorizing: find the simplest solution possible, and only increase complexity when needed. This lesson turns that advice into a framework. We&#39;ll climb the ladder of complexity one rung at a time, do the math on why long agent runs fail, weigh cost and latency, and finish with a checklist you can apply to any proposal.</p>
+<h2 id="the-ladder-of-complexity"><a class="anchor" href="#the-ladder-of-complexity" aria-hidden="true">#</a>The Ladder of Complexity</h2>
+<p>Think of LLM systems as a ladder. Each rung adds capability <em>and</em> cost, latency, and unpredictability. Start at the bottom, and climb only when the rung below demonstrably can&#39;t do the job.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Rung</th>
+<th>What it is</th>
+<th>Who controls flow</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. Single LLM call</strong></td>
+<td>One prompt, one response, maybe with examples or retrieved context</td>
+<td>Your code (trivially)</td>
+<td>Classify a ticket; summarize a document; extract fields</td>
+</tr>
+<tr>
+<td><strong>2. Augmented LLM</strong></td>
+<td>One model call that can use retrieval, a few tools or memory</td>
+<td>Mostly your code; the model may make a tool call or two</td>
+<td>Answer a question with a docs search; look up an order</td>
+</tr>
+<tr>
+<td><strong>3. Workflow</strong></td>
+<td>Several LLM calls and tools arranged in a fixed structure by your code</td>
+<td>Your code</td>
+<td>Draft → critique → revise; route a ticket to a specialized prompt; summarize sections in parallel and merge</td>
+</tr>
+<tr>
+<td><strong>4. Agent</strong></td>
+<td>The model directs its own sequence of tool calls in a loop until done</td>
+<td>The model</td>
+<td>Fix a failing test across a repo; research a question across many sources</td>
+</tr>
+<tr>
+<td><strong>5. Multi-agent system</strong></td>
+<td>Multiple agents coordinating, often an orchestrator plus workers</td>
+<td>Models, at several levels</td>
+<td>Broad research fanned out to parallel sub-agents</td>
+</tr>
+</tbody></table>
+</div>
+<p>Anthropic&#39;s essay names the building block at rung 2 the <strong>augmented LLM</strong>, and describes common workflow shapes for rung 3: <strong>prompt chaining</strong>, <strong>routing</strong>, <strong>parallelization</strong>, <strong>orchestrator-workers</strong> and <strong>evaluator-optimizer</strong>. They&#39;re covered in depth in <a href="workflow-patterns.html">workflow patterns</a>. Rung 5 has its own lesson, <a href="multi-agent-systems.html">multi-agent systems</a>.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Workflows give you <strong>predictability and consistency</strong> for well-defined tasks. Agents give you <strong>flexibility and model-driven decision-making</strong> for open-ended ones. The right question isn&#39;t &quot;can an agent do this?&quot; but &quot;what is the <em>lowest</em> rung that does this reliably?&quot;</p>
+</div></aside>
+<p>A useful test is whether you can draw the flowchart. If you can write down the steps in advance, even with branches, you probably want a workflow. Agents earn their keep when <strong>the number and order of steps can&#39;t be predicted</strong>, because they depend on what is discovered along the way.</p>
+<h2 id="four-decision-criteria"><a class="anchor" href="#four-decision-criteria" aria-hidden="true">#</a>Four Decision Criteria</h2>
+<p>Before committing to an agent, run the idea through four questions.</p>
+<h3 id="1-complexity-and-open-endedness"><a class="anchor" href="#1-complexity-and-open-endedness" aria-hidden="true">#</a>1. Complexity and open-endedness</h3>
+<p>Is the path to a solution genuinely unpredictable?</p>
+<ul>
+<li><em>Open-ended:</em> &quot;Find out why checkout latency doubled last week.&quot; The investigation depends on what the metrics, logs and recent deploys reveal.</li>
+<li><em>Not open-ended:</em> &quot;When an invoice arrives, extract the vendor, amount and due date, and post them to the ERP.&quot; The steps are known. Use a workflow.</li>
+</ul>
+<p>Agents also shine when tasks vary a lot from instance to instance, so that a workflow would need dozens of branches to cover them.</p>
+<h3 id="2-value"><a class="anchor" href="#2-value" aria-hidden="true">#</a>2. Value</h3>
+<p>Is a successful outcome worth what the agent costs in tokens, time and engineering? Agents use many more tokens than single calls. Anthropic reported that, in its research product, agents typically used about 4× more tokens than chat interactions and multi-agent setups about 15× more. That&#39;s fine for a task worth tens or hundreds of dollars of human time, like debugging a production incident or writing a research brief. It isn&#39;t fine for a task worth a fraction of a cent, run millions of times a day.</p>
+<h3 id="3-viability"><a class="anchor" href="#3-viability" aria-hidden="true">#</a>3. Viability</h3>
+<p>Can current models actually do this, with the tools you can give them? Check that:</p>
+<ul>
+<li>The agent can <strong>observe</strong> what it needs (APIs, files, screens) and <strong>act</strong> where it needs to.</li>
+<li>There&#39;s a <strong>feedback signal</strong> in the environment (tests, validators, search results) so it can tell whether it&#39;s making progress.</li>
+<li>The task is within the demonstrated range of current models. Prototype a handful of real instances before committing.</li>
+</ul>
+<h3 id="4-cost-of-error-and-recoverability"><a class="anchor" href="#4-cost-of-error-and-recoverability" aria-hidden="true">#</a>4. Cost of error and recoverability</h3>
+<p>What happens when the agent gets it wrong, and it <em>will</em> sometimes get it wrong?</p>
+<ul>
+<li><strong>Reversible, low-stakes, caught downstream:</strong> a draft PR that a human reviews, a research summary a person will read. Good territory for agents.</li>
+<li><strong>Irreversible or high-stakes:</strong> wiring money, deleting data, sending messages to customers, changing production infrastructure. Use an agent only with strong guardrails, human approval for those actions, or not at all (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</li>
+</ul>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>The best agent use cases combine <strong>high value per task</strong>, <strong>open-ended paths</strong>, a <strong>built-in feedback signal</strong>, and <strong>cheap, recoverable errors</strong>. Coding fits all four: fixes are valuable, debugging is unpredictable, tests give feedback, and version control makes everything reversible. That&#39;s no coincidence. It&#39;s why coding became the breakout agent use case.</p>
+</div></aside>
+<h2 id="the-math-of-compounding-errors"><a class="anchor" href="#the-math-of-compounding-errors" aria-hidden="true">#</a>The Math of Compounding Errors</h2>
+<p>Here&#39;s the most important quantitative idea in agent design. Suppose each step of a task succeeds independently with probability <em>p</em>. A task that needs <em>n</em> steps to all go right then succeeds with probability:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">P(success) = p^n</code></pre></div>
+<p>The numbers fall fast:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Per-step success <em>p</em></th>
+<th>5 steps</th>
+<th>10 steps</th>
+<th>20 steps</th>
+<th>50 steps</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.99</td>
+<td>95%</td>
+<td>90%</td>
+<td>82%</td>
+<td>61%</td>
+</tr>
+<tr>
+<td>0.95</td>
+<td>77%</td>
+<td>60%</td>
+<td><strong>36%</strong></td>
+<td>8%</td>
+</tr>
+<tr>
+<td>0.90</td>
+<td>59%</td>
+<td>35%</td>
+<td>12%</td>
+<td>0.5%</td>
+</tr>
+</tbody></table>
+</div>
+<p>An agent that&#39;s right 95% of the time <em>per step</em> (which sounds excellent) completes a 20-step task only about 36% of the time. That&#39;s the <strong>compounding errors</strong> problem, and it&#39;s why Anthropic notes that the autonomy of agents means higher costs and the potential for compounding errors.</p>
+<p>Try it yourself: adjust per-step reliability, the number of steps and the recovery rate, and see how end-to-end success changes.</p>
+<div class="widget" data-widget="compounding-errors"></div>
+
+<h3 id="why-the-simple-model-is-too-pessimistic-and-how-to-exploit-that"><a class="anchor" href="#why-the-simple-model-is-too-pessimistic-and-how-to-exploit-that" aria-hidden="true">#</a>Why the simple model is too pessimistic, and how to exploit that</h3>
+<p>The <code>p^n</code> model assumes every error is fatal and undetected. Good agents break that assumption, and that&#39;s precisely where their value comes from. If an error is <strong>detected and corrected</strong> with probability <em>r</em>, the effective per-step failure rate falls from <em>(1 − p)</em> to <em>(1 − p)(1 − r)</em>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">p = 0.95, no recovery (r = 0):    per-step failure 5%   → 20 steps: 0.95^20 ≈ 36%
+p = 0.95, recovery r = 0.8:       per-step failure 1%   → 20 steps: 0.99^20 ≈ 82%</code></pre></div>
+<p>Same model, same task: success goes from about a third to over four-fifths, purely because the agent can <strong>notice and fix its mistakes</strong>. That&#39;s what feedback loops buy you, and it&#39;s the main lever you control:</p>
+<ul>
+<li><strong>Give the environment a voice.</strong> Tests, linters, type checkers, schema validators and &quot;read back what you wrote&quot; all turn silent errors into visible observations.</li>
+<li><strong>Make errors actionable</strong> so recovery attempts succeed (see <a href="the-agent-loop.html">the agent loop</a>).</li>
+<li><strong>Shorten the chain.</strong> Fewer, more capable tools mean fewer steps. A tool that does &quot;search and return the relevant snippet&quot; beats three tools chained together.</li>
+<li><strong>Checkpoint long tasks.</strong> Break them into verified milestones so a late error doesn&#39;t waste early work.</li>
+<li><strong>Add human checkpoints</strong> at the riskiest steps.</li>
+</ul>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Real errors aren&#39;t independent: one wrong assumption early can poison everything after it, and some steps are much harder than others. Treat <code>p^n</code> as an intuition pump about <em>direction and scale</em>, not a precise forecast. The way to get real numbers is to measure task-level success on realistic tasks (see <a href="evaluating-agents.html">evaluating agents</a> and <a href="reliability.html">reliability</a>).</p>
+</div></aside>
+<h2 id="cost-and-latency-trade-offs"><a class="anchor" href="#cost-and-latency-trade-offs" aria-hidden="true">#</a>Cost and Latency Trade-offs</h2>
+<p>Agents cost more and take longer than workflows for structural reasons.</p>
+<p><strong>Latency.</strong> Each step is a model call plus tool execution, and steps are mostly sequential. With, say, 6 seconds per model call and 2 seconds per tool, a 20-step agent takes around 160 seconds. A three-call workflow for the same task might take 15 seconds. For a background coding task, nobody minds. For a live chat or voice interface, it&#39;s disqualifying (see <a href="conversational-voice-agents.html">conversational and voice agents</a>).</p>
+<p><strong>Tokens.</strong> The model is stateless, so every step resends the system prompt, the tool definitions and the whole growing transcript. Input tokens therefore grow roughly with the <em>square</em> of the number of steps. A worked example:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Transcript starts at 5,000 tokens and grows by 3,000 tokens per step; 20 steps.
+Total input  = sum over steps of the context size
+             = 20 × 5,000 + 3,000 × (0 + 1 + … + 19) = 100,000 + 570,000 = 670,000 tokens
+Total output ≈ 20 steps × 500 tokens = 10,000 tokens
+
+At $4 / M input and $20 / M output (Claude Opus 5.5 list prices, late 2026):
+  ≈ $2.68 input + $0.20 output ≈ $2.88 per task, before caching
+A single call for a comparable classification-style task: ~5,000 in + 1,000 out ≈ $0.04</code></pre></div>
+<p>That&#39;s roughly a 70× difference. <strong>Prompt caching</strong> narrows it a lot, because most of each step&#39;s input is a prefix the previous step already sent, and cached reads are billed at a small fraction of the normal input price. A cheaper model tier for sub-tasks narrows it further. But agents remain fundamentally more expensive per task, which is fine when the task is worth it. The <a href="cost-and-latency.html">cost and latency</a> lesson covers optimization in depth.</p>
+<p><strong>Engineering and operating cost.</strong> Agents also need more investment around the model: evaluation suites that measure success rates over repeated runs, tracing to debug long trajectories, sandboxes and permission systems, and ongoing monitoring. A workflow&#39;s failure is usually traceable to one step. An agent&#39;s failure might be a subtle bad decision at step 7 of 34 (see <a href="observability.html">observability</a>).</p>
+<h2 id="good-fits-and-poor-fits"><a class="anchor" href="#good-fits-and-poor-fits" aria-hidden="true">#</a>Good Fits and Poor Fits</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Usually a good fit for an agent</th>
+<th>Usually a poor fit (use a call or workflow)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Debugging and fixing code, with tests as feedback</td>
+<td>High-volume classification, extraction or tagging</td>
+</tr>
+<tr>
+<td>Multi-source research and synthesis with citations</td>
+<td>Fixed ETL pipelines and document processing with known steps</td>
+</tr>
+<tr>
+<td>Investigating incidents across logs, metrics and deploys</td>
+<td>Real-time, latency-critical responses (sub-second UX)</td>
+</tr>
+<tr>
+<td>Customer support that needs lookups plus bounded actions</td>
+<td>Tasks with a single right sequence that rarely changes</td>
+</tr>
+<tr>
+<td>Data analysis where the next query depends on the last result</td>
+<td>Irreversible, high-stakes actions with no human review</td>
+</tr>
+<tr>
+<td>Operating legacy software with no API (computer use)</td>
+<td>Tasks where no feedback signal exists to check progress</td>
+</tr>
+<tr>
+<td>Long-tail requests too varied to enumerate as branches</td>
+<td>Simple Q&amp;A that retrieval plus one call answers well</td>
+</tr>
+</tbody></table>
+</div>
+<p>Real systems often <strong>mix rungs</strong>. A support product might use a cheap single-call router for 80% of tickets (password resets, order status), a workflow for refunds, and an agent only for the messy long tail that needs investigation. Agents can also call workflows as tools, and workflows can contain a bounded agent step. The question is always which rung fits each <em>part</em> of the problem.</p>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>Same domain, three rungs</div><div class="callout-body"><p><strong>Expense reports.</strong> Extracting fields from a receipt: a single call with structured output. Checking policy compliance and routing for approval: a workflow (extract → check rules → route). Investigating a suspicious pattern across six months of a team&#39;s expenses, cross-referencing calendars and vendor records: an agent, because what you look at next depends on what you find.</p>
+</div></aside>
+<h2 id="anti-patterns"><a class="anchor" href="#anti-patterns" aria-hidden="true">#</a>Anti-Patterns</h2>
+<p>The same mistakes show up again and again in agent projects:</p>
+<ol>
+<li><strong>Agent-first thinking.</strong> Starting with &quot;let&#39;s build an agent&quot; instead of &quot;what&#39;s the simplest thing that works?&quot; Prototype at the lowest rung and climb only when you hit a demonstrated limit.</li>
+<li><strong>Framework before understanding.</strong> Reaching for a heavy framework before understanding the underlying calls. Anthropic suggests starting with direct API calls, since many patterns take only a few lines of code, and making sure you understand what any framework does underneath (see <a href="agent-frameworks.html">agent frameworks</a>).</li>
+<li><strong>Autonomy without feedback.</strong> Giving an agent a long task in an environment with no way to check progress. Without a feedback signal, the compounding-errors math works fully against you.</li>
+<li><strong>Unbounded loops.</strong> No step, token or time limits. One stuck run can cost more than a month of normal traffic.</li>
+<li><strong>Prompt-only safety.</strong> Relying on &quot;please don&#39;t delete anything&quot; instead of permissions, sandboxes and approval gates (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
+<li><strong>Too many tools.</strong> Dozens of overlapping tools confuse the model and lengthen trajectories. Fewer, well-designed tools beat many thin wrappers (see <a href="designing-tools.html">designing tools</a>).</li>
+<li><strong>Multi-agent by default.</strong> Splitting work across many agents because it looks sophisticated. That multiplies cost and coordination failures, and it only pays off for genuinely parallelizable, high-value work.</li>
+<li><strong>Demo-driven development.</strong> Judging an agent by a few impressive runs. Agents are stochastic, so measure success rates across many realistic tasks before shipping.</li>
+<li><strong>Automating the wrong process.</strong> Wrapping an agent around a broken or undocumented human process. If people can&#39;t say what &quot;done&quot; looks like, an agent can&#39;t either.</li>
+</ol>
+<h2 id="a-decision-checklist"><a class="anchor" href="#a-decision-checklist" aria-hidden="true">#</a>A Decision Checklist</h2>
+<p>Use this flowchart as a first pass, then the checklist below to pressure-test the answer.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    A[&quot;New task&quot;] --&gt; B{&quot;Can one well-prompted call&lt;br/&gt;(plus retrieval) do it?&quot;}
+    B -- Yes --&gt; C[&quot;Single call / augmented LLM&quot;]
+    B -- No --&gt; D{&quot;Can you write the steps&lt;br/&gt;down in advance?&quot;}
+    D -- Yes --&gt; E[&quot;Workflow&quot;]
+    D -- No --&gt; F{&quot;Is each success worth&lt;br/&gt;the extra cost and latency?&quot;}
+    F -- No --&gt; G[&quot;Rescope, or keep humans doing it&quot;]
+    F -- Yes --&gt; H{&quot;Does the environment give&lt;br/&gt;feedback on progress?&quot;}
+    H -- No --&gt; I[&quot;Add verification first&lt;br/&gt;(tests, validators, review)&quot;]
+    I --&gt; H
+    H -- Yes --&gt; J{&quot;Are errors recoverable&lt;br/&gt;or caught downstream?&quot;}
+    J -- No --&gt; K[&quot;Agent with human approval&lt;br/&gt;for risky actions&quot;]
+    J -- Yes --&gt; L[&quot;Agent, with budgets&lt;br/&gt;and guardrails&quot;]</pre></figure>
+<p><strong>Checklist before building an agent:</strong></p>
+<ul>
+<li><input disabled="" type="checkbox"> I tried (or reasoned carefully about) a single call and a workflow, and can name the specific way each falls short.</li>
+<li><input disabled="" type="checkbox"> The number or order of steps truly depends on what&#39;s discovered along the way.</li>
+<li><input disabled="" type="checkbox"> A successful run is worth well over its expected token, latency and engineering cost.</li>
+<li><input disabled="" type="checkbox"> The agent can observe what it needs and has tools for the actions it must take, and no more.</li>
+<li><input disabled="" type="checkbox"> There&#39;s a feedback signal (tests, validators, search results, a human reviewer) that reveals mistakes.</li>
+<li><input disabled="" type="checkbox"> Irreversible or high-stakes actions are gated by code-level permissions or human approval.</li>
+<li><input disabled="" type="checkbox"> Every run has hard limits on steps, tokens and time.</li>
+<li><input disabled="" type="checkbox"> I have, or will build, an evaluation set of realistic tasks to measure success rates over repeated runs.</li>
+<li><input disabled="" type="checkbox"> I know what &quot;done&quot; looks like, and so will the agent.</li>
+</ul>
+<p>If you can&#39;t tick most of these boxes, step down a rung. You can always climb later, once you have the evals and evidence that justify it.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Start with the <strong>simplest solution</strong>: single call → augmented LLM → workflow → agent → multi-agent. Climb only when the lower rung demonstrably falls short.</li>
+<li><strong>Workflows</strong> suit well-defined tasks that need predictability. <strong>Agents</strong> suit open-ended tasks whose steps can&#39;t be known in advance.</li>
+<li>Judge proposals on <strong>complexity, value, viability and cost of error</strong>.</li>
+<li>Reliability <strong>compounds</strong>: 95% per step is about 36% over 20 steps. <strong>Detection and recovery</strong> (tests, validators, actionable errors) change the math dramatically.</li>
+<li>Agents cost more and take longer because of sequential steps and a transcript resent at every step. <strong>Caching</strong>, model tiering and shorter chains help, but the task has to be worth it.</li>
+<li>Most production systems <strong>mix rungs</strong>, with cheap paths for the common case and an agent for the long tail.</li>
+<li>Avoid the classic anti-patterns: agent-first thinking, unbounded loops, prompt-only safety, tool sprawl, multi-agent by default, and demo-driven development.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Run the numbers.</strong> An agent averages 30 steps per task with 97% per-step success. What is its end-to-end success rate under the simple model? What recovery rate <em>r</em> would it need to reach 90% end-to-end?</li>
+<li><strong>Ladder a product.</strong> Choose a domain you know (HR onboarding, sales ops, IT helpdesk). List five tasks in it and assign each to the lowest rung that would handle it reliably. Justify each in one sentence.</li>
+<li><strong>Cost it out.</strong> Redo the worked cost example for a 40-step task whose transcript starts at 8,000 tokens and grows by 2,000 per step. Then assume 90% of each step&#39;s input is served from cache at one-twentieth of the base input price. How much does caching save?</li>
+<li><strong>Find the feedback signal.</strong> For three proposed agents (a contract-review agent, a marketing-copy agent, a cloud-cost optimizer), identify the feedback signal each could use to catch its own mistakes. Where none exists, propose one.</li>
+<li><strong>Stretch: design review.</strong> Your company wants an &quot;autonomous procurement agent&quot; that finds vendors, negotiates by email and issues purchase orders up to $50,000. Write a one-page design review that applies the four criteria and the checklist, identifies the riskiest steps, and proposes a scoped-down v1 with an autonomy level per action.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="when-to-use-agents" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>A team must extract the same six fields from 2 million PDFs a month. Which approach best fits?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A deep-research agent</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A single structured-output call per document, possibly inside a simple workflow</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A multi-agent system with a reviewer agent for each document</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An autonomous agent per document that decides how to read it</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The task is well-defined, extremely high-volume and low-value per item. The lowest rung that works (one call with structured output) wins on cost, latency and predictability.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Under the simple compounding model, roughly what end-to-end success does a 20-step task have at 95% per-step success?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>About 36%</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>About 95%</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>About 5%</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 75%</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> 0.95^20 ≈ 0.36. Per-step reliability that sounds high still compounds into frequent failure over long tasks.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Which change most directly improves an agent&#39;s end-to-end success without changing the model?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Giving it feedback signals (tests, validators) and actionable errors so it can detect and fix mistakes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Removing the step limit so it has more chances</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Splitting it into several agents</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Adding more tools that overlap with existing ones</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Detection and recovery reduce the effective per-step failure rate, for example from 5% to 1% with 80% recovery, which turns about 36% success into about 82% over 20 steps.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>According to Anthropic&#39;s framing, when do agents tend to be the right choice over workflows?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When latency must be minimized</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Whenever a task involves more than one LLM call</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>For open-ended problems where the required steps can&#39;t be predicted or hard-coded</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Whenever the highest-capability model is available</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows offer predictability for well-defined tasks; agents fit when flexibility and model-driven decisions are needed because the path depends on what&#39;s discovered.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Why do an agent&#39;s input-token costs grow faster than linearly with the number of steps?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The full, growing transcript is resent on every call, so total input scales roughly with the square of the step count</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tool definitions double in size each step</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Providers charge a premium for later steps</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Output tokens are counted as input on the next step only</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Each call includes everything so far. Summing a context that grows linearly gives roughly quadratic total input, which prompt caching mitigates.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Which proposal shows the &quot;autonomy without feedback&quot; anti-pattern?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A support agent that needs approval for refunds over $500</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An agent that rewrites marketing pages and publishes them directly, with no checks or metrics on whether the changes are correct</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A coding agent that runs tests after each change</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A research agent whose report is reviewed by an analyst</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With no signal to detect mistakes and no review before an irreversible publish, errors compound silently. The other options include tests, review or approval gates.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>A support product handles 80% of tickets with simple lookups and 20% with messy investigations. What is usually the best architecture?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A fixed workflow for all tickets</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An autonomous agent for all tickets, for consistency</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A multi-agent system where every ticket is handled by several agents</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A cheap router or workflow for the common cases, with an agent reserved for the complex long tail</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mixing rungs puts each part of the problem on the lowest rung that handles it, keeping cost and latency low for common cases while still covering the hard ones.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents (Anthropic, 2024)</a>: the source of the workflow-vs-agent framing, the augmented LLM, and the five workflow patterns.</li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener">How we built our multi-agent research system (Anthropic, 2025)</a>: real token-cost multipliers and when multi-agent setups pay off.</li>
+<li><a href="https://arxiv.org/abs/2503.14499" target="_blank" rel="noopener">Measuring AI Ability to Complete Long Tasks (METR, 2025)</a>: how task length relates to agent success rates, with a careful methodology.</li>
+<li><a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener">SWE-bench (Jimenez et al., 2023)</a>: a benchmark built around a strong feedback signal (hidden tests), which illustrates why coding suits agents.</li>
+<li><a href="https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027" target="_blank" rel="noopener">Gartner on agentic AI project cancellations and agent-washing (June 2025)</a>: an industry view of why many agent projects fail on value and cost.</li>
+<li><a href="https://platform.claude.com/docs/en/about-claude/pricing" target="_blank" rel="noopener">Claude pricing</a>: current per-token prices and prompt-caching multipliers for your own cost estimates.</li>
+<li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" target="_blank" rel="noopener">Tool use overview (Claude docs)</a>: what the augmented LLM building block looks like in practice.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="when-to-use-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-when-to-use-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-when-to-use-agents" class="notes" data-slug="when-to-use-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="the-agent-loop.html"><small>← Previous</small><span>The Agent Loop</span></a>
+    <a class="pager-next" href="prompting-for-agents.html"><small>Next →</small><span>Prompt Engineering for Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#the-ladder-of-complexity">The Ladder of Complexity</a></li>
+<li class="toc-h2"><a href="#four-decision-criteria">Four Decision Criteria</a></li>
+<li class="toc-h3"><a href="#1-complexity-and-open-endedness">1. Complexity and open-endedness</a></li>
+<li class="toc-h3"><a href="#2-value">2. Value</a></li>
+<li class="toc-h3"><a href="#3-viability">3. Viability</a></li>
+<li class="toc-h3"><a href="#4-cost-of-error-and-recoverability">4. Cost of error and recoverability</a></li>
+<li class="toc-h2"><a href="#the-math-of-compounding-errors">The Math of Compounding Errors</a></li>
+<li class="toc-h3"><a href="#why-the-simple-model-is-too-pessimistic-and-how-to-exploit-that">Why the simple model is too pessimistic, and how to exploit that</a></li>
+<li class="toc-h2"><a href="#cost-and-latency-trade-offs">Cost and Latency Trade-offs</a></li>
+<li class="toc-h2"><a href="#good-fits-and-poor-fits">Good Fits and Poor Fits</a></li>
+<li class="toc-h2"><a href="#anti-patterns">Anti-Patterns</a></li>
+<li class="toc-h2"><a href="#a-decision-checklist">A Decision Checklist</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

@@ -1,0 +1,735 @@
+- term: "Accessibility tree"
+  definition: "A structured representation of UI elements exposed for assistive technology. Web and desktop agents use it as a compact, text-based alternative or complement to screenshots."
+  lesson: computer-use-agents
+- term: "Action space"
+  definition: "The set of actions available to an agent. For LLM agents it is usually defined by the tools it is given, plus the option of replying in text."
+  lesson: tool-use
+- term: "Agent Card"
+  definition: "In A2A, a JSON document an agent publishes to describe its identity, capabilities, skills, endpoint and authentication requirements, enabling discovery by other agents."
+  lesson: protocols-mcp-a2a
+- term: "Agent framework"
+  definition: "A library that supplies building blocks for agents, such as loops, tool abstractions, memory, orchestration and tracing. Examples include LangGraph, the OpenAI Agents SDK and the Claude Agent SDK."
+  lesson: agent-frameworks
+- term: "Agent loop"
+  definition: "The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit."
+  lesson: the-agent-loop
+  aliases: ["Agentic loop", "Tool-use loop"]
+- term: "Agent Skills"
+  definition: "Packaged folders of instructions, scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge."
+  lesson: context-engineering
+  aliases: ["Skills"]
+- term: "Agent-computer interface"
+  definition: "The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance."
+  lesson: coding-agents
+  aliases: ["ACI"]
+- term: "Agent2Agent protocol"
+  definition: "An open protocol (announced by Google in 2025, now under the Linux Foundation) for agents built by different vendors to discover each other, exchange messages and coordinate long-running tasks."
+  lesson: protocols-mcp-a2a
+  aliases: ["A2A"]
+- term: "Agentic RAG"
+  definition: "Retrieval in which the agent decides when and what to search, issues multiple refined queries, and judges whether results suffice, rather than a single fixed retrieve-then-generate step."
+  lesson: rag-and-retrieval
+- term: "Agentless"
+  definition: "An approach (Xia et al., 2024) that fixes software issues with a fixed localize-repair-validate pipeline instead of an autonomous agent, showing simple workflows can be competitive."
+  lesson: coding-agents
+- term: "AGENTS.md"
+  definition: "A convention of placing a Markdown file of project instructions (build commands, conventions, gotchas) in a repository for coding agents to read at startup; CLAUDE.md is the Claude Code equivalent."
+  lesson: coding-agents
+  aliases: ["CLAUDE.md"]
+- term: "AI agent"
+  definition: "A system in which a language model dynamically directs its own process and tool use to accomplish a goal, observing the results of its actions and deciding what to do next. Distinct from a fixed workflow, where the steps are predefined in code."
+  lesson: what-is-an-agent
+  aliases: ["Agent", "LLM agent", "Autonomous agent"]
+- term: "AI control"
+  definition: "A research agenda for safety measures that remain effective even if the model is misaligned, such as trusted monitoring, restricted permissions and auditing of agent actions."
+  lesson: agent-safety-alignment
+- term: "Alignment"
+  definition: "Making AI systems pursue the goals and values their designers and users intend, including being helpful, honest and harmless."
+  lesson: agent-safety-alignment
+- term: "Alignment faking"
+  definition: "A model selectively complying with training objectives during training to avoid having its behavior modified, while behaving differently when unmonitored (Greenblatt et al., 2024)."
+  lesson: agent-safety-alignment
+- term: "Approval gate"
+  definition: "A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation."
+  lesson: human-in-the-loop
+  aliases: ["Confirmation step"]
+- term: "Attention"
+  definition: "The mechanism that lets a Transformer weigh how relevant each token in the context is when producing the next one. Its cost grows with context length, which is one reason long contexts are expensive."
+  lesson: llm-fundamentals
+  aliases: ["Self-attention"]
+- term: "Augmented LLM"
+  definition: "The basic building block of agentic systems: a language model enhanced with retrieval, tools and memory that it can choose to use."
+  lesson: workflow-patterns
+- term: "Autonomy"
+  definition: "The degree to which an agent decides its own steps without human approval. Autonomy is a spectrum, from a model suggesting a single action to an agent running for hours unattended."
+  lesson: what-is-an-agent
+- term: "Autoregressive generation"
+  definition: "Producing output one token at a time, with each new token conditioned on all previous tokens. This is why output tokens are slower and pricier than input tokens."
+  lesson: llm-fundamentals
+  aliases: ["Next-token prediction"]
+- term: "Background agent"
+  definition: "An agent that runs asynchronously, often in a cloud sandbox, on a delegated task and reports back with results such as a pull request, rather than working interactively."
+  lesson: deployment
+  aliases: ["Asynchronous agent"]
+- term: "Batch API"
+  definition: "An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs."
+  lesson: cost-and-latency
+  aliases: ["Message Batches"]
+- term: "BDI architecture"
+  definition: "A classical agent architecture built on Beliefs (what the agent knows), Desires (goals) and Intentions (committed plans). It influenced how modern agents separate state, goals and plans."
+  lesson: history-of-agents
+  aliases: ["Belief-Desire-Intention"]
+- term: "Benchmark"
+  definition: "A standardized public eval used to compare systems. Benchmarks are useful signals but can saturate, leak into training data, or diverge from your real workload."
+  lesson: benchmarks
+- term: "Best-of-N sampling"
+  definition: "Generating N candidate outputs and selecting the best according to a verifier, reward model or judge."
+  lesson: reasoning-and-planning
+- term: "Blackboard architecture"
+  definition: "A coordination pattern, dating to early AI, in which agents communicate by reading from and writing to a shared workspace rather than messaging each other directly."
+  lesson: multi-agent-systems
+  aliases: ["Shared scratchpad"]
+- term: "BM25"
+  definition: "A classic lexical ranking function based on term frequency and document length. Robust for exact terms, IDs and rare words that embeddings can miss."
+  lesson: rag-and-retrieval
+- term: "BrowseComp"
+  definition: "A benchmark from OpenAI (2025) of hard-to-find facts that require persistent, creative web browsing to locate, while being easy to verify."
+  lesson: benchmarks
+- term: "Browser agent"
+  definition: "An agent that navigates and acts on websites, using screenshots, the DOM or the accessibility tree as observations and clicks, typing and navigation as actions."
+  lesson: computer-use-agents
+  aliases: ["Web agent"]
+- term: "CaMeL"
+  definition: "A defense (Debenedetti et al., 2025) that converts the trusted user query into a program, tracks data provenance with capabilities, and enforces policies so untrusted data cannot change control flow."
+  lesson: agent-security
+- term: "Chain-of-thought"
+  definition: "Prompting or training a model to write out intermediate reasoning steps before its answer (Wei et al., 2022), which markedly improves multi-step reasoning."
+  lesson: reasoning-and-planning
+  aliases: ["CoT"]
+- term: "Chunking"
+  definition: "Splitting documents into smaller passages before embedding them. Chunk size and boundaries strongly affect retrieval quality."
+  lesson: rag-and-retrieval
+- term: "Circuit breaker"
+  definition: "A reliability pattern that stops calling a failing dependency for a cool-down period after repeated errors, preventing cascading failures and wasted spend."
+  lesson: reliability
+- term: "CoALA"
+  definition: "Cognitive Architectures for Language Agents (Sumers et al., 2023): a framework that organizes agents by modular memory (working, episodic, semantic, procedural), internal and external actions, and a decision loop."
+  lesson: agent-architectures
+- term: "Code execution tool"
+  definition: "A tool that lets the model write and run code in a sandbox, giving it calculation, data analysis and file manipulation abilities."
+  lesson: tool-use
+  aliases: ["Code interpreter"]
+- term: "Code-based grader"
+  definition: "A deterministic check, such as unit tests, string or schema matching, or a database state comparison, used to score agent outputs. Preferred whenever the task allows it."
+  lesson: evaluating-agents
+- term: "CodeAct"
+  definition: "Using executable code as the agent's action format instead of JSON tool calls (Wang et al., 2024), letting one action compose many operations with loops and variables."
+  lesson: tool-use
+  aliases: ["Code as action"]
+- term: "Coding agent"
+  definition: "An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks."
+  lesson: coding-agents
+- term: "Compaction"
+  definition: "Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history."
+  lesson: context-engineering
+  aliases: ["Context compression", "Summarization"]
+- term: "Compounding error"
+  definition: "The way per-step failure probabilities multiply over long tasks: at 95% per-step reliability, a 20-step task succeeds end-to-end only about 36% of the time."
+  lesson: when-to-use-agents
+- term: "Computer use"
+  definition: "A capability in which a model operates a graphical computer by viewing screenshots and issuing mouse and keyboard actions."
+  lesson: computer-use-agents
+  aliases: ["GUI agent"]
+- term: "Confused deputy"
+  definition: "A security flaw in which a privileged program is tricked into misusing its authority on behalf of a less-privileged party, the classic shape of prompt injection against tool-using agents."
+  lesson: agent-security
+- term: "Constitutional AI"
+  definition: "Anthropic's method (Bai et al., 2022) of training harmlessness from a written set of principles, using model self-critique and AI feedback instead of human labels for harms."
+  lesson: agent-safety-alignment
+- term: "Constrained decoding"
+  definition: "Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output."
+  lesson: structured-outputs
+- term: "Context editing"
+  definition: "Selectively removing stale content from the context, such as old tool results or thinking blocks, while keeping the rest of the conversation intact."
+  lesson: context-engineering
+  aliases: ["Tool result clearing"]
+- term: "Context engineering"
+  definition: "The discipline of curating the smallest high-signal set of tokens (instructions, tools, examples, history, retrieved data) for each model call, across the many turns of an agent run."
+  lesson: context-engineering
+- term: "Context isolation"
+  definition: "Giving each subtask its own clean context (for example via subagents) so irrelevant tokens from other work do not distract the model."
+  lesson: multi-agent-systems
+- term: "Context rot"
+  definition: "The degradation of a model's recall and reasoning as its context grows longer, even well within the advertised window limit."
+  lesson: context-engineering
+- term: "Context window"
+  definition: "The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output."
+  lesson: llm-fundamentals
+- term: "Contextual retrieval"
+  definition: "An Anthropic technique of prepending a short, model-generated explanation of each chunk's place in its document before embedding and BM25 indexing, reducing retrieval failures."
+  lesson: rag-and-retrieval
+- term: "Corrigibility"
+  definition: "The property of an AI system that accepts correction, modification or shutdown by its overseers rather than resisting it."
+  lesson: agent-safety-alignment
+- term: "Cost per task"
+  definition: "The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call."
+  lesson: cost-and-latency
+- term: "Data contamination"
+  definition: "Benchmark items leaking into a model's training data, inflating scores without reflecting real capability."
+  lesson: benchmarks
+  aliases: ["Benchmark contamination"]
+- term: "Data exfiltration"
+  definition: "Unauthorized transfer of data out of a system, for example an injected agent embedding secrets in a URL, image link or outbound request."
+  lesson: agent-security
+- term: "Deep research"
+  definition: "A class of agent that performs many searches and reads over minutes to hours, then writes a cited report on a complex question."
+  lesson: research-agents
+- term: "Determinism"
+  definition: "Producing the same output for the same input. LLM calls are generally nondeterministic, so agents need evals over repeated runs and idempotent tools."
+  lesson: reliability
+  aliases: ["Nondeterminism"]
+- term: "Distillation"
+  definition: "Training a smaller student model to imitate a larger teacher's outputs or reasoning traces, transferring much of its capability at lower cost."
+  lesson: training-agents
+- term: "DPO"
+  definition: "Direct Preference Optimization (Rafailov et al., 2023): learning from preference pairs with a simple classification-style loss, without training a separate reward model or running RL."
+  lesson: training-agents
+- term: "Dual LLM pattern"
+  definition: "A defense proposed by Simon Willison: a privileged LLM that plans and calls tools never sees untrusted text, which is handled by a quarantined LLM whose outputs are passed around only as opaque variables."
+  lesson: agent-security
+- term: "Durable execution"
+  definition: "Running long workflows so that each step's result is persisted and the run can resume after crashes or restarts without redoing completed work."
+  lesson: deployment
+- term: "Egress control"
+  definition: "Restricting which network destinations an agent's tools and sandbox can reach, usually via an allowlist, to close exfiltration channels."
+  lesson: guardrails-and-sandboxing
+  aliases: ["Network allowlist"]
+- term: "Embedding"
+  definition: "A dense vector representation of text (or images), produced by an embedding model, in which semantically similar inputs are close together. Embeddings power semantic search and retrieval."
+  lesson: rag-and-retrieval
+  aliases: ["Embedding model", "Vector embedding"]
+- term: "Environment"
+  definition: "Everything outside the agent that it perceives and acts on: files, APIs, a browser, a terminal, a user. The environment returns observations in response to actions."
+  lesson: what-is-an-agent
+- term: "Episodic memory"
+  definition: "Memory of specific past events or interactions, such as \"last Tuesday the deploy failed because of X\", often used for few-shot recall or reflection."
+  lesson: memory
+- term: "Error analysis"
+  definition: "Systematically reading failing traces, labeling failure modes and counting them, to decide what to fix next. Usually the highest-value eval activity."
+  lesson: evaluating-agents
+- term: "Eval"
+  definition: "A repeatable test of an AI system: a set of tasks, a way to run the system on them, and grading logic that scores the outputs or trajectories."
+  lesson: evaluating-agents
+  aliases: ["Evaluation"]
+- term: "Evaluator-optimizer"
+  definition: "A loop in which one LLM generates a response and another evaluates it with feedback, iterating until the evaluator is satisfied or a limit is reached."
+  lesson: workflow-patterns
+  aliases: ["Generator-critic"]
+- term: "Excessive agency"
+  definition: "An OWASP LLM risk category: giving an LLM system more functionality, permissions or autonomy than it needs, so that errors or manipulation cause real harm."
+  lesson: agent-security
+- term: "Exponential backoff"
+  definition: "Retrying failed requests with waits that grow exponentially (usually with random jitter), to ride out rate limits and transient errors without hammering the service."
+  lesson: reliability
+- term: "Extended thinking"
+  definition: "A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget."
+  lesson: reasoning-and-planning
+  aliases: ["Adaptive thinking", "Thinking"]
+- term: "Fallback"
+  definition: "A predefined alternative when a step fails, such as another model, a cached answer, a simpler workflow or escalation to a human."
+  lesson: reliability
+- term: "Few-shot prompting"
+  definition: "Including a handful of worked input-output examples in the prompt to show the model the desired behavior or format."
+  lesson: prompting-for-agents
+  aliases: ["In-context examples"]
+- term: "GAIA"
+  definition: "A benchmark (Mialon et al., 2023) of real-world questions that are simple for humans but require general assistants to combine reasoning, web browsing, multimodality and tool use."
+  lesson: benchmarks
+- term: "Golden dataset"
+  definition: "A curated set of representative inputs with expected outputs or grading criteria, used as the backbone of an eval suite."
+  lesson: evaluating-agents
+- term: "Graph-based orchestration"
+  definition: "Defining an agent or workflow as an explicit state graph of nodes (LLM calls, tools, code) and edges (transitions), as in LangGraph, for control, persistence and resumability."
+  lesson: agent-frameworks
+  aliases: ["State graph"]
+- term: "GraphRAG"
+  definition: "Retrieval over a knowledge graph extracted from the corpus, with community summaries that help answer global questions spanning many documents (Edge et al., 2024)."
+  lesson: rag-and-retrieval
+- term: "Grounding"
+  definition: "Tying model outputs to verifiable sources such as retrieved documents, tool results or the screen, so claims can be checked and hallucination reduced."
+  lesson: rag-and-retrieval
+- term: "GRPO"
+  definition: "Group Relative Policy Optimization (introduced in DeepSeekMath, 2024): an RL algorithm that scores each sample relative to a group of samples for the same prompt, removing the need for a value model."
+  lesson: training-agents
+- term: "Guardrail"
+  definition: "A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior."
+  lesson: guardrails-and-sandboxing
+  aliases: ["Guardrails"]
+- term: "Hallucination"
+  definition: "Model output that is fluent and confident but factually wrong or unsupported by the provided sources, such as an invented citation or API."
+  lesson: llm-fundamentals
+  aliases: ["Confabulation"]
+- term: "Handoff"
+  definition: "Transferring control of a conversation from one agent to another, typically along with the relevant context, as in customer-service triage."
+  lesson: multi-agent-systems
+- term: "Harness"
+  definition: "The code around a model that turns it into an agent: the loop, tool execution, context management, permissions, retries and stopping logic. The same model can perform very differently in different harnesses."
+  lesson: the-agent-loop
+  aliases: ["Agent harness", "Scaffold", "Scaffolding"]
+- term: "Human-in-the-loop"
+  definition: "A design in which a human must review or approve certain agent actions or outputs before they take effect."
+  lesson: human-in-the-loop
+  aliases: ["HITL"]
+- term: "Human-on-the-loop"
+  definition: "A design in which the agent acts autonomously while a human monitors and can intervene or stop it, rather than approving each step."
+  lesson: human-in-the-loop
+- term: "Hybrid search"
+  definition: "Combining lexical search (such as BM25) with semantic vector search and fusing the rankings, usually outperforming either alone."
+  lesson: rag-and-retrieval
+- term: "HyDE"
+  definition: "Hypothetical Document Embeddings: generating a hypothetical answer to a query and embedding that, instead of the query, to retrieve similar real documents."
+  lesson: rag-and-retrieval
+- term: "Idempotency"
+  definition: "The property that repeating an operation has the same effect as doing it once. Idempotent tools make retries after timeouts safe."
+  lesson: reliability
+- term: "In-context learning"
+  definition: "A model's ability to pick up a task from instructions and examples in its prompt, without any weight updates (Brown et al., 2020)."
+  lesson: llm-fundamentals
+- term: "Indirect prompt injection"
+  definition: "Prompt injection delivered through content the agent reads, such as web pages, emails, documents or tool results, rather than typed by the user (Greshake et al., 2023)."
+  lesson: agent-security
+- term: "Instruction hierarchy"
+  definition: "Training models to prioritize instructions by privilege, system over user over third-party content (Wallace et al., 2024), to resist injected instructions."
+  lesson: agent-security
+- term: "Interleaved thinking"
+  definition: "Reasoning that happens between tool calls, not only before the first one, so the model can reflect on each tool result before choosing its next action."
+  lesson: reasoning-and-planning
+- term: "Jailbreak"
+  definition: "An input crafted to make a model violate its own safety policies. Unlike prompt injection, the attacker is usually the user."
+  lesson: agent-security
+- term: "JSON Schema"
+  definition: "A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model."
+  lesson: tool-use
+- term: "Just-in-time retrieval"
+  definition: "Keeping lightweight references (file paths, URLs, IDs) in context and letting the agent load full content with tools only when needed, instead of pre-loading everything."
+  lesson: context-engineering
+  aliases: ["Progressive disclosure"]
+- term: "Knowledge cutoff"
+  definition: "The date after which a model's training data contains little or no information. Agents use search and retrieval tools to work past it."
+  lesson: llm-fundamentals
+- term: "KV cache"
+  definition: "Stored attention keys and values for tokens already processed, so they need not be recomputed. Reusing it across requests is the mechanism behind prompt caching."
+  lesson: cost-and-latency
+- term: "Language Agent Tree Search"
+  definition: "LATS (Zhou et al., 2023) applies Monte Carlo tree search to agent trajectories, using the LLM as action proposer, value estimator and self-reflector."
+  lesson: reasoning-and-planning
+  aliases: ["LATS", "MCTS for agents"]
+- term: "Large language model"
+  definition: "A neural network, usually a Transformer, trained on vast text corpora to predict the next token. Scaled up and post-trained, it can follow instructions, reason and call tools."
+  lesson: llm-fundamentals
+  aliases: ["LLM"]
+- term: "Least privilege"
+  definition: "Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise."
+  lesson: agent-security
+- term: "Lethal trifecta"
+  definition: "Simon Willison's term for the dangerous combination of access to private data, exposure to untrusted content, and the ability to communicate externally. An agent with all three can be tricked into exfiltrating data."
+  lesson: agent-security
+- term: "LLM-as-a-judge"
+  definition: "Using a language model with a rubric to grade outputs that lack a simple programmatic check. Judges must be validated against human labels and watched for biases."
+  lesson: evaluating-agents
+  aliases: ["LLM judge", "Model-based grader"]
+- term: "LLMCompiler"
+  definition: "A framework (Kim et al., 2023) that plans tool calls as a dependency graph and executes independent calls in parallel, reducing latency and cost."
+  lesson: agent-architectures
+- term: "Long-horizon task"
+  definition: "A task that requires many sequential steps or a long time to complete, where small per-step error rates compound and context management becomes critical."
+  lesson: reliability
+- term: "Long-term memory"
+  definition: "Information persisted outside the context window, in files, databases or vector stores, and retrieved into context when relevant across sessions."
+  lesson: memory
+- term: "Loop detection"
+  definition: "Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating."
+  lesson: reliability
+  aliases: ["Doom loop"]
+- term: "Lost in the middle"
+  definition: "The finding (Liu et al., 2023) that models use information at the beginning and end of a long context better than information in the middle."
+  lesson: context-engineering
+- term: "max_tokens"
+  definition: "The request parameter capping how many tokens the model may generate. Hitting it truncates output (stop_reason max_tokens), which can leave a tool call incomplete."
+  lesson: the-agent-loop
+- term: "MCP client"
+  definition: "The protocol component inside a host application (such as an IDE or chat app) that maintains a connection to one MCP server and relays its capabilities to the model."
+  lesson: protocols-mcp-a2a
+  aliases: ["MCP host"]
+- term: "MCP server"
+  definition: "A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem."
+  lesson: protocols-mcp-a2a
+- term: "Memory poisoning"
+  definition: "An attack in which malicious content is written into an agent's persistent memory so that it influences future sessions."
+  lesson: agent-security
+- term: "Meta Agent Search"
+  definition: "The algorithm from ADAS (Hu et al., 2024) in which a meta agent iteratively writes new agent designs in code, evaluates them and archives the best."
+  lesson: self-improving-agents
+  aliases: ["ADAS"]
+- term: "Model cascade"
+  definition: "Routing each request to the cheapest model likely to handle it and escalating to stronger models only when needed."
+  lesson: cost-and-latency
+  aliases: ["Model routing"]
+- term: "Model Context Protocol"
+  definition: "An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server."
+  lesson: protocols-mcp-a2a
+  aliases: ["MCP"]
+- term: "MRKL"
+  definition: "Modular Reasoning, Knowledge and Language (Karpas et al., 2022): an early neuro-symbolic architecture that routes queries from an LLM to expert modules such as calculators and APIs."
+  lesson: history-of-agents
+- term: "Multi-agent debate"
+  definition: "Several model instances propose answers, critique each other over rounds and converge on a final answer (Du et al., 2023), aiming to improve factuality and reasoning."
+  lesson: multi-agent-systems
+- term: "Multi-agent system"
+  definition: "A system of multiple LLM agents, each with its own prompt, tools or context, that collaborate through messages, a shared state or an orchestrator."
+  lesson: multi-agent-systems
+  aliases: ["MAS"]
+- term: "Needle in a haystack"
+  definition: "A long-context test that hides a specific fact in a large body of text and asks the model to retrieve it. Passing it does not imply robust long-context reasoning."
+  lesson: context-engineering
+  aliases: ["NIAH"]
+- term: "Observability"
+  definition: "The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs."
+  lesson: observability
+- term: "Observation"
+  definition: "Information the agent receives from its environment after an action, such as a tool result, a screenshot or an error message."
+  lesson: the-agent-loop
+- term: "Online evaluation"
+  definition: "Measuring agent quality on live production traffic via sampling, user feedback, guardrail triggers and A/B tests, complementing offline evals."
+  lesson: observability
+- term: "OpenTelemetry"
+  definition: "A vendor-neutral open standard for traces, metrics and logs. Its GenAI semantic conventions define standard attributes for recording LLM and agent operations."
+  lesson: observability
+  aliases: ["OTel"]
+- term: "Orchestrator"
+  definition: "The component (a model or code) that breaks a task into pieces, delegates them to workers or subagents, and combines their results."
+  lesson: workflow-patterns
+  aliases: ["Lead agent", "Supervisor"]
+- term: "Orchestrator-workers"
+  definition: "A pattern in which a central LLM dynamically decides the subtasks, delegates them to worker LLMs, and synthesizes their results; the subtasks are not known in advance."
+  lesson: workflow-patterns
+- term: "OSWorld"
+  definition: "A benchmark (Xie et al., 2024) of open-ended tasks in real desktop operating systems and applications, with execution-based evaluation, used to measure computer-use agents."
+  lesson: benchmarks
+- term: "Parallel tool calls"
+  definition: "Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message."
+  lesson: tool-use
+- term: "Parallelization"
+  definition: "A workflow that runs LLM calls simultaneously, either sectioning a task into independent parts or voting by running the same task several times."
+  lesson: workflow-patterns
+  aliases: ["Sectioning", "Voting"]
+- term: "pass@k"
+  definition: "The probability that at least one of k sampled attempts solves a task (Chen et al., 2021). It rewards capability: a 50% per-attempt success rate gives pass@3 of 87.5%."
+  lesson: evaluating-agents
+- term: "pass^k"
+  definition: "The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%."
+  lesson: evaluating-agents
+  aliases: ["pass-hat-k"]
+- term: "pause_turn"
+  definition: "A stop reason indicating a server-side tool loop paused mid-turn; the client resumes by sending the conversation back, including the paused assistant turn, without adding a new user message."
+  lesson: the-agent-loop
+- term: "Plan-and-execute"
+  definition: "An architecture that first produces an explicit multi-step plan, then executes the steps (often with a cheaper model), re-planning when results diverge."
+  lesson: agent-architectures
+  aliases: ["Plan-and-solve", "Planner-executor"]
+- term: "Poka-yoke"
+  definition: "Mistake-proofing: designing tool interfaces so that wrong usage is hard or impossible, for example requiring absolute file paths or enumerated values instead of free text."
+  lesson: designing-tools
+- term: "Post-training"
+  definition: "Everything done to a pretrained model to make it useful and safe: instruction tuning, preference optimization, reinforcement learning, and tool-use training."
+  lesson: training-agents
+- term: "PPO"
+  definition: "Proximal Policy Optimization (Schulman et al., 2017): a policy-gradient RL algorithm that limits how far each update moves the policy; the classic optimizer in RLHF."
+  lesson: training-agents
+- term: "Procedural memory"
+  definition: "Memory of how to do things: skills, routines and instructions. In LLM agents it lives in model weights, system prompts, skill files and code."
+  lesson: memory
+- term: "Process reward model"
+  definition: "A reward model that scores each intermediate reasoning step rather than only the final answer, which an outcome reward model (ORM) does (see Lightman et al., 2023, \"Let's Verify Step by Step\")."
+  lesson: training-agents
+  aliases: ["PRM"]
+- term: "Prompt caching"
+  definition: "Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster."
+  lesson: cost-and-latency
+- term: "Prompt chaining"
+  definition: "A workflow that decomposes a task into a fixed sequence of LLM calls, each processing the previous output, optionally with programmatic checks (gates) between steps."
+  lesson: workflow-patterns
+- term: "Prompt engineering"
+  definition: "The practice of writing and iterating on instructions, examples and structure to get reliable model behavior. In agents it is a subset of context engineering."
+  lesson: prompting-for-agents
+- term: "Prompt injection"
+  definition: "An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent."
+  lesson: agent-security
+- term: "Query rewriting"
+  definition: "Reformulating a user question, for example by expanding, decomposing or clarifying it, before retrieval to improve recall."
+  lesson: rag-and-retrieval
+  aliases: ["Query expansion"]
+- term: "Rational agent"
+  definition: "In classical AI (Russell & Norvig), an agent that selects the action expected to maximize its performance measure given its percepts and knowledge."
+  lesson: history-of-agents
+- term: "ReAct"
+  definition: "A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning."
+  lesson: agent-architectures
+  aliases: ["Reason + Act"]
+- term: "Reasoning model"
+  definition: "An LLM trained, typically with reinforcement learning, to produce an extended internal chain of reasoning before answering, trading more tokens and latency for accuracy on hard problems."
+  lesson: reasoning-and-planning
+  aliases: ["Thinking model"]
+- term: "Red teaming"
+  definition: "Adversarially probing a system, manually or with automated attackers, to discover failures and vulnerabilities before real users or attackers do."
+  lesson: agent-safety-alignment
+- term: "Reflection"
+  definition: "An agent periodically synthesizing higher-level insights from its raw memories or past attempts, as in Generative Agents (Park et al., 2023), whose simulated characters combine a memory stream, reflection and planning."
+  lesson: memory
+- term: "Reflexion"
+  definition: "A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates."
+  lesson: agent-architectures
+- term: "Refusal"
+  definition: "A model declining to complete a request on safety or policy grounds. APIs may signal it with a dedicated stop reason, and agent loops must not execute tool calls from a refused turn."
+  lesson: the-agent-loop
+- term: "Regression eval"
+  definition: "An eval of tasks the system already handles, run on every change to catch breakage. It should stay near 100%; capability evals, by contrast, measure progress on hard tasks."
+  lesson: evaluating-agents
+- term: "Reranker"
+  definition: "A model, typically a cross-encoder, that rescores a shortlist of retrieved passages against the query for higher precision than the first-stage retriever."
+  lesson: rag-and-retrieval
+  aliases: ["Cross-encoder"]
+- term: "Retrieval-augmented generation"
+  definition: "Retrieving relevant documents from an external corpus at query time and placing them in the prompt so the model answers from them (Lewis et al., 2020)."
+  lesson: rag-and-retrieval
+  aliases: ["RAG"]
+- term: "Reward hacking"
+  definition: "An agent achieving high reward by exploiting flaws in the reward signal or tests, such as special-casing tests, instead of doing the intended task."
+  lesson: agent-safety-alignment
+  aliases: ["Specification gaming"]
+- term: "Reward model"
+  definition: "A model trained to score outputs according to human (or AI) preferences, providing the reward signal for reinforcement learning."
+  lesson: training-agents
+- term: "ReWOO"
+  definition: "Reasoning WithOut Observation (Xu et al., 2023): a planner writes the whole tool plan with placeholders up front, workers fill them in, and a solver composes the answer, saving tokens versus ReAct."
+  lesson: agent-architectures
+- term: "RL environment"
+  definition: "A task setup used for agent training, comprising tools, a starting state, a task, and a reward function or verifier that scores the agent's trajectory."
+  lesson: training-agents
+- term: "RLAIF"
+  definition: "Reinforcement learning from AI feedback: using model-generated preference labels, often guided by principles, in place of or alongside human labels."
+  lesson: training-agents
+- term: "RLHF"
+  definition: "Reinforcement learning from human feedback: train a reward model on human preference comparisons, then optimize the policy model against it, as in InstructGPT (Ouyang et al., 2022)."
+  lesson: training-agents
+  aliases: ["Reinforcement learning from human feedback"]
+- term: "RLVR"
+  definition: "Reinforcement learning with verifiable rewards: RL where the reward comes from automatic checks, such as correct math answers or passing tests, the recipe behind modern reasoning models."
+  lesson: training-agents
+  aliases: ["Reinforcement learning with verifiable rewards"]
+- term: "Routing"
+  definition: "A workflow in which a classifier (an LLM or code) sends each input to a specialized prompt, tool set or model, for example easy queries to a cheaper model."
+  lesson: workflow-patterns
+- term: "Rubric"
+  definition: "Explicit criteria and scoring guidance used by human or LLM graders, ideally with specific pass/fail checks rather than vague quality scales."
+  lesson: evaluating-agents
+- term: "Sandbagging"
+  definition: "A model strategically underperforming on evaluations, for example to appear less capable than it is."
+  lesson: agent-safety-alignment
+- term: "Sandbox"
+  definition: "An isolated execution environment, such as a container, microVM or restricted process, that limits what agent-run code can access, protecting the host, data and network."
+  lesson: guardrails-and-sandboxing
+- term: "Scaling laws"
+  definition: "Empirical power-law relationships between model performance and compute, data and parameters (Kaplan et al., 2020; Hoffmann et al., 2022), used to plan training runs."
+  lesson: llm-fundamentals
+- term: "Scheming"
+  definition: "A hypothesized failure mode in which a model covertly pursues goals misaligned with its developers while appearing aligned, for example by hiding capabilities or evading oversight."
+  lesson: agent-safety-alignment
+  aliases: ["Deceptive alignment"]
+- term: "Self-consistency"
+  definition: "Sampling several independent reasoning paths and taking the majority answer (Wang et al., 2022), trading extra compute for accuracy."
+  lesson: reasoning-and-planning
+- term: "Self-correction"
+  definition: "A model revising its own output. Research shows intrinsic self-correction without external feedback is unreliable; it works best with grounded signals like test results or tool errors."
+  lesson: reasoning-and-planning
+- term: "Self-improving agent"
+  definition: "An agent that improves its own prompts, tools, code or weights based on its experience, from skill libraries (Voyager) to agents rewriting their own scaffolding."
+  lesson: self-improving-agents
+- term: "Self-RAG"
+  definition: "A method (Asai et al., 2023) that trains a model to decide when to retrieve and to critique its own generations for relevance and support using reflection tokens."
+  lesson: rag-and-retrieval
+- term: "Self-Refine"
+  definition: "An iterative loop (Madaan et al., 2023) in which the same model generates an output, critiques it, and revises it until a stopping condition."
+  lesson: workflow-patterns
+- term: "Semantic memory"
+  definition: "Memory of general facts and knowledge, such as user preferences or domain facts, decoupled from when they were learned."
+  lesson: memory
+- term: "Server tool"
+  definition: "A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming."
+  lesson: tool-use
+  aliases: ["Server-side tool"]
+- term: "Set-of-Mark prompting"
+  definition: "Overlaying numbered marks on regions of a screenshot so a vision model can refer to UI elements by label rather than by raw pixel coordinates."
+  lesson: computer-use-agents
+- term: "Short-term memory"
+  definition: "Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted."
+  lesson: memory
+  aliases: ["Working memory"]
+- term: "Simulated user"
+  definition: "An LLM playing the user's role in multi-turn evals, as in τ-bench, so conversational agents can be tested at scale."
+  lesson: evaluating-agents
+  aliases: ["User simulator"]
+- term: "Skill library"
+  definition: "A growing store of reusable, verified programs or procedures an agent has learned, retrieved for new tasks, as in Voyager."
+  lesson: self-improving-agents
+- term: "Spotlighting"
+  definition: "Prompt-level defenses that mark untrusted content, by delimiting, data-marking or encoding it, so the model can distinguish data from instructions. Helpful but not a guarantee."
+  lesson: agent-security
+- term: "Step budget"
+  definition: "A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs."
+  lesson: the-agent-loop
+  aliases: ["Max steps", "Iteration limit"]
+- term: "Stop reason"
+  definition: "A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it."
+  lesson: the-agent-loop
+  aliases: ["stop_reason"]
+- term: "Streaming"
+  definition: "Receiving a model's output incrementally as it is generated, typically via server-sent events, so users and harnesses can act before the response completes."
+  lesson: cost-and-latency
+- term: "Structured note-taking"
+  definition: "Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions."
+  lesson: context-engineering
+  aliases: ["Agentic memory", "Progress file"]
+- term: "Structured outputs"
+  definition: "Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code."
+  lesson: structured-outputs
+  aliases: ["JSON mode"]
+- term: "Subagent"
+  definition: "An agent spawned by another agent to handle a subtask in its own fresh context window, returning only a condensed result. Subagents isolate context and enable parallel work."
+  lesson: multi-agent-systems
+- term: "Supervised fine-tuning"
+  definition: "Further training a pretrained model on curated input-output examples, such as instructions with good responses or successful agent trajectories."
+  lesson: training-agents
+  aliases: ["SFT", "Instruction tuning"]
+- term: "SWE-bench"
+  definition: "A benchmark (Jimenez et al., 2023) of real GitHub issues from Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified is a human-validated subset of 500 tasks."
+  lesson: benchmarks
+  aliases: ["SWE-bench Verified"]
+- term: "Sycophancy"
+  definition: "A model's tendency to tell users what they want to hear, agreeing with mistaken claims or abandoning correct answers under pushback."
+  lesson: agent-safety-alignment
+- term: "Synthetic data"
+  definition: "Training or evaluation data generated by models rather than collected from humans, such as synthetic tool-use dialogues or task variations."
+  lesson: training-agents
+- term: "System prompt"
+  definition: "Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent."
+  lesson: prompting-for-agents
+  aliases: ["System message"]
+- term: "Task decomposition"
+  definition: "Breaking a complex goal into smaller subtasks that can be solved sequentially or in parallel, by the model itself or by an orchestrator."
+  lesson: reasoning-and-planning
+- term: "Temperature"
+  definition: "A sampling setting that sharpens (low) or flattens (high) the probability distribution over next tokens. Many current reasoning models fix sampling parameters and reject user-set values."
+  lesson: llm-fundamentals
+- term: "Test-time compute"
+  definition: "Extra computation spent while answering, such as longer reasoning, sampling many candidates or search, to improve accuracy without changing model weights."
+  lesson: reasoning-and-planning
+  aliases: ["Inference-time compute", "Test-time scaling"]
+- term: "Time horizon"
+  definition: "METR's metric for agent capability: the length of task, measured by how long it takes skilled humans, that a model completes with a given success rate (typically 50%)."
+  lesson: benchmarks
+  aliases: ["50% time horizon"]
+- term: "Time to first token"
+  definition: "Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents."
+  lesson: cost-and-latency
+  aliases: ["TTFT"]
+- term: "Token"
+  definition: "The unit of text a model reads and writes, typically a word piece. Context limits, pricing and speed are all measured in tokens."
+  lesson: llm-fundamentals
+- term: "Tool call"
+  definition: "A structured request emitted by the model, such as a tool_use block with an id, a tool name and JSON input, asking the harness to run a tool."
+  lesson: tool-use
+  aliases: ["tool_use block"]
+- term: "Tool choice"
+  definition: "A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this."
+  lesson: tool-use
+- term: "Tool definition"
+  definition: "The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly."
+  lesson: designing-tools
+  aliases: ["Tool schema"]
+- term: "Tool namespacing"
+  definition: "Grouping related tools under shared name prefixes (for example github_ or browser_) so the model can tell similar tools apart and the harness can enable or mask groups."
+  lesson: designing-tools
+- term: "Tool poisoning"
+  definition: "An attack in which malicious instructions are hidden in a tool's description or metadata (for example an MCP server's), or a trusted tool changes behavior after approval."
+  lesson: agent-security
+  aliases: ["Rug pull"]
+- term: "Tool result"
+  definition: "The output of a tool sent back to the model, linked to the originating call by its id and optionally flagged as an error so the model can recover."
+  lesson: tool-use
+  aliases: ["tool_result"]
+- term: "Tool search"
+  definition: "Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt."
+  lesson: designing-tools
+  aliases: ["Deferred tool loading"]
+- term: "Tool use"
+  definition: "A model's ability to request calls to external functions by emitting a structured call (name plus arguments) that the application executes and returns results for."
+  lesson: tool-use
+  aliases: ["Function calling"]
+- term: "Toolformer"
+  definition: "A model (Schick et al., 2023) that taught itself when and how to call APIs by self-supervised filtering of candidate calls that improved next-token prediction."
+  lesson: tool-use
+- term: "Trace"
+  definition: "A structured, timestamped record of one agent run, typically a tree of spans covering model calls, tool calls and their inputs, outputs, latency and token usage."
+  lesson: observability
+- term: "Trajectory"
+  definition: "The full sequence of model outputs, tool calls and observations an agent produces while working on a task. Trajectories are the raw material for debugging, evaluation and training."
+  lesson: evaluating-agents
+  aliases: ["Rollout", "Transcript"]
+- term: "Trajectory evaluation"
+  definition: "Grading the path an agent took, such as tool choices, step count, errors and policy compliance, in addition to the final outcome."
+  lesson: evaluating-agents
+- term: "Transformer"
+  definition: "The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers that let every token draw information from every earlier token."
+  lesson: llm-fundamentals
+- term: "Tree of Thoughts"
+  definition: "A framework (Yao et al., 2023) in which the model generates and evaluates multiple partial reasoning steps and searches over them with breadth- or depth-first search and backtracking."
+  lesson: reasoning-and-planning
+  aliases: ["ToT"]
+- term: "Vector database"
+  definition: "A datastore optimized for storing embeddings and running fast nearest-neighbor similarity queries over them."
+  lesson: rag-and-retrieval
+  aliases: ["Vector store"]
+- term: "Verifier"
+  definition: "A component that checks a candidate output, such as unit tests, a type checker, a rules engine or a trained model. Reliable verifiers are what make search, retries and RL effective."
+  lesson: reasoning-and-planning
+- term: "Virtual context management"
+  definition: "The MemGPT idea (Packer et al., 2023) of treating the context window like RAM and external storage like disk, with the agent paging information in and out via function calls."
+  lesson: memory
+  aliases: ["MemGPT"]
+- term: "Voice activity detection"
+  definition: "Detecting when a user starts and stops speaking; together with turn-detection models it decides when a voice agent should respond."
+  lesson: conversational-voice-agents
+  aliases: ["VAD", "Endpointing"]
+- term: "Voice agent"
+  definition: "A conversational agent that listens and speaks in real time, either via a cascade of speech-to-text, LLM and text-to-speech, or via a native speech-to-speech model."
+  lesson: conversational-voice-agents
+- term: "Voyager"
+  definition: "A lifelong-learning Minecraft agent (Wang et al., 2023) with an automatic curriculum, an iterative prompting loop and a skill library of executable code."
+  lesson: self-improving-agents
+- term: "WebArena"
+  definition: "A benchmark (Zhou et al., 2023) of realistic tasks on self-hosted websites (e-commerce, forums, code hosting, CMS) with functional, execution-based checks."
+  lesson: benchmarks
+- term: "Workflow"
+  definition: "An LLM system in which models and tools are orchestrated through predefined code paths. Workflows trade flexibility for predictability, cost control and easier debugging."
+  lesson: workflow-patterns
+- term: "World model"
+  definition: "An internal model of how an environment works, used to predict the consequences of actions and plan ahead."
+  lesson: future-of-agents
+- term: "Zero-shot chain-of-thought"
+  definition: "Eliciting step-by-step reasoning without examples, famously by appending a phrase like \"Let's think step by step\" (Kojima et al., 2022)."
+  lesson: reasoning-and-planning
+- term: "τ-bench"
+  definition: "A benchmark (Yao et al., 2024) of tool-agent-user interaction in domains like airline and retail, with a simulated user and domain policies; it introduced the pass^k metric. τ²-bench adds dual-control environments."
+  lesson: benchmarks
+  aliases: ["tau-bench", "τ²-bench"]

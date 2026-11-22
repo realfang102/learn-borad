@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retrieval &amp; Agentic RAG · Agent Academy</title>
+<meta name="description" content="How agents find the right information: embeddings, chunking, vector indexes, hybrid search, reranking, contextual retrieval, agentic and graph RAG, grep-style agentic search, and how to evaluate it all.">
+<meta property="og:title" content="Retrieval &amp; Agentic RAG · Agent Academy">
+<meta property="og:description" content="How agents find the right information: embeddings, chunking, vector indexes, hybrid search, reranking, contextual retrieval, agentic and graph RAG, grep-style agentic search, and how to evaluate it all.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="rag-and-retrieval">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <header class="lesson-header">
+    <h1>Retrieval &amp; Agentic RAG</h1>
+    <p class="lead">How agents find the right information: embeddings, chunking, vector indexes, hybrid search, reranking, contextual retrieval, agentic and graph RAG, grep-style agentic search, and how to evaluate it all.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 34 min</span>
+      <span>✅ 8-question quiz</span>
+      
+      <span>Lesson 12 of 35</span>
+      <span class="lesson-status" data-status-for="rag-and-retrieval"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain how embeddings, chunking and approximate nearest-neighbor indexes (HNSW) work together in a RAG pipeline</li><li>Improve retrieval quality with hybrid search, reranking, contextual retrieval, query rewriting and HyDE</li><li>Design agentic RAG, where retrieval is a tool the agent calls iteratively, and know when GraphRAG or grep-style search fits better</li><li>Choose between RAG, long context and fine-tuning for a given problem</li><li>Evaluate retrieval (recall@k, MRR) and generation (faithfulness) separately</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="llm-fundamentals.html">LLMs: The Engine Inside Every Agent</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="memory.html">Memory Systems</a></p>
+  </section>
+  <article class="prose">
+<p>A support agent is asked: &quot;Can I get a refund on an annual plan after 45 days?&quot; The model was never trained on your refund policy, which changed last month anyway. If it answers from its weights, it will produce something plausible and probably wrong. If it can <strong>look up</strong> the current policy, quote the relevant clause and cite it, it becomes trustworthy.</p>
+<p>That&#39;s the promise of <strong>retrieval-augmented generation (RAG)</strong>: fetch relevant information at runtime and put it in the model&#39;s context so the answer is grounded in sources you control. RAG started as a fixed pipeline (embed the question, fetch the top five chunks, stuff them in the prompt). In agents it has become something more flexible: <strong>retrieval as a tool</strong> that the model calls, refines and repeats until it has what it needs.</p>
+<p>This lesson covers the whole stack: embeddings and similarity, chunking, vector indexes, the techniques that make retrieval actually good (hybrid search, reranking, contextual retrieval, query rewriting), agentic and graph-based RAG, why coding agents often skip embeddings entirely, and how to measure whether any of it works.</p>
+<h2 id="why-retrieval"><a class="anchor" href="#why-retrieval" aria-hidden="true">#</a>Why retrieval</h2>
+<p>Models have two kinds of knowledge. <strong>Parametric knowledge</strong> is baked into the weights during training. <strong>Non-parametric knowledge</strong> is supplied in the context at inference time. Retrieval adds non-parametric knowledge, which fixes four problems at once:</p>
+<ol>
+<li><strong>Freshness</strong>: weights have a training cutoff; your documents changed yesterday.</li>
+<li><strong>Private data</strong>: your wiki, tickets and contracts were never in the training set.</li>
+<li><strong>Hallucination</strong>: models answer more accurately when the answer is in front of them, and can be told to say &quot;not found&quot; when it isn&#39;t.</li>
+<li><strong>Provenance</strong>: retrieved passages can be cited, so users and auditors can check claims.</li>
+</ol>
+<p>The term comes from Lewis et al. (2020), who paired a dense retriever with a generator. Today &quot;RAG&quot; covers any system that retrieves before (or while) generating.</p>
+<h2 id="the-classic-pipeline"><a class="anchor" href="#the-classic-pipeline" aria-hidden="true">#</a>The classic pipeline</h2>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    subgraph Ingest[&quot;Indexing (offline)&quot;]
+        D[&quot;Documents&quot;] --&gt; C[&quot;Chunk&quot;] --&gt; E[&quot;Embed&quot;] --&gt; I[(&quot;Vector + keyword index&quot;)]
+    end
+    subgraph Query[&quot;Query time (online)&quot;]
+        Q[&quot;User question&quot;] --&gt; QE[&quot;Embed / rewrite query&quot;] --&gt; R[&quot;Retrieve top-k&quot;]
+        I --&gt; R
+        R --&gt; RR[&quot;Rerank&quot;] --&gt; P[&quot;Build prompt with sources&quot;] --&gt; G[&quot;LLM answers with citations&quot;]
+    end</pre></figure>
+<p>Each box is a design decision, and quality is limited by the weakest one. A perfect generator can&#39;t answer from chunks that were never retrieved, so most RAG problems are <strong>retrieval problems</strong>.</p>
+<h2 id="embeddings-and-similarity"><a class="anchor" href="#embeddings-and-similarity" aria-hidden="true">#</a>Embeddings and similarity</h2>
+<p>An <strong>embedding</strong> is a vector (typically a few hundred to a few thousand dimensions) produced by a neural network so that texts with similar meaning land near each other. &quot;How do I reset my password?&quot; and &quot;Forgot login credentials&quot; end up close together even though they share no words. That&#39;s the advantage over keyword search.</p>
+<p><strong>Similarity</strong> is usually <strong>cosine similarity</strong>, the cosine of the angle between two vectors:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">cos(a, b) = (a · b) / (‖a‖ ‖b‖)       range: −1 … 1</code></pre></div>
+<p>Most embedding models output normalized vectors (length 1), in which case cosine similarity equals the plain dot product, which is faster to compute.</p>
+<p>Practical notes:</p>
+<ul>
+<li><strong>Bi-encoders</strong> embed query and document <em>separately</em>, which is what makes pre-computing document vectors possible. The cost is that the query and document never &quot;see&quot; each other, so fine distinctions are lost (rerankers fix this, below).</li>
+<li><strong>Asymmetric search</strong>: queries are short questions and documents are long passages. Many models expect a prefix or a separate mode for each (&quot;query:&quot; vs. &quot;passage:&quot;). Using the wrong one silently hurts quality.</li>
+<li><strong>Choosing a model</strong>: options include API models (Voyage AI, which Anthropic recommends; OpenAI; Cohere; Google) and strong open models. The MTEB leaderboard compares them, but <strong>evaluate on your own data</strong>. Domain (legal, code, medical) matters more than leaderboard rank.</li>
+<li><strong>Dimensions vs. cost</strong>: bigger vectors mean more storage and slower search. Some models support truncating vectors (Matryoshka-style training) with modest quality loss.</li>
+</ul>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Similar is not the same as relevant</div><div class="callout-body"><p>Embeddings capture topical similarity. &quot;Our refund policy for annual plans&quot; and &quot;Our refund policy for monthly plans&quot; are extremely similar, and only one answers the question. Negations, numbers, dates and exact identifiers (error codes, SKUs, function names) are where dense retrieval most often fails.</p>
+</div></aside>
+<h2 id="chunking-strategies"><a class="anchor" href="#chunking-strategies" aria-hidden="true">#</a>Chunking strategies</h2>
+<p>Documents are too long to embed whole (and a single vector for a 50-page PDF averages away the details), so we split them into <strong>chunks</strong>. Chunk size is a real trade-off. Small chunks are precise but lose context; large chunks keep context but dilute the embedding and waste prompt tokens.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How</th>
+<th>Good for</th>
+<th>Watch out for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Fixed-size</strong></td>
+<td>N tokens with overlap (e.g., 400 tokens, 15% overlap)</td>
+<td>Baseline; homogeneous text</td>
+<td>Splits mid-sentence or mid-table</td>
+</tr>
+<tr>
+<td><strong>Recursive / structural</strong></td>
+<td>Split on headings, then paragraphs, then sentences</td>
+<td>Docs, wikis, Markdown, HTML</td>
+<td>Uneven chunk sizes</td>
+</tr>
+<tr>
+<td><strong>Semantic</strong></td>
+<td>Split where embedding similarity between adjacent sentences drops</td>
+<td>Long unstructured prose</td>
+<td>More compute at indexing time; gains vary</td>
+</tr>
+<tr>
+<td><strong>Document-aware</strong></td>
+<td>Code by function/class; tables kept whole; Q&amp;A pairs together</td>
+<td>Code, spreadsheets, FAQs</td>
+<td>Needs per-format parsers</td>
+</tr>
+<tr>
+<td><strong>Hierarchical (parent-child)</strong></td>
+<td>Retrieve small chunks, return their larger parent section</td>
+<td>Precise matching with enough context to answer</td>
+<td>More complex indexing</td>
+</tr>
+<tr>
+<td><strong>Late chunking / contextual</strong></td>
+<td>Embed with document-level context (see contextual retrieval)</td>
+<td>Chunks that are ambiguous on their own</td>
+<td>Extra indexing cost</td>
+</tr>
+</tbody></table>
+</div>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Start with structure-aware chunks of a few hundred tokens with modest overlap, keep metadata (title, section path, date, URL) on every chunk, and only get fancy once your evals show where retrieval fails.</p>
+</div></aside>
+<h2 id="vector-indexes-and-databases"><a class="anchor" href="#vector-indexes-and-databases" aria-hidden="true">#</a>Vector indexes and databases</h2>
+<p>Finding the exact nearest neighbors means comparing the query to every vector. That&#39;s fine for 10,000 chunks and too slow for 100 million. <strong>Approximate nearest neighbor (ANN)</strong> indexes trade a little recall for orders-of-magnitude speedups.</p>
+<h3 id="hnsw"><a class="anchor" href="#hnsw" aria-hidden="true">#</a>HNSW</h3>
+<p><strong>Hierarchical Navigable Small World</strong> graphs (Malkov &amp; Yashunin, 2016) are the most widely used ANN index.</p>
+<ul>
+<li>Every vector is a node linked to its near neighbors, forming a &quot;small world&quot; graph you can traverse greedily.</li>
+<li>Nodes are also randomly promoted to sparser <strong>upper layers</strong>, like express lanes on a highway.</li>
+<li>A search starts at the top layer, greedily hops toward the query, drops down a layer, and repeats, ending with a fine-grained search in the dense bottom layer.</li>
+</ul>
+<p>Key parameters: <code>M</code> (links per node: more means better recall and more memory), <code>efConstruction</code> (build-time effort) and <code>efSearch</code> (query-time candidate list: higher means better recall and slower queries). HNSW gives excellent recall and latency, but it&#39;s memory-hungry and deletions are awkward.</p>
+<p>Other families: <strong>IVF</strong> (cluster the vectors, search only the nearest clusters), <strong>product quantization</strong> (compress vectors to cut memory, at some accuracy cost), and disk-based indexes for very large collections. Libraries like FAISS implement many of these.</p>
+<h3 id="vector-databases"><a class="anchor" href="#vector-databases" aria-hidden="true">#</a>Vector databases</h3>
+<p>A <strong>vector database</strong> wraps an ANN index with what production needs: CRUD, metadata filtering (&quot;only docs from tenant 42 updated after March&quot;), hybrid keyword search, replication and access control. Options include dedicated systems (Pinecone, Weaviate, Qdrant, Milvus, Chroma) and vector extensions to databases you already run (pgvector for Postgres, Elasticsearch/OpenSearch, Redis). If you already run Postgres and have under a few million chunks, pgvector is often enough.</p>
+<h2 id="making-retrieval-good"><a class="anchor" href="#making-retrieval-good" aria-hidden="true">#</a>Making retrieval good</h2>
+<h3 id="hybrid-search-bm25-dense"><a class="anchor" href="#hybrid-search-bm25-dense" aria-hidden="true">#</a>Hybrid search: BM25 + dense</h3>
+<p><strong>BM25</strong> is the classic keyword ranking function: it scores documents by matching query terms, weighting rare terms more (inverse document frequency) and saturating repeated terms. It&#39;s excellent at exactly what embeddings miss: identifiers, error codes, names, rare jargon.</p>
+<p><strong>Hybrid search</strong> runs both and merges the results. The simplest robust merge is <strong>Reciprocal Rank Fusion (RRF)</strong>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">RRF(d) = Σ over rankers r of  1 / (k + rank_r(d))       (k is often 60)</code></pre></div>
+<p>RRF uses only ranks, not raw scores, so it doesn&#39;t matter that BM25 scores and cosine similarities live on different scales. A document ranked 1st by BM25 and 8th by dense retrieval beats one ranked 3rd by dense retrieval and absent from BM25.</p>
+<h3 id="reranking-with-cross-encoders"><a class="anchor" href="#reranking-with-cross-encoders" aria-hidden="true">#</a>Reranking with cross-encoders</h3>
+<p>Retrieval casts a wide net cheaply (say, the top 100 candidates). A <strong>reranker</strong> then rescores them carefully. A <strong>cross-encoder</strong> reads the query and a candidate passage <em>together</em>, so attention can compare them token by token. It&#39;s far more accurate than a bi-encoder and far too slow to run over the whole corpus, which is exactly why it runs on a shortlist. Typical setup: retrieve 50–150, rerank, keep the top 5–20. Hosted rerankers (Cohere, Voyage) and open cross-encoders are common. An LLM can also act as a reranker, at higher cost.</p>
+<h3 id="contextual-retrieval"><a class="anchor" href="#contextual-retrieval" aria-hidden="true">#</a>Contextual retrieval</h3>
+<p>Chunks often lose meaning when cut from their document. &quot;Revenue grew 3% over the previous quarter&quot; doesn&#39;t say <em>which company</em> or <em>which quarter</em>. Anthropic&#39;s <strong>Contextual Retrieval</strong> technique (2024) prepends a short, LLM-generated context to each chunk before embedding <em>and</em> before BM25 indexing:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Original chunk:     &quot;Revenue grew 3% over the previous quarter.&quot;
+Contextualized:     &quot;This chunk is from ACME Corp&#x27;s Q2 2023 SEC filing, in the section
+                     on financial results. Revenue grew 3% over the previous quarter.&quot;</code></pre></div>
+<p>In Anthropic&#39;s experiments, contextual embeddings cut the top-20 retrieval failure rate by 35%. Adding contextual BM25 brought the reduction to 49%, and adding reranking brought it to 67%. Generating a context for every chunk sounds expensive, but <strong>prompt caching</strong> makes it cheap: the full document is cached once and each chunk&#39;s request reuses it.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">contextualize</span>(<span class="hljs-params">document: <span class="hljs-built_in">str</span>, chunk: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    response = client.messages.create(
+        model=<span class="hljs-string">&quot;claude-haiku-5-5&quot;</span>,
+        max_tokens=<span class="hljs-number">1000</span>,  <span class="hljs-comment"># headroom: any thinking tokens count toward this too</span>
+        output_config={<span class="hljs-string">&quot;effort&quot;</span>: <span class="hljs-string">&quot;low&quot;</span>},
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: [
+            <span class="hljs-comment"># Same document for every chunk -&gt; cached after the first call</span>
+            {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">f&quot;&lt;document&gt;\n<span class="hljs-subst">{document}</span>\n&lt;/document&gt;&quot;</span>,
+             <span class="hljs-string">&quot;cache_control&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;ephemeral&quot;</span>}},
+            {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">f&quot;Here is a chunk from that document:\n&lt;chunk&gt;\n<span class="hljs-subst">{chunk}</span>\n&lt;/chunk&gt;\n&quot;</span>
+             <span class="hljs-string">&quot;Write a short, succinct context that situates this chunk within the overall document &quot;</span>
+             <span class="hljs-string">&quot;to improve search retrieval. Answer only with the context.&quot;</span>},
+        ]}],
+    )
+    context = <span class="hljs-built_in">next</span>(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;<span class="hljs-subst">{context}</span>\n\n<span class="hljs-subst">{chunk}</span>&quot;</span>  <span class="hljs-comment"># index THIS string in both the vector and BM25 indexes</span></code></pre></div>
+<h3 id="query-transformation"><a class="anchor" href="#query-transformation" aria-hidden="true">#</a>Query transformation</h3>
+<p>The user&#39;s words are often not the best search query.</p>
+<ul>
+<li><strong>Query rewriting</strong>: an LLM turns &quot;it&#39;s broken again after the update??&quot; (plus conversation history) into &quot;error after upgrading to v4.2 login page 500&quot;.</li>
+<li><strong>Multi-query</strong>: generate several paraphrases, retrieve for each, and fuse with RRF.</li>
+<li><strong>Decomposition</strong>: split &quot;Compare our EU and US data retention policies&quot; into two retrievals.</li>
+<li><strong>HyDE (Hypothetical Document Embeddings)</strong> (Gao et al., 2022): ask the LLM to write a <em>hypothetical answer</em>, then embed that and search with it. A fake answer looks more like the real answer passage than the question does. The fabricated details don&#39;t matter, because only the embedding is used.</li>
+<li><strong>Step-back prompting</strong>: retrieve for a more general question (&quot;what are the principles of X?&quot;) alongside the specific one.</li>
+</ul>
+<h2 id="agentic-rag"><a class="anchor" href="#agentic-rag" aria-hidden="true">#</a>Agentic RAG</h2>
+<p>Classic RAG retrieves <strong>once</strong>, <strong>before</strong> generation, with the <strong>user&#39;s query</strong>. Each of those is a limitation. Agentic RAG makes retrieval a <strong>tool</strong>: the model decides <em>whether</em> to search, <em>what</em> to search for, judges the results, and searches again.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    Q[&quot;Question&quot;] --&gt; T{&quot;Need info?&quot;}
+    T -- no --&gt; A[&quot;Answer&quot;]
+    T -- yes --&gt; S[&quot;search(query)&quot;]
+    S --&gt; J{&quot;Results sufficient and relevant?&quot;}
+    J -- &quot;no: refine query / different source&quot; --&gt; S
+    J -- &quot;partial: follow a lead (multi-hop)&quot; --&gt; S
+    J -- yes --&gt; A2[&quot;Answer with citations&quot;]</pre></figure>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-user">User:</span> Which of our enterprise customers are affected by the CVE in libxml we patched last week?
+
+<span class="tr-thought">Thought:</span> First find which CVE and which service was patched.
+<span class="tr-action">Action:</span> search_docs({&quot;query&quot;: &quot;libxml CVE patch last week&quot;})
+<span class="tr-observation">Observation:</span> [sec-2291#0] &quot;Patched CVE-2026-1234 in libxml2 in the doc-render service (v3.8.1).&quot;
+<span class="tr-thought">Thought:</span> Now which customers use doc-render, and which version are they on?
+<span class="tr-action">Action:</span> search_docs({&quot;query&quot;: &quot;doc-render service enterprise customers deployment versions&quot;})
+<span class="tr-observation">Observation:</span> [ops-88#2] &quot;Self-hosted doc-render: Globex (v3.7), Initech (v3.8.1), Umbrella (v3.6).&quot;
+<span class="tr-thought">Thought:</span> Versions below 3.8.1 are affected: Globex and Umbrella. Initech is patched.
+Answer: Globex (v3.7) and Umbrella (v3.6) are affected; Initech already runs the patched v3.8.1 [sec-2291#0][ops-88#2].</code></pre></div>
+<p>That&#39;s <strong>multi-hop retrieval</strong>: the second query could only be written after reading the first result. Research systems formalized versions of this:</p>
+<ul>
+<li><strong>IRCoT</strong> interleaves retrieval steps with chain-of-thought reasoning.</li>
+<li><strong>Self-RAG</strong> (Asai et al., 2023) trains a model to emit special reflection tokens that decide <em>when</em> to retrieve and critique whether passages are relevant and whether the answer is supported by them.</li>
+<li><strong>Corrective RAG (CRAG)</strong> (Yan et al., 2024) adds a lightweight evaluator that grades retrieval as correct, ambiguous or incorrect, and falls back to web search or refines the knowledge when retrieval is poor.</li>
+</ul>
+<p>With today&#39;s tool-using models you mostly get these behaviors through <strong>good tool design and instructions</strong> rather than special training. Return results with IDs and metadata, tell the model it may search several times, and tell it to say when the sources don&#39;t contain the answer. <a href="research-agents.html">Research agents</a> push this to its extreme, with hundreds of searches per report.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>In agentic RAG, retrieval stops being a preprocessing step and becomes an action. The model&#39;s reasoning (rewriting queries, judging relevance, following leads) is now part of the retrieval system, which is why a mediocre index plus a good agent often beats a great index used once.</p>
+</div></aside>
+<h2 id="graphrag"><a class="anchor" href="#graphrag" aria-hidden="true">#</a>GraphRAG</h2>
+<p>Some questions aren&#39;t answered by any single chunk: &quot;What are the main themes across these 2,000 customer interviews?&quot; or &quot;How are these companies connected?&quot; Similarity search returns <em>some</em> relevant fragments, but nothing sees the whole.</p>
+<p><strong>GraphRAG</strong> (Edge et al., 2024, Microsoft) builds structure at indexing time:</p>
+<ol>
+<li>An LLM extracts <strong>entities and relationships</strong> from every chunk into a knowledge graph.</li>
+<li>A community-detection algorithm clusters the graph into hierarchical <strong>communities</strong>.</li>
+<li>An LLM writes a <strong>summary of each community</strong>.</li>
+<li><strong>Global queries</strong> are answered map-reduce style over community summaries. <strong>Local queries</strong> start at matching entities and expand to their neighbors.</li>
+</ol>
+<p>GraphRAG does well on &quot;sensemaking&quot; questions over a whole corpus and on multi-hop relationship questions. The costs are real: indexing requires LLM calls over the entire corpus, extraction errors become graph errors, and updates are harder. Lighter variants (and plain knowledge graphs queried by an agent with a graph-query tool) sit between full GraphRAG and vector search.</p>
+<h2 id="agentic-search-grep-glob-and-read"><a class="anchor" href="#agentic-search-grep-glob-and-read" aria-hidden="true">#</a>Agentic search: grep, glob and read</h2>
+<p>Coding agents like Claude Code mostly <strong>don&#39;t use embeddings at all</strong>. They search code the way an engineer does, with tools such as <code>glob</code> (find files by pattern), <code>grep</code> (search contents with regex) and <code>read</code> (open a file, or part of one), iterating until they understand the code. Anthropic engineers have described trying a vector index early on and finding that agentic search worked better for code.</p>
+<p>Why this works so well for codebases:</p>
+<ul>
+<li><strong>Exactness</strong>: code is full of identifiers. <code>grep -rn &quot;def parse_config&quot;</code> finds the definition exactly; embeddings find &quot;things about configuration.&quot;</li>
+<li><strong>Freshness</strong>: there&#39;s no index to go stale while the agent edits files. Every search reflects the current state.</li>
+<li><strong>No infrastructure</strong>: no embedding pipeline, no vector DB, no re-indexing, no storing derived copies of private code elsewhere.</li>
+<li><strong>Iteration</strong>: the model reads a file, notices an import, greps for it, and follows the trail, which is multi-hop retrieval by construction.</li>
+<li><strong>Structure</strong>: directory names, file names and code structure are high-signal navigation aids that the model reads directly.</li>
+</ul>
+<p>The trade-offs: more tool calls and tokens per question, weaker performance on purely conceptual queries over prose (&quot;where do we discuss our pricing philosophy?&quot;), and limits at very large scale. Many teams now combine both: agentic search by default, plus a semantic index exposed as <em>one more tool</em> for large document collections.</p>
+<h2 id="rag-vs-long-context-vs-fine-tuning"><a class="anchor" href="#rag-vs-long-context-vs-fine-tuning" aria-hidden="true">#</a>RAG vs. long context vs. fine-tuning</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Best when</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Long context</strong> (put it all in the prompt)</td>
+<td>Corpus is small and stable (Anthropic suggests under roughly 200K tokens), or the task needs the whole document at once</td>
+<td>Simplest; no retrieval misses; prompt caching makes repeats cheap</td>
+<td>Cost and latency per call; quality degrades with length (&quot;lost in the middle&quot;, context rot); doesn&#39;t scale to large corpora</td>
+</tr>
+<tr>
+<td><strong>RAG / agentic retrieval</strong></td>
+<td>Large, changing or access-controlled knowledge; citations needed</td>
+<td>Fresh, scalable, citable, per-user permissions</td>
+<td>Retrieval misses; pipeline complexity; chunking artifacts</td>
+</tr>
+<tr>
+<td><strong>Fine-tuning</strong></td>
+<td>Teaching <em>behavior</em>: format, style, domain reasoning patterns, tool-use habits</td>
+<td>Lower per-call tokens; consistent behavior</td>
+<td>Poor at injecting facts reliably; stale as soon as facts change; no provenance; costly to iterate</td>
+</tr>
+</tbody></table>
+</div>
+<p>They combine well. A common rule: <strong>retrieve knowledge, fine-tune (or prompt) behavior, and use long context for what the task needs in full.</strong> Context length and retrieval are complements. Larger windows let you retrieve <em>more generously</em> and include whole sections instead of fragments.</p>
+<h2 id="citations-and-grounding"><a class="anchor" href="#citations-and-grounding" aria-hidden="true">#</a>Citations and grounding</h2>
+<p>Grounding is only valuable if it&#39;s <strong>checkable</strong>:</p>
+<ul>
+<li>Give each chunk a stable ID and metadata (title, URL, date, section) in the prompt.</li>
+<li>Instruct the model to cite IDs for each claim and to answer &quot;the sources don&#39;t say&quot; rather than filling gaps.</li>
+<li><strong>Verify citations programmatically</strong>: check that cited IDs were actually retrieved. Optionally, have a second pass confirm each cited passage supports its claim.</li>
+<li>Show users the quoted span, not just a link. People verify far more when the evidence is one click away.</li>
+</ul>
+<p>Some APIs build this in. The Claude API, for example, can return structured citations pointing to exact passages when documents or search results are passed in supported formats; check the current docs for details. Built-in web search tools also return cited results.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Retrieved content is <strong>untrusted input</strong>. A document can contain &quot;Ignore previous instructions and…&quot;. RAG pipelines are a main channel for indirect prompt injection. Keep retrieved text clearly delimited as data, and don&#39;t let it trigger privileged actions without checks (see <a href="agent-security.html">agent security</a>).</p>
+</div></aside>
+<h2 id="evaluating-retrieval-and-generation"><a class="anchor" href="#evaluating-retrieval-and-generation" aria-hidden="true">#</a>Evaluating retrieval and generation</h2>
+<p>Evaluate the two halves separately, or you won&#39;t know which to fix.</p>
+<h3 id="retrieval-metrics"><a class="anchor" href="#retrieval-metrics" aria-hidden="true">#</a>Retrieval metrics</h3>
+<p>Build a labeled set of queries with their relevant chunk IDs (from real user questions where possible).</p>
+<ul>
+<li><strong>Recall@k</strong>: fraction of queries where a relevant chunk appears in the top <em>k</em>. This is the most important retrieval metric for RAG: if it&#39;s not retrieved, it can&#39;t be used.</li>
+<li><strong>Precision@k</strong>: fraction of the top <em>k</em> that are relevant. It matters for prompt budget and distraction.</li>
+<li><strong>MRR (Mean Reciprocal Rank)</strong>: average of 1/rank of the first relevant result. Example: first relevant hits at ranks 1, 3 and &quot;not found&quot; over three queries gives MRR = (1 + 1/3 + 0) / 3 ≈ 0.44.</li>
+<li><strong>nDCG</strong>: rewards putting the <em>most</em> relevant items highest, with graded relevance.</li>
+</ul>
+<h3 id="generation-metrics"><a class="anchor" href="#generation-metrics" aria-hidden="true">#</a>Generation metrics</h3>
+<ul>
+<li><strong>Faithfulness / groundedness</strong>: is every claim in the answer supported by the retrieved context? This catches hallucination <em>despite</em> retrieval.</li>
+<li><strong>Answer relevance</strong>: does it actually answer the question?</li>
+<li><strong>Correctness</strong>: against a reference answer, when you have one.</li>
+<li><strong>Citation accuracy</strong>: do cited sources support the claims they&#39;re attached to?</li>
+</ul>
+<p>These are usually scored with <strong>LLM-as-judge</strong> rubrics (frameworks such as RAGAS package common ones), calibrated against human labels on a sample. For agentic RAG, also track <strong>search efficiency</strong>: number of searches, tokens per answer, and how often the agent correctly says &quot;not found.&quot; <a href="evaluating-agents.html">Evaluating agents</a> covers judge design and eval hygiene.</p>
+<h2 id="build-it-retrieval-as-a-tool"><a class="anchor" href="#build-it-retrieval-as-a-tool" aria-hidden="true">#</a>Build it: retrieval as a tool</h2>
+<p>Here&#39;s a complete, minimal agentic RAG loop: a pure-Python BM25 index over chunked documents, exposed as a <code>search_docs</code> tool, with instructions to search iteratively and cite chunk IDs.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> math, re
+<span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> Counter
+<span class="hljs-keyword">import</span> anthropic
+
+DOCS = {
+    <span class="hljs-string">&quot;refund-policy&quot;</span>: <span class="hljs-string">&quot;Refunds. Monthly plans can be refunded within 14 days of purchase. &quot;</span>
+                     <span class="hljs-string">&quot;Annual plans can be refunded within 30 days; after 30 days, annual plans &quot;</span>
+                     <span class="hljs-string">&quot;receive a prorated credit instead of a refund. Updated 2026-10-01.&quot;</span>,
+    <span class="hljs-string">&quot;billing-faq&quot;</span>: <span class="hljs-string">&quot;Billing FAQ. Credits are applied to the next invoice. Enterprise contracts &quot;</span>
+                   <span class="hljs-string">&quot;follow the terms of the signed order form, not the standard refund policy.&quot;</span>,
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">tokenize</span>(<span class="hljs-params">text: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]:
+    <span class="hljs-keyword">return</span> re.findall(<span class="hljs-string">r&quot;[a-z0-9]+&quot;</span>, text.lower())
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">chunk</span>(<span class="hljs-params">doc_id: <span class="hljs-built_in">str</span>, text: <span class="hljs-built_in">str</span>, size: <span class="hljs-built_in">int</span> = <span class="hljs-number">40</span>, overlap: <span class="hljs-built_in">int</span> = <span class="hljs-number">10</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>]:
+    words = text.split()
+    step = size - overlap
+    <span class="hljs-keyword">return</span> [{<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">{doc_id}</span>#<span class="hljs-subst">{i}</span>&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: <span class="hljs-string">&quot; &quot;</span>.join(words[s:s + size])}
+            <span class="hljs-keyword">for</span> i, s <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(<span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">max</span>(<span class="hljs-built_in">len</span>(words) - overlap, <span class="hljs-number">1</span>), step))]
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">BM25</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, chunks: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>], k1: <span class="hljs-built_in">float</span> = <span class="hljs-number">1.5</span>, b: <span class="hljs-built_in">float</span> = <span class="hljs-number">0.75</span></span>):
+        <span class="hljs-variable language_">self</span>.chunks, <span class="hljs-variable language_">self</span>.k1, <span class="hljs-variable language_">self</span>.b = chunks, k1, b
+        <span class="hljs-variable language_">self</span>.tfs = [Counter(tokenize(c[<span class="hljs-string">&quot;text&quot;</span>])) <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> chunks]
+        <span class="hljs-variable language_">self</span>.lens = [<span class="hljs-built_in">sum</span>(tf.values()) <span class="hljs-keyword">for</span> tf <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.tfs]
+        <span class="hljs-variable language_">self</span>.avgdl = <span class="hljs-built_in">sum</span>(<span class="hljs-variable language_">self</span>.lens) / <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.lens)
+        df = Counter(t <span class="hljs-keyword">for</span> tf <span class="hljs-keyword">in</span> <span class="hljs-variable language_">self</span>.tfs <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> tf)
+        n = <span class="hljs-built_in">len</span>(chunks)
+        <span class="hljs-variable language_">self</span>.idf = {t: math.log(<span class="hljs-number">1</span> + (n - f + <span class="hljs-number">0.5</span>) / (f + <span class="hljs-number">0.5</span>)) <span class="hljs-keyword">for</span> t, f <span class="hljs-keyword">in</span> df.items()}
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">search</span>(<span class="hljs-params">self, query: <span class="hljs-built_in">str</span>, k: <span class="hljs-built_in">int</span> = <span class="hljs-number">3</span></span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">float</span>, <span class="hljs-built_in">dict</span>]]:
+        scores = []
+        <span class="hljs-keyword">for</span> tf, dl, c <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(<span class="hljs-variable language_">self</span>.tfs, <span class="hljs-variable language_">self</span>.lens, <span class="hljs-variable language_">self</span>.chunks):
+            s = <span class="hljs-built_in">sum</span>(<span class="hljs-variable language_">self</span>.idf.get(t, <span class="hljs-number">0</span>) * tf[t] * (<span class="hljs-variable language_">self</span>.k1 + <span class="hljs-number">1</span>)
+                    / (tf[t] + <span class="hljs-variable language_">self</span>.k1 * (<span class="hljs-number">1</span> - <span class="hljs-variable language_">self</span>.b + <span class="hljs-variable language_">self</span>.b * dl / <span class="hljs-variable language_">self</span>.avgdl))
+                    <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> tokenize(query))
+            scores.append((s, c))
+        <span class="hljs-keyword">return</span> [x <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(scores, key=<span class="hljs-keyword">lambda</span> x: x[<span class="hljs-number">0</span>], reverse=<span class="hljs-literal">True</span>)[:k] <span class="hljs-keyword">if</span> x[<span class="hljs-number">0</span>] &gt; <span class="hljs-number">0</span>]
+
+index = BM25([c <span class="hljs-keyword">for</span> doc_id, text <span class="hljs-keyword">in</span> DOCS.items() <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> chunk(doc_id, text)])
+
+SEARCH_TOOL = {
+    <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;search_docs&quot;</span>,
+    <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Keyword search over the company knowledge base. Returns up to top_k chunks, each with an id. &quot;</span>
+                   <span class="hljs-string">&quot;Use specific terms; search again with different wording if results are off-topic.&quot;</span>,
+    <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,
+    <span class="hljs-string">&quot;input_schema&quot;</span>: {
+        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+        <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;query&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}, <span class="hljs-string">&quot;top_k&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;integer&quot;</span>}},
+        <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;query&quot;</span>, <span class="hljs-string">&quot;top_k&quot;</span>],
+        <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+    },
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">search_docs</span>(<span class="hljs-params">query: <span class="hljs-built_in">str</span>, top_k: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    hits = index.search(query, k=<span class="hljs-built_in">min</span>(<span class="hljs-built_in">max</span>(top_k, <span class="hljs-number">1</span>), <span class="hljs-number">8</span>))
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> hits:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;No results. Try different keywords.&quot;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;\n\n&quot;</span>.join(<span class="hljs-string">f&quot;&lt;result id=\&quot;<span class="hljs-subst">{c[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>\&quot; score=\&quot;<span class="hljs-subst">{s:<span class="hljs-number">.2</span>f}</span>\&quot;&gt;\n<span class="hljs-subst">{c[<span class="hljs-string">&#x27;text&#x27;</span>]}</span>\n&lt;/result&gt;&quot;</span> <span class="hljs-keyword">for</span> s, c <span class="hljs-keyword">in</span> hits)
+
+SYSTEM = (<span class="hljs-string">&quot;Answer using only the knowledge base. Search as many times as needed (max 5). &quot;</span>
+          <span class="hljs-string">&quot;Cite chunk ids in square brackets after each claim, like [refund-policy#0]. &quot;</span>
+          <span class="hljs-string">&quot;If the sources don&#x27;t contain the answer, say so plainly.&quot;</span>)
+
+client = anthropic.Anthropic()
+messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Can I get a refund on an annual plan after 45 days?&quot;</span>}]
+<span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">8</span>):
+    response = client.messages.create(model=<span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+                                      system=SYSTEM, tools=[SEARCH_TOOL], messages=messages)
+    messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: response.content})
+    <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:
+        <span class="hljs-keyword">break</span>
+    results = [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: b.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;content&quot;</span>: search_docs(**b.<span class="hljs-built_in">input</span>)}
+               <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>]
+    messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})
+
+<span class="hljs-built_in">print</span>(<span class="hljs-built_in">next</span>((b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>), <span class="hljs-string">f&quot;[stopped: <span class="hljs-subst">{response.stop_reason}</span>]&quot;</span>))</code></pre></div>
+<p>A good run searches for annual-plan refunds, finds <code>refund-policy#0</code>, and answers &quot;No refund after 30 days, but you&#39;ll receive a prorated credit,&quot; with citations. It may also note the enterprise exception from <code>billing-faq#0</code>. To upgrade this to production quality, swap BM25 for hybrid search with a reranker, add metadata filters, and evaluate recall@k on real questions.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>RAG adds <strong>non-parametric knowledge</strong> at runtime: fresh, private and citable. Most RAG failures are <strong>retrieval failures</strong>, so measure retrieval first.</li>
+<li>Embeddings capture meaning but miss exact identifiers, numbers and negations. <strong>Hybrid search (BM25 + dense, fused with RRF) plus a cross-encoder reranker</strong> is a strong default.</li>
+<li><strong>Contextual retrieval</strong> (prepending LLM-written context to each chunk before indexing) substantially reduces retrieval failures, and prompt caching makes it affordable.</li>
+<li><strong>Agentic RAG</strong> turns retrieval into a tool. The model rewrites queries, judges results and follows multi-hop leads.</li>
+<li><strong>GraphRAG</strong> helps with corpus-wide sensemaking and relationship questions, at a high indexing cost.</li>
+<li><strong>Coding agents often skip embeddings</strong>: grep, glob and read are exact, always fresh and need no infrastructure.</li>
+<li>Choose deliberately: <strong>long context</strong> for small stable corpora, <strong>RAG</strong> for large or changing knowledge, <strong>fine-tuning</strong> for behavior rather than facts. Evaluate retrieval (recall@k, MRR) and generation (faithfulness) separately.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Break dense retrieval.</strong> Write ten queries containing exact identifiers (error codes, SKUs, function names) and ten conceptual queries. Compare BM25 and an embedding model on recall@3 for each group. What pattern do you see?</li>
+<li><strong>Add RRF.</strong> Implement reciprocal rank fusion that merges the BM25 results from the example with results from any embedding search. Verify that a document ranked highly by only one retriever can still win.</li>
+<li><strong>Measure MRR.</strong> Create 15 questions about the example knowledge base (expand <code>DOCS</code> to at least 8 documents) with labeled relevant chunk IDs. Compute recall@1, recall@3 and MRR for BM25, then for BM25 over contextualized chunks.</li>
+<li><strong>Citation verifier.</strong> After the agent answers, parse every <code>[id]</code> citation and check it was actually returned by a <code>search_docs</code> call in this conversation. Flag answers with unsupported citations, or with factual sentences that carry no citation.</li>
+<li><strong>Agentic vs. pipeline (hard).</strong> Build two systems over the same corpus: (a) single-shot retrieval (top 5, then answer) and (b) the agentic loop. Write 10 multi-hop questions where the second search depends on the first result. Compare accuracy, tokens and latency, and explain where each wins.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="rag-and-retrieval" data-total="8">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>A user searches for error code &quot;E4012&quot; and dense retrieval returns chunks about unrelated errors. What&#39;s the most likely fix?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Use a larger embedding dimension</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Increase chunk size so more text is embedded</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Lower the similarity threshold</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add keyword (BM25) search and fuse it with dense results (hybrid search)</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Embeddings capture topical similarity and handle rare exact tokens like error codes poorly. BM25 matches them exactly, and hybrid search with RRF gets the benefits of both.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why does reranking with a cross-encoder improve results over the initial bi-encoder retrieval?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It removes duplicate chunks</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It uses a larger vector index</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It re-embeds documents with more dimensions</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It reads the query and each candidate together, so attention can compare them directly, which is too slow for the whole corpus but affordable on a shortlist</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Bi-encoders embed queries and documents separately for speed. Cross-encoders process the pair jointly for accuracy, so the standard pattern is a cheap wide retrieval followed by a precise rerank of the top candidates.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>What problem does contextual retrieval address?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Chunks that lose meaning when separated from their document (e.g., &quot;revenue grew 3%&quot; without the company or quarter)</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Slow approximate nearest-neighbor search</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Queries that are too long to embed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt injection in retrieved documents</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Prepending a short, document-aware context to each chunk before embedding and BM25 indexing makes the chunk retrievable by the terms a user would actually search for.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Why does HyDE embed a hypothetical answer instead of the question?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Questions can&#39;t be embedded by most models</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A plausible answer passage tends to be closer in embedding space to real answer passages than the question is, even if its details are wrong</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It reduces the number of retrieval calls to zero</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The hypothetical answer is shown to the user as the final answer</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> HyDE uses the fake answer only as a search probe. Its embedding resembles the style and content of real answer passages, so retrieval improves; the fabricated facts are discarded.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Why do many coding agents use grep/glob/read instead of a vector index over the codebase?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code search depends on exact identifiers, the files change constantly during the task, and iterative exact search needs no index to maintain or keep fresh</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Vector databases are prohibited in developer tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>grep uses fewer tokens per question than any retrieval method</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Embedding models can&#39;t process source code</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactness, freshness and zero infrastructure favor agentic search for code. It typically uses more tool calls than one vector lookup, but the agent can iterate and follow references.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Your knowledge base is a 60-page policy manual that rarely changes, queried thousands of times a day. Which approach is likely simplest and most effective?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Put the whole manual in the prompt and use prompt caching</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Build GraphRAG over the manual</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Fine-tune a model on the manual</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Build a vector database with semantic chunking</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The manual is small and stable, well within a context window. Long context with caching avoids retrieval misses and pipeline complexity, and makes repeated reads cheap.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Across three test queries, the first relevant result appears at ranks 2, 1 and 4. What&#39;s the MRR?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>0.25</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>2.33</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>0.50</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 0.58</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> MRR = (1/2 + 1/1 + 1/4) / 3 = 1.75 / 3 ≈ 0.583.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">8</span><div>An answer cites [doc-7#2], but the chunk doesn&#39;t support the claim. Which metric captures this failure?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Faithfulness / citation accuracy</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Recall@k</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Precision@k</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>MRR</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Retrieval may have been fine. The generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by its sources.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks (Lewis et al., 2020)</a>: the paper that named RAG.</li>
+<li><a href="https://www.anthropic.com/news/contextual-retrieval" target="_blank" rel="noopener">Introducing Contextual Retrieval (Anthropic)</a>: contextual embeddings and BM25, reranking, results, and the case for long context with small corpora.</li>
+<li><a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener">Efficient and Robust ANN Search Using HNSW Graphs (Malkov &amp; Yashunin, 2016)</a>: the index behind most vector databases.</li>
+<li><a href="https://arxiv.org/abs/2212.10496" target="_blank" rel="noopener">Precise Zero-Shot Dense Retrieval without Relevance Labels, HyDE (Gao et al., 2022)</a>: hypothetical document embeddings.</li>
+<li><a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener">Self-RAG (Asai et al., 2023)</a>: learning when to retrieve and how to critique retrieved passages.</li>
+<li><a href="https://arxiv.org/abs/2401.15884" target="_blank" rel="noopener">Corrective Retrieval Augmented Generation (Yan et al., 2024)</a>: evaluating retrieval quality and falling back when it&#39;s poor.</li>
+<li><a href="https://arxiv.org/abs/2404.16130" target="_blank" rel="noopener">From Local to Global: A Graph RAG Approach (Edge et al., 2024)</a>: Microsoft&#39;s GraphRAG for query-focused summarization.</li>
+<li><a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">Lost in the Middle (Liu et al., 2023)</a>: why position in long contexts matters, and why more retrieved text isn&#39;t always better.</li>
+<li><a href="https://arxiv.org/abs/2309.15217" target="_blank" rel="noopener">RAGAS: Automated Evaluation of RAG (Es et al., 2023)</a>: reference-free metrics for faithfulness and relevance.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="rag-and-retrieval">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-rag-and-retrieval"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-rag-and-retrieval" class="notes" data-slug="rag-and-retrieval" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="memory.html"><small>← Previous</small><span>Memory Systems</span></a>
+    <a class="pager-next" href="context-engineering.html"><small>Next →</small><span>Context Engineering</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-retrieval">Why retrieval</a></li>
+<li class="toc-h2"><a href="#the-classic-pipeline">The classic pipeline</a></li>
+<li class="toc-h2"><a href="#embeddings-and-similarity">Embeddings and similarity</a></li>
+<li class="toc-h2"><a href="#chunking-strategies">Chunking strategies</a></li>
+<li class="toc-h2"><a href="#vector-indexes-and-databases">Vector indexes and databases</a></li>
+<li class="toc-h3"><a href="#hnsw">HNSW</a></li>
+<li class="toc-h3"><a href="#vector-databases">Vector databases</a></li>
+<li class="toc-h2"><a href="#making-retrieval-good">Making retrieval good</a></li>
+<li class="toc-h3"><a href="#hybrid-search-bm25-dense">Hybrid search: BM25 + dense</a></li>
+<li class="toc-h3"><a href="#reranking-with-cross-encoders">Reranking with cross-encoders</a></li>
+<li class="toc-h3"><a href="#contextual-retrieval">Contextual retrieval</a></li>
+<li class="toc-h3"><a href="#query-transformation">Query transformation</a></li>
+<li class="toc-h2"><a href="#agentic-rag">Agentic RAG</a></li>
+<li class="toc-h2"><a href="#graphrag">GraphRAG</a></li>
+<li class="toc-h2"><a href="#agentic-search-grep-glob-and-read">Agentic search: grep, glob and read</a></li>
+<li class="toc-h2"><a href="#rag-vs-long-context-vs-fine-tuning">RAG vs. long context vs. fine-tuning</a></li>
+<li class="toc-h2"><a href="#citations-and-grounding">Citations and grounding</a></li>
+<li class="toc-h2"><a href="#evaluating-retrieval-and-generation">Evaluating retrieval and generation</a></li>
+<li class="toc-h3"><a href="#retrieval-metrics">Retrieval metrics</a></li>
+<li class="toc-h3"><a href="#generation-metrics">Generation metrics</a></li>
+<li class="toc-h2"><a href="#build-it-retrieval-as-a-tool">Build it: retrieval as a tool</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

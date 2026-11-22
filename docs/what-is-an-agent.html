@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Is an AI Agent? · Agent Academy</title>
+<meta name="description" content="From Russell &amp; Norvig's rational agent to today's LLM agents: a precise definition, the anatomy of an agent, the autonomy spectrum, and how to spot agent-washing.">
+<meta property="og:title" content="What Is an AI Agent? · Agent Academy">
+<meta property="og:description" content="From Russell &amp; Norvig's rational agent to today's LLM agents: a precise definition, the anatomy of an agent, the autonomy spectrum, and how to spot agent-washing.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module" open data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="what-is-an-agent">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <header class="lesson-header">
+    <h1>What Is an AI Agent?</h1>
+    <p class="lead">From Russell &amp; Norvig's rational agent to today's LLM agents: a precise definition, the anatomy of an agent, the autonomy spectrum, and how to spot agent-washing.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-beginner">Beginner</span>
+      <span>⏱ 24 min</span>
+      <span>✅ 7-question quiz</span>
+      <span>🧪 Interactive</span>
+      <span>Lesson 1 of 35</span>
+      <span class="lesson-status" data-status-for="what-is-an-agent"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Define an agent in both the classical (Russell &amp; Norvig) and modern LLM sense</li><li>Distinguish agents from chatbots, copilots, RPA bots and LLM workflows</li><li>Name the components of an agent and explain what each one contributes</li><li>Place a real system on the autonomy spectrum and justify the placement</li><li>Recognize agent-washing and the most common misconceptions about agents</li></ul>
+    
+  </section>
+  <article class="prose">
+<p>Ask ten people what an &quot;AI agent&quot; is and you&#39;ll get ten answers. To one it&#39;s a chatbot with a nicer name. To another it&#39;s software that books your flights while you sleep. To a vendor it&#39;s whatever they&#39;re selling this quarter. The word is everywhere, and that makes it close to useless unless we pin it down.</p>
+<p>This lesson pins it down. We&#39;ll start with the classical definition that AI researchers have used for decades, then sharpen it into the modern, practical definition used by people who build LLM agents for a living. Then we&#39;ll take an agent apart to see its components, place real systems on an <strong>autonomy spectrum</strong>, and compare agents with their cousins: chatbots, copilots, RPA bots and workflows. By the end you&#39;ll be able to look at any product labelled &quot;agentic&quot; and say what it actually is.</p>
+<p>That matters for a practical reason. Whether something is an agent decides how you build it, how you test it, what it costs, and what can go wrong. A one-shot chatbot that gives a bad answer wastes a minute. An agent that takes a bad action, such as deleting a branch, emailing a customer or spending money, can do real damage. Knowing which one you&#39;re dealing with is the first engineering decision.</p>
+<h2 id="the-classical-definition"><a class="anchor" href="#the-classical-definition" aria-hidden="true">#</a>The Classical Definition</h2>
+<p>The textbook that shaped a generation of AI researchers, Stuart Russell and Peter Norvig&#39;s <em>Artificial Intelligence: A Modern Approach</em> (first edition 1995), is organized entirely around agents. Its definition is deliberately broad:</p>
+<blockquote><p>An <strong>agent</strong> is anything that can be viewed as perceiving its <strong>environment</strong> through <strong>sensors</strong> and acting upon that environment through <strong>actuators</strong>.</p>
+</blockquote>
+<p>A thermostat qualifies: it senses temperature and switches a heater. So does a robot vacuum, a chess program, and you. The definition is a <em>lens</em>, not a category with sharp edges. The question isn&#39;t &quot;is this thing an agent?&quot; but &quot;is it useful to analyze this thing as an agent?&quot;</p>
+<p>Three more classical ideas carry straight into modern LLM agents:</p>
+<ul>
+<li><strong>Percept sequence.</strong> An agent acts on everything it has perceived so far, not just the latest input. For an LLM agent, the percept sequence is the <strong>transcript</strong>: the user&#39;s request plus every tool result it has seen.</li>
+<li><strong>Agent function vs. agent program.</strong> The <em>function</em> is the abstract mapping from percept sequences to actions. The <em>program</em> is the code that implements it on a real machine. For an LLM agent, the model plus the code around it is the program.</li>
+<li><strong>Rational agent.</strong> A rational agent picks the action expected to maximize its <strong>performance measure</strong>, given what it has perceived and what it already knows. Rationality isn&#39;t omniscience. An agent that makes a reasonable decision on incomplete information is rational even if the outcome is bad.</li>
+</ul>
+<p>Russell and Norvig also describe a task with <strong>PEAS</strong>: <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors. PEAS still works as a design checklist. For a coding agent:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>PEAS element</th>
+<th>Coding agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Performance measure</td>
+<td>Tests pass, the change is minimal and readable, no regressions</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td>A repository, a shell, a test runner, the issue tracker</td>
+</tr>
+<tr>
+<td>Actuators</td>
+<td>Tools that edit files, run commands, open pull requests</td>
+</tr>
+<tr>
+<td>Sensors</td>
+<td>Tools that read files, search code, show command output</td>
+</tr>
+</tbody></table>
+</div>
+<p>They also give a ladder of agent designs, from <strong>simple reflex agents</strong> (if condition then action), through <strong>model-based</strong> agents (keep internal state about the world), <strong>goal-based</strong> agents (choose actions that reach a goal) and <strong>utility-based</strong> agents (trade off competing goals), to <strong>learning agents</strong> that improve with experience. A modern LLM agent is goal-based and keeps internal state (its context window) almost by default. That&#39;s a big part of why LLMs made agents practical.</p>
+<h3 id="environment-properties"><a class="anchor" href="#environment-properties" aria-hidden="true">#</a>Environment properties</h3>
+<p>The classical framework also classifies environments, and the classification predicts how hard a task will be for an agent:</p>
+<ul>
+<li><strong>Fully vs. partially observable.</strong> Can the agent see everything relevant? A codebase is partially observable: the agent has to <em>choose</em> which files to read.</li>
+<li><strong>Deterministic vs. stochastic.</strong> Does the same action always give the same result? Web pages change, and flaky tests fail at random.</li>
+<li><strong>Episodic vs. sequential.</strong> Do earlier actions affect later ones? Agent tasks are almost always sequential, which is why errors compound (see <a href="when-to-use-agents.html">when to use agents</a>).</li>
+<li><strong>Static vs. dynamic.</strong> Does the world change while the agent thinks? A live customer chat or a stock price is dynamic.</li>
+<li><strong>Single- vs. multi-agent.</strong> Are other agents, human or AI, acting in the same environment?</li>
+</ul>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>The more partially observable, stochastic, sequential and dynamic an environment is, the more you need a real agent and the harder it is to make one reliable. A fully observable, deterministic, episodic task usually doesn&#39;t need an agent at all.</p>
+</div></aside>
+<h2 id="the-modern-definition-llms-using-tools-in-a-loop"><a class="anchor" href="#the-modern-definition-llms-using-tools-in-a-loop" aria-hidden="true">#</a>The Modern Definition: LLMs Using Tools in a Loop</h2>
+<p>The classical definition counts thermostats, so on its own it can&#39;t tell an agent from a chatbot. Practitioners building on large language models have settled on something much more specific. Anthropic&#39;s widely cited essay <em>Building Effective Agents</em> (December 2024) draws the key line:</p>
+<ul>
+<li><strong>Workflows</strong> are &quot;systems where LLMs and tools are orchestrated through predefined code paths.&quot;</li>
+<li><strong>Agents</strong> are &quot;systems where LLMs dynamically direct their own processes and tool usage, maintaining control over how they accomplish tasks.&quot;</li>
+</ul>
+<p>The same essay describes agents, in practice, as &quot;typically just LLMs using tools based on environmental feedback in a loop.&quot; By 2025 the shortest version, &quot;an LLM agent runs tools in a loop to achieve a goal&quot;, had become close to a consensus definition among practitioners.</p>
+<p>Unpack that and you get three necessary ingredients:</p>
+<ol>
+<li><strong>An LLM</strong> as the decision-maker. It reads the situation and decides what to do next.</li>
+<li><strong>Tools</strong>: functions the LLM can ask to have run, such as search, read a file, run a test or send an email. Tools are the agent&#39;s actuators <em>and</em> its sensors (see <a href="tool-use.html">tool use</a>).</li>
+<li><strong>A loop with feedback.</strong> The tool&#39;s result goes back to the model, which decides the next step. The loop continues until the model decides the goal is met, or until a guardrail stops it (see <a href="the-agent-loop.html">the agent loop</a>).</li>
+</ol>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>What makes something an agent is <strong>who controls the control flow</strong>. In a workflow, your code decides the sequence of steps. In an agent, the model decides, one step at a time, based on what it observes. Everything else, from memory and planning to multi-agent setups, is elaboration on that core.</p>
+</div></aside>
+<p>This definition also explains why agents are both powerful and risky. Because the model chooses the path, an agent can handle situations its designers never anticipated. For the same reason, you can&#39;t list in advance every path it might take. That&#39;s why evaluation, observability and guardrails matter so much more for agents than for ordinary software.</p>
+<h2 id="anatomy-of-an-agent"><a class="anchor" href="#anatomy-of-an-agent" aria-hidden="true">#</a>Anatomy of an Agent</h2>
+<p>The core is simple, but production agents have recognizable parts. Here is the anatomy most practitioners would agree on:</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    U[&quot;User / trigger&quot;] --&gt; H
+    subgraph H[&quot;Harness (orchestration)&quot;]
+        M[&quot;Model (LLM)&quot;]
+        I[&quot;Instructions (system prompt)&quot;]
+        Mem[&quot;Memory &amp; context&quot;]
+        P[&quot;Planning / reasoning&quot;]
+    end
+    M -- &quot;tool calls&quot; --&gt; T[&quot;Tools&quot;]
+    T -- &quot;actions&quot; --&gt; E[&quot;Environment&quot;]
+    E -- &quot;observations&quot; --&gt; T
+    T -- &quot;results&quot; --&gt; M
+    H -- &quot;final answer / outcome&quot; --&gt; U</pre></figure>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Component</th>
+<th>What it is</th>
+<th>Analogy</th>
+<th>Where to learn more</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Model</strong></td>
+<td>The LLM that reads context and decides the next action</td>
+<td>The brain</td>
+<td><a href="llm-fundamentals.html">LLM fundamentals</a></td>
+</tr>
+<tr>
+<td><strong>Instructions</strong></td>
+<td>System prompt: role, goals, constraints, style, when to stop</td>
+<td>The job description</td>
+<td><a href="prompting-for-agents.html">Prompting for agents</a></td>
+</tr>
+<tr>
+<td><strong>Tools</strong></td>
+<td>Typed functions the model can call: APIs, code execution, browsers, other agents</td>
+<td>Hands and eyes</td>
+<td><a href="tool-use.html">Tool use</a>, <a href="designing-tools.html">Designing tools</a></td>
+</tr>
+<tr>
+<td><strong>Memory</strong></td>
+<td>What persists: the transcript (short-term), plus stores the agent can read and write across sessions (long-term)</td>
+<td>Working memory and a notebook</td>
+<td><a href="memory.html">Memory</a>, <a href="rag-and-retrieval.html">RAG</a></td>
+</tr>
+<tr>
+<td><strong>Planning</strong></td>
+<td>Breaking goals into steps, reasoning before acting, revising plans after surprises</td>
+<td>Thinking before doing</td>
+<td><a href="reasoning-and-planning.html">Reasoning and planning</a></td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>The world the agent acts in: a filesystem, a browser, a CRM, a codebase</td>
+<td>The workplace</td>
+<td><a href="computer-use-agents.html">Computer-use agents</a></td>
+</tr>
+<tr>
+<td><strong>Harness</strong></td>
+<td>The code that runs the loop: calls the model, executes tools, enforces limits, manages context, asks humans for approval</td>
+<td>The manager and the safety rails</td>
+<td><a href="build-agent-from-scratch.html">Build an agent from scratch</a></td>
+</tr>
+</tbody></table>
+</div>
+<p>Two of these deserve extra emphasis because beginners underrate them.</p>
+<p><strong>The harness does more work than you&#39;d think.</strong> The model only produces text, and some of that text is structured requests to call tools. The harness actually runs the tools, decides what goes into the next context window, enforces step and cost budgets, catches errors, and enforces permissions. Two agents built on the <em>same</em> model can differ enormously in quality because of their harnesses. Claude Code, Cursor and Codex are, to a large degree, different harnesses wrapped around frontier models.</p>
+<p><strong>Context is the agent&#39;s whole world.</strong> A model has no memory between calls. Everything it &quot;knows&quot; about the current task is whatever the harness put into its context window for this step. Deciding what goes in (and what stays out) is a discipline of its own: <a href="context-engineering.html">context engineering</a>.</p>
+<h2 id="properties-of-agency"><a class="anchor" href="#properties-of-agency" aria-hidden="true">#</a>Properties of Agency</h2>
+<p>In 1995, Michael Wooldridge and Nicholas Jennings proposed a &quot;weak notion of agency&quot; that the multi-agent systems community used for decades. Their four properties, plus goal-directedness, still make a good rubric for how agentic a system really is:</p>
+<ul>
+<li><strong>Autonomy.</strong> It operates without a human directing every step and has some control over its own actions and internal state. <em>Test:</em> how many decisions does it make between human touchpoints?</li>
+<li><strong>Goal-directedness.</strong> It works toward an objective rather than just answering the latest message. <em>Test:</em> if you give it a goal, does it keep going until that goal is met?</li>
+<li><strong>Reactivity.</strong> It perceives changes in its environment and responds in time. <em>Test:</em> when a tool returns an error or a surprising result, does it adapt?</li>
+<li><strong>Proactivity.</strong> It takes the initiative, doing things that weren&#39;t explicitly requested but serve the goal. <em>Test:</em> does it run the tests without being told, or check an assumption before relying on it?</li>
+<li><strong>Social ability.</strong> It interacts with other agents and humans, asking clarifying questions, delegating, negotiating. <em>Test:</em> can it ask you when it&#39;s genuinely stuck, or coordinate with sub-agents? (See <a href="multi-agent-systems.html">multi-agent systems</a>.)</li>
+</ul>
+<p>These are matters of degree. A good modern coding agent scores high on all five. A customer-service bot that can only look up order status scores high on reactivity and low on everything else.</p>
+<h2 id="the-autonomy-spectrum"><a class="anchor" href="#the-autonomy-spectrum" aria-hidden="true">#</a>The Autonomy Spectrum</h2>
+<p>&quot;Agent or not?&quot; is less useful than &quot;<em>how much</em> autonomy, and where?&quot; There&#39;s no single industry standard here. Several taxonomies have been proposed, often modelled on the SAE levels for self-driving cars. The five-level version below captures the distinctions that matter in practice:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Name</th>
+<th>Who decides the steps?</th>
+<th>Who executes actions?</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td><strong>Chatbot</strong></td>
+<td>Human</td>
+<td>Human</td>
+<td>Ask a question, get an answer, copy it somewhere</td>
+</tr>
+<tr>
+<td>1</td>
+<td><strong>Copilot</strong></td>
+<td>Human</td>
+<td>Human, with AI suggestions</td>
+<td>Inline code completion; &quot;draft a reply&quot; buttons</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Workflow</strong></td>
+<td>Developer (fixed code path)</td>
+<td>System, with LLM steps</td>
+<td>Ticket → classify → draft response → human review</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Semi-autonomous agent</strong></td>
+<td>Model</td>
+<td>Model, with human approval at checkpoints</td>
+<td>A coding agent that asks before running commands or pushing</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Autonomous agent</strong></td>
+<td>Model</td>
+<td>Model; humans set goals and review outcomes</td>
+<td>A background agent that takes an issue and opens a PR hours later</td>
+</tr>
+</tbody></table>
+</div>
+<p>Try it yourself: drag the slider to see how responsibility, risk and oversight shift between human and machine at each level.</p>
+<div class="widget" data-widget="autonomy-spectrum"></div>
+
+<p>A few things are worth noticing:</p>
+<ul>
+<li><strong>Autonomy is per action, not per product.</strong> Claude Code can be configured to read files freely but ask before editing, or to run fully unattended in a sandbox. The same system sits at different levels depending on its <strong>permissions</strong>. Good agent design picks the autonomy level <em>per tool</em> based on how reversible the action is (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</li>
+<li><strong>Higher isn&#39;t automatically better.</strong> Level 4 is the right choice only when the task is valuable, errors are recoverable or caught downstream, and you trust the agent&#39;s track record on this kind of work. Plenty of excellent products are deliberately Level 2.</li>
+<li><strong>Autonomy should be earned.</strong> Teams typically start an agent at Level 3, collect traces, measure where it fails, and loosen the controls as evidence accumulates.</li>
+</ul>
+<h2 id="agents-vs-chatbots-copilots-rpa-and-workflows"><a class="anchor" href="#agents-vs-chatbots-copilots-rpa-and-workflows" aria-hidden="true">#</a>Agents vs. Chatbots, Copilots, RPA and Workflows</h2>
+<p>These terms get blurred constantly. Here is the cleanest way to tell them apart:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Chatbot</th>
+<th>Copilot</th>
+<th>RPA bot</th>
+<th>LLM workflow</th>
+<th>Agent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Core behavior</strong></td>
+<td>Answers messages</td>
+<td>Suggests while a human works</td>
+<td>Replays scripted UI/API steps</td>
+<td>Runs a fixed pipeline with LLM steps</td>
+<td>Pursues a goal, choosing its own steps</td>
+</tr>
+<tr>
+<td><strong>Who controls flow</strong></td>
+<td>Human (turn by turn)</td>
+<td>Human</td>
+<td>Script author</td>
+<td>Developer&#39;s code</td>
+<td>The model</td>
+</tr>
+<tr>
+<td><strong>Takes actions in the world</strong></td>
+<td>Rarely</td>
+<td>Through the human</td>
+<td>Yes, but only scripted ones</td>
+<td>Yes, at predefined points</td>
+<td>Yes, chosen dynamically</td>
+</tr>
+<tr>
+<td><strong>Handles novel situations</strong></td>
+<td>Conversationally</td>
+<td>Somewhat</td>
+<td>No: breaks when the UI changes</td>
+<td>Only within designed branches</td>
+<td>Yes, within its tools and judgment</td>
+</tr>
+<tr>
+<td><strong>Predictability</strong></td>
+<td>High</td>
+<td>High</td>
+<td>Very high</td>
+<td>High</td>
+<td>Lower</td>
+</tr>
+<tr>
+<td><strong>Typical failure</strong></td>
+<td>Wrong answer</td>
+<td>Bad suggestion accepted</td>
+<td>Brittle selector breaks</td>
+<td>Bad input to a step</td>
+<td>Wrong path, loops, harmful action</td>
+</tr>
+<tr>
+<td><strong>Example</strong></td>
+<td>FAQ assistant</td>
+<td>Code autocomplete</td>
+<td>Copying invoice fields into an ERP</td>
+<td>Summarize → classify → route emails</td>
+<td>Fix a failing test across a repo</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Robotic Process Automation (RPA)</strong> deserves a note because it&#39;s the most common source of agent-washing. RPA tools such as UiPath and Automation Anywhere record and replay deterministic sequences of clicks and keystrokes. They&#39;re valuable, but they have no judgment: if a button moves, the bot breaks. An LLM agent can <em>read</em> the screen and work out where the button went (see <a href="computer-use-agents.html">computer-use agents</a>). The two are increasingly combined, with RPA for the stable, high-volume path and an agent for the exceptions.</p>
+<p><strong>Workflows vs. agents</strong> is the distinction that matters most for builders, and it isn&#39;t a value judgment. Workflows are cheaper, faster, and easier to test. Anthropic&#39;s own advice is to find the simplest solution that works and add complexity only when needed. The <a href="when-to-use-agents.html">next</a> lesson in this module is entirely about that decision, and <a href="workflow-patterns.html">workflow patterns</a> covers the workflow toolbox.</p>
+<h2 id="agents-in-action-three-examples"><a class="anchor" href="#agents-in-action-three-examples" aria-hidden="true">#</a>Agents in Action: Three Examples</h2>
+<p>Definitions click when you watch an agent work. Here are three realistic traces. They&#39;re simplified, but every step is the kind of thing real agents do.</p>
+<h3 id="a-coding-agent-fixing-a-bug"><a class="anchor" href="#a-coding-agent-fixing-a-bug" aria-hidden="true">#</a>A coding agent fixing a bug</h3>
+<p>The user says: &quot;The <code>/export</code> endpoint returns 500 for users with no orders. Fix it.&quot;</p>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-thought">Thought:</span> I should find the export handler first.
+<span class="tr-action">Action:</span> grep({&quot;pattern&quot;: &quot;def export&quot;, &quot;path&quot;: &quot;src/&quot;})
+<span class="tr-observation">Observation:</span> src/api/export.py:42: def export_orders(user_id):
+<span class="tr-action">Action:</span> read_file({&quot;path&quot;: &quot;src/api/export.py&quot;})
+<span class="tr-observation">Observation:</span> ... total = sum(o.amount for o in orders) / len(orders) ...
+<span class="tr-thought">Thought:</span> len(orders) is 0 for users with no orders, so this divides by zero.
+         I'll reproduce it with a test before fixing.
+<span class="tr-action">Action:</span> write_file({&quot;path&quot;: &quot;tests/test_export.py&quot;, &quot;content&quot;: &quot;...test_export_no_orders...&quot;})
+<span class="tr-action">Action:</span> run({&quot;cmd&quot;: &quot;pytest tests/test_export.py -q&quot;})
+<span class="tr-observation">Observation:</span> FAILED test_export_no_orders - ZeroDivisionError
+<span class="tr-action">Action:</span> edit_file({&quot;path&quot;: &quot;src/api/export.py&quot;, &quot;old&quot;: &quot;/ len(orders)&quot;, &quot;new&quot;: &quot;/ len(orders) if orders else 0&quot;})
+<span class="tr-action">Action:</span> run({&quot;cmd&quot;: &quot;pytest -q&quot;})
+<span class="tr-observation">Observation:</span> 214 passed
+Final: Fixed a ZeroDivisionError in export_orders for users with no orders; added a regression test. All tests pass.</code></pre></div>
+<p>Notice the properties of agency. It&#39;s goal-directed (keeps going until the tests pass), proactive (writes a reproduction test without being asked), and reactive (uses the failure output to confirm its hypothesis). Its environment gives it a cheap, objective success signal, which is why coding is one of the strongest agent use cases (see <a href="coding-agents.html">coding agents</a>).</p>
+<h3 id="a-research-agent"><a class="anchor" href="#a-research-agent" aria-hidden="true">#</a>A research agent</h3>
+<p>The user asks: &quot;Compare the three most-cited approaches to retrieval for long documents published since 2023, with sources.&quot;</p>
+<p>The agent plans sub-questions, runs a dozen web searches, fetches and skims papers, notices that two sources disagree on a benchmark result, searches again to resolve the disagreement, and writes a cited report. It might spin up parallel <strong>sub-agents</strong>, one per approach, and merge their findings. The number of steps couldn&#39;t have been predicted in advance, which is exactly the situation agents are for (see <a href="research-agents.html">research agents</a>).</p>
+<h3 id="a-customer-support-agent"><a class="anchor" href="#a-customer-support-agent" aria-hidden="true">#</a>A customer-support agent</h3>
+<p>A customer writes: &quot;I was charged twice for order #8812.&quot;</p>
+<p>The agent looks up the order, sees two charges, checks the refund policy, finds that duplicate charges qualify for an automatic refund under $500, issues the refund through a tool that requires the amount to match a duplicate charge exactly, and replies with a confirmation. If the amount had been over $500, the policy (enforced by the tool, not just the prompt) would have routed it to a human. Support agents combine conversation with actions, and the design work is mostly in deciding <em>which</em> actions to give them and with what limits (see <a href="conversational-voice-agents.html">conversational and voice agents</a>).</p>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>Same model, different level</div><div class="callout-body"><p>All three examples could run on the same underlying model. What differs is the tools, the instructions, the harness, and the autonomy level. That&#39;s why &quot;which model?&quot; is only one of many questions in agent design, and often not the most important one.</p>
+</div></aside>
+<h2 id="misconceptions-and-agent-washing"><a class="anchor" href="#misconceptions-and-agent-washing" aria-hidden="true">#</a>Misconceptions and Agent-Washing</h2>
+<h3 id="common-misconceptions"><a class="anchor" href="#common-misconceptions" aria-hidden="true">#</a>Common misconceptions</h3>
+<ul>
+<li><strong>&quot;An agent is a smarter chatbot.&quot;</strong> The difference isn&#39;t intelligence. It&#39;s control flow and the ability to act. A brilliant model that only answers questions isn&#39;t an agent. A mediocre model in a tool loop is one, just not a good one.</li>
+<li><strong>&quot;Agents are autonomous, so they don&#39;t need humans.&quot;</strong> Most valuable production agents are deliberately <em>semi</em>-autonomous. Humans set goals, approve high-stakes actions and review results.</li>
+<li><strong>&quot;More agents are better.&quot;</strong> Multi-agent systems can help with parallelizable work, but they multiply cost and coordination failures. Anthropic reported that its multi-agent research system used roughly 15× the tokens of a chat interaction (single agents, about 4×). Use them when the value justifies it.</li>
+<li><strong>&quot;Agents are always the advanced, correct choice.&quot;</strong> For well-defined tasks, a workflow is usually cheaper, faster and more reliable. Reaching for an agent first is one of the most common mistakes.</li>
+<li><strong>&quot;The model is the agent.&quot;</strong> The model is one component. The harness, the tools and the context strategy often matter as much.</li>
+<li><strong>&quot;Agents learn from experience automatically.&quot;</strong> By default an LLM agent&#39;s weights don&#39;t change between runs. Anything it &quot;learns&quot; has to be written to memory explicitly or folded in by retraining (see <a href="self-improving-agents.html">self-improving agents</a>).</li>
+</ul>
+<h3 id="agent-washing"><a class="anchor" href="#agent-washing" aria-hidden="true">#</a>Agent-washing</h3>
+<p><strong>Agent-washing</strong> is relabelling existing products, such as chatbots, RPA scripts or simple LLM features, as &quot;agents&quot; without adding real agentic capability. In June 2025 the analyst firm Gartner called this out by name. It estimated that only about 130 of the thousands of vendors claiming agentic products offered genuinely agentic features, and predicted that over 40% of agentic AI projects would be cancelled by the end of 2027 because of cost, unclear value or weak risk controls. Those figures are forecasts and estimates, but the pattern they describe is real.</p>
+<p>Questions that cut through the marketing:</p>
+<ol>
+<li><strong>Who decides the next step?</strong> If every path is hard-coded, it&#39;s a workflow, which is fine but not an agent.</li>
+<li><strong>What can it actually do?</strong> List its tools. No tools, no agency.</li>
+<li><strong>What happens when something unexpected occurs?</strong> Ask for a trace of it recovering from an error.</li>
+<li><strong>What are its permissions and limits?</strong> A serious agent product has clear answers about approvals, budgets and audit logs.</li>
+<li><strong>How is it evaluated?</strong> Ask for task-level success rates on realistic tasks, not anecdotes (see <a href="evaluating-agents.html">evaluating agents</a>).</li>
+</ol>
+<h2 id="why-now"><a class="anchor" href="#why-now" aria-hidden="true">#</a>Why Now?</h2>
+<p>The idea of software agents is decades old (the <a href="history-of-agents.html">next lesson</a> tells that story). LLM agents took off in 2023–2025 because several things converged:</p>
+<ol>
+<li><strong>General-purpose reasoning in one model.</strong> Earlier agents needed a hand-built world model for each domain. LLMs bring broad knowledge and flexible reasoning to any domain that can be described in text.</li>
+<li><strong>Reliable tool use.</strong> Models are now explicitly trained to emit well-formed tool calls and to use the results. Early 2023 experiments like AutoGPT showed the idea but broke constantly. Models trained on agentic tasks fixed much of that brittleness.</li>
+<li><strong>Reasoning models and test-time compute.</strong> Models that think before acting (2024 onward) plan better, catch their own mistakes and recover from errors more often.</li>
+<li><strong>Long context.</strong> Context windows grew from a few thousand tokens to hundreds of thousands and, as of 2026, around a million for frontier models. An agent can now hold a long task&#39;s history in view.</li>
+<li><strong>Standard plumbing.</strong> The Model Context Protocol (MCP, November 2024) and similar standards made it cheap to connect agents to tools and data (see <a href="protocols-mcp-a2a.html">protocols</a>).</li>
+<li><strong>Falling costs.</strong> The price of a given level of capability has dropped steeply year over year, which makes many-step loops affordable.</li>
+</ol>
+<p>One measurement captures the trend. In March 2025, METR published research tracking the length of tasks (measured in how long they take skilled humans) that frontier AI agents can complete with 50% reliability. It found that this length had been doubling roughly every seven months for several years. Extrapolations are uncertain, but the direction explains why agents moved from demos to daily tools for millions of developers and knowledge workers in 2025–2026. The <a href="future-of-agents.html">future of agents</a> lesson looks at where that might lead.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Classically, an <strong>agent</strong> perceives its environment through sensors and acts on it through actuators. A <strong>rational agent</strong> acts to maximize expected performance given what it has perceived.</li>
+<li>In modern practice, an <strong>LLM agent</strong> is a model using tools in a loop, where the <strong>model directs its own process</strong>. In a <strong>workflow</strong>, your code fixes the path.</li>
+<li>An agent has a <strong>model, instructions, tools, memory, planning, an environment, and a harness</strong>. The harness and the context strategy matter as much as the model.</li>
+<li>Agency comes in degrees: <strong>autonomy, goal-directedness, reactivity, proactivity and social ability</strong>.</li>
+<li>The <strong>autonomy spectrum</strong> runs from chatbot to copilot, workflow, semi-autonomous agent and autonomous agent. Choose the level per action, based on reversibility and trust.</li>
+<li>Agents trade predictability for flexibility. Use them where that trade pays off, and beware of <strong>agent-washing</strong> dressed up as capability.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>PEAS it.</strong> Write a PEAS description for a travel-booking agent. Which environment properties (observable, deterministic, sequential, dynamic, multi-agent) make it hard?</li>
+<li><strong>Classify five products.</strong> Pick five AI products you use or have seen marketed as agents. For each, answer: who controls the control flow, what tools does it have, and where does it sit on the autonomy spectrum? Did any turn out to be agent-washed?</li>
+<li><strong>Design the autonomy.</strong> For a support agent with the tools <code>lookup_order</code>, <code>issue_refund</code>, <code>update_address</code>, <code>close_account</code> and <code>send_email</code>, choose an autonomy level per tool (act freely, act then notify, or ask first) and justify each choice in terms of reversibility and cost of error.</li>
+<li><strong>Workflow or agent?</strong> &quot;Every morning, summarize yesterday&#39;s sales numbers and post them to Slack.&quot; Would you build this as a workflow or an agent? Rewrite the task so the answer flips.</li>
+<li><strong>Stretch.</strong> Read Wooldridge and Jennings&#39; four properties of agency and Anthropic&#39;s workflow-vs-agent definition. Write a one-paragraph argument for which one is more useful to an engineer deciding how to <em>test</em> a system, and why.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="what-is-an-agent" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>According to Anthropic&#39;s distinction, what most fundamentally separates an agent from a workflow?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents use larger, more capable models</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In an agent, the model dynamically decides the sequence of steps; in a workflow, code paths are predefined</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Workflows cannot call tools</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents always involve multiple LLMs collaborating</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows can use tools and big models too. The defining difference is control flow: who decides what happens next. In an agent it&#39;s the model, step by step, based on feedback.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>A system receives support emails, classifies them with an LLM, drafts a reply with a second LLM call, and queues the draft for a human. Where does it best fit?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Level 2 workflow</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Level 4 autonomous agent</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Level 0 chatbot</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Level 3 semi-autonomous agent</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The steps are fixed by the developer (classify, then draft, then human review). The LLM never chooses what to do next, so it&#39;s a workflow, a perfectly good design for this task.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Why is a codebase described as a &quot;partially observable&quot; environment for a coding agent?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Other developers may change the code</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tests are non-deterministic</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The code is encrypted</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The agent can&#39;t see everything at once and must choose what to read, so it acts on incomplete information</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Partial observability means the agent&#39;s percepts don&#39;t reveal the full state. A coding agent has to decide which files to open, and it can be wrong about parts of the code it hasn&#39;t read.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Two teams build agents on the same frontier model, and one is far more reliable. What is the most likely explanation?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One team got a better random seed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Differences in the harness, tools, instructions and context management</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Reliability depends only on the user&#39;s prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The models must actually be different versions</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The model is one component. Tool design, context strategy, error handling, guardrails and prompts often account for large quality differences between agents on the same model.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Which is the best example of &quot;proactivity&quot; in an agent?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Refusing an unsafe request</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Writing and running a regression test without being asked, because it serves the goal of a correct fix</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Retrying a tool call that returned a timeout</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Answering a question accurately</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Proactivity means taking initiative toward the goal beyond what was literally requested. Retrying after an error is reactivity: responding to a change in the environment.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>A vendor&#39;s &quot;AI agent&quot; turns out to replay a recorded sequence of clicks and adds an LLM-generated summary at the end. What is this most accurately called?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A copilot</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A multi-agent system</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An autonomous agent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An RPA workflow with an LLM step, marketed as an agent (agent-washing)</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The control flow is scripted and the LLM never decides the next action. Labelling it an agent without real agentic capability is what Gartner calls agent-washing.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Why should autonomy usually be chosen per tool rather than per product?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It reduces token usage</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Models perform better with fewer tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Actions differ in reversibility and cost of error, so a read can be autonomous while a payment needs approval</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>APIs require separate permission tokens per tool</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reading a file is harmless and easy to repeat; deleting data or moving money isn&#39;t. Matching oversight to each action&#39;s risk gets most of the speed of autonomy with far less risk.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents (Anthropic, 2024)</a>: the canonical practitioner essay on workflows vs. agents. Short, concrete, and widely cited.</li>
+<li><a href="https://aima.cs.berkeley.edu/" target="_blank" rel="noopener">Artificial Intelligence: A Modern Approach (Russell &amp; Norvig)</a>: the textbook that framed all of AI around agents; chapter 2 covers agents and environments.</li>
+<li><a href="https://arxiv.org/abs/2309.02427" target="_blank" rel="noopener">Cognitive Architectures for Language Agents (Sumers et al., 2023)</a>: connects LLM agents to decades of cognitive-architecture research with a clean component taxonomy.</li>
+<li><a href="https://arxiv.org/abs/2308.11432" target="_blank" rel="noopener">A Survey on Large Language Model based Autonomous Agents (Wang et al., 2023)</a>: a broad survey of LLM agent construction, applications and evaluation.</li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener">How we built our multi-agent research system (Anthropic, 2025)</a>: a real production agent, including its token-cost trade-offs.</li>
+<li><a href="https://arxiv.org/abs/2503.14499" target="_blank" rel="noopener">Measuring AI Ability to Complete Long Tasks (METR, 2025)</a>: the &quot;task-length doubling&quot; study behind much of the why-now discussion.</li>
+<li><a href="https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027" target="_blank" rel="noopener">Gartner press release on agentic AI and agent-washing (June 2025)</a>: the source of the agent-washing estimates quoted above.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="what-is-an-agent">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-what-is-an-agent"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-what-is-an-agent" class="notes" data-slug="what-is-an-agent" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <span></span>
+    <a class="pager-next" href="history-of-agents.html"><small>Next →</small><span>A Brief History of AI Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#the-classical-definition">The Classical Definition</a></li>
+<li class="toc-h3"><a href="#environment-properties">Environment properties</a></li>
+<li class="toc-h2"><a href="#the-modern-definition-llms-using-tools-in-a-loop">The Modern Definition: LLMs Using Tools in a Loop</a></li>
+<li class="toc-h2"><a href="#anatomy-of-an-agent">Anatomy of an Agent</a></li>
+<li class="toc-h2"><a href="#properties-of-agency">Properties of Agency</a></li>
+<li class="toc-h2"><a href="#the-autonomy-spectrum">The Autonomy Spectrum</a></li>
+<li class="toc-h2"><a href="#agents-vs-chatbots-copilots-rpa-and-workflows">Agents vs. Chatbots, Copilots, RPA and Workflows</a></li>
+<li class="toc-h2"><a href="#agents-in-action-three-examples">Agents in Action: Three Examples</a></li>
+<li class="toc-h3"><a href="#a-coding-agent-fixing-a-bug">A coding agent fixing a bug</a></li>
+<li class="toc-h3"><a href="#a-research-agent">A research agent</a></li>
+<li class="toc-h3"><a href="#a-customer-support-agent">A customer-support agent</a></li>
+<li class="toc-h2"><a href="#misconceptions-and-agent-washing">Misconceptions and Agent-Washing</a></li>
+<li class="toc-h3"><a href="#common-misconceptions">Common misconceptions</a></li>
+<li class="toc-h3"><a href="#agent-washing">Agent-washing</a></li>
+<li class="toc-h2"><a href="#why-now">Why Now?</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

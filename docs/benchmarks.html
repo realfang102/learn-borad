@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Benchmarks · Agent Academy</title>
+<meta name="description" content="A field guide to the benchmarks used to measure AI agents (coding, tool use, web and computer use, long-horizon work, safety), what each actually measures, and how to read leaderboards critically.">
+<meta property="og:title" content="Agent Benchmarks · Agent Academy">
+<meta property="og:description" content="A field guide to the benchmarks used to measure AI agents (coding, tool use, web and computer use, long-horizon work, safety), what each actually measures, and how to read leaderboards critically.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="benchmarks">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Agent Benchmarks</h1>
+    <p class="lead">A field guide to the benchmarks used to measure AI agents (coding, tool use, web and computer use, long-horizon work, safety), what each actually measures, and how to read leaderboards critically.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 25 of 35</span>
+      <span class="lesson-status" data-status-for="benchmarks"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain what public benchmarks are good for and where they mislead</li><li>Describe what the major agent benchmarks measure, in what environment, and with what metric</li><li>Recognize saturation, contamination, scaffold sensitivity and broken tasks when reading results</li><li>Read a leaderboard critically, accounting for cost, harness and variance</li><li>Design an internal benchmark that predicts performance on your own product</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="evaluating-agents.html">Evaluating Agents</a></p>
+  </section>
+  <article class="prose">
+<p>Every model launch now comes with a table of numbers: SWE-bench Verified, Terminal-Bench, OSWorld, τ²-bench, Humanity&#39;s Last Exam, BrowseComp. Investors quote them, engineers argue about them, and procurement teams pick vendors by them. But what does &quot;72% on SWE-bench Verified&quot; actually mean? What did the agent do, in what environment, graded how, with what scaffolding, at what cost — and does any of it predict whether the agent will work on <em>your</em> codebase?</p>
+<p>A <strong>benchmark</strong> is a standardized, public eval suite: a fixed set of tasks, an environment, a grading procedure and a metric, shared so that different systems can be compared on equal terms. Benchmarks are how the field measures progress, and agent benchmarks have driven enormous progress — SWE-bench alone reshaped how coding agents are built. They&#39;re also routinely misread, gamed and outgrown.</p>
+<p>This lesson is a field guide: what benchmarks are for, the important agent benchmarks by category, the recurring ways their numbers mislead, and how to read leaderboards and build an internal benchmark that predicts what matters to you. It builds on the vocabulary from <a href="evaluating-agents.html">evaluating agents</a>.</p>
+<h2 id="what-benchmarks-are-for"><a class="anchor" href="#what-benchmarks-are-for" aria-hidden="true">#</a>What benchmarks are for</h2>
+<p>Benchmarks do several jobs: <strong>tracking the frontier</strong> (trends over years that demos can&#39;t show), <strong>comparing systems</strong> under fixed conditions, <strong>driving research</strong> (many coding-agent ideas, from repository navigation tools to test-driven loops, were validated against SWE-bench), and <strong>measuring dangerous capabilities</strong> such as cyber offense, which inform deployment decisions (<a href="agent-safety-alignment.html">safety and alignment</a>).</p>
+<p>What benchmarks are <strong>not</strong>: a guarantee of performance on your task. Public benchmarks sample a narrow distribution (often popular open-source Python repos, or a handful of self-hosted websites), use a particular scaffold, and grade with automated checks that capture only part of what &quot;done well&quot; means.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>A benchmark score is a measurement of <em>a system</em> (model + scaffold + tools + budget) on <em>a task distribution</em> under <em>a grading procedure</em>. Change any of the three and the number changes. Read every score with all three in mind.</p>
+</div></aside>
+<h3 id="anatomy-of-an-agent-benchmark"><a class="anchor" href="#anatomy-of-an-agent-benchmark" aria-hidden="true">#</a>Anatomy of an agent benchmark</h3>
+<p>Every agent benchmark answers the same five questions. When you meet a new one, find these first:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Example (SWE-bench Verified)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tasks</strong>: where do they come from?</td>
+<td>Real GitHub issues from popular Python repositories, human-screened</td>
+</tr>
+<tr>
+<td><strong>Environment</strong>: what can the agent touch?</td>
+<td>A Docker container with the repo checked out at the pre-fix commit</td>
+</tr>
+<tr>
+<td><strong>Action space</strong>: how does it act?</td>
+<td>Whatever the scaffold provides: typically shell + file editing</td>
+</tr>
+<tr>
+<td><strong>Grader</strong>: how is success decided?</td>
+<td>Hidden unit tests: the ones the real fix made pass, plus tests that must keep passing</td>
+</tr>
+<tr>
+<td><strong>Metric</strong>: what&#39;s reported?</td>
+<td>% of tasks resolved (usually pass@1)</td>
+</tr>
+</tbody></table>
+</div>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    D[&quot;Task source (issues, sites, questions)&quot;] --&gt; T[Tasks]
+    T --&gt; E[&quot;Environment (container, web app, OS VM)&quot;]
+    S[&quot;System under test: model + scaffold + tools&quot;] &lt;--&gt; E
+    E --&gt; G[&quot;Grader (tests, state check, answer match, judge)&quot;]
+    G --&gt; M[&quot;Metric (% resolved, success rate, $ earned)&quot;]</pre></figure>
+<h2 id="coding-and-ml-engineering"><a class="anchor" href="#coding-and-ml-engineering" aria-hidden="true">#</a>Coding and ML engineering</h2>
+<p>Coding is the best-benchmarked agent domain, because code has a natural automatic grader: tests. See <a href="coding-agents.html">coding agents</a> for how the agents themselves work.</p>
+<p><strong>HumanEval</strong> (OpenAI, 2021) is the ancestor: 164 hand-written Python functions with unit tests. It&#39;s single-function code generation, not an agent benchmark, and it&#39;s saturated — but it introduced the pass@k estimator.</p>
+<p><strong>SWE-bench</strong> (Jimenez et al., 2023) changed the game. Each task is a real GitHub issue from one of 12 popular Python repositories (Django, scikit-learn, sympy and others). The agent gets the issue text and the repository at the commit before the fix, and must produce a patch. Grading runs the tests that the real fix made pass (<strong>FAIL_TO_PASS</strong>) plus existing tests that must not break (<strong>PASS_TO_PASS</strong>). The full set has 2,294 tasks; <strong>SWE-bench Lite</strong> is a 300-task subset. When it launched, the best model resolved only a few percent of issues.</p>
+<p><strong>SWE-bench Verified</strong> (OpenAI with the SWE-bench authors, August 2024) is the human-validated 500-task subset. OpenAI had 93 professional developers screen 1,699 SWE-bench tasks and found many were problematic: underspecified issues, or tests so specific that a correct fix would fail them (e.g., tests that check an exact error message the issue never mentioned). Verified became the standard coding-agent number. Scores on SWE-bench-family benchmarks went from low single digits in late 2023 to well above 70% on Verified by 2025. That success brought problems: by 2026 the benchmark was widely considered near-saturated and at risk of contamination, and in February 2026 OpenAI announced it would stop reporting SWE-bench Verified scores, citing contamination, and recommended SWE-bench Pro instead.</p>
+<p><strong>SWE-bench Multimodal</strong> (2024) extends the idea to JavaScript repositories with visual components, where issues include screenshots — testing whether agents can work on front-end bugs they need to <em>see</em>.</p>
+<p><strong>SWE-bench Pro</strong> (Scale AI, September 2025) was designed to resist contamination and be harder: 1,865 tasks from 41 repositories, split into a public set (from repositories under strong copyleft licenses, which discourages their inclusion in training data), a private held-out set, and a commercial set from proprietary startup codebases. Tasks are long-horizon and frequently require multi-file changes. Scores at launch were far below those on Verified.</p>
+<p><strong>Terminal-Bench</strong> (Stanford and the Laude Institute, 2025) tests agents in a sandboxed command-line environment: compile a codebase, configure a server, train a small model, fix a broken environment. Each task ships with a Docker container and a test script that checks the final state. <strong>Terminal-Bench 2.0</strong> (November 2025) contains 89 carefully validated hard tasks and is run through the Harbor harness, which can plug in agents such as Claude Code or Codex CLI as well as bare models — making it useful for comparing <em>agent products</em>, not just models.</p>
+<p><strong>SWE-Lancer</strong> (OpenAI, February 2025) grounds coding evaluation in money: over 1,400 real freelance software tasks from Upwork, worth about $1 million in actual payouts. Implementation tasks are graded by engineer-written end-to-end tests; &quot;manager&quot; tasks ask the model to pick the best submitted proposal, graded against the original hiring manager&#39;s choice. The headline metric is dollars earned.</p>
+<p><strong>MLE-bench</strong> (OpenAI, October 2024) asks agents to do end-to-end ML engineering on 75 Kaggle competitions, reporting the fraction of competitions where the agent would have earned a medal on the real human leaderboard.</p>
+<p><strong>RE-Bench</strong> (METR, November 2024) has seven open-ended ML research-engineering environments (e.g., optimize a GPU kernel) and compares agents with human experts at equal time budgets. Agents did well relative to humans at short budgets of a couple of hours, while experts pulled ahead as the budget grew — a recurring long-horizon theme.</p>
+<p><strong>PaperBench</strong> (OpenAI, April 2025) asks agents to replicate 20 ICML 2024 papers from scratch. Each paper has a detailed hierarchical rubric co-developed with its authors, and an LLM judge (validated against human grading) scores submissions — model-based grading at scale.</p>
+<h2 id="general-assistants-and-tool-use"><a class="anchor" href="#general-assistants-and-tool-use" aria-hidden="true">#</a>General assistants and tool use</h2>
+<p>These benchmarks test whether an agent can use tools, APIs and reasoning to complete assistant-style tasks. See <a href="tool-use.html">tool use</a> and <a href="designing-tools.html">designing tools</a>.</p>
+<p><strong>GAIA</strong> (Mialon et al., 2023) contains 466 real-world questions that are conceptually simple for people but require multi-step tool use: web browsing, reading files, handling images and spreadsheets, and reasoning. Answers are short and unambiguous, so grading is exact match. Questions come in three difficulty levels. At launch, human respondents scored 92% while GPT-4 with plugins scored 15% — a gap that made GAIA a popular target for general agent frameworks.</p>
+<p><strong>AgentBench</strong> (Liu et al., 2023) was an early broad benchmark spanning eight environments (OS shell, databases, knowledge graphs, games, household tasks, web shopping and browsing); its headline finding was a large gap between top commercial and open-weight models at acting as agents.</p>
+<p><strong>ToolBench / ToolLLM</strong> (Qin et al., 2023) collected over 16,000 real REST APIs from RapidAPI and evaluates multi-tool instruction following with LLM-judged pass and win rates. Because live APIs change and fail, results drifted, prompting follow-ups like StableToolBench that cache or simulate responses — a lesson in freezing environments.</p>
+<p><strong>BFCL</strong> (the Berkeley Function Calling Leaderboard, from the Gorilla project, 2024) measures function-calling accuracy directly: does the model produce correct calls — right function, right arguments — for simple, multiple, parallel and multi-turn cases, and does it correctly <em>decline</em> to call a function when none is relevant? It grades mostly by comparing the call&#39;s abstract syntax tree against allowed answers and by executing calls. Later versions added multi-turn and more agentic scenarios such as web search and memory. It&#39;s essentially a large public per-step eval.</p>
+<p><strong>τ-bench</strong> (Sierra, 2024) simulates customer-service work in retail and airline domains. An LLM plays the user with a hidden goal; the agent must follow a written policy and use domain APIs to modify a database. Grading compares the final database state to the expected state. τ-bench introduced <strong>pass^k</strong> to measure consistency, and showed agents&#39; reliability falling sharply across repeated trials. <strong>τ²-bench</strong> (2025) added a telecom troubleshooting domain with <strong>dual control</strong>: the simulated user also has tools and must perform actions on their own device under the agent&#39;s guidance — and agents perform notably worse when they must coordinate a user rather than act alone.</p>
+<p><strong>AppWorld</strong> (Trivedi et al., 2024) builds a simulated world of nine everyday apps (email, music, payments, shopping, notes and more) with hundreds of APIs and a population of simulated people. Agents write code that calls the APIs to complete tasks like &quot;split the cost of last night&#39;s dinner with my roommates on the payment app.&quot; Grading uses state-based unit tests that check not only that the right changes happened but that <strong>no collateral damage</strong> occurred — a design worth copying for internal evals.</p>
+<h2 id="web-and-computer-use"><a class="anchor" href="#web-and-computer-use" aria-hidden="true">#</a>Web and computer use</h2>
+<p>These benchmarks put agents in front of browsers and desktops. See <a href="computer-use-agents.html">computer-use agents</a>.</p>
+<p><strong>MiniWoB++</strong> (2017–2018) is a suite of over 100 small synthetic web tasks (click a button, fill a form) built for reinforcement learning research — now effectively saturated.</p>
+<p><strong>WebShop</strong> (Yao et al., 2022) simulates an e-commerce site with over a million real products; agents follow shopping instructions and are rewarded by how well the purchase matches the requested attributes.</p>
+<p><strong>WebArena</strong> (Zhou et al., 2023) runs realistic, self-hosted web apps — an e-commerce store, a Reddit-style forum, a GitLab instance, a content-management admin panel, plus map and wiki tools — and poses 812 long-horizon tasks (&quot;find the customer with the most cancelled orders and message them&quot;). Grading checks functional correctness: database state, page content or returned answers. At launch the best GPT-4 agent succeeded on about 14% of tasks versus about 78% for humans. Self-hosting is the key design choice: the environment is reproducible and actions have real effects.</p>
+<p><strong>VisualWebArena</strong> (Koh et al., 2024) adds 910 tasks that require visual understanding — images in listings, &quot;find a red bicycle like this one&quot; — on similar self-hosted sites.</p>
+<p><strong>Mind2Web</strong> (Deng et al., 2023) has over 2,000 tasks across 137 real websites, recorded as human action sequences on cached pages. It&#39;s mostly evaluated <strong>offline</strong> — predict the next action, scored per step — which is cheap and reproducible but never tests recovery from mistakes.</p>
+<p><strong>WebVoyager</strong> (He et al., 2024) evaluates agents end-to-end on 15 live websites with a multimodal model as judge — realistic, but hard to reproduce as pages and inventory change.</p>
+<p><strong>OSWorld</strong> (Xie et al., 2024) gives agents a full virtual machine (mainly Ubuntu, with some Windows tasks) and 369 tasks spanning real applications — spreadsheets, browsers, image editors, the file system, multi-app workflows. Each task has a custom execution-based checker that inspects the resulting files or app state. At launch, humans completed about 72% of tasks and the best model about 12%. Scores rose dramatically as computer-use models matured through 2025, and <strong>OSWorld-Verified</strong> fixed problematic tasks and standardized the evaluation infrastructure.</p>
+<p><strong>BrowseComp</strong> (OpenAI, 2025) contains 1,266 questions whose answers are hard to <em>find</em> but easy to <em>verify</em>: short facts buried under many constraints (&quot;a paper published between 2018 and 2022 whose third author...&quot;) that require persistent, creative browsing. It measures the search persistence at the heart of <a href="research-agents.html">research agents</a>, graded by short-answer matching.</p>
+<h2 id="long-horizon-and-economic-value"><a class="anchor" href="#long-horizon-and-economic-value" aria-hidden="true">#</a>Long-horizon and economic value</h2>
+<p>As agents get more capable, the interesting question shifts from &quot;can it do the task?&quot; to &quot;how long and how valuable a task can it do?&quot;</p>
+<p><strong>METR&#39;s time-horizon measurements</strong> (2025) estimate, for each model, the length of tasks — measured by how long they take skilled humans — that the model completes with 50% reliability. Across software and research tasks, METR found this <strong>50% time horizon</strong> grew exponentially from 2019 to 2025, doubling roughly every seven months, with signs of faster growth more recently. The 80%-reliability horizon is several times shorter, another echo of the pass@1-vs-pass^k gap. METR is careful to note the caveats: the task suite is mostly software, &quot;messier&quot; real-world tasks are harder, and extrapolation is uncertain. It&#39;s a trend measurement, not a leaderboard.</p>
+<p><strong>GDPval</strong> (OpenAI, September 2025) measures performance on economically valuable knowledge work: 1,320 tasks across 44 occupations in the sectors contributing most to US GDP, written by professionals averaging over a decade of experience (a 220-task gold subset is public). Tasks produce real deliverables — a legal memo, a spreadsheet model, a slide deck — and expert graders blindly compare the model&#39;s deliverable against a human expert&#39;s. At launch the best models were judged as good as or better than the expert&#39;s work in a little under half of comparisons. Limitations: tasks are one-shot, with full context provided, unlike real jobs that involve gathering context and iterating.</p>
+<p><strong>Vending-Bench</strong> (Andon Labs, 2025) tests long-term coherence by having an agent run a simulated vending-machine business over a long period: find suppliers, order inventory by email, set prices, pay daily fees. The metric is money at the end. Its key finding was <strong>variance</strong>: even strong models sometimes derailed spectacularly — misreading their own state, spiraling into confusion — over runs spanning millions of tokens. Vending-Bench 2 and real-world experiments such as Anthropic&#39;s &quot;Project Vend&quot; extended the idea.</p>
+<h2 id="reasoning-benchmarks-briefly"><a class="anchor" href="#reasoning-benchmarks-briefly" aria-hidden="true">#</a>Reasoning benchmarks (briefly)</h2>
+<p>Two reasoning benchmarks appear in nearly every model announcement and are relevant to agents because reasoning is the engine of planning (<a href="reasoning-and-planning.html">reasoning and planning</a>):</p>
+<ul>
+<li><strong>Humanity&#39;s Last Exam (HLE)</strong> (Center for AI Safety and Scale AI, 2025): about 2,500 expert-written, closed-ended questions across a very wide range of academic subjects, designed to be at the frontier of human knowledge. Frontier models scored in single digits at launch; scores have risen substantially since, especially with tools enabled — so always check whether a reported HLE score used search or code tools.</li>
+<li><strong>ARC-AGI</strong> (François Chollet, 2019 onward): abstract grid puzzles that require inferring a transformation rule from a few examples, designed to measure skill acquisition rather than memorized knowledge. ARC-AGI-2 (2025) raised the difficulty; <strong>ARC-AGI-3</strong> (launched March 2026) is interactive — agents must explore turn-based game environments with no instructions or stated goals, which makes it explicitly an agent benchmark. At launch, humans could solve all environments while frontier AI systems scored near zero.</li>
+</ul>
+<h2 id="safety-and-security"><a class="anchor" href="#safety-and-security" aria-hidden="true">#</a>Safety and security</h2>
+<p>Agents that act can cause harm, so a growing set of benchmarks measures attack resistance and misuse. See <a href="agent-security.html">agent security</a> and <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</p>
+<ul>
+<li><strong>AgentDojo</strong> (Debenedetti et al., 2024): a dynamic environment for <strong>prompt-injection</strong> attacks on tool-using agents, across workspace, Slack, travel and banking suites — 97 user tasks and 629 security test cases. It reports two numbers that must be read together: <strong>utility</strong> (does the agent still complete tasks?) and <strong>attack success rate</strong> (do injected instructions hijack it?). A defense that blocks all attacks by breaking all tasks is useless.</li>
+<li><strong>Cybench</strong> (Zhang et al., 2024): 40 professional-level capture-the-flag (CTF) cybersecurity tasks from real competitions, with subtasks for partial credit and the human teams&#39; <strong>first-solve time</strong> as a difficulty measure. Used in dangerous-capability evaluations of offensive cyber skill.</li>
+<li><strong>AgentHarm</strong> (Andriushchenko et al., 2024; Gray Swan AI and the UK AI Security Institute): 110 explicitly malicious agentic tasks (440 with augmentations) across 11 harm categories such as fraud and harassment. It measures whether agents refuse harmful multi-step tasks — and whether a jailbroken agent retains the capability to carry them out coherently.</li>
+</ul>
+<h2 id="summary-table"><a class="anchor" href="#summary-table" aria-hidden="true">#</a>Summary table</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Benchmark</th>
+<th>Category</th>
+<th>Environment</th>
+<th>What it measures</th>
+<th>Metric</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HumanEval</td>
+<td>Coding</td>
+<td>None (function completion)</td>
+<td>Single-function code generation</td>
+<td>pass@k</td>
+</tr>
+<tr>
+<td>SWE-bench / Verified</td>
+<td>Coding</td>
+<td>Docker repo snapshot</td>
+<td>Resolving real GitHub issues</td>
+<td>% resolved</td>
+</tr>
+<tr>
+<td>SWE-bench Pro</td>
+<td>Coding</td>
+<td>Docker repo snapshot</td>
+<td>Harder, contamination-resistant issue resolution</td>
+<td>% resolved</td>
+</tr>
+<tr>
+<td>Terminal-Bench 2.0</td>
+<td>Coding / ops</td>
+<td>Docker terminal</td>
+<td>Hard command-line tasks</td>
+<td>% tasks passed</td>
+</tr>
+<tr>
+<td>SWE-Lancer</td>
+<td>Coding</td>
+<td>Repo + E2E tests</td>
+<td>Real freelance tasks</td>
+<td>$ earned, % solved</td>
+</tr>
+<tr>
+<td>MLE-bench</td>
+<td>ML engineering</td>
+<td>Kaggle competitions</td>
+<td>End-to-end ML work</td>
+<td>Medal rate</td>
+</tr>
+<tr>
+<td>RE-Bench</td>
+<td>ML research</td>
+<td>GPU environments</td>
+<td>Open-ended research engineering vs humans</td>
+<td>Normalized score</td>
+</tr>
+<tr>
+<td>PaperBench</td>
+<td>ML research</td>
+<td>Sandbox with GPU</td>
+<td>Replicating papers</td>
+<td>Rubric score (LLM-judged)</td>
+</tr>
+<tr>
+<td>GAIA</td>
+<td>General assistant</td>
+<td>Web, files, tools</td>
+<td>Multi-step tool use</td>
+<td>Exact-match accuracy</td>
+</tr>
+<tr>
+<td>AgentBench</td>
+<td>General</td>
+<td>8 environments</td>
+<td>Broad agent ability</td>
+<td>Per-environment success</td>
+</tr>
+<tr>
+<td>ToolBench</td>
+<td>Tool use</td>
+<td>Real APIs</td>
+<td>Multi-API instruction following</td>
+<td>Pass rate, win rate</td>
+</tr>
+<tr>
+<td>BFCL</td>
+<td>Tool use</td>
+<td>Function specs</td>
+<td>Function-call correctness and relevance</td>
+<td>Accuracy</td>
+</tr>
+<tr>
+<td>τ-bench / τ²-bench</td>
+<td>Conversational</td>
+<td>Simulated user + DB</td>
+<td>Policy-following service tasks</td>
+<td>pass^k</td>
+</tr>
+<tr>
+<td>AppWorld</td>
+<td>Tool use / coding</td>
+<td>9 simulated apps</td>
+<td>API-driven tasks without collateral damage</td>
+<td>Goal completion</td>
+</tr>
+<tr>
+<td>MiniWoB++</td>
+<td>Web</td>
+<td>Synthetic widgets</td>
+<td>Basic web interaction</td>
+<td>Success rate</td>
+</tr>
+<tr>
+<td>WebShop</td>
+<td>Web</td>
+<td>Simulated store</td>
+<td>Product search and purchase</td>
+<td>Score, success rate</td>
+</tr>
+<tr>
+<td>WebArena / VisualWebArena</td>
+<td>Web</td>
+<td>Self-hosted sites</td>
+<td>Long-horizon web tasks</td>
+<td>Success rate</td>
+</tr>
+<tr>
+<td>Mind2Web</td>
+<td>Web</td>
+<td>Cached real pages</td>
+<td>Next-action prediction</td>
+<td>Step / task success</td>
+</tr>
+<tr>
+<td>WebVoyager</td>
+<td>Web</td>
+<td>Live websites</td>
+<td>End-to-end web tasks</td>
+<td>Success (model-judged)</td>
+</tr>
+<tr>
+<td>OSWorld</td>
+<td>Computer use</td>
+<td>Full OS VM</td>
+<td>Desktop app tasks</td>
+<td>Success rate</td>
+</tr>
+<tr>
+<td>BrowseComp</td>
+<td>Research / browsing</td>
+<td>Open web</td>
+<td>Hard-to-find facts</td>
+<td>Accuracy</td>
+</tr>
+<tr>
+<td>METR time horizon</td>
+<td>Long-horizon</td>
+<td>Software/research tasks</td>
+<td>Task length doable at 50%</td>
+<td>Minutes/hours</td>
+</tr>
+<tr>
+<td>GDPval</td>
+<td>Economic</td>
+<td>Deliverables</td>
+<td>Expert-level knowledge work</td>
+<td>Win/tie rate vs experts</td>
+</tr>
+<tr>
+<td>Vending-Bench</td>
+<td>Long-horizon</td>
+<td>Simulated business</td>
+<td>Long-term coherence</td>
+<td>Final net worth</td>
+</tr>
+<tr>
+<td>HLE</td>
+<td>Reasoning</td>
+<td>Q&amp;A</td>
+<td>Frontier expert knowledge</td>
+<td>Accuracy</td>
+</tr>
+<tr>
+<td>ARC-AGI-3</td>
+<td>Reasoning / agentic</td>
+<td>Interactive games</td>
+<td>Skill acquisition, exploration</td>
+<td>Levels completed</td>
+</tr>
+<tr>
+<td>AgentDojo</td>
+<td>Security</td>
+<td>Tool-use suites</td>
+<td>Prompt-injection robustness</td>
+<td>Utility, attack success</td>
+</tr>
+<tr>
+<td>Cybench</td>
+<td>Security</td>
+<td>CTF environments</td>
+<td>Offensive cyber capability</td>
+<td>Tasks solved</td>
+</tr>
+<tr>
+<td>AgentHarm</td>
+<td>Safety</td>
+<td>Synthetic tools</td>
+<td>Harmful task refusal</td>
+<td>Harm score, refusal rate</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="how-benchmark-numbers-mislead"><a class="anchor" href="#how-benchmark-numbers-mislead" aria-hidden="true">#</a>How benchmark numbers mislead</h2>
+<h3 id="saturation"><a class="anchor" href="#saturation" aria-hidden="true">#</a>Saturation</h3>
+<p>When top systems score near the ceiling, a benchmark stops discriminating. The last few percent are often dominated by mislabeled or ambiguous tasks, so &quot;93% vs 95%&quot; may mean nothing. HumanEval, MiniWoB++ and, increasingly, SWE-bench Verified illustrate the life cycle: a benchmark launches with low scores, drives progress, saturates, and is replaced by a harder successor.</p>
+<h3 id="contamination"><a class="anchor" href="#contamination" aria-hidden="true">#</a>Contamination</h3>
+<p><strong>Contamination</strong> means benchmark tasks — or their solutions — appeared in the model&#39;s training data. SWE-bench fixes are public on GitHub, so a contaminated model can score by recall rather than skill. Countermeasures include private held-out sets (SWE-bench Pro), post-cutoff tasks, copyleft or proprietary sources, and canary strings that let crawlers exclude the data. Contamination is exactly why OpenAI stopped reporting SWE-bench Verified in 2026.</p>
+<h3 id="harness-and-scaffold-sensitivity"><a class="anchor" href="#harness-and-scaffold-sensitivity" aria-hidden="true">#</a>Harness and scaffold sensitivity</h3>
+<p>An agent&#39;s score depends on far more than the model: system prompt, tools, context management, retries, step limits, attempts, and whether a verifier selects among candidates. A leaderboard mixing &quot;model X with a minimal bash tool&quot; and &quot;product Y with a multi-agent pipeline and 10 attempts&quot; compares systems, not models. Look for whether results use a <strong>standardized harness</strong> (as Terminal-Bench&#39;s Harbor or SWE-bench Pro&#39;s unified scaffold aim to provide).</p>
+<h3 id="cost-and-compute-not-reported"><a class="anchor" href="#cost-and-compute-not-reported" aria-hidden="true">#</a>Cost and compute not reported</h3>
+<p>A system that tries 50 times and picks the best answer, or burns $40 of tokens per task, can top a leaderboard while being useless in production. Kapoor et al.&#39;s <em>AI Agents That Matter</em> (2024) argued that agent results should be reported as <strong>cost–accuracy Pareto frontiers</strong>, and showed that simple baselines often match complex agents at a fraction of the cost. Princeton&#39;s Holistic Agent Leaderboard (HAL) reports cost alongside accuracy for this reason. See <a href="cost-and-latency.html">cost and latency</a>.</p>
+<h3 id="noisy-and-broken-tasks"><a class="anchor" href="#noisy-and-broken-tasks" aria-hidden="true">#</a>Noisy and broken tasks</h3>
+<p>Benchmarks are software, and they have bugs — hence SWE-bench Verified and OSWorld-Verified. A 2025 audit (Zhu et al., <em>Establishing Best Practices for Building Rigorous Agentic Benchmarks</em>) found issues across popular agent benchmarks — for example, insufficient test coverage in SWE-bench Verified and a τ-bench grading flaw that counted empty responses as successes on some tasks — and estimated such issues can distort measured performance by up to 100% in relative terms. The authors proposed an <strong>Agentic Benchmark Checklist</strong> for builders.</p>
+<h3 id="variance"><a class="anchor" href="#variance" aria-hidden="true">#</a>Variance</h3>
+<p>Many agent benchmarks are small (a few hundred tasks) and agents are non-deterministic. A single run on 500 tasks has a 95% confidence interval of several percentage points (<a href="evaluating-agents.html">evaluating agents</a> explains why). Leaderboard gaps of one or two points are usually not meaningful unless results are averaged over multiple runs with reported error bars.</p>
+<h3 id="goodharts-law"><a class="anchor" href="#goodharts-law" aria-hidden="true">#</a>Goodhart&#39;s law</h3>
+<p>&quot;When a measure becomes a target, it ceases to be a good measure.&quot; Once a benchmark matters commercially, systems get tuned to it — sometimes legitimately, sometimes by exploiting quirks or training on near-duplicates — and its correlation with real-world usefulness quietly decays.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>No public benchmark measures <em>your</em> workload. A model that leads SWE-bench may still be worse on your monorepo&#39;s proprietary build system, your language, or your code review standards. Public benchmarks shortlist candidates; internal evals choose.</p>
+</div></aside>
+<h2 id="reading-a-leaderboard-critically"><a class="anchor" href="#reading-a-leaderboard-critically" aria-hidden="true">#</a>Reading a leaderboard critically</h2>
+<p>Before believing a benchmark claim, ask:</p>
+<ol>
+<li><strong>Which variant and split?</strong> SWE-bench Full, Lite, Verified and Pro are different benchmarks.</li>
+<li><strong>What system?</strong> Model alone, or with a specific scaffold and tools — the same as the comparison rows?</li>
+<li><strong>How many attempts?</strong> pass@1, or best-of-k with a verifier?</li>
+<li><strong>What budget?</strong> Step, token and time limits, effort settings; is cost per task reported?</li>
+<li><strong>Who ran it?</strong> Self-reported or independently reproduced? Transcripts published?</li>
+<li><strong>How many runs?</strong> Averaged, with error bars?</li>
+<li><strong>Is it still discriminative?</strong> Near the ceiling, contaminated, known broken tasks?</li>
+<li><strong>Does it resemble my work?</strong> Language, domain, task length, interaction style.</li>
+</ol>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>Reading two claims</div><div class="callout-body"><p>Claim A: &quot;Our agent scores 78% on SWE-bench Verified.&quot; Claim B: &quot;Model X scores 71% on SWE-bench Verified, pass@1, averaged over 5 runs, using a bash and file-edit tool scaffold with a 200-step limit; transcripts published.&quot; Claim B sounds less impressive but is far more informative; Claim A might be best-of-10 with a custom verifier and no cost disclosed. You can&#39;t compare them.</p>
+</div></aside>
+<h2 id="building-internal-benchmarks"><a class="anchor" href="#building-internal-benchmarks" aria-hidden="true">#</a>Building internal benchmarks</h2>
+<p>The most valuable benchmark for your organization is one you build yourself. It&#39;s an eval suite (see <a href="evaluating-agents.html">evaluating agents</a>) with the discipline of a public benchmark: fixed, versioned, reproducible, and comparable over time.</p>
+<ol>
+<li><strong>Source tasks from real work</strong> — resolved tickets, merged PRs, past conversations. Tasks from your own past PRs form a private SWE-bench that can&#39;t be in anyone&#39;s training data.</li>
+<li><strong>Make every task verifiable</strong> with tests, state checks or a calibrated rubric. If two experts would disagree on a pass, rewrite the task.</li>
+<li><strong>Freeze the environment</strong> — containers, DB snapshots, mocked APIs, pinned dependencies, fixed dates.</li>
+<li><strong>Stratify</strong> by difficulty, type and business importance, and report per-stratum scores; an average hides that you ace easy tickets and fail the ones that matter.</li>
+<li><strong>Hold some out</strong> — a private split used only for final decisions, your defense against overfitting.</li>
+<li><strong>Report the full picture</strong> — success with confidence intervals, pass^k, cost, latency, steps.</li>
+<li><strong>Refresh and version</strong> — add tasks from recent failures, retire saturated ones into a regression suite.</li>
+</ol>
+<p>Internal benchmarks let you answer &quot;should we switch to the new model?&quot; in a day instead of a month (<a href="deployment.html">deployment</a>). Frameworks like Inspect AI, promptfoo or Harbor can host them alongside public benchmark implementations.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>A benchmark score measures a <strong>system</strong> (model + scaffold + tools + budget) on a <strong>task distribution</strong> with a <strong>grader</strong>. Changing any of these changes the number.</li>
+<li>Coding benchmarks grade with tests or rubrics; tool-use benchmarks with answers or environment state; web and computer-use benchmarks with functional checks in self-hosted or live environments.</li>
+<li>Long-horizon measures (METR time horizons, Vending-Bench, GDPval) shift the question from &quot;can it do the task?&quot; to &quot;how long, how valuable and how consistently?&quot;</li>
+<li>Safety benchmarks report paired numbers — AgentDojo&#39;s utility and attack success rate must be read together.</li>
+<li>Benchmarks mislead through <strong>saturation, contamination, scaffold sensitivity, unreported cost, broken tasks, variance</strong> and <strong>Goodhart&#39;s law</strong>. SWE-bench Verified&#39;s creation and later retirement by some labs illustrate the whole life cycle.</li>
+<li>Read leaderboards by asking: which variant, which system, how many attempts, what budget, who ran it, how much variance, and does it resemble my work?</li>
+<li>Public benchmarks shortlist; <strong>internal benchmarks built from your own real tasks</strong> decide.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Anatomy drill.</strong> Pick three benchmarks from the summary table in different categories. For each, write down the five anatomy answers (tasks, environment, action space, grader, metric) and one way the grader could be fooled or could reject a correct solution.</li>
+<li><strong>Leaderboard audit.</strong> Find a current public leaderboard for an agent benchmark. For the top five entries, record which of the eight critical-reading questions you can answer from the published information. Which entries are actually comparable?</li>
+<li><strong>Run a public benchmark.</strong> Use Inspect AI&#39;s community evals or Harbor to run a small slice (10–20 tasks) of a public agent benchmark against one model, twice. How much does the score change between runs? Read three failed transcripts: are any failures caused by the task or grader rather than the agent?</li>
+<li><strong>Design a private SWE-bench.</strong> For a repository you know, write a plan to turn 30 past merged bug-fix PRs into benchmark tasks: how you&#39;ll extract the issue text, the pre-fix commit, the FAIL_TO_PASS and PASS_TO_PASS tests, and how you&#39;ll screen out underspecified tasks. What contamination risk remains?</li>
+<li><strong>Cost-aware comparison (harder).</strong> Given two agent configurations — one scoring 68% at $0.40 per task, one scoring 74% at $3.10 per task, each on 300 tasks — compute 95% confidence intervals for each score and decide under what business conditions each is the better choice. Sketch the cost–accuracy Pareto frontier.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="benchmarks" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Why was SWE-bench Verified created?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To add JavaScript and front-end tasks to SWE-bench</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To make the benchmark larger and more diverse</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>To prevent agents from using the shell</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Because many original SWE-bench tasks were underspecified or had tests that rejected valid fixes, so human annotators screened for solvable, fairly-graded tasks</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> OpenAI and the SWE-bench authors had professional developers screen tasks; the 500-task Verified subset removes problems that made the original underestimate agent capability.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Two leaderboard entries use the same model. One scores 15 points higher. What is the most likely explanation to check first?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The higher score must be contaminated</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Different scaffolds, tool sets, attempt counts or budgets — benchmark scores measure the whole system, not just the model</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Random variance always explains 15 points</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The benchmark is broken</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Harness and scaffold choices — tools, prompting, retries, best-of-k selection, step limits — routinely move agent scores by large amounts.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>An agent defense reduces AgentDojo attack success rate to nearly zero. What else must you check before calling it a success?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Its score on HumanEval</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Its BrowseComp accuracy</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Whether it was run on Ubuntu</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Its utility — whether the agent still completes the benign user tasks</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A defense that blocks injections by making the agent refuse or fail everything has zero practical value. AgentDojo reports utility and attack success together for this reason.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>What distinguishes τ²-bench&#39;s telecom domain from the original τ-bench domains?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It grades by exact string match on the agent&#39;s last message</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It removes the policy document</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Dual control: the simulated user also acts on their own device, so the agent must guide the user rather than doing everything itself</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It uses real customers instead of simulated users</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> In τ²-bench&#39;s dual-control setting both parties have tools acting on shared state, and agents perform notably worse when they must coordinate a user.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>METR reports that models&#39; 50% time horizon has been doubling roughly every seven months. What is the best interpretation?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Models now work for seven months without stopping</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The length of (mostly software) tasks, measured in human time, that models complete half the time has grown exponentially — with caveats about task messiness and extrapolation</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Models will complete any month-long task within seven months</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Benchmark scores double every seven months</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The time horizon is a task-length measure at a given reliability level on METR&#39;s task suite. It&#39;s a trend, and METR emphasizes uncertainty about external validity and extrapolation.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>You need to choose a coding model for your company&#39;s large private TypeScript monorepo. What&#39;s the best approach?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Pick the model with the highest HumanEval score</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Average each model&#39;s rank across all public benchmarks</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Use public benchmarks to shortlist, then evaluate the finalists on an internal benchmark built from your own past PRs and tickets</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Pick the top model on SWE-bench Verified</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Public benchmarks sample distributions (often popular Python repos) that may not match yours. An internal benchmark from your own tasks is uncontaminated and predictive of your workload.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Which practice best protects a benchmark from contamination?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Keeping a private held-out split and sourcing tasks the model couldn&#39;t have trained on</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Publishing all tasks and solutions on GitHub for transparency</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Making the tasks shorter</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Using an LLM judge instead of tests</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Private held-out sets (like SWE-bench Pro&#39;s) and post-cutoff or proprietary task sources reduce the chance the model memorized tasks or solutions.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener">SWE-bench: Can Language Models Resolve Real-World GitHub Issues? (Jimenez et al., 2023)</a> — the paper that defined repository-level coding agent evaluation.</li>
+<li><a href="https://openai.com/index/introducing-swe-bench-verified/" target="_blank" rel="noopener">Introducing SWE-bench Verified (OpenAI)</a> — a case study in how benchmark tasks go wrong and how human screening fixes them.</li>
+<li><a href="https://arxiv.org/abs/2509.16941" target="_blank" rel="noopener">SWE-Bench Pro (Scale AI, 2025)</a> — contamination-resistant design with public, held-out and commercial splits.</li>
+<li><a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener">τ-bench (Yao et al., 2024)</a> and <a href="https://arxiv.org/abs/2506.07982" target="_blank" rel="noopener">τ²-bench (Barres et al., 2025)</a> — simulated users, policy-following, pass^k and dual control.</li>
+<li><a href="https://arxiv.org/abs/2404.07972" target="_blank" rel="noopener">OSWorld (Xie et al., 2024)</a> — the reference benchmark for computer-use agents on real operating systems.</li>
+<li><a href="https://arxiv.org/abs/2503.14499" target="_blank" rel="noopener">Measuring AI Ability to Complete Long Tasks (METR, 2025)</a> — the time-horizon methodology and its caveats.</li>
+<li><a href="https://arxiv.org/abs/2407.01502" target="_blank" rel="noopener">AI Agents That Matter (Kapoor et al., 2024)</a> — why agent results need cost reporting, reproducibility and holdouts.</li>
+<li><a href="https://arxiv.org/abs/2507.02825" target="_blank" rel="noopener">Establishing Best Practices for Building Rigorous Agentic Benchmarks (Zhu et al., 2025)</a> — an audit of benchmark flaws and the Agentic Benchmark Checklist.</li>
+<li><a href="https://arxiv.org/abs/2406.13352" target="_blank" rel="noopener">AgentDojo (Debenedetti et al., 2024)</a> — measuring prompt-injection robustness and utility together.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="benchmarks">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-benchmarks"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-benchmarks" class="notes" data-slug="benchmarks" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="evaluating-agents.html"><small>← Previous</small><span>Evaluating Agents</span></a>
+    <a class="pager-next" href="observability.html"><small>Next →</small><span>Observability &amp; Debugging</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#what-benchmarks-are-for">What benchmarks are for</a></li>
+<li class="toc-h3"><a href="#anatomy-of-an-agent-benchmark">Anatomy of an agent benchmark</a></li>
+<li class="toc-h2"><a href="#coding-and-ml-engineering">Coding and ML engineering</a></li>
+<li class="toc-h2"><a href="#general-assistants-and-tool-use">General assistants and tool use</a></li>
+<li class="toc-h2"><a href="#web-and-computer-use">Web and computer use</a></li>
+<li class="toc-h2"><a href="#long-horizon-and-economic-value">Long-horizon and economic value</a></li>
+<li class="toc-h2"><a href="#reasoning-benchmarks-briefly">Reasoning benchmarks (briefly)</a></li>
+<li class="toc-h2"><a href="#safety-and-security">Safety and security</a></li>
+<li class="toc-h2"><a href="#summary-table">Summary table</a></li>
+<li class="toc-h2"><a href="#how-benchmark-numbers-mislead">How benchmark numbers mislead</a></li>
+<li class="toc-h3"><a href="#saturation">Saturation</a></li>
+<li class="toc-h3"><a href="#contamination">Contamination</a></li>
+<li class="toc-h3"><a href="#harness-and-scaffold-sensitivity">Harness and scaffold sensitivity</a></li>
+<li class="toc-h3"><a href="#cost-and-compute-not-reported">Cost and compute not reported</a></li>
+<li class="toc-h3"><a href="#noisy-and-broken-tasks">Noisy and broken tasks</a></li>
+<li class="toc-h3"><a href="#variance">Variance</a></li>
+<li class="toc-h3"><a href="#goodharts-law">Goodhart's law</a></li>
+<li class="toc-h2"><a href="#reading-a-leaderboard-critically">Reading a leaderboard critically</a></li>
+<li class="toc-h2"><a href="#building-internal-benchmarks">Building internal benchmarks</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

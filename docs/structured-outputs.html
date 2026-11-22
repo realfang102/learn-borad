@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structured Outputs &amp; Control Flow · Agent Academy</title>
+<meta name="description" content="Getting reliable, typed data out of LLMs: prompt-only JSON vs JSON mode vs schema-constrained decoding, Pydantic with the Anthropic SDK, validation loops, routing with enums, and LLM-decides/code-executes state machines.">
+<meta property="og:title" content="Structured Outputs &amp; Control Flow · Agent Academy">
+<meta property="og:description" content="Getting reliable, typed data out of LLMs: prompt-only JSON vs JSON mode vs schema-constrained decoding, Pydantic with the Anthropic SDK, validation loops, routing with enums, and LLM-decides/code-executes state machines.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="structured-outputs">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <header class="lesson-header">
+    <h1>Structured Outputs &amp; Control Flow</h1>
+    <p class="lead">Getting reliable, typed data out of LLMs: prompt-only JSON vs JSON mode vs schema-constrained decoding, Pydantic with the Anthropic SDK, validation loops, routing with enums, and LLM-decides/code-executes state machines.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 35 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 9 of 35</span>
+      <span class="lesson-status" data-status-for="structured-outputs"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain why agents need structured outputs and compare prompt-only JSON, JSON mode and schema-constrained decoding</li><li>Describe how constrained decoding masks tokens using a grammar or finite-state machine</li><li>Produce validated Pydantic objects with client.messages.parse and raw JSON Schema with output_config</li><li>Build validation-and-retry loops, extraction and classification pipelines, and enum-based routers</li><li>Design state machines where the model decides and code executes, and schemas that leave room for reasoning</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="tool-use.html">Tool Use &amp; Function Calling</a></p>
+  </section>
+  <article class="prose">
+<p>A team builds a ticket-triage agent. It reads each support ticket and replies with JSON — category, priority, a one-line summary — which code then routes to the right queue. In testing it&#39;s flawless. In production, at ten thousand tickets a day, a small fraction of responses start with &quot;Sure! Here&#39;s the JSON:&quot;, or use <code>&quot;priority&quot;: &quot;high-ish&quot;</code>, or omit a field, or get cut off mid-object. Each failure is a ticket silently dropped or misrouted. Fifty a day, every day.</p>
+<p><strong>Structured outputs</strong> fix this class of problem at its root. Instead of <em>asking</em> a model for JSON and hoping, you give the API a schema and the model&#39;s output is <em>guaranteed</em> to conform to it. That turns a language model from a text generator into something closer to a typed function: text in, validated object out. And once outputs are typed, you can build reliable control flow around them — routers, pipelines and state machines where the model makes judgments and ordinary code takes actions.</p>
+<p>This lesson covers why structure matters, the spectrum of techniques from prompting to constrained decoding (and how the latter works under the hood), the Anthropic SDK&#39;s structured-output features with Pydantic, validation loops, the core extraction/classification/routing patterns, and how to design schemas that don&#39;t sabotage the model&#39;s reasoning.</p>
+<h2 id="why-agents-need-structure"><a class="anchor" href="#why-agents-need-structure" aria-hidden="true">#</a>Why Agents Need Structure</h2>
+<p>Free-form text is great for humans and terrible for programs. Anywhere a model&#39;s output feeds code instead of a person, you want structure:</p>
+<ul>
+<li><strong>Parsing.</strong> Extracting fields from invoices, contracts, emails or web pages into database rows.</li>
+<li><strong>Routing.</strong> Deciding which handler, queue, model or sub-agent gets a request (see the routing pattern in <a href="workflow-patterns.html">workflow patterns</a>).</li>
+<li><strong>Deterministic control flow.</strong> Branching on the model&#39;s decision with an <code>if</code> or a dictionary lookup instead of a regex over prose.</li>
+<li><strong>Tool arguments.</strong> Every tool call is structured output; <a href="tool-use.html">tool use</a> is built on the same machinery.</li>
+<li><strong>Rendering and storage.</strong> UIs, analytics and audit logs need fields, not paragraphs.</li>
+<li><strong>Evaluation.</strong> Comparing <code>{&quot;category&quot;: &quot;billing&quot;}</code> to a label is trivial; grading prose is not (see <a href="evaluating-agents.html">evaluating agents</a>).</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Structured outputs let you split responsibilities cleanly: the model does what only it can do — interpret messy language and make judgment calls — and returns a typed decision; deterministic code does everything else. The schema is the contract between them.</p>
+</div></aside>
+<h2 id="the-reliability-spectrum"><a class="anchor" href="#the-reliability-spectrum" aria-hidden="true">#</a>The Reliability Spectrum</h2>
+<p>There are four broad ways to get structured data from a model, in increasing order of guarantees:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>How</th>
+<th>Guarantees</th>
+<th>Typical failures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prompt-only</strong></td>
+<td>&quot;Respond only with JSON matching this format…&quot;</td>
+<td>None</td>
+<td>Preambles, markdown fences, trailing commas, missing or invented fields, truncation</td>
+</tr>
+<tr>
+<td><strong>JSON mode</strong></td>
+<td>API flag that forces syntactically valid JSON</td>
+<td>Parses as JSON</td>
+<td>Wrong shape: missing fields, wrong types, unexpected keys</td>
+</tr>
+<tr>
+<td><strong>Function-calling trick</strong></td>
+<td>Define a tool whose input schema is your output; make the model call it</td>
+<td>Usually matches schema</td>
+<td>Model may not call the tool; arguments not strictly guaranteed unless strict</td>
+</tr>
+<tr>
+<td><strong>Schema-constrained decoding</strong></td>
+<td>API compiles your JSON Schema and constrains generation</td>
+<td>Parses <em>and</em> matches the schema</td>
+<td>Semantics still unchecked; truncation at max tokens; refusals</td>
+</tr>
+</tbody></table>
+</div>
+<p>Prompt-only JSON works surprisingly often with modern models, which is precisely the trap: &quot;often&quot; at scale means a steady stream of failures. Historically, practitioners layered on assistant-message prefills (starting the response with <code>{</code>), stop sequences, regex extraction and retry-on-parse-error loops. With schema-constrained decoding available, that whole stack is unnecessary — and on current Claude models prefill is rejected outright.</p>
+<p>Schema guarantees still aren&#39;t the end of the story. A schema can guarantee <code>&quot;total_usd&quot;</code> is a number, not that it&#39;s the <em>right</em> number. Production systems pair constrained decoding with <strong>semantic validation</strong> in code, covered below.</p>
+<h2 id="how-constrained-decoding-works"><a class="anchor" href="#how-constrained-decoding-works" aria-hidden="true">#</a>How Constrained Decoding Works</h2>
+<p>To understand what &quot;guaranteed&quot; means, recall how generation works (from <a href="llm-fundamentals.html">LLM fundamentals</a>): at each step the model produces a score (logit) for every token in its vocabulary, one token is sampled, appended, and the process repeats.</p>
+<p><strong>Constrained decoding</strong> inserts a filter into that loop. Before sampling, it computes which tokens could legally come next given the schema and everything generated so far, and sets the scores of all other tokens to negative infinity. Illegal tokens become impossible to sample.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Model computes logits for all tokens&quot;] --&gt; B[&quot;Grammar state: which tokens are legal next?&quot;]
+    B --&gt; C[&quot;Mask illegal tokens (score = -inf)&quot;]
+    C --&gt; D[&quot;Sample from remaining tokens&quot;]
+    D --&gt; E[&quot;Advance grammar state&quot;]
+    E --&gt; A</pre></figure>
+<p>Take a tiny schema: an object with one field, <code>category</code>, whose value must be <code>&quot;bug&quot;</code> or <code>&quot;billing&quot;</code>. After the model has generated <code>{&quot;category&quot;: &quot;</code>, the only legal continuations are tokens that begin <code>bug</code> or <code>billing</code>. A token like <code>feature</code> is masked out, no matter how much the model &quot;wanted&quot; it. After <code>b</code>, both remain possible; after <code>bi</code>, only <code>billing</code> does.</p>
+<p>Making this fast is the hard part:</p>
+<ul>
+<li><strong>Schemas become grammars.</strong> A JSON Schema is compiled into a formal grammar. Many schemas compile to a regular language, which a <strong>finite-state machine (FSM)</strong> can track; recursive structures (a tree of comments with replies) need a <strong>context-free grammar</strong> and a pushdown automaton. This is one reason some APIs don&#39;t support recursive schemas.</li>
+<li><strong>Tokens don&#39;t align with characters.</strong> Vocabulary entries are multi-character chunks like <code>&quot;:&quot;</code>, <code>bill</code> or <code>ing&quot;}</code>. The engine must know, for each grammar state, which of perhaps 100,000+ tokens keep the output valid. The approach popularized by the Outlines paper precomputes an index from FSM states to allowed token sets, so masking at generation time is a lookup rather than a scan. Newer engines (such as XGrammar and llguidance) extend these ideas to context-free grammars efficiently.</li>
+<li><strong>Compilation is cached.</strong> Building the grammar for a new schema takes time, so providers compile once and cache. On Claude&#39;s API, the first request with a new schema incurs a one-time compilation cost; later requests with the same schema reuse a cache.</li>
+</ul>
+<p>Constrained decoding has real limits worth knowing:</p>
+<ol>
+<li><strong>It guarantees syntax, not truth.</strong> The model can still put a wrong date in a correctly formatted date field.</li>
+<li><strong>It can force low-probability paths.</strong> If the model &quot;wanted&quot; to say something the schema doesn&#39;t allow — &quot;this document isn&#39;t an invoice&quot; — the mask forces it into the nearest legal output, which may be a confident-looking fabrication. Design schemas with an escape hatch (nullable fields, an <code>&quot;other&quot;</code> category, a <code>notes</code> field).</li>
+<li><strong>Truncation and refusals still happen.</strong> If output hits <code>max_tokens</code>, the object may be incomplete; if the model declines a request for safety reasons, the response may not match the schema. Always check <code>stop_reason</code>.</li>
+<li><strong>Format can affect quality.</strong> Research such as &quot;Let Me Speak Freely?&quot; (2024) reported that strict format restrictions can hurt performance on some reasoning tasks, though the size of the effect is debated and depends heavily on prompt and schema design. The practical lesson is the one in the &quot;Reason before you commit&quot; section below: don&#39;t make the model do its thinking inside a rigid format.</li>
+</ol>
+<h2 id="structured-outputs-with-the-anthropic-sdk"><a class="anchor" href="#structured-outputs-with-the-anthropic-sdk" aria-hidden="true">#</a>Structured Outputs with the Anthropic SDK</h2>
+<p>Claude&#39;s API offers two complementary features (as of 2026):</p>
+<ul>
+<li><strong>JSON outputs</strong> via <code>output_config.format</code>: the model&#39;s final text response is constrained to your JSON Schema.</li>
+<li><strong>Strict tool use</strong> via <code>&quot;strict&quot;: true</code> on a tool: the <em>arguments</em> of calls to that tool are constrained to its input schema.</li>
+</ul>
+<p>The most convenient interface is <code>client.messages.parse()</code> with a <strong>Pydantic</strong> model. The SDK converts your model to a JSON Schema, sends it, and returns a validated instance:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel, Field
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">TicketTriage</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    category: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;billing&quot;</span>, <span class="hljs-string">&quot;bug&quot;</span>, <span class="hljs-string">&quot;how_to&quot;</span>, <span class="hljs-string">&quot;account_access&quot;</span>, <span class="hljs-string">&quot;other&quot;</span>]
+    priority: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;low&quot;</span>, <span class="hljs-string">&quot;normal&quot;</span>, <span class="hljs-string">&quot;high&quot;</span>, <span class="hljs-string">&quot;urgent&quot;</span>] = Field(
+        description=<span class="hljs-string">&quot;urgent = customer cannot use the product at all right now&quot;</span>)
+    summary: <span class="hljs-built_in">str</span> = Field(description=<span class="hljs-string">&quot;One sentence, written for a support engineer&quot;</span>)
+    customer_email: <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span> = Field(description=<span class="hljs-string">&quot;null if not present in the ticket&quot;</span>)
+
+ticket = <span class="hljs-string">&quot;&quot;&quot;From: dana@example.org
+Since this morning every login attempt says &#x27;invalid token&#x27;. Our whole team
+is locked out and we have a launch in two hours.&quot;&quot;&quot;</span>
+
+response = client.messages.parse(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,
+    output_format=TicketTriage,
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Triage this support ticket.\n\n&lt;ticket&gt;\n<span class="hljs-subst">{ticket}</span>\n&lt;/ticket&gt;&quot;</span>}],
+)
+
+<span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;end_turn&quot;</span>:   <span class="hljs-comment"># refusal or max_tokens: don&#x27;t trust output</span>
+    <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;Unexpected stop_reason: <span class="hljs-subst">{response.stop_reason}</span>&quot;</span>)
+triage = response.parsed_output          <span class="hljs-comment"># a validated TicketTriage instance</span>
+<span class="hljs-built_in">print</span>(triage.category, triage.priority)  <span class="hljs-comment"># account_access urgent</span></code></pre></div>
+<p>A few details make this work well:</p>
+<ul>
+<li><code>Literal[...]</code> (or a Python <code>Enum</code>) becomes a JSON Schema <code>enum</code>, so the model can only choose from your categories.</li>
+<li><code>Field(description=...)</code> text goes into the schema, where the model reads it. Field descriptions are prompts.</li>
+<li><code>str | None</code> with no default makes the field <strong>required but nullable</strong>: the model must address it and can say &quot;not present&quot; explicitly instead of inventing a value.</li>
+</ul>
+<p>If you&#39;re not using Pydantic, pass a raw schema on <code>messages.create</code>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+
+schema = {
+    <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+    <span class="hljs-string">&quot;properties&quot;</span>: {
+        <span class="hljs-string">&quot;category&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;enum&quot;</span>: [<span class="hljs-string">&quot;billing&quot;</span>, <span class="hljs-string">&quot;bug&quot;</span>, <span class="hljs-string">&quot;how_to&quot;</span>, <span class="hljs-string">&quot;account_access&quot;</span>, <span class="hljs-string">&quot;other&quot;</span>]},
+        <span class="hljs-string">&quot;summary&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>},
+    },
+    <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;category&quot;</span>, <span class="hljs-string">&quot;summary&quot;</span>],
+    <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,   <span class="hljs-comment"># required for every object in the schema</span>
+}
+
+response = client.messages.create(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,
+    output_config={<span class="hljs-string">&quot;format&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;json_schema&quot;</span>, <span class="hljs-string">&quot;schema&quot;</span>: schema}},
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Triage this ticket:\n<span class="hljs-subst">{ticket}</span>&quot;</span>}],
+)
+text = <span class="hljs-built_in">next</span>(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+data = json.loads(text)  <span class="hljs-comment"># guaranteed to parse and match the schema (if stop_reason is end_turn)</span></code></pre></div>
+<p><strong>Schema support.</strong> Constrained decoding supports the core of JSON Schema: basic types, <code>enum</code>, <code>const</code>, <code>anyOf</code>, <code>allOf</code>, <code>$ref</code>/<code>$defs</code>, common string formats (<code>date</code>, <code>date-time</code>, <code>email</code>, <code>uri</code>, <code>uuid</code>, and others), with <code>additionalProperties: false</code> on objects. As of 2026 it does not support recursive schemas, numeric bounds (<code>minimum</code>, <code>maximum</code>), string-length constraints or complex array constraints. The Python and TypeScript SDKs remove unsupported constraints from the schema they send and validate them client-side, so a Pydantic <code>Field(ge=0, le=100)</code> still gets checked — just not during decoding.</p>
+<h3 id="output-format-vs-strict-tools"><a class="anchor" href="#output-format-vs-strict-tools" aria-hidden="true">#</a>Output format vs strict tools</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Use</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>output_config.format</code> / <code>messages.parse</code></td>
+<td>You want the model&#39;s <strong>final answer</strong> as data: extraction, classification, a structured report at the end of an agent run</td>
+</tr>
+<tr>
+<td><code>&quot;strict&quot;: true</code> tools</td>
+<td>You want <strong>tool arguments</strong> guaranteed during an agent loop (bookings, database writes)</td>
+</tr>
+<tr>
+<td>Both together</td>
+<td>An agent that calls strict tools along the way and ends with a structured final report</td>
+</tr>
+</tbody></table>
+</div>
+<p>A common older pattern was to define a fake tool and force the model to call it just to get JSON out. With output formats available, use those instead; forced tool choice is rejected on the latest Claude models anyway.</p>
+<h2 id="validation-and-retry-loops"><a class="anchor" href="#validation-and-retry-loops" aria-hidden="true">#</a>Validation and Retry Loops</h2>
+<p>Schema validity is necessary but not sufficient. Real data has <strong>semantic</strong> rules that a schema can&#39;t express or that constrained decoding doesn&#39;t enforce: line items should sum to the total, an end date should follow the start date, a referenced product ID should exist in your catalog.</p>
+<p>The standard pattern is <strong>validate, then retry with feedback</strong>: check the parsed object in code, and if it fails, show the model exactly what&#39;s wrong and ask again — a bounded number of times.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> datetime <span class="hljs-keyword">import</span> date
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel, Field
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">LineItem</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    description: <span class="hljs-built_in">str</span>
+    amount_usd: <span class="hljs-built_in">float</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Invoice</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    vendor: <span class="hljs-built_in">str</span>
+    invoice_number: <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span> = Field(description=<span class="hljs-string">&quot;As printed; null if absent&quot;</span>)
+    invoice_date: date | <span class="hljs-literal">None</span> = Field(description=<span class="hljs-string">&quot;null if absent&quot;</span>)
+    line_items: <span class="hljs-built_in">list</span>[LineItem]
+    total_usd: <span class="hljs-built_in">float</span> = Field(description=<span class="hljs-string">&quot;The total as printed on the invoice&quot;</span>)
+    notes: <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span> = Field(description=<span class="hljs-string">&quot;Anything unclear or inconsistent in the document&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">check_invoice</span>(<span class="hljs-params">inv: Invoice</span>) -&gt; <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]:
+    problems = []
+    items_sum = <span class="hljs-built_in">round</span>(<span class="hljs-built_in">sum</span>(i.amount_usd <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> inv.line_items), <span class="hljs-number">2</span>)
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">abs</span>(items_sum - inv.total_usd) &gt; <span class="hljs-number">0.01</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> inv.notes:
+        problems.append(<span class="hljs-string">f&quot;Line items sum to <span class="hljs-subst">{items_sum}</span> but total_usd is <span class="hljs-subst">{inv.total_usd}</span>.&quot;</span>)
+    <span class="hljs-keyword">if</span> inv.invoice_date <span class="hljs-keyword">and</span> inv.invoice_date &gt; date.today():
+        problems.append(<span class="hljs-string">f&quot;invoice_date <span class="hljs-subst">{inv.invoice_date}</span> is in the future.&quot;</span>)
+    <span class="hljs-keyword">return</span> problems
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">extract_invoice</span>(<span class="hljs-params">document: <span class="hljs-built_in">str</span>, max_attempts: <span class="hljs-built_in">int</span> = <span class="hljs-number">3</span></span>) -&gt; Invoice:
+    feedback = <span class="hljs-string">&quot;&quot;</span>
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_attempts):
+        response = client.messages.parse(
+            model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>, output_format=Invoice,
+            messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>:
+                <span class="hljs-string">f&quot;Extract this invoice.\n&lt;document&gt;\n<span class="hljs-subst">{document}</span>\n&lt;/document&gt;<span class="hljs-subst">{feedback}</span>&quot;</span>}],
+        )
+        <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;end_turn&quot;</span>:
+            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;Extraction stopped: <span class="hljs-subst">{response.stop_reason}</span>&quot;</span>)
+        invoice = response.parsed_output
+        problems = check_invoice(invoice)
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> problems:
+            <span class="hljs-keyword">return</span> invoice
+        feedback = (
+            <span class="hljs-string">f&quot;\n\nA previous attempt produced:\n<span class="hljs-subst">{invoice.model_dump_json()}</span>\n&quot;</span>
+            <span class="hljs-string">&quot;It failed these checks:\n- &quot;</span> + <span class="hljs-string">&quot;\n- &quot;</span>.join(problems) +
+            <span class="hljs-string">&quot;\nRe-read the document and correct any extraction errors. If the &quot;</span>
+            <span class="hljs-string">&quot;document itself is inconsistent, keep the printed values and explain in notes.&quot;</span>
+        )
+    <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&quot;Invoice failed validation after <span class="hljs-subst">{max_attempts}</span> attempts: <span class="hljs-subst">{problems}</span>&quot;</span>)</code></pre></div>
+<p>Three design choices here matter:</p>
+<ol>
+<li><strong>Specific feedback.</strong> &quot;Line items sum to 1,240.00 but total is 1,420.00&quot; lets the model spot a transposed digit. &quot;Invalid output, try again&quot; doesn&#39;t.</li>
+<li><strong>An honest escape hatch.</strong> Some documents really are inconsistent. If your validator demands that totals match and gives the model no other way out, you&#39;ve built a machine that pressures it into fabricating a number. The <code>notes</code> field lets it report the inconsistency instead — and the validator accepts that.</li>
+<li><strong>A bound.</strong> Retries cost money and latency, and repeated failure usually means the input is unusual. After a few attempts, route it to a human or a dead-letter queue (see <a href="reliability.html">reliability</a>).</li>
+</ol>
+<h2 id="extraction-and-classification-patterns"><a class="anchor" href="#extraction-and-classification-patterns" aria-hidden="true">#</a>Extraction and Classification Patterns</h2>
+<p>Most structured-output work is one of two shapes.</p>
+<p><strong>Extraction</strong> pulls facts out of unstructured input. Guidelines:</p>
+<ul>
+<li>Make every field that might be absent <strong>nullable</strong>, and say in its description that null means &quot;not stated.&quot; Otherwise you&#39;ll get plausible inventions.</li>
+<li>For high-stakes fields, add a short <strong>evidence</strong> field with the exact quote the value came from. It makes outputs auditable and makes hallucinations easier to catch automatically (check that the quote appears in the source).</li>
+<li>Prefer <strong>lists of small objects</strong> (<code>line_items: list[LineItem]</code>) over parallel arrays (<code>descriptions: list[str]</code>, <code>amounts: list[float]</code>) that can drift out of alignment.</li>
+<li>Normalize formats in the schema: ISO dates, amounts as numbers with the currency in the field name.</li>
+</ul>
+<p><strong>Classification</strong> assigns labels. Guidelines:</p>
+<ul>
+<li>Use an <strong>enum</strong> with clear, mutually exclusive names, each defined in the description or prompt.</li>
+<li>Always include an <strong><code>&quot;other&quot;</code></strong> or <strong><code>&quot;unclear&quot;</code></strong> option. Without one, constrained decoding forces every out-of-distribution input into a wrong bucket.</li>
+<li>For multi-label problems, use <code>list[Literal[...]]</code>.</li>
+<li>Be skeptical of self-reported <strong>confidence scores</strong>. Numbers a model writes about its own certainty are often poorly calibrated. If you need confidence, measure agreement across several samples, or have code treat <code>&quot;unclear&quot;</code> as the low-confidence path.</li>
+</ul>
+<h2 id="enums-for-routing"><a class="anchor" href="#enums-for-routing" aria-hidden="true">#</a>Enums for Routing</h2>
+<p>The simplest structured control flow is a <strong>router</strong>: the model classifies the request, and code dispatches on the result.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Route</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    intent: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;billing&quot;</span>, <span class="hljs-string">&quot;technical&quot;</span>, <span class="hljs-string">&quot;account&quot;</span>, <span class="hljs-string">&quot;sales&quot;</span>, <span class="hljs-string">&quot;other&quot;</span>]
+    summary: <span class="hljs-built_in">str</span> = Field(description=<span class="hljs-string">&quot;One-sentence restatement of what the user needs&quot;</span>)
+
+HANDLERS = {
+    <span class="hljs-string">&quot;billing&quot;</span>: billing_agent.run,      <span class="hljs-comment"># each handler is ordinary code or a specialized agent</span>
+    <span class="hljs-string">&quot;technical&quot;</span>: tech_support_agent.run,
+    <span class="hljs-string">&quot;account&quot;</span>: account_agent.run,
+    <span class="hljs-string">&quot;sales&quot;</span>: hand_off_to_sales,
+    <span class="hljs-string">&quot;other&quot;</span>: human_queue.put,
+}
+
+route = client.messages.parse(
+    model=<span class="hljs-string">&quot;claude-haiku-5-5&quot;</span>,           <span class="hljs-comment"># routing is a good job for a small, fast model</span>
+    max_tokens=<span class="hljs-number">16000</span>,
+    output_format=Route,
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: message_text}],
+).parsed_output
+HANDLERS[route.intent](message_text, route.summary)</code></pre></div>
+<p>Because <code>intent</code> is an enum, the dictionary lookup can never miss. Adding a route means adding an enum value and a handler — a code change you can review and test, rather than a prompt tweak whose effects are hard to predict.</p>
+<h2 id="state-machines-the-llm-decides-code-executes"><a class="anchor" href="#state-machines-the-llm-decides-code-executes" aria-hidden="true">#</a>State Machines: The LLM Decides, Code Executes</h2>
+<p>Routing makes one decision. Many business processes are a sequence of decisions with rules about what can follow what: a refund flow, an insurance claim, a loan application. For these, a powerful pattern is a <strong>state machine</strong> where:</p>
+<ul>
+<li><strong>Code owns the states and the legal transitions.</strong></li>
+<li><strong>At each state, the model chooses among the transitions that are legal <em>from that state</em></strong> — enforced by building the enum dynamically.</li>
+<li><strong>Code executes the action</strong> associated with each transition, with its own validation and permissions.</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">stateDiagram-v2
+    [*] --&gt; collect_info
+    collect_info --&gt; verify_order
+    collect_info --&gt; ask_customer
+    ask_customer --&gt; collect_info
+    verify_order --&gt; approve_refund
+    verify_order --&gt; escalate
+    verify_order --&gt; deny
+    approve_refund --&gt; [*]
+    escalate --&gt; [*]
+    deny --&gt; [*]</pre></figure>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">TRANSITIONS = {
+    <span class="hljs-string">&quot;collect_info&quot;</span>: [<span class="hljs-string">&quot;verify_order&quot;</span>, <span class="hljs-string">&quot;ask_customer&quot;</span>],
+    <span class="hljs-string">&quot;ask_customer&quot;</span>: [<span class="hljs-string">&quot;collect_info&quot;</span>],
+    <span class="hljs-string">&quot;verify_order&quot;</span>: [<span class="hljs-string">&quot;approve_refund&quot;</span>, <span class="hljs-string">&quot;escalate&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>],
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">choose_transition</span>(<span class="hljs-params">state: <span class="hljs-built_in">str</span>, case_file: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]:
+    allowed = TRANSITIONS[state]
+    schema = {
+        <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+        <span class="hljs-string">&quot;properties&quot;</span>: {
+            <span class="hljs-string">&quot;next_state&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;enum&quot;</span>: allowed},  <span class="hljs-comment"># only legal moves</span>
+            <span class="hljs-string">&quot;reason&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;One sentence for the audit log&quot;</span>},
+        },
+        <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;next_state&quot;</span>, <span class="hljs-string">&quot;reason&quot;</span>],
+        <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+    }
+    response = client.messages.create(
+        model=<span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+        output_config={<span class="hljs-string">&quot;format&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;json_schema&quot;</span>, <span class="hljs-string">&quot;schema&quot;</span>: schema}},
+        system=REFUND_POLICY,  <span class="hljs-comment"># the business rules the model judges against</span>
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Current step: <span class="hljs-subst">{state}</span>\n\n<span class="hljs-subst">{case_file}</span>&quot;</span>}],
+    )
+    <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;end_turn&quot;</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;escalate&quot;</span>, <span class="hljs-string">f&quot;model stopped with <span class="hljs-subst">{response.stop_reason}</span>&quot;</span>
+    decision = json.loads(<span class="hljs-built_in">next</span>(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>))
+    <span class="hljs-keyword">return</span> decision[<span class="hljs-string">&quot;next_state&quot;</span>], decision[<span class="hljs-string">&quot;reason&quot;</span>]</code></pre></div>
+<p>The surrounding loop executes each state&#39;s action in code — <code>approve_refund</code> calls the payments service only after code re-checks the amount limit — and appends the outcome to the case file for the next decision.</p>
+<p>This design trades some flexibility for a lot of control:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Open agent loop</th>
+<th>LLM-decides / code-executes state machine</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Flexibility</td>
+<td>High: any tool, any order</td>
+<td>Bounded to the designed graph</td>
+</tr>
+<tr>
+<td>Predictability</td>
+<td>Varies run to run</td>
+<td>Every path is enumerable and testable</td>
+</tr>
+<tr>
+<td>Auditability</td>
+<td>Read the transcript</td>
+<td>A log of (state, decision, reason) tuples</td>
+</tr>
+<tr>
+<td>Guardrails</td>
+<td>Mostly in tools and prompts</td>
+<td>Structural: illegal transitions can&#39;t be generated</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Open-ended tasks (research, coding)</td>
+<td>Regulated, well-understood processes</td>
+</tr>
+</tbody></table>
+</div>
+<p>The two combine well: a state can itself invoke a small open-ended agent (say, &quot;investigate the order history&quot;) whose result feeds the next structured decision. Choosing among these designs is the subject of <a href="agent-architectures.html">agent architectures</a>; frameworks like LangGraph make graph-shaped agents a first-class concept (see <a href="agent-frameworks.html">agent frameworks</a>).</p>
+<h2 id="reason-before-you-commit"><a class="anchor" href="#reason-before-you-commit" aria-hidden="true">#</a>Reason Before You Commit</h2>
+<p>Models generate output left to right, and a schema fixes the <em>order</em> of fields. If the first field is the decision, the model commits to it in its first few tokens, before it has written anything that might inform it. Two classic mitigations:</p>
+<ul>
+<li><strong>Field order:</strong> put fields that require analysis (evidence quotes, extracted facts) <em>before</em> the fields that depend on them (the classification, the decision). Pydantic preserves declaration order in the schema.</li>
+<li><strong>A reasoning field:</strong> historically, many schemas began with a free-text <code>reasoning</code> field so the model could think &quot;on paper&quot; before answering.</li>
+</ul>
+<p>With models that have native <strong>thinking</strong> (Claude&#39;s adaptive thinking, and similar features from other providers), the model reasons in a separate thinking phase <em>before</em> it writes the constrained output, so the structured output itself can stay lean. That changes the advice:</p>
+<ul>
+<li>Let thinking do the deliberation. Raise <code>effort</code> for harder judgments rather than adding a long reasoning field.</li>
+<li>Anthropic&#39;s current guidance is to keep reasoning in thinking blocks rather than asking the model to reproduce it in output fields; on some current models, instructions to reproduce reasoning in the response can be declined. If you need reasoning for debugging, read the thinking blocks the API returns.</li>
+<li>Keep short, <strong>purpose-specific</strong> fields that serve your application: an <code>evidence</code> quote for auditing, a one-sentence <code>reason</code> for the audit log, <code>notes</code> for anomalies. These are part of the product, not a substitute for thinking.</li>
+</ul>
+<p>For complex tasks, a <strong>two-step</strong> approach is often best: let the agent work freely — browse, call tools, reason, write prose — and then make a separate structured-output call that converts its final findings into your schema. The thinking happens without format pressure, and the structuring step is a simple extraction task.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Constrain the <em>interface</em>, not the <em>thinking</em>. Use schemas where code consumes the result; let the model reason in thinking blocks or free text first, and structure the conclusion.</p>
+</div></aside>
+<h2 id="schema-design-tips"><a class="anchor" href="#schema-design-tips" aria-hidden="true">#</a>Schema Design Tips</h2>
+<p>Schemas are prompts and contracts at once. Good ones share a few traits:</p>
+<ul>
+<li><strong>Descriptive names and descriptions.</strong> <code>refund_amount_usd</code> with &quot;Amount to refund in US dollars; must not exceed the order total&quot; beats <code>amt</code>.</li>
+<li><strong>Flat over deep.</strong> Each level of nesting is another place to go wrong. Flatten where meaning allows.</li>
+<li><strong>Enums for anything with a fixed vocabulary</strong>, with an <code>other</code>/<code>unclear</code> value and definitions for each label.</li>
+<li><strong>Nullable, not empty.</strong> <code>null</code> for &quot;not present&quot; is unambiguous; <code>&quot;&quot;</code> and <code>0</code> aren&#39;t.</li>
+<li><strong>Units and formats in names and types:</strong> <code>duration_minutes</code>, <code>&quot;format&quot;: &quot;date&quot;</code>.</li>
+<li><strong>No catch-all objects.</strong> <code>dict[str, Any]</code> gives up every guarantee; if you don&#39;t know the shape, you probably need two steps.</li>
+<li><strong>One job per schema.</strong> If a schema has 40 fields spanning extraction, classification and drafting, split it into stages that can be validated independently.</li>
+<li><strong>Stable and versioned.</strong> Treat schemas like API contracts: version them, keep them stable (which also keeps compiled-grammar caches warm), and migrate deliberately.</li>
+<li><strong>Escape hatches.</strong> Every forced choice should have a legitimate way to say &quot;none of these&quot; or &quot;I&#39;m not sure.&quot;</li>
+</ul>
+<h2 id="libraries-and-other-providers"><a class="anchor" href="#libraries-and-other-providers" aria-hidden="true">#</a>Libraries and Other Providers</h2>
+<p>Structured outputs are now standard across providers and serving stacks. At a conceptual level:</p>
+<ul>
+<li><strong>OpenAI</strong> offers JSON mode (valid JSON only) and Structured Outputs with <code>strict</code> JSON Schemas for both response formats and function arguments, with Pydantic/Zod parse helpers in its SDKs.</li>
+<li><strong>Google Gemini</strong> accepts a response schema with a JSON MIME type for constrained output.</li>
+<li><strong>Instructor</strong> is a popular Python library that wraps many providers&#39; clients so you pass a Pydantic <code>response_model</code> and get validated objects back, with automatic retries that feed validation errors to the model.</li>
+<li><strong>Outlines</strong> performs constrained generation (JSON Schema, regex, grammars) for open-weight models you run yourself.</li>
+<li><strong>XGrammar</strong> and <strong>llguidance</strong> are fast grammar-constrained decoding engines; inference servers such as vLLM and SGLang use engines like these to offer structured outputs for self-hosted models.</li>
+</ul>
+<p>APIs evolve quickly; check each project&#39;s current documentation for exact parameters. The concepts — schema as contract, constrained decoding for syntax, code for semantics — carry across all of them.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Structured outputs let the model make judgments and return typed decisions while deterministic code handles parsing, routing and actions.</li>
+<li>Prompt-only JSON and JSON mode reduce but don&#39;t eliminate failures; schema-constrained decoding guarantees output that parses and matches the schema.</li>
+<li>Constrained decoding works by masking tokens that would violate a grammar compiled from your schema; it guarantees syntax, not correctness, and needs escape hatches.</li>
+<li>With the Anthropic SDK, use <code>client.messages.parse(output_format=PydanticModel)</code> for final answers and <code>strict: true</code> for tool arguments, and always check <code>stop_reason</code>.</li>
+<li>Validate semantics in code and retry with specific feedback, a bounded number of times, while letting the model report genuine inconsistencies instead of fabricating.</li>
+<li>Enums power reliable routing; dynamic enums over legal transitions give you LLM-decides/code-executes state machines that are auditable and testable.</li>
+<li>Don&#39;t force reasoning into rigid formats: let thinking or a free-form first step do the deliberation, then structure the conclusion.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Measure the gap.</strong> Take 50 varied support messages and classify them three ways: prompt-only JSON, raw-schema <code>output_config</code>, and <code>messages.parse</code> with a Pydantic model. Count parse failures and schema violations for each. Then remove the <code>other</code> category and examine where out-of-scope messages land.</li>
+<li><strong>Evidence fields.</strong> Extend <code>TicketTriage</code> with an <code>evidence</code> field holding the exact quote that justifies <code>priority</code>. Write a check that the quote appears verbatim in the ticket, and report how often it fails.</li>
+<li><strong>Validator pressure.</strong> Feed <code>extract_invoice</code> a document whose printed total genuinely doesn&#39;t match its line items. Remove the <code>notes</code> escape hatch from the validator and observe what the model does across several runs. Restore it and compare. Write two sentences on what this teaches about validators.</li>
+<li><strong>Build the refund state machine.</strong> Implement the full loop around <code>choose_transition</code>: state actions in code, a case file that accumulates results, a step limit, and an audit log of <code>(state, next_state, reason)</code>. Write unit tests that mock the model&#39;s decisions to cover every path in the graph.</li>
+<li><strong>Two-step vs one-step.</strong> For a research question that needs several web searches, compare (a) one agent run that must end directly in a strict schema with (b) a free-form agent run followed by a separate extraction call. Compare accuracy and cost over ten questions.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="structured-outputs" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>What does schema-constrained decoding guarantee?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That every field value is factually correct</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That the model will never refuse</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the output is identical across runs</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That the output parses and conforms to the schema&#39;s structure and types (when generation completes normally)</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding masks tokens that would violate the grammar, guaranteeing syntax and shape. Correctness of values, refusals and truncation must still be handled.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>How does a constrained decoder prevent the model from outputting &quot;feature&quot; when the enum allows only &quot;bug&quot; or &quot;billing&quot;?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It fine-tunes the model on the schema before each request</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It retries generation until a valid value appears</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It post-processes the text and replaces invalid values</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>At each step it sets the scores of tokens that can&#39;t lead to a valid value to negative infinity before sampling</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The grammar tracks which continuations are legal; tokens that would break the schema are masked out of the distribution, so they can never be sampled.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>An extraction schema has a required, non-nullable field contract_end_date. Many contracts have no end date. What is the likely result?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API returns an error for those documents</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model fills in plausible-looking but invented dates, because the schema gives it no legal way to say &quot;absent&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The field will be an empty string</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model will skip the field</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding forces a legal output. Without a nullable option, the nearest legal output is a fabricated date. Make possibly-absent fields nullable and say what null means.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Your validator checks that invoice line items sum to the total. Some real invoices have printing errors. What is the best design?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have the model compute the total itself and ignore the printed one</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry until the model produces numbers that sum correctly</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Keep the check, but let the model report a genuine inconsistency in a notes field that the validator accepts, and bound the retries</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Remove the validator</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Validators that demand impossible consistency pressure the model to fabricate. An honest escape hatch plus bounded retries catches extraction errors without forcing invented data.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>When should you use strict tools rather than output_config.format?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When you need the model&#39;s final answer as JSON</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the schema is recursive</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Never; they are the same feature</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When you need guaranteed-valid arguments for tool calls during an agent loop</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> output_config.format constrains the final response; strict: true constrains a tool&#39;s arguments. Agents that act through tools and end with a structured report can use both.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>In an LLM-decides/code-executes refund state machine, how do you stop the model from jumping from collect_info straight to approve_refund?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Build the next_state enum from only the transitions legal in the current state, and execute actions in code</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Use a lower effort setting</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Ask the model to output its reasoning first</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add &quot;never skip verification&quot; to the system prompt</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With a per-state enum, illegal transitions can&#39;t be generated at all, and code still controls what each transition does. That is a structural guarantee rather than a request.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Using a model with adaptive thinking, how should you get careful judgment on a structured classification?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Ask for the answer first, then the explanation</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Let the model think before producing the output (raising effort if needed), and keep only short, purpose-specific fields like evidence or a one-line reason</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Remove the enum so the model can explain itself freely</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Put a long required reasoning field first in the schema and ask the model to show all its work there</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Native thinking happens before the constrained output, so heavy reasoning fields are unnecessary and current guidance is to keep reasoning in thinking blocks. Short evidence or reason fields still serve auditing.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://platform.claude.com/docs/en/build-with-claude/structured-outputs" target="_blank" rel="noopener">Anthropic: Structured outputs</a> — JSON outputs and strict tool use, schema support and limitations.</li>
+<li><a href="https://arxiv.org/abs/2307.09702" target="_blank" rel="noopener">Willard &amp; Louf, Efficient Guided Generation for Large Language Models</a> — the Outlines paper: compiling regex and JSON Schema into FSMs and indexing the vocabulary for fast token masking.</li>
+<li><a href="https://arxiv.org/abs/2411.15100" target="_blank" rel="noopener">Dong et al., XGrammar: Flexible and Efficient Structured Generation Engine for Large Language Models</a> — efficient context-free-grammar constrained decoding used in modern serving stacks.</li>
+<li><a href="https://arxiv.org/abs/2408.02442" target="_blank" rel="noopener">Tam et al., Let Me Speak Freely? A Study on the Impact of Format Restrictions on Performance of Large Language Models</a> — evidence (and ongoing debate) on how format constraints affect reasoning quality.</li>
+<li><a href="https://openai.com/index/introducing-structured-outputs-in-the-api/" target="_blank" rel="noopener">OpenAI: Introducing Structured Outputs in the API</a> — another provider&#39;s explanation of JSON mode vs schema-constrained outputs.</li>
+<li><a href="https://python.useinstructor.com/" target="_blank" rel="noopener">Instructor documentation</a> — Pydantic-first structured outputs with validation-driven retries across many providers.</li>
+<li><a href="https://github.com/dottxt-ai/outlines" target="_blank" rel="noopener">Outlines on GitHub</a> — constrained generation for open-weight models with JSON Schema, regex and grammars.</li>
+<li><a href="https://docs.pydantic.dev/" target="_blank" rel="noopener">Pydantic documentation</a> — models, field descriptions, validators and JSON Schema generation.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="structured-outputs">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-structured-outputs"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-structured-outputs" class="notes" data-slug="structured-outputs" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="designing-tools.html"><small>← Previous</small><span>Designing Great Tools (The Agent–Computer Interface)</span></a>
+    <a class="pager-next" href="reasoning-and-planning.html"><small>Next →</small><span>Reasoning &amp; Planning</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-agents-need-structure">Why Agents Need Structure</a></li>
+<li class="toc-h2"><a href="#the-reliability-spectrum">The Reliability Spectrum</a></li>
+<li class="toc-h2"><a href="#how-constrained-decoding-works">How Constrained Decoding Works</a></li>
+<li class="toc-h2"><a href="#structured-outputs-with-the-anthropic-sdk">Structured Outputs with the Anthropic SDK</a></li>
+<li class="toc-h3"><a href="#output-format-vs-strict-tools">Output format vs strict tools</a></li>
+<li class="toc-h2"><a href="#validation-and-retry-loops">Validation and Retry Loops</a></li>
+<li class="toc-h2"><a href="#extraction-and-classification-patterns">Extraction and Classification Patterns</a></li>
+<li class="toc-h2"><a href="#enums-for-routing">Enums for Routing</a></li>
+<li class="toc-h2"><a href="#state-machines-the-llm-decides-code-executes">State Machines: The LLM Decides, Code Executes</a></li>
+<li class="toc-h2"><a href="#reason-before-you-commit">Reason Before You Commit</a></li>
+<li class="toc-h2"><a href="#schema-design-tips">Schema Design Tips</a></li>
+<li class="toc-h2"><a href="#libraries-and-other-providers">Libraries and Other Providers</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

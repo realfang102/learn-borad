@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reliability &amp; Durable Execution · Agent Academy</title>
+<meta name="description" content="Make agents survive the real world: a failure taxonomy, retries with backoff and jitter, idempotent tools, circuit breakers, fallbacks, budgets, loop detection, checkpointing, durable execution and sagas.">
+<meta property="og:title" content="Reliability &amp; Durable Execution · Agent Academy">
+<meta property="og:description" content="Make agents survive the real world: a failure taxonomy, retries with backoff and jitter, idempotent tools, circuit breakers, fallbacks, budgets, loop detection, checkpointing, durable execution and sagas.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="reliability">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Reliability &amp; Durable Execution</h1>
+    <p class="lead">Make agents survive the real world: a failure taxonomy, retries with backoff and jitter, idempotent tools, circuit breakers, fallbacks, budgets, loop detection, checkpointing, durable execution and sagas.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 38 min</span>
+      <span>✅ 6-question quiz</span>
+      
+      <span>Lesson 27 of 35</span>
+      <span class="lesson-status" data-status-for="reliability"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Classify agent failures and choose the right defense for each class</li><li>Implement retries with exponential backoff and jitter using typed SDK exceptions</li><li>Make side-effecting tools idempotent so retries and resumes never double-act</li><li>Add circuit breakers, fallbacks, validation, loop detection and budgets to an agent loop</li><li>Checkpoint an agent so it resumes after a crash, and explain how durable execution engines generalize this</li><li>Test reliability with recorded fixtures, fault injection and chaos experiments</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="observability.html">Observability &amp; Debugging</a></p>
+  </section>
+  <article class="prose">
+<p>Picture a refund agent working through a customer&#39;s case. It has read the order history, checked the return policy, confirmed the item arrived back at the warehouse, and at step 31 of 40 it calls <code>issue_refund</code>. The payment goes through. Before the agent records the result, Kubernetes evicts its pod during a routine deploy. The job queue sees an unfinished task and hands it to a fresh worker, which starts over from step 1, reaches step 31 again, and refunds the customer a second time.</p>
+<p>Nothing in that story is a model failure. The bug sits in the <strong>harness</strong>, the ordinary software around the model, and that is where most production agent incidents happen. This lesson builds a failure taxonomy and then works through the defenses layer by layer: retries, timeouts, idempotency, circuit breakers, fallbacks, validation, loop guards, budgets, and finally <strong>durable execution</strong>, which lets an agent resume after a crash without repeating its side effects.</p>
+<h2 id="why-agents-fail-differently"><a class="anchor" href="#why-agents-fail-differently" aria-hidden="true">#</a>Why Agents Fail Differently</h2>
+<p>Unlike a millisecond-long stateless web request, an agent run is:</p>
+<ul>
+<li><strong>Long.</strong> Over an hour-long run, a network blip, rate limit, deploy or OOM-kill is likely.</li>
+<li><strong>Stateful.</strong> The conversation history <em>is</em> the agent&#39;s working memory. Lose it and you lose the progress and the money spent.</li>
+<li><strong>Side-effecting.</strong> Re-running a refund is not harmless.</li>
+<li><strong>Nondeterministic.</strong> A re-run step may choose different tools or arguments, so naive replay can take a different path.</li>
+</ul>
+<p>Small error rates also <a href="when-to-use-agents.html">compound</a>: at 99% per-step reliability, a 50-step task succeeds only about 60% of the time (0.99⁵⁰ ≈ 0.605), whether the faults come from the model or the infrastructure.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Treat every agent run as a long-lived distributed transaction that <strong>will</strong> be interrupted. Design so an interruption costs a retry, not a restart, and never a duplicated side effect.</p>
+</div></aside>
+<h2 id="a-failure-taxonomy"><a class="anchor" href="#a-failure-taxonomy" aria-hidden="true">#</a>A Failure Taxonomy</h2>
+<p>Each class needs a different defense. <strong>Loud</strong> failures raise exceptions; <strong>silent</strong> ones return 200 OK and are still wrong.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Failure class</th>
+<th>Example</th>
+<th>Primary defense</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Transient API errors</td>
+<td>429, 500, 529 overloaded, connection reset</td>
+<td>Retry with backoff + jitter; fallback</td>
+</tr>
+<tr>
+<td>Permanent API errors</td>
+<td>400, 401, 403, 404 bad model ID, 413</td>
+<td>Fail fast; fix the request; alert</td>
+</tr>
+<tr>
+<td>Tool failures</td>
+<td>Downstream timeout, DB deadlock, sandbox crash</td>
+<td>Tool timeout + retry; <code>is_error</code> result</td>
+</tr>
+<tr>
+<td>Malformed / hallucinated args</td>
+<td>Invented <code>order_id</code>, path outside workspace</td>
+<td><code>strict</code> tools; actionable errors</td>
+</tr>
+<tr>
+<td>Loops &amp; repetition</td>
+<td>Same search 9 times; A→B→A→B</td>
+<td>Loop detector; step budget</td>
+</tr>
+<tr>
+<td>Context overflow</td>
+<td>Window exceeded; recall degrades long before</td>
+<td><a href="context-engineering.html">Context engineering</a></td>
+</tr>
+<tr>
+<td>Premature termination</td>
+<td><code>max_tokens</code> mid-tool-call; &quot;done&quot; too early; <code>refusal</code></td>
+<td>Handle every stop reason; verify</td>
+</tr>
+<tr>
+<td>Wrong-but-confident</td>
+<td>Plausible answer about the wrong customer</td>
+<td>Verification; human review</td>
+</tr>
+<tr>
+<td>Infrastructure crash</td>
+<td>Worker OOM-killed, pod evicted</td>
+<td>Checkpointing / durable execution</td>
+</tr>
+</tbody></table>
+</div>
+<p>The table runs from loud to silent, which is also the order of difficulty: retries handle the top rows almost completely, and nothing mechanical solves the bottom ones.</p>
+<h2 id="retries-done-right"><a class="anchor" href="#retries-done-right" aria-hidden="true">#</a>Retries Done Right</h2>
+<h3 id="which-errors-are-retryable"><a class="anchor" href="#which-errors-are-retryable" aria-hidden="true">#</a>Which errors are retryable</h3>
+<p>Retry only when <strong>waiting could change the outcome</strong>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Type</th>
+<th>Retry?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>400 / 401 / 403 / 404 / 413</td>
+<td>invalid request, auth, permission, not found, too large</td>
+<td><strong>No</strong>: the request or credentials are wrong</td>
+</tr>
+<tr>
+<td>429</td>
+<td><code>rate_limit_error</code></td>
+<td><strong>Yes</strong>, honoring <code>retry-after</code>, except a spend-cap 429</td>
+</tr>
+<tr>
+<td>500</td>
+<td><code>api_error</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>529</td>
+<td><code>overloaded_error</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td>Connection errors, timeouts</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>A 429 caused by your organization&#39;s monthly <strong>spend cap</strong> has no <code>retry-after</code> header, and its error details name <code>enforced_spend_limit_reached</code>. Waiting won&#39;t clear it, so alert instead of retrying.</p>
+<h3 id="backoff-jitter-and-one-layer-only"><a class="anchor" href="#backoff-jitter-and-one-layer-only" aria-hidden="true">#</a>Backoff, jitter, and one layer only</h3>
+<p><strong>Exponential backoff</strong> doubles the wait after each failure (1 s, 2 s, 4 s…) up to a cap, which gives a struggling service room to recover. Backoff alone has a flaw: a thousand agents that failed together wait the same amount of time, retry together, and knock the service over again. This is the <strong>thundering herd</strong>. <strong>Jitter</strong> randomizes the delay to break that synchronization. &quot;Full jitter&quot; draws it uniformly from <code>[0, min(cap, base × 2^attempt)]</code>.</p>
+<p>The Anthropic Python SDK already retries connection errors, 408, 409, 429 and ≥500 with exponential backoff (default <code>max_retries=2</code>). Problems start when teams add a wrapper around it, then a job-queue retry around that. Three layers of three attempts each make 27 attempts, and a multi-minute stall shows up as one &quot;slow call.&quot; <strong>Give each boundary exactly one retry owner.</strong></p>
+<h3 id="a-retry-wrapper-with-typed-exceptions"><a class="anchor" href="#a-retry-wrapper-with-typed-exceptions" aria-hidden="true">#</a>A retry wrapper with typed exceptions</h3>
+<p>Here we disable SDK retries so this wrapper is the single owner, and add full jitter, <code>retry-after</code> handling and a total time budget:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> logging
+<span class="hljs-keyword">import</span> random
+<span class="hljs-keyword">import</span> time
+
+<span class="hljs-keyword">import</span> anthropic
+
+log = logging.getLogger(<span class="hljs-string">&quot;agent&quot;</span>)
+client = anthropic.Anthropic(
+    max_retries=<span class="hljs-number">0</span>,                                   <span class="hljs-comment"># this wrapper owns retries</span>
+    timeout=anthropic.Timeout(<span class="hljs-number">600.0</span>, connect=<span class="hljs-number">5.0</span>),   <span class="hljs-comment"># long reads OK; fail fast on connect</span>
+)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">is_retryable</span>(<span class="hljs-params">err: Exception</span>) -&gt; <span class="hljs-built_in">bool</span>:
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(err, anthropic.APIConnectionError):  <span class="hljs-comment"># network drop, DNS, APITimeoutError</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(err, anthropic.APIStatusError):
+        <span class="hljs-keyword">if</span> err.status_code == <span class="hljs-number">429</span>:  <span class="hljs-comment"># a spend-cap 429 won&#x27;t clear by waiting</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;enforced_spend_limit_reached&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">str</span>(err.body)
+        <span class="hljs-keyword">return</span> err.status_code <span class="hljs-keyword">in</span> (<span class="hljs-number">408</span>, <span class="hljs-number">409</span>) <span class="hljs-keyword">or</span> err.status_code &gt;= <span class="hljs-number">500</span>  <span class="hljs-comment"># incl. 529</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">create_with_retry</span>(<span class="hljs-params">*, max_attempts=<span class="hljs-number">6</span>, base=<span class="hljs-number">1.0</span>, cap=<span class="hljs-number">60.0</span>, deadline_s=<span class="hljs-number">900.0</span>, **params</span>):
+    start = time.monotonic()
+    <span class="hljs-keyword">for</span> attempt <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_attempts):
+        <span class="hljs-keyword">try</span>:
+            <span class="hljs-keyword">return</span> client.messages.create(**params)
+        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> err:
+            <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> is_retryable(err) <span class="hljs-keyword">or</span> attempt == max_attempts - <span class="hljs-number">1</span>:
+                <span class="hljs-keyword">raise</span>  <span class="hljs-comment"># permanent errors propagate immediately</span>
+            delay = random.uniform(<span class="hljs-number">0</span>, <span class="hljs-built_in">min</span>(cap, base * <span class="hljs-number">2</span>**attempt))  <span class="hljs-comment"># full jitter</span>
+            response = <span class="hljs-built_in">getattr</span>(err, <span class="hljs-string">&quot;response&quot;</span>, <span class="hljs-literal">None</span>)  <span class="hljs-comment"># only status errors carry one</span>
+            <span class="hljs-keyword">if</span> response <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">and</span> (hint := response.headers.get(<span class="hljs-string">&quot;retry-after&quot;</span>)):
+                delay = <span class="hljs-built_in">max</span>(delay, <span class="hljs-built_in">float</span>(hint))
+            <span class="hljs-keyword">if</span> time.monotonic() - start + delay &gt; deadline_s:
+                <span class="hljs-keyword">raise</span>  <span class="hljs-comment"># respect the task&#x27;s time budget, not just the attempt count</span>
+            log.warning(<span class="hljs-string">&quot;attempt %d failed (%s); retry in %.1fs&quot;</span>, attempt + <span class="hljs-number">1</span>, err, delay)
+            time.sleep(delay)</code></pre></div>
+<p>Log every retry: a rising retry rate in your <a href="observability.html">observability</a> dashboards is often the first sign of an incident.</p>
+<h3 id="timeouts-everywhere"><a class="anchor" href="#timeouts-everywhere" aria-hidden="true">#</a>Timeouts everywhere</h3>
+<p>A hung agent is worse than a failed one, because nothing alerts on it. The SDK&#39;s default request timeout is a generous 10 minutes, since deep-thinking responses can take minutes. <strong>Stream</strong> long generations so stalls show up as gaps between chunks, give <strong>every tool</strong> a timeout sized to it, and give the <strong>whole task</strong> a deadline. Treat a timeout as <em>ambiguous</em>: a timed-out <code>issue_refund</code> may have succeeded on the far side.</p>
+<h2 id="idempotency-for-side-effecting-tools"><a class="anchor" href="#idempotency-for-side-effecting-tools" aria-hidden="true">#</a>Idempotency for Side-Effecting Tools</h2>
+<p>An operation is <strong>idempotent</strong> if doing it twice has the same effect as doing it once. <code>set_ticket_status(42, &quot;closed&quot;)</code> is. <code>send_email</code> and <code>charge_card</code> are not. Retries and crash recovery give <strong>at-least-once</strong> execution (when unsure whether an action happened, do it again). Combined with idempotent operations, that yields <strong>effectively-once</strong> behavior.</p>
+<p>The standard tool is an <strong>idempotency key</strong> identifying the <em>intent</em> to act. The first execution records the key and result, and repeats return the recorded result. Payment APIs like Stripe accept keys natively. For your own tools, a small ledger works:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> hashlib
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> sqlite3
+
+db = sqlite3.connect(<span class="hljs-string">&quot;side_effects.db&quot;</span>, isolation_level=<span class="hljs-literal">None</span>)  <span class="hljs-comment"># autocommit</span>
+db.execute(<span class="hljs-string">&quot;CREATE TABLE IF NOT EXISTS effects (key TEXT PRIMARY KEY, status TEXT, result TEXT)&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">idempotency_key</span>(<span class="hljs-params">run_id: <span class="hljs-built_in">str</span>, action: <span class="hljs-built_in">str</span>, **intent</span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-comment"># Key on WHAT we&#x27;re doing, not on tool_use.id: after a crash the model may</span>
+    <span class="hljs-comment"># re-plan and emit the same logical call with a brand-new id.</span>
+    payload = json.dumps({<span class="hljs-string">&quot;run&quot;</span>: run_id, <span class="hljs-string">&quot;action&quot;</span>: action, **intent}, sort_keys=<span class="hljs-literal">True</span>)
+    <span class="hljs-keyword">return</span> hashlib.sha256(payload.encode()).hexdigest()
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">issue_refund</span>(<span class="hljs-params">run_id: <span class="hljs-built_in">str</span>, order_id: <span class="hljs-built_in">str</span>, amount_cents: <span class="hljs-built_in">int</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    key = idempotency_key(run_id, <span class="hljs-string">&quot;refund&quot;</span>, order_id=order_id)  <span class="hljs-comment"># one refund per order per run</span>
+    row = db.execute(<span class="hljs-string">&quot;SELECT status, result FROM effects WHERE key = ?&quot;</span>, (key,)).fetchone()
+    <span class="hljs-keyword">if</span> row <span class="hljs-keyword">and</span> row[<span class="hljs-number">0</span>] == <span class="hljs-string">&quot;done&quot;</span>:
+        <span class="hljs-keyword">return</span> row[<span class="hljs-number">1</span>]  <span class="hljs-comment"># already happened: return the recorded outcome</span>
+    <span class="hljs-keyword">if</span> row <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
+        db.execute(<span class="hljs-string">&quot;INSERT INTO effects (key, status) VALUES (?, &#x27;pending&#x27;)&quot;</span>, (key,))
+    <span class="hljs-comment"># `payments` stands in for your provider&#x27;s client. Passing the SAME key downstream</span>
+    <span class="hljs-comment"># closes the window between &quot;provider refunded&quot; and &quot;we recorded done&quot;.</span>
+    result = payments.refund(order_id, amount_cents, idempotency_key=key)
+    db.execute(<span class="hljs-string">&quot;UPDATE effects SET status = &#x27;done&#x27;, result = ? WHERE key = ?&quot;</span>,
+               (json.dumps(result), key))
+    <span class="hljs-keyword">return</span> json.dumps(result)</code></pre></div>
+<p>The decision that matters is <strong>what goes into the key</strong>. This key covers <code>(run, action, order_id)</code> and deliberately leaves out the amount, which encodes the business rule &quot;one refund per order per run.&quot; Keys built from <code>tool_use_id</code> are too narrow, because a resumed model emits new IDs. Keys built from a fresh random UUID per call are useless, because every retry looks new.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Classify every tool as <strong>read-only</strong>, <strong>naturally idempotent</strong>, or <strong>unsafe</strong>, and record the label next to the tool definition so the harness can enforce it. Unsafe tools need an idempotency key, and often a <a href="human-in-the-loop.html">human approval</a> gate as well.</p>
+</div></aside>
+<h2 id="containing-failure-breakers-fallbacks-degradation"><a class="anchor" href="#containing-failure-breakers-fallbacks-degradation" aria-hidden="true">#</a>Containing Failure: Breakers, Fallbacks, Degradation</h2>
+<p>Retries handle short blips. When a dependency is down for minutes, retries make things worse: every agent hammers the failing service and burns its budget waiting.</p>
+<h3 id="circuit-breakers"><a class="anchor" href="#circuit-breakers" aria-hidden="true">#</a>Circuit breakers</h3>
+<p>A <strong>circuit breaker</strong> tracks a dependency&#39;s recent failures. Once failures pass a threshold it <strong>opens</strong>, and calls fail immediately for a cooldown period. After the cooldown, one probe request is allowed through:</p>
+<figure class="diagram"><pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Closed
+    Closed --&gt; Open: failures exceed threshold
+    Open --&gt; HalfOpen: cooldown elapsed
+    HalfOpen --&gt; Closed: probe succeeds
+    HalfOpen --&gt; Open: probe fails</pre></figure>
+<p>Put breakers around <strong>tools</strong>, not only the model API. When the CRM is down, an open breaker makes <code>crm_lookup</code> return an immediate <code>is_error</code> result (&quot;CRM unavailable; proceed without account history or escalate&quot;) that the model can act on, instead of a 30-second timeout on every step.</p>
+<h3 id="model-fallbacks"><a class="anchor" href="#model-fallbacks" aria-hidden="true">#</a>Model fallbacks</h3>
+<p>When the primary model returns persistent 529s, a <strong>fallback</strong> sends work to another model in the family, or to the same model on another platform (Amazon Bedrock, Google Cloud). The costs are real. <strong>Prompt caches are model-scoped</strong>, so a mid-conversation switch re-bills the whole history at full price. <strong>Thinking blocks are tied to the producing model</strong> on current Claude models, so earlier reasoning may be lost. And the fallback has <strong>different capabilities</strong>, so put it through your evals. Where possible, fall back at <strong>task boundaries</strong> by starting <em>new</em> tasks on the fallback.</p>
+<h3 id="graceful-degradation-and-escalation"><a class="anchor" href="#graceful-degradation-and-escalation" aria-hidden="true">#</a>Graceful degradation and escalation</h3>
+<p>Design an explicit ladder so the system has more states than &quot;works&quot; and &quot;crashed&quot;:</p>
+<ol>
+<li><strong>Retry</strong> transient errors.</li>
+<li><strong>Fall back</strong> to an alternative model or tool.</li>
+<li><strong>Degrade</strong> to reduced capability: read-only mode, drafts for human review instead of executed actions.</li>
+<li><strong>Escalate</strong> to a human with full context: what was tried, what failed, the partial results.</li>
+<li><strong>Fail clearly</strong> with a precise status (<code>budget_exhausted</code>, <code>tool_unavailable:crm</code>). Never fail with a confident fabrication.</li>
+</ol>
+<h2 id="validating-inputs-and-outputs"><a class="anchor" href="#validating-inputs-and-outputs" aria-hidden="true">#</a>Validating Inputs and Outputs</h2>
+<p><strong>Tool inputs</strong> can be <em>malformed</em> (wrong types, missing fields) or <em>hallucinated</em> (a well-formed <code>order_id</code> that doesn&#39;t exist). Defend syntactically with <code>&quot;strict&quot;: True</code> tools (<a href="structured-outputs.html">structured outputs</a>), then semantically in code: IDs exist, amounts are within policy, paths stay in the workspace, the user may touch the resource (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>). On failure, return an <strong>actionable</strong> result such as <code>&quot;No order &#39;A-991&#39;. Use search_orders to find the ID.&quot;</code> with <code>is_error: true</code>. The model usually self-corrects. Cap the repairs: three straight failures signal deeper confusion.</p>
+<p><strong>Outputs</strong> fail most dangerously as <strong>wrong-but-confident</strong> results. The defenses, roughly from strongest to weakest:</p>
+<ol>
+<li><strong>Ground-truth checks</strong>: run the tests, re-read the record after the write, query the balance after the transfer.</li>
+<li><strong>Invariant validators in code</strong>: totals sum correctly, every claim cites a retrieved source, the output parses against its schema.</li>
+<li><strong>A separate verifier pass</strong>, ideally with a different prompt or model. This is the evaluator-optimizer pattern from <a href="workflow-patterns.html">workflow patterns</a>.</li>
+<li><strong>Self-reflection</strong> (&quot;double-check your answer&quot;). It&#39;s cheap, but models often confirm their own mistakes.</li>
+</ol>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Watch for agents that &quot;verify&quot; by changing the check. A coding agent stuck on a failing test may edit the test. Keep verification artifacts out of the agent&#39;s write scope, or diff them before accepting the result.</p>
+</div></aside>
+<h2 id="guarding-the-loop-stop-reasons-repetition-budgets"><a class="anchor" href="#guarding-the-loop-stop-reasons-repetition-budgets" aria-hidden="true">#</a>Guarding the Loop: Stop Reasons, Repetition, Budgets</h2>
+<p><strong>Handle every stop reason.</strong> Many premature terminations happen because the harness ignores a <code>stop_reason</code> it didn&#39;t expect:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>stop_reason</code></th>
+<th>Correct handling</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tool_use</code></td>
+<td>Execute; send all results back in one user message</td>
+</tr>
+<tr>
+<td><code>end_turn</code></td>
+<td>Run completion checks before declaring success</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>Output was cut off. A trailing <code>tool_use</code> may be incomplete, so <strong>don&#39;t execute it</strong>. Retry with a larger limit or count it as a failed attempt</td>
+</tr>
+<tr>
+<td><code>pause_turn</code></td>
+<td>A server-side tool loop paused; send the conversation back as-is</td>
+</tr>
+<tr>
+<td><code>refusal</code></td>
+<td>Don&#39;t retry blindly; route to a fallback or a human</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Detect loops.</strong> Fingerprint each call as <code>hash(tool_name, canonical_json(args))</code>: three identical fingerprints in a window is a loop, and alternating ones (A, B, A, B) are oscillation. Where state is observable (files changed, tests passing), N steps without change is <em>no progress</em>. On first detection, <strong>nudge</strong> with a text block after the tool results (&quot;You&#39;ve run this identical search three times; try something different&quot;). On the second, <strong>stop</strong> and escalate.</p>
+<p><strong>Enforce budgets</strong> on four axes, checked before every model call: <strong>steps</strong> (set from the p99 of successful runs, plus margin), <strong>tokens</strong> (summed from <code>usage</code>), <strong>wall-clock time</strong> (a product requirement), and <strong>dollars</strong> (usage × price, the unit finance cares about; see <a href="cost-and-latency.html">cost and latency</a>). When a budget runs out, end with an explicit status and save the partial work.</p>
+<h2 id="checkpointing-and-durable-execution"><a class="anchor" href="#checkpointing-and-durable-execution" aria-hidden="true">#</a>Checkpointing and Durable Execution</h2>
+<p>The refund agent needed two fixes. <strong>Checkpoint</strong> state after every step so a new worker can resume where the old one stopped. Make side effects <strong>idempotent</strong> so the one step that does repeat is harmless.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant W1 as Worker 1
+    participant S as Checkpoint store
+    participant T as Refund tool
+    participant W2 as Worker 2
+    W1-&gt;&gt;S: save step 31, next = tools
+    W1-&gt;&gt;T: issue_refund, key K
+    T--&gt;&gt;W1: ok, ledger marks K done
+    Note over W1: crash before saving result
+    W2-&gt;&gt;S: load checkpoint
+    S--&gt;&gt;W2: step 31, next = tools
+    W2-&gt;&gt;T: issue_refund, key K
+    T--&gt;&gt;W2: recorded result, no new refund
+    W2-&gt;&gt;S: save step 31, next = model</pre></figure>
+<h3 id="a-checkpointed-loop-persisted-to-disk"><a class="anchor" href="#a-checkpointed-loop-persisted-to-disk" aria-hidden="true">#</a>A checkpointed loop persisted to disk</h3>
+<p>This loop saves its full state atomically after every transition. Re-run it with the same <code>run_id</code> after a crash and it resumes. It reuses <code>create_with_retry</code>; <code>run_tool(block, run_id)</code> is your dispatcher, which validates inputs, applies timeouts, routes unsafe tools through the ledger, and returns a <code>tool_result</code> dict.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> os
+<span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+CKPT = Path(<span class="hljs-string">&quot;checkpoints&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">save</span>(<span class="hljs-params">state: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-literal">None</span>:
+    path = CKPT / <span class="hljs-string">f&quot;<span class="hljs-subst">{state[<span class="hljs-string">&#x27;run_id&#x27;</span>]}</span>.json&quot;</span>
+    tmp = path.with_suffix(<span class="hljs-string">&quot;.tmp&quot;</span>)
+    tmp.write_text(json.dumps(state))
+    os.replace(tmp, path)  <span class="hljs-comment"># atomic rename: never a half-written checkpoint</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">run_id: <span class="hljs-built_in">str</span>, task: <span class="hljs-built_in">str</span>, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">40</span>, max_usd: <span class="hljs-built_in">float</span> = <span class="hljs-number">5.0</span></span>) -&gt; <span class="hljs-built_in">dict</span>:
+    CKPT.mkdir(exist_ok=<span class="hljs-literal">True</span>)
+    path = CKPT / <span class="hljs-string">f&quot;<span class="hljs-subst">{run_id}</span>.json&quot;</span>
+    state = json.loads(path.read_text()) <span class="hljs-keyword">if</span> path.exists() <span class="hljs-keyword">else</span> {
+        <span class="hljs-string">&quot;run_id&quot;</span>: run_id, <span class="hljs-string">&quot;status&quot;</span>: <span class="hljs-string">&quot;running&quot;</span>, <span class="hljs-string">&quot;next&quot;</span>: <span class="hljs-string">&quot;model&quot;</span>, <span class="hljs-string">&quot;step&quot;</span>: <span class="hljs-number">0</span>,
+        <span class="hljs-string">&quot;usd&quot;</span>: <span class="hljs-number">0.0</span>, <span class="hljs-string">&quot;resumes&quot;</span>: -<span class="hljs-number">1</span>, <span class="hljs-string">&quot;messages&quot;</span>: [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]}
+    state[<span class="hljs-string">&quot;resumes&quot;</span>] += <span class="hljs-number">1</span>
+    <span class="hljs-keyword">if</span> state[<span class="hljs-string">&quot;resumes&quot;</span>] &gt; <span class="hljs-number">3</span>:
+        state[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;poison&quot;</span>  <span class="hljs-comment"># crashes every time it runs: quarantine for a human</span>
+    save(state)  <span class="hljs-comment"># persist the resume count BEFORE work that might crash again</span>
+    <span class="hljs-keyword">while</span> state[<span class="hljs-string">&quot;status&quot;</span>] == <span class="hljs-string">&quot;running&quot;</span>:
+        <span class="hljs-keyword">if</span> state[<span class="hljs-string">&quot;next&quot;</span>] == <span class="hljs-string">&quot;tools&quot;</span>:  <span class="hljs-comment"># also the resume point after a mid-tool crash</span>
+            calls = [b <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> state[<span class="hljs-string">&quot;messages&quot;</span>][-<span class="hljs-number">1</span>][<span class="hljs-string">&quot;content&quot;</span>] <span class="hljs-keyword">if</span> b[<span class="hljs-string">&quot;type&quot;</span>] == <span class="hljs-string">&quot;tool_use&quot;</span>]
+            state[<span class="hljs-string">&quot;messages&quot;</span>].append(
+                {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: [run_tool(b, run_id) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> calls]})
+            state[<span class="hljs-string">&quot;next&quot;</span>] = <span class="hljs-string">&quot;model&quot;</span>
+        <span class="hljs-keyword">elif</span> state[<span class="hljs-string">&quot;step&quot;</span>] &gt;= max_steps <span class="hljs-keyword">or</span> state[<span class="hljs-string">&quot;usd&quot;</span>] &gt;= max_usd:
+            state[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;budget_exhausted&quot;</span>
+        <span class="hljs-keyword">else</span>:
+            resp = create_with_retry(model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+                                     system=SYSTEM, tools=TOOLS, messages=state[<span class="hljs-string">&quot;messages&quot;</span>])
+            state[<span class="hljs-string">&quot;step&quot;</span>] += <span class="hljs-number">1</span>
+            state[<span class="hljs-string">&quot;usd&quot;</span>] += cost_usd(resp.usage)  <span class="hljs-comment"># usage x price table (see cost lesson)</span>
+            state[<span class="hljs-string">&quot;messages&quot;</span>].append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: [
+                b.model_dump(mode=<span class="hljs-string">&quot;json&quot;</span>, exclude_none=<span class="hljs-literal">True</span>) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content]})
+            <span class="hljs-keyword">match</span> resp.stop_reason:
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;tool_use&quot;</span>: state[<span class="hljs-string">&quot;next&quot;</span>] = <span class="hljs-string">&quot;tools&quot;</span>
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;pause_turn&quot;</span>: <span class="hljs-keyword">pass</span>  <span class="hljs-comment"># server tool paused: call again with history as-is</span>
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;end_turn&quot;</span>: state[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;done&quot;</span>
+                <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;max_tokens&quot;</span>: state[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">&quot;truncated&quot;</span>  <span class="hljs-comment"># never run partial tool calls</span>
+                <span class="hljs-keyword">case</span> other: state[<span class="hljs-string">&quot;status&quot;</span>] = <span class="hljs-string">f&quot;stopped:<span class="hljs-subst">{other}</span>&quot;</span>  <span class="hljs-comment"># e.g. refusal</span>
+        save(state)
+    <span class="hljs-keyword">return</span> state</code></pre></div>
+<p>Properties worth noticing:</p>
+<ul>
+<li><strong>The step is the unit of atomicity.</strong> A crash between the model&#39;s reply and <code>save</code> repeats that one model call on resume, at the cost of a few cents and possibly a different reply. Side effects happen only in the <code>tools</code> branch, behind the ledger, so a repeated step is safe.</li>
+<li><strong><code>resumes</code> catches poison tasks</strong>, like one whose huge tool output OOM-kills every worker.</li>
+<li><strong>Assistant content is stored exactly as returned</strong>: current models need thinking blocks passed back unchanged, and append-only history keeps the cache warm.</li>
+<li><strong>In production</strong>, use a database row with a version column (so two workers can&#39;t resume one run) and a lease or heartbeat (so a dead worker&#39;s runs get reassigned).</li>
+</ul>
+<h3 id="durable-execution-engines"><a class="anchor" href="#durable-execution-engines" aria-hidden="true">#</a>Durable execution engines</h3>
+<p>What you just built by hand is a small version of <strong>durable execution</strong>: a programming model in which a function&#39;s progress is journaled automatically, so the function survives crashes, restarts and deploys and continues exactly where it stopped.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Engine</th>
+<th>Programming model</th>
+<th>Where state lives</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Temporal</strong></td>
+<td>Deterministic <em>workflows</em> orchestrate <em>activities</em> (side effects) with retry policies</td>
+<td>Temporal cluster&#39;s event history</td>
+</tr>
+<tr>
+<td><strong>Restate</strong></td>
+<td>Durable handlers whose steps are journaled</td>
+<td>Restate server&#39;s log</td>
+</tr>
+<tr>
+<td><strong>DBOS</strong></td>
+<td><code>@DBOS.workflow()</code> functions composed of <code>@DBOS.step()</code> calls</td>
+<td>Your Postgres database</td>
+</tr>
+<tr>
+<td><strong>Inngest</strong></td>
+<td>Event-triggered functions built from <code>step.run</code> blocks</td>
+<td>Inngest service</td>
+</tr>
+<tr>
+<td><strong>LangGraph checkpointers</strong></td>
+<td>Graph state saved after each node, keyed by <code>thread_id</code></td>
+<td>SQLite, Postgres, etc.</td>
+</tr>
+</tbody></table>
+</div>
+<p>The mechanism is the same in all of them. Each step&#39;s <strong>result is recorded</strong>. On recovery the function <strong>replays</strong>: completed steps return their recorded results instantly, and execution goes live again at the first unrecorded step. For agents, the model call and each tool call become steps (activities, in Temporal&#39;s terms). Replay then reuses recorded model outputs, so recovery neither re-bills the model nor lets it wander down a different path through steps it already completed.</p>
+<p>Three rules carry over to every engine:</p>
+<ul>
+<li><strong>Orchestration code must be deterministic.</strong> No network calls, clocks or random numbers outside recorded steps, because replay must take the same path.</li>
+<li><strong>Steps still run at least once.</strong> A worker can die after acting but before recording, so idempotency remains your job. Durable execution removes <em>restart from scratch</em>. It does not remove <em>tolerate a repeat</em>.</li>
+<li><strong>Keep the journal small and the retries single-owner.</strong> Store large tool outputs in blob storage and journal a reference. Disable SDK retries inside steps and let the engine&#39;s retry policy own them, with permanent errors marked non-retryable.</li>
+</ul>
+<h3 id="sagas-and-compensation"><a class="anchor" href="#sagas-and-compensation" aria-hidden="true">#</a>Sagas and compensation</h3>
+<p>Some tasks span systems that share no transaction, such as booking a flight, then a hotel, then a car. If the car fails, you can&#39;t roll back the first two the way a database would. A <strong>saga</strong> pairs each step with a <strong>compensating action</strong> that semantically undoes it, and runs the compensations in reverse when a later step fails:</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Book flight&quot;] --&gt; B[&quot;Book hotel&quot;] --&gt; C[&quot;Book car&quot;]
+    C -- fails --&gt; D[&quot;Cancel hotel&quot;] --&gt; E[&quot;Cancel flight&quot;]
+    C -- succeeds --&gt; F[&quot;Confirm trip&quot;]</pre></figure>
+<p>Record each completed step and its compensation in the checkpoint so a crash <em>during</em> unwinding can resume, and make compensations idempotent too. Put <strong>irreversible</strong> steps (you can&#39;t unsend an email) <strong>last</strong>, behind validation or approval. Let <strong>code</strong> run compensations: the model may decide <em>that</em> the plan failed, but unwinding should be deterministic.</p>
+<h2 id="testing-reliability"><a class="anchor" href="#testing-reliability" aria-hidden="true">#</a>Testing Reliability</h2>
+<p>Untested reliability features fail the first time production needs them. From cheapest to most realistic:</p>
+<ul>
+<li><strong>Recorded fixtures.</strong> Record real API responses once (VCR-style) and replay them in unit tests, so harness logic (stop reasons, resume, budgets, loop detection) is deterministic and free to test. The model itself is your <a href="evaluating-agents.html">eval suite</a>&#39;s job.</li>
+<li><strong>Fault injection.</strong> Wrap tools in a decorator that randomly raises connection errors, times out, or returns truncated JSON, and use a mock HTTP transport to serve 429s and 529s with <code>retry-after</code>. Run the evals with faults on: success should degrade gracefully, not collapse.</li>
+<li><strong>Chaos experiments.</strong> Kill the worker (<code>kill -9</code>) at random steps while tasks run against sandboxed copies of real systems. Then assert that every task reaches a terminal state, that the side-effect ledger shows <strong>exactly one</strong> execution per intent, and that outcomes match uninterrupted runs.</li>
+</ul>
+<p>Track reliability metrics beside quality: success rate, recovery rate under faults, retries per task, budget-exhaustion and escalation rates, and <strong>duplicate side effects (always zero)</strong>.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Agents are long-running, stateful, side-effecting and nondeterministic: design for interruption. Retry only what waiting can fix (429 except spend caps, 5xx including 529, connection errors), using backoff plus full jitter, honoring <code>retry-after</code>, with one retry owner per boundary.</li>
+<li>Idempotency keys built from the <em>intent</em>, not a <code>tool_use_id</code> or a random UUID, turn at-least-once execution into effectively-once side effects.</li>
+<li>Circuit breakers, fallbacks and a degradation ladder keep partial outages from becoming total ones. Model fallbacks cost you the cache, so switch at task boundaries.</li>
+<li>Validate tool inputs syntactically and semantically, return actionable <code>is_error</code> results, and verify outputs against ground truth.</li>
+<li>Handle every stop reason, fingerprint calls to catch loops, and enforce step, token, time and dollar budgets.</li>
+<li>Checkpointing and durable execution let agents resume after crashes. Idempotency makes the one repeated step safe, and sagas unwind multi-system work. Prove it all with fault injection and chaos tests.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Classify.</strong> For tools <code>search_kb</code>, <code>get_order</code>, <code>update_shipping_address</code>, <code>send_email</code> and <code>issue_refund</code>, label each read-only, naturally idempotent or unsafe, and design an idempotency key for each unsafe one.</li>
+<li><strong>Retry math.</strong> A service stacks the SDK&#39;s default retries, a 5-attempt wrapper, and a job queue that retries 3 times. Compute worst-case API attempts per model call, then redesign with one owner.</li>
+<li><strong>Loop detector.</strong> Add a <code>LoopDetector</code> to the checkpointed loop that fingerprints <code>(name, json.dumps(input, sort_keys=True))</code>. Nudge on the third identical call and set <code>status = &quot;looping&quot;</code> on the fifth. Test it with a fake search tool that always returns &quot;no results.&quot;</li>
+<li><strong>Crash test.</strong> Give a mutating tool a 20% chance of calling <code>os._exit(1)</code>, and restart the process until the run completes. Use the ledger to verify that every refund happened exactly once. Then remove the ledger and observe the duplicates.</li>
+<li><strong>Saga design.</strong> An agent provisions a cloud project, a database, a DNS record and a welcome email. Specify the compensations, the irreversible steps, where approval goes, and what the checkpoint holds to resume mid-unwind.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="reliability" data-total="6">
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>An agent&#39;s Messages API call fails with a 400 invalid_request_error. What should the harness do?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Fail fast without retrying, log the request, and fix what produced it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch to a fallback model and retry immediately</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Wait for the retry-after header&#39;s duration, then retry</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Retry with exponential backoff, since API errors are usually transient</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A 400 means the request itself is wrong, and waiting won&#39;t change it. Retry 429s (except spend-cap 429s), 5xx errors including 529, and connection errors.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why add jitter to exponential backoff?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API&#39;s rate limiter requires it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It spreads out retries from many clients that failed together, avoiding synchronized retry storms</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It reduces the total number of retries needed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It makes each individual retry more likely to succeed</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without jitter, clients that failed at the same moment also retry at the same moment and can overload the service again: the thundering herd.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>A refund tool&#39;s idempotency key is the model&#39;s tool_use_id. What goes wrong after a crash and resume?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Nothing, because tool_use_ids are stable across resumes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The key is too long for most payment providers</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The resumed model may emit the same logical refund under a new tool_use_id, so the ledger sees a new key and refunds again</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API rejects reused tool_use_ids</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Model output is nondeterministic and a re-planned call gets a fresh ID. Keys should identify the business intent (run + action + order) so a logically repeated action is recognized.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Your agent runs on a durable execution engine such as Temporal. Which statement is true?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Completed steps replay from recorded results, but a step can still execute more than once, so side-effecting tools still need idempotency</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tools no longer need idempotency because each activity runs exactly once</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Durable execution makes the model&#39;s generations deterministic</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflow code may call the model API directly because replay handles it</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A worker can die after acting and before recording, so steps are at-least-once. Model calls belong in recorded steps, not in deterministic workflow code.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>A response has stop_reason &quot;max_tokens&quot; and ends with a tool_use block. What&#39;s the safest handling?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Add an assistant message that prefills the rest of the call</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Mark the run successful</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Don&#39;t execute it, because its input may be truncated; retry with a larger max_tokens or treat the attempt as failed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Execute the tool, since the model clearly intended it</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The output was cut off, so the tool input may be incomplete, and running half-formed arguments is dangerous. Assistant prefill is rejected on current models anyway.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Which defense is strongest against wrong-but-confident results?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Checking against ground truth, such as running tests or re-reading a record after writing it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Raising effort so the model thinks longer</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Asking the model to double-check its answer</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Lowering max_tokens to keep answers focused</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Self-reflection reuses the same judgment that made the mistake. Ground-truth checks are independent of the model.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/" target="_blank" rel="noopener">Exponential Backoff and Jitter (AWS Architecture Blog)</a>: the classic simulation-backed comparison of jitter strategies.</li>
+<li><a href="https://martinfowler.com/bliki/CircuitBreaker.html" target="_blank" rel="noopener">CircuitBreaker (Martin Fowler)</a>: the clearest short explanation of the pattern.</li>
+<li><a href="https://stripe.com/blog/idempotency" target="_blank" rel="noopener">Designing robust and predictable APIs with idempotency (Stripe)</a>: idempotency keys, retries and failure windows from a payments company.</li>
+<li><a href="https://microservices.io/patterns/data/saga.html" target="_blank" rel="noopener">Saga pattern (microservices.io)</a>: compensating transactions, orchestrated and choreographed.</li>
+<li><a href="https://docs.temporal.io/" target="_blank" rel="noopener">Temporal documentation</a>: workflows, activities, retry policies and the determinism rules behind durable execution.</li>
+<li><a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener">LangGraph (GitHub)</a>: see its persistence and checkpointer docs for thread-based resume and human interrupts.</li>
+<li><a href="https://platform.claude.com/docs/en/api/errors" target="_blank" rel="noopener">Claude API errors</a> and <a href="https://platform.claude.com/docs/en/api/rate-limits" target="_blank" rel="noopener">rate limits</a>: authoritative error types, retryability and rate-limit headers.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="reliability">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-reliability"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-reliability" class="notes" data-slug="reliability" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="observability.html"><small>← Previous</small><span>Observability &amp; Debugging</span></a>
+    <a class="pager-next" href="cost-and-latency.html"><small>Next →</small><span>Cost &amp; Latency Optimization</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-agents-fail-differently">Why Agents Fail Differently</a></li>
+<li class="toc-h2"><a href="#a-failure-taxonomy">A Failure Taxonomy</a></li>
+<li class="toc-h2"><a href="#retries-done-right">Retries Done Right</a></li>
+<li class="toc-h3"><a href="#which-errors-are-retryable">Which errors are retryable</a></li>
+<li class="toc-h3"><a href="#backoff-jitter-and-one-layer-only">Backoff, jitter, and one layer only</a></li>
+<li class="toc-h3"><a href="#a-retry-wrapper-with-typed-exceptions">A retry wrapper with typed exceptions</a></li>
+<li class="toc-h3"><a href="#timeouts-everywhere">Timeouts everywhere</a></li>
+<li class="toc-h2"><a href="#idempotency-for-side-effecting-tools">Idempotency for Side-Effecting Tools</a></li>
+<li class="toc-h2"><a href="#containing-failure-breakers-fallbacks-degradation">Containing Failure: Breakers, Fallbacks, Degradation</a></li>
+<li class="toc-h3"><a href="#circuit-breakers">Circuit breakers</a></li>
+<li class="toc-h3"><a href="#model-fallbacks">Model fallbacks</a></li>
+<li class="toc-h3"><a href="#graceful-degradation-and-escalation">Graceful degradation and escalation</a></li>
+<li class="toc-h2"><a href="#validating-inputs-and-outputs">Validating Inputs and Outputs</a></li>
+<li class="toc-h2"><a href="#guarding-the-loop-stop-reasons-repetition-budgets">Guarding the Loop: Stop Reasons, Repetition, Budgets</a></li>
+<li class="toc-h2"><a href="#checkpointing-and-durable-execution">Checkpointing and Durable Execution</a></li>
+<li class="toc-h3"><a href="#a-checkpointed-loop-persisted-to-disk">A checkpointed loop persisted to disk</a></li>
+<li class="toc-h3"><a href="#durable-execution-engines">Durable execution engines</a></li>
+<li class="toc-h3"><a href="#sagas-and-compensation">Sagas and compensation</a></li>
+<li class="toc-h2"><a href="#testing-reliability">Testing Reliability</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

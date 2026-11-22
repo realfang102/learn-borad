@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluating Agents · Agent Academy</title>
+<meta name="description" content="How to measure whether an agent actually works: tasks, trials and graders, LLM judges and their biases, pass@k vs pass^k, error analysis, statistics, and the eval-driven development loop.">
+<meta property="og:title" content="Evaluating Agents · Agent Academy">
+<meta property="og:description" content="How to measure whether an agent actually works: tasks, trials and graders, LLM judges and their biases, pass@k vs pass^k, error analysis, statistics, and the eval-driven development loop.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="evaluating-agents">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Evaluating Agents</h1>
+    <p class="lead">How to measure whether an agent actually works: tasks, trials and graders, LLM judges and their biases, pass@k vs pass^k, error analysis, statistics, and the eval-driven development loop.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 45 min</span>
+      <span>✅ 7-question quiz</span>
+      <span>🧪 Interactive</span>
+      <span>Lesson 24 of 35</span>
+      <span class="lesson-status" data-status-for="evaluating-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain why evaluating agents is harder than evaluating single LLM calls</li><li>Choose between code-based, model-based and human graders for a given check</li><li>Distinguish outcome, trajectory and per-step evals, and capability vs regression suites</li><li>Compute and interpret pass@k and pass^k, and put confidence intervals on eval scores</li><li>Build an eval set from real failures using error analysis</li><li>Write a small eval harness with a state-checking grader and a calibrated LLM judge</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="structured-outputs.html">Structured Outputs &amp; Control Flow</a></p>
+  </section>
+  <article class="prose">
+<p>Imagine you&#39;ve built a customer-support agent. You change one sentence in the system prompt, try five conversations by hand, and they all look better. You ship. Two days later, refunds are being issued twice for the same order, because the new wording made the agent retry a tool call it used to trust. Nobody noticed, because &quot;try five conversations by hand&quot; is not a measurement — it&#39;s a vibe.</p>
+<p><strong>Evals</strong> (evaluations) are how you replace vibes with evidence. For a plain LLM call, an eval can be as simple as &quot;does the output match the expected label?&quot; For an agent, which takes dozens of actions in a changing environment, chooses its own path, and behaves differently every time you run it, evaluation becomes its own engineering discipline. Teams that are good at agents are, almost without exception, teams that are good at evals: the eval suite is what lets them upgrade models, rewrite prompts and add tools without fear.</p>
+<p>In this lesson you&#39;ll learn the vocabulary of agent evals, the main types of graders and their failure modes, how to build an eval set from real failures, how to reason about statistics and reliability (pass@k vs pass^k), and how to write a small but honest eval harness in Python.</p>
+<h2 id="why-agent-evals-are-hard"><a class="anchor" href="#why-agent-evals-are-hard" aria-hidden="true">#</a>Why agent evals are hard</h2>
+<p>Classic software testing assumes determinism: same input, same output, one right answer. Agents violate every part of that.</p>
+<ul>
+<li><strong>Non-determinism.</strong> Sampling, tool latency, retrieved content and even the model&#39;s own earlier phrasing differ between runs. The same task can pass on Monday and fail on Tuesday with no code change. A single run tells you little.</li>
+<li><strong>Long trajectories.</strong> A coding agent might take 60 steps. A failure at step 7 (misreading a file) may only surface at step 55 (tests fail). Errors compound: if each step is 98% reliable, a 50-step task succeeds end-to-end only about 36% of the time (0.98⁵⁰ ≈ 0.36). See <a href="when-to-use-agents.html">when to use agents</a> for the compounding-errors intuition.</li>
+<li><strong>Many valid paths.</strong> There are a hundred correct ways to fix a bug or book a flight. An eval that demands one exact sequence of tool calls will punish creative but correct solutions — and sometimes the model&#39;s &quot;unexpected&quot; path is <em>better</em> than the one you imagined.</li>
+<li><strong>Environment state.</strong> Agents act on the world: files, databases, browsers, APIs. Grading requires inspecting that world afterward, and every trial needs a clean, isolated copy of it, or trials contaminate each other.</li>
+<li><strong>Ambiguous success and cost.</strong> &quot;Write a helpful reply to this angry customer&quot; has no exact-match answer, and 200 tasks × 5 trials × 40 steps is tens of thousands of model calls — budget pressure tempts you into samples too small to mean anything.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>An agent eval doesn&#39;t ask &quot;did the output match?&quot; — it asks &quot;across many attempts in a realistic environment, how often does the agent reach a correct end state, by an acceptable path, at an acceptable cost?&quot; Every design choice in this lesson serves one of those clauses.</p>
+</div></aside>
+<h2 id="the-vocabulary-of-agent-evals"><a class="anchor" href="#the-vocabulary-of-agent-evals" aria-hidden="true">#</a>The vocabulary of agent evals</h2>
+<p>This vocabulary is widely used (Anthropic&#39;s engineering write-up on agent evals uses essentially these definitions):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Task</strong></td>
+<td>A single test case: inputs, environment setup and success criteria</td>
+<td>&quot;Refund order #1042 for the broken lamp; the customer has been charged $89.&quot;</td>
+</tr>
+<tr>
+<td><strong>Trial</strong></td>
+<td>One attempt by the agent at a task. You run several per task because results vary</td>
+<td>Trial 3 of 5 for task <code>refund-broken-lamp</code></td>
+</tr>
+<tr>
+<td><strong>Transcript</strong> (or <strong>trajectory</strong>)</td>
+<td>The complete record of a trial: every message, model output, tool call, tool result and stop reason</td>
+<td>The 14-message conversation including <code>get_order</code> and <code>issue_refund</code> calls</td>
+</tr>
+<tr>
+<td><strong>Outcome</strong></td>
+<td>The final state of the environment when the trial ends — not what the agent <em>says</em> happened</td>
+<td>The refunds table contains exactly one $89 refund for #1042</td>
+</tr>
+<tr>
+<td><strong>Grader</strong> (or <strong>scorer</strong>)</td>
+<td>Logic that scores some aspect of the transcript or outcome</td>
+<td>&quot;Exactly one refund row exists&quot; (code); &quot;Reply is empathetic and accurate&quot; (LLM judge)</td>
+</tr>
+<tr>
+<td><strong>Eval suite</strong></td>
+<td>A collection of tasks with a shared purpose, plus the harness that runs them</td>
+<td>120 support-ticket tasks used as a regression gate</td>
+</tr>
+<tr>
+<td><strong>Harness</strong></td>
+<td>The code that sets up environments, runs the agent, records transcripts, invokes graders and aggregates results</td>
+<td>The ~80-line script later in this lesson</td>
+</tr>
+</tbody></table>
+</div>
+<p>The distinction between <strong>transcript</strong> and <strong>outcome</strong> is the single most important one. An agent can say &quot;I&#39;ve issued your refund!&quot; while the refund API call actually failed — or succeed silently while claiming failure. Whenever an outcome is checkable, grade the outcome.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    T[&quot;Task (inputs + setup)&quot;] --&gt; H[Harness]
+    H --&gt; E[&quot;Fresh environment&quot;]
+    H --&gt; A[Agent]
+    A &lt;--&gt;|&quot;tool calls / results&quot;| E
+    A --&gt; TR[Transcript]
+    E --&gt; O[&quot;Outcome (final state)&quot;]
+    TR --&gt; G[Graders]
+    O --&gt; G
+    G --&gt; S[&quot;Scores per trial&quot;]
+    S --&gt; R[&quot;Aggregate: pass rate, pass^k, cost, steps&quot;]</pre></figure>
+<h2 id="graders-code-models-and-humans"><a class="anchor" href="#graders-code-models-and-humans" aria-hidden="true">#</a>Graders: code, models and humans</h2>
+<p>Graders come in three families. Good eval suites mix them, using the cheapest grader that is <em>valid</em> for each check.</p>
+<h3 id="code-based-graders"><a class="anchor" href="#code-based-graders" aria-hidden="true">#</a>Code-based graders</h3>
+<p><strong>Code-based graders</strong> are deterministic programs. They&#39;re fast, cheap, reproducible and impossible to sweet-talk. Common forms:</p>
+<ul>
+<li><strong>Unit or integration tests</strong> — the backbone of coding evals. SWE-bench grades a patch by running the repository&#39;s tests (see <a href="benchmarks.html">benchmarks</a>).</li>
+<li><strong>State checks</strong> — query the environment after the trial: does the database row exist? Was the file created with the right contents? Was the email <em>not</em> sent? This is the gold standard for agents that act on systems.</li>
+<li><strong>String, regex and schema checks</strong> — does the output parse as JSON? Does it contain the order ID? Does it avoid leaking the internal ticket number?</li>
+<li><strong>Tool-call assertions</strong> — was <code>issue_refund</code> called at most once? Was <code>delete_account</code> never called?</li>
+<li><strong>Budget checks</strong> — steps ≤ 25, cost ≤ $0.50, wall clock ≤ 3 minutes.</li>
+</ul>
+<p>Their weakness is brittleness: exact match fails &quot;$89.00&quot; when expecting &quot;89&quot;. Normalize aggressively and prefer checking <em>state</em> over checking <em>text</em>.</p>
+<h3 id="model-based-graders-llm-as-judge"><a class="anchor" href="#model-based-graders-llm-as-judge" aria-hidden="true">#</a>Model-based graders (LLM-as-judge)</h3>
+<p>When quality can&#39;t be expressed as code — tone, helpfulness, faithfulness to sources, whether a research summary covers the key points — you use a <strong>model-based grader</strong>, commonly called <strong>LLM-as-judge</strong>: a separate model call that reads the transcript or output and returns a verdict.</p>
+<p>Three common setups:</p>
+<ol>
+<li><strong>Rubric-based (pointwise)</strong> — the judge scores one output against explicit criteria: &quot;PASS only if the reply (a) states the refund amount, (b) gives a timeline, (c) does not promise anything outside policy.&quot;</li>
+<li><strong>Pairwise</strong> — the judge sees two outputs (e.g., old prompt vs new prompt) and picks the better one. Humans and models are both more reliable at comparisons than absolute scores, which makes pairwise great for A/B decisions.</li>
+<li><strong>Reference-based</strong> — the judge compares the output to a known-good reference answer: &quot;Does the candidate contain the same facts as the reference? Extra correct detail is fine; contradictions are failures.&quot;</li>
+</ol>
+<p>Design rules that make judges far more reliable:</p>
+<ul>
+<li><strong>Binary or small-scale verdicts beat 1–10 scales.</strong> &quot;Pass/fail per criterion&quot; is easier to calibrate and to act on than &quot;7/10.&quot;</li>
+<li><strong>One criterion per judge call</strong> when criteria are independent. A judge asked to check eight things at once misses some.</li>
+<li><strong>Reason before the verdict.</strong> Ask for a short justification <em>then</em> the score, and use <a href="structured-outputs.html">structured outputs</a> so the verdict is machine-readable.</li>
+<li><strong>Give the judge ground truth.</strong> Pass the actual tool calls and environment state, not just the agent&#39;s claims, so the judge can catch &quot;I&#39;ve refunded you&quot; when no refund happened.</li>
+<li><strong>Grade only what you specify.</strong> Tell the judge explicitly what <em>not</em> to reward (length, formatting flourishes, politeness beyond the rubric).</li>
+</ul>
+<h3 id="known-judge-biases"><a class="anchor" href="#known-judge-biases" aria-hidden="true">#</a>Known judge biases</h3>
+<p>LLM judges have systematic biases, documented in work such as Zheng et al.&#39;s <em>Judging LLM-as-a-Judge</em> (2023):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bias</th>
+<th>What happens</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Position bias</strong></td>
+<td>In pairwise comparisons the judge favors the answer in a particular slot (often the first)</td>
+<td>Run both orders; count a win only if it&#39;s consistent, otherwise call it a tie</td>
+</tr>
+<tr>
+<td><strong>Verbosity bias</strong></td>
+<td>Longer, more elaborate answers get higher scores even when not better</td>
+<td>Rubrics that reward specific content, explicit &quot;length is not a criterion&quot; instructions, length-controlled comparisons</td>
+</tr>
+<tr>
+<td><strong>Self-preference</strong> (self-enhancement)</td>
+<td>A model rates outputs from itself or its own family more favorably</td>
+<td>Use a judge from a different model or family where feasible; validate against humans</td>
+</tr>
+<tr>
+<td><strong>Leniency / sycophancy</strong></td>
+<td>Judges lean toward &quot;pass,&quot; especially when the output sounds confident</td>
+<td>Binary criteria, require citing evidence, include known-bad examples in calibration</td>
+</tr>
+<tr>
+<td><strong>Rubric drift</strong></td>
+<td>The judge applies its own idea of quality instead of yours</td>
+<td>Few-shot examples of pass and fail with explanations</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="calibrating-judges-against-humans"><a class="anchor" href="#calibrating-judges-against-humans" aria-hidden="true">#</a>Calibrating judges against humans</h3>
+<p>A judge is itself a model that needs evaluating. Before trusting it:</p>
+<ol>
+<li>Have a domain expert hand-label 50–200 transcripts as pass/fail with a one-line reason, and run the judge on the same transcripts.</li>
+<li>Measure agreement — not just accuracy. With imbalanced data (90% passes), a judge that always says &quot;pass&quot; is 90% accurate and useless. Report separately how many human-labeled failures the judge catches and how many human-labeled passes it accepts (its true negative and true positive rates, treating &quot;pass&quot; as positive), or use <strong>Cohen&#39;s kappa</strong>, which corrects for chance agreement.</li>
+<li>Read every disagreement. Sometimes the judge is wrong (fix the rubric); sometimes the human was inconsistent (fix the labeling guideline). Shankar et al.&#39;s <em>Who Validates the Validators?</em> (2024) found that people refine their criteria <em>while</em> grading — expect the rubric to evolve.</li>
+<li>Hold out part of the labeled set and re-check agreement after rubric changes, so you don&#39;t overfit the judge prompt to the calibration set.</li>
+</ol>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Use code graders wherever correctness is objectively checkable, LLM judges for the subjective remainder, and humans to calibrate the judges and to spot-check periodically. A suite that is 100% LLM-judged usually has untested assumptions hiding in it.</p>
+</div></aside>
+<h3 id="human-review"><a class="anchor" href="#human-review" aria-hidden="true">#</a>Human review</h3>
+<p><strong>Human graders</strong> remain the ground truth for subjective quality and for high-stakes expert domains (legal, medical, financial). They&#39;re slow, expensive and inconsistent with each other, so write a labeling guide, measure inter-annotator agreement, and spend human time where it has the most leverage: calibrating judges and doing error analysis.</p>
+<h2 id="what-to-grade-outcome-trajectory-step"><a class="anchor" href="#what-to-grade-outcome-trajectory-step" aria-hidden="true">#</a>What to grade: outcome, trajectory, step</h2>
+<p>You can evaluate an agent at three granularities, and each catches different bugs.</p>
+<p><strong>Outcome evals</strong> check the end state: tests pass, the refund exists, the report answers the question. They&#39;re robust to the many-valid-paths problem and are the closest proxy for user value. Default to outcome evals.</p>
+<p><strong>Trajectory evals</strong> check <em>how</em> the agent got there:</p>
+<ul>
+<li><strong>Policy compliance</strong>: did it verify identity before changing the account? Did it ask for confirmation before an irreversible action (<a href="human-in-the-loop.html">human-in-the-loop</a>)?</li>
+<li><strong>Efficiency</strong>: number of steps, tokens, redundant tool calls, cost per task (<a href="cost-and-latency.html">cost and latency</a>).</li>
+<li><strong>Safety</strong>: did it ever touch files outside the workspace, or call a forbidden tool?</li>
+</ul>
+<p>Trajectory checks should encode <em>constraints</em> (&quot;never X,&quot; &quot;Y before Z,&quot; &quot;at most N calls&quot;), not a single golden path. &quot;The agent must call <code>search</code> then <code>read</code> then <code>answer</code>&quot; is brittle; &quot;the agent must not answer without reading at least one source&quot; is robust.</p>
+<p><strong>Per-step evals</strong> (sometimes called <strong>tool-call evals</strong>) freeze a conversation prefix and test a single decision: given this history, does the model pick the right tool with the right arguments? They&#39;re cheap, fast and fairly deterministic, like unit tests for the agent&#39;s decision policy. They&#39;re excellent for <a href="designing-tools.html">tool design</a> regressions (&quot;after renaming the tool, does the model still pick it for date queries?&quot;). Their limit: they don&#39;t capture how errors compound across steps, and a frozen prefix may not resemble what the current model would actually have produced.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Per-step eval case: tool selection
+History:  user: &quot;What did I spend on flights last quarter?&quot;
+Expected: call  search_transactions
+          args  category == &quot;travel.air&quot;, date range covers Q3, no other filters
+Grader:   code (assert tool name + argument predicates)
+Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quot;, &quot;start&quot;: &quot;2026-07-01&quot;, &quot;end&quot;: &quot;2026-09-30&quot;})
+          -&gt; FAIL: used free-text query instead of category filter</code></pre></div>
+<h2 id="capability-evals-vs-regression-evals"><a class="anchor" href="#capability-evals-vs-regression-evals" aria-hidden="true">#</a>Capability evals vs regression evals</h2>
+<p>Eval suites serve two different purposes, and mixing them up causes confusion.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Capability evals</strong></th>
+<th><strong>Regression evals</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Question</td>
+<td>&quot;What can the agent do? How much better did we get?&quot;</td>
+<td>&quot;Did we break anything that used to work?&quot;</td>
+</tr>
+<tr>
+<td>Expected pass rate</td>
+<td>Low to medium — that&#39;s the point, it&#39;s a hill to climb</td>
+<td>Near 100%</td>
+</tr>
+<tr>
+<td>When run</td>
+<td>During development, model upgrades, research</td>
+<td>On every change, in CI, before deploy</td>
+</tr>
+<tr>
+<td>What a drop means</td>
+<td>Interesting signal</td>
+<td>A blocking bug</td>
+</tr>
+<tr>
+<td>Typical size</td>
+<td>Larger, harder, more varied</td>
+<td>Smaller, fast, curated</td>
+</tr>
+</tbody></table>
+</div>
+<p>Tasks graduate over time: when a capability task reliably passes (say, every trial over several weeks), move it into the regression suite so it stays solved. A capability suite that&#39;s at 95% has stopped telling you anything — add harder tasks.</p>
+<h2 id="passk-and-passk"><a class="anchor" href="#passk-and-passk" aria-hidden="true">#</a>pass@k and pass^k</h2>
+<p>Because agents are non-deterministic, you run each task several times. How you aggregate those trials depends on what you care about.</p>
+<ul>
+<li><strong>pass@1</strong>: the probability a single trial succeeds — the average success rate across trials.</li>
+<li><strong>pass@k</strong>: the probability that <em>at least one</em> of k trials succeeds. Introduced for code generation (Chen et al., 2021, with HumanEval), it measures what an agent <em>can</em> do if you get to pick the best attempt — appropriate when you have a verifier (run the tests, keep the passing patch) or a human selects among drafts.</li>
+<li><strong>pass^k</strong> (&quot;pass hat k&quot;): the probability that <em>all</em> k trials succeed. Popularized by τ-bench (2024) for customer-service agents, it measures <strong>consistency</strong> — appropriate when every user interaction must go right, because each customer only gets one try.</li>
+</ul>
+<p>If a task&#39;s per-trial success probability is p, and trials are independent:</p>
+<ul>
+<li>pass@k = 1 − (1 − p)ᵏ — rises toward 1 as k grows</li>
+<li>pass^k = pᵏ — falls toward 0 as k grows</li>
+</ul>
+<p>At p = 0.8: pass@5 ≈ 0.9997, but pass^5 ≈ 0.33. The same agent looks nearly perfect or unreliable depending on which question you ask. τ-bench showed exactly this pattern: agents with respectable pass@1 had pass^k that fell steeply as k increased.</p>
+<p>Try it yourself — drag the per-trial success rate and k, and watch the two curves diverge:</p>
+<div class="widget" data-widget="pass-at-k"></div>
+
+<p>When you run n trials per task and observe c successes, use the unbiased estimators rather than plugging in p = c/n:</p>
+<ul>
+<li>pass@k ≈ 1 − C(n−c, k) / C(n, k)</li>
+<li>pass^k ≈ C(c, k) / C(n, k)</li>
+</ul>
+<p>(where C is &quot;n choose k&quot;; requires n ≥ k). Compute per task, then average across tasks.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Choose the metric that matches the product</div><div class="callout-body"><p>If a verifier or human picks the best of several attempts, pass@k is your number. If every attempt reaches a real user or touches real systems, pass^k is your number — and it&#39;s usually much lower than you&#39;d like.</p>
+</div></aside>
+<h2 id="building-eval-sets-from-real-failures"><a class="anchor" href="#building-eval-sets-from-real-failures" aria-hidden="true">#</a>Building eval sets from real failures</h2>
+<p>The best eval tasks don&#39;t come from brainstorming; they come from watching your agent fail.</p>
+<h3 id="start-small-and-start-now"><a class="anchor" href="#start-small-and-start-now" aria-hidden="true">#</a>Start small and start now</h3>
+<p>You don&#39;t need 1,000 tasks to begin. Twenty to fifty tasks drawn from real usage, each with a clear success criterion, will catch more bugs than an elaborate synthetic suite built months later. Sources, roughly in order of value: <strong>production failures</strong> (bug reports, escalations, thumbs-down); <strong>manual testing</strong> (every hand check during development becomes a task); <strong>domain edge cases</strong> (partial refunds, ambiguous requests, adversarial inputs — see <a href="agent-security.html">agent security</a>); and <strong>synthetic variations</strong> of real tasks, which you must review, since models produce plausible but unrealistic cases.</p>
+<p>Make sure the suite includes <strong>negative cases</strong> — tasks where the right behavior is to refuse, ask a clarifying question, or do nothing. An agent tuned only on &quot;do X&quot; tasks learns to always do something.</p>
+<h3 id="error-analysis-read-the-transcripts"><a class="anchor" href="#error-analysis-read-the-transcripts" aria-hidden="true">#</a>Error analysis: read the transcripts</h3>
+<p><strong>Error analysis</strong> is the practice of systematically reading transcripts to find out <em>how</em> the agent fails before deciding <em>what</em> to measure. It&#39;s unglamorous and the highest-leverage activity in agent development. A widely taught method borrows from qualitative research:</p>
+<ol>
+<li><strong>Sample</strong> ~50–100 recent transcripts (biased toward failures and low-rated sessions, plus some random ones).</li>
+<li><strong>Open coding</strong>: read each one and write a free-form note on the <em>first</em> thing that went wrong. Don&#39;t use predefined categories yet. &quot;Agent searched orders by customer name instead of email; got wrong customer.&quot;</li>
+<li><strong>Axial coding</strong>: group the notes into categories — &quot;wrong lookup key,&quot; &quot;hallucinated policy,&quot; &quot;gave up after tool error,&quot; &quot;ignored user correction.&quot;</li>
+<li><strong>Count</strong>: a frequency table tells you where to invest. Often two or three categories account for most failures.</li>
+<li><strong>Write evals for the top categories</strong> — each category becomes a set of tasks with graders specific to that failure.</li>
+<li><strong>Repeat</strong> until new transcripts stop revealing new failure categories.</li>
+</ol>
+<p>Why the <em>first</em> error? Downstream errors are usually consequences of it.</p>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>From transcripts to an eval</div><div class="callout-body"><p>A team reads 80 failed support conversations. Open coding yields notes like &quot;refunded full amount for partial damage,&quot; &quot;refunded shipping when policy excludes it,&quot; &quot;promised refund before checking eligibility.&quot; Axial coding groups 31 of 80 into <strong>refund-amount errors</strong>. They write 25 tasks covering partial damage, shipping, discounts and multi-item orders, each graded by a state check on the refunds table. Baseline: 56% pass. After adding a <code>calculate_refund</code> tool that encodes the policy, 92% — and the tasks join the regression suite.</p>
+</div></aside>
+<h3 id="simulated-users"><a class="anchor" href="#simulated-users" aria-hidden="true">#</a>Simulated users</h3>
+<p>Conversational agents need a counterpart. A <strong>simulated user</strong> is an LLM instructed to play a customer with a hidden goal and persona (&quot;You want to change your flight to Friday but only if it&#39;s under $100 extra; you don&#39;t know your booking reference&quot;). τ-bench and τ²-bench use this approach, grading by comparing the final database state against the expected one.</p>
+<p>Simulators have failure modes of their own — too cooperative, leaking information a real user wouldn&#39;t volunteer, forgetting their goal — so validate them by reading their transcripts too. See <a href="conversational-voice-agents.html">conversational and voice agents</a>.</p>
+<h3 id="environment-and-sandbox-based-evals"><a class="anchor" href="#environment-and-sandbox-based-evals" aria-hidden="true">#</a>Environment and sandbox-based evals</h3>
+<p>For agents that act — coding, computer use, data analysis — the most faithful eval runs the agent in a real but <strong>isolated environment</strong>: a container with the repository checked out, a seeded database, a self-hosted web app. Key practices:</p>
+<ul>
+<li><strong>Fresh state per trial</strong>, so leftovers from trial 2 can&#39;t make trial 3 pass.</li>
+<li><strong>Hide the grader.</strong> Visible, editable tests invite agents to edit the tests; copy grading tests in <em>after</em> the agent finishes.</li>
+<li><strong>Remove answer leaks</strong> — e.g., a git history that contains the fix.</li>
+<li><strong>Pin everything</strong> (images, dependencies, mock API responses, the clock) so a failure means the agent changed, not the world.</li>
+</ul>
+<p>See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a> for the isolation technology itself.</p>
+<h2 id="online-evals-and-ab-testing"><a class="anchor" href="#online-evals-and-ab-testing" aria-hidden="true">#</a>Online evals and A/B testing</h2>
+<p><strong>Offline evals</strong> run your fixed suite before deploy. <strong>Online evals</strong> measure the agent on live traffic, catching what your suite didn&#39;t anticipate: run rubric judges asynchronously on a sample of production transcripts; track implicit signals (escalations, user rephrasings, abandonment, thumbs down); and <strong>A/B test</strong> new versions on a slice of traffic, comparing a primary metric (resolution rate) plus <strong>guardrail metrics</strong> that must not regress (cost per task, safety flags). Shadow mode and canaries reduce rollout risk (<a href="deployment.html">deployment</a>). Capturing and querying those transcripts is the subject of <a href="observability.html">observability</a> — and production failures feed straight back into error analysis and new offline tasks.</p>
+<h2 id="statistics-is-that-improvement-real"><a class="anchor" href="#statistics-is-that-improvement-real" aria-hidden="true">#</a>Statistics: is that improvement real?</h2>
+<p>Your new prompt scores 74% versus the old 70% on 50 tasks. Ship it? Almost certainly you can&#39;t tell yet.</p>
+<h3 id="confidence-intervals"><a class="anchor" href="#confidence-intervals" aria-hidden="true">#</a>Confidence intervals</h3>
+<p>An eval score is an estimate of a true success rate. For a pass rate p measured on n independent tasks, the <strong>standard error</strong> is approximately √(p(1−p)/n), and a 95% confidence interval is roughly p ± 1.96 × SE.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tasks (n)</th>
+<th>Observed pass rate</th>
+<th>Approx. 95% CI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>50</td>
+<td>70%</td>
+<td>±13 points (57–83%)</td>
+</tr>
+<tr>
+<td>200</td>
+<td>70%</td>
+<td>±6 points (64–76%)</td>
+</tr>
+<tr>
+<td>1,000</td>
+<td>70%</td>
+<td>±3 points (67–73%)</td>
+</tr>
+</tbody></table>
+</div>
+<p>A 4-point difference on 50 tasks is well inside the noise. For small n or rates near 0% or 100%, use a Wilson interval instead of the normal approximation.</p>
+<h3 id="variance-across-trials-and-clustering"><a class="anchor" href="#variance-across-trials-and-clustering" aria-hidden="true">#</a>Variance across trials and clustering</h3>
+<p>Running 5 trials per task doesn&#39;t give you 5× the independent data. Trials of the same task are correlated — a task that&#39;s hard is hard every time. Compute each task&#39;s mean score first, then compute the standard error <em>across tasks</em> (this is a <strong>clustered standard error</strong>). Extra trials reduce the within-task noise; extra tasks reduce the between-task uncertainty, which usually dominates. When forced to choose, more tasks usually beats more trials.</p>
+<h3 id="paired-comparisons"><a class="anchor" href="#paired-comparisons" aria-hidden="true">#</a>Paired comparisons</h3>
+<p>Run both agent versions on the <strong>same tasks</strong> and analyze per-task <em>differences</em>: task difficulty cancels out, so a paired test is far more sensitive than comparing two averages. Also check the flip table — a &quot;+2%&quot; that&#39;s really 15 fixes and 13 new breakages deserves investigation.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Running 20 prompt variants and shipping the best one on a 50-task suite is a recipe for selecting noise. If you compare many variants, confirm the winner on a fresh held-out set or with more trials before trusting the margin.</p>
+</div></aside>
+<h2 id="the-eval-driven-development-loop"><a class="anchor" href="#the-eval-driven-development-loop" aria-hidden="true">#</a>The eval-driven development loop</h2>
+<p>Mature teams develop agents the way good engineers do test-driven development:</p>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    P[&quot;Observe failures (prod traces, testing)&quot;] --&gt; EA[&quot;Error analysis: categorize, count&quot;]
+    EA --&gt; W[&quot;Write eval tasks + graders for top failure&quot;]
+    W --&gt; B[&quot;Run baseline: measure current pass rate&quot;]
+    B --&gt; C[&quot;Change: prompt, tools, context, model&quot;]
+    C --&gt; R[&quot;Re-run evals (multiple trials)&quot;]
+    R --&gt; D{&quot;Improved, no regressions?&quot;}
+    D --&gt;|No| C
+    D --&gt;|Yes| S[&quot;Ship; graduate tasks to regression suite&quot;]
+    S --&gt; P</pre></figure>
+<p>Two habits make the loop work: <strong>write the eval before the fix</strong> (it should fail at baseline, proving it detects the problem), and <strong>read transcripts after every run</strong> — a jump from 60% to 85% might be a real improvement or a broken grader.</p>
+<h2 id="pitfalls"><a class="anchor" href="#pitfalls" aria-hidden="true">#</a>Pitfalls</h2>
+<ul>
+<li><strong>Grader hacking.</strong> Agents optimize for whatever passes. Coding agents have been observed special-casing test inputs, deleting failing tests, or weakening assertions. LLM judges can be swayed by confident claims of success. Guard with hidden tests, state checks and judges that see ground truth. This is the eval-time cousin of reward hacking in RL (<a href="training-agents.html">training agents</a>).</li>
+<li><strong>Ambiguous tasks.</strong> If two experts would disagree on whether a transcript passes, the task is broken, not the agent. A good test: could a competent human, given only the task prompt, succeed and know they&#39;ve succeeded? Ambiguous tasks put a ceiling on scores and add noise. SWE-bench Verified exists largely to remove underspecified tasks from SWE-bench (see <a href="benchmarks.html">benchmarks</a>).</li>
+<li><strong>Overfitting to the eval.</strong> Iterating against the same 50 tasks for months tunes your prompt to those tasks. Keep a held-out set you rarely look at, and refresh the suite with new production failures.</li>
+<li><strong>Contamination.</strong> Public benchmark tasks (and solutions) may be in training data; internal evals built from your own data are far less exposed.</li>
+<li><strong>Stale suites and single metrics.</strong> Version tasks alongside your code as policies change, and always report cost, latency and steps beside quality — 2% more accurate at 3× the cost may be worse.</li>
+</ul>
+<h2 id="tooling"><a class="anchor" href="#tooling" aria-hidden="true">#</a>Tooling</h2>
+<p>You can build a harness from scratch (as below), and many teams do. Established tools add datasets, parallel execution, result storage and run-to-run diffing. As of 2026, common choices include <strong>Inspect AI</strong> (open source, from the UK AI Security Institute; tasks/solvers/scorers abstractions and sandboxed agent evals), <strong>promptfoo</strong> (open-source CLI with declarative YAML configs, assertions and red-teaming), <strong>Braintrust</strong> and <strong>LangSmith</strong> (hosted platforms that connect production traces, datasets and experiments), <strong>OpenAI Evals</strong> (open-source framework plus a hosted evals API), and <strong>DeepEval</strong> (pytest-style library with ready-made judge metrics). APIs evolve quickly — check current docs; the concepts here apply regardless of tool.</p>
+<h2 id="hands-on-a-tiny-eval-harness"><a class="anchor" href="#hands-on-a-tiny-eval-harness" aria-hidden="true">#</a>Hands-on: a tiny eval harness</h2>
+<p>Let&#39;s build a minimal but honest harness for a refund agent. It:</p>
+<ol>
+<li>Gives each trial a <strong>fresh environment</strong> (an in-memory orders database).</li>
+<li>Runs the agent with a manual <a href="the-agent-loop.html">agent loop</a>.</li>
+<li>Grades the <strong>outcome</strong> with a code grader (the refunds actually issued).</li>
+<li>Grades the <strong>reply</strong> with an LLM judge that sees ground truth, using structured output.</li>
+<li>Runs k trials per task and reports pass@1, pass@k and pass^k.</li>
+</ol>
+<p>First, the environment and the agent loop:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+AGENT_MODEL = <span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>
+
+SYSTEM = (<span class="hljs-string">&quot;You are a support agent. Look up orders before acting. Refund only damaged items, &quot;</span>
+          <span class="hljs-string">&quot;at the item price (never shipping). Tell the customer exactly what you did.&quot;</span>)
+
+TOOLS = [
+    {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;get_order&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Look up an order by ID. Returns items, prices and shipping cost.&quot;</span>,
+     <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>, <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;order_id&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}},
+                      <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;order_id&quot;</span>]}},
+    {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;issue_refund&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Refund an amount in USD for an order. Irreversible.&quot;</span>,
+     <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+                      <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;order_id&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}, <span class="hljs-string">&quot;amount&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;number&quot;</span>}},
+                      <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;order_id&quot;</span>, <span class="hljs-string">&quot;amount&quot;</span>]}},
+]
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Env</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Isolated world state; a new one is created for every trial.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, orders: <span class="hljs-built_in">dict</span></span>):
+        <span class="hljs-variable language_">self</span>.orders = json.loads(json.dumps(orders))  <span class="hljs-comment"># deep copy so trials can&#x27;t leak state</span>
+        <span class="hljs-variable language_">self</span>.refunds: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">float</span>]] = []
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">call</span>(<span class="hljs-params">self, name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">bool</span>]:
+        order = <span class="hljs-variable language_">self</span>.orders.get(args.get(<span class="hljs-string">&quot;order_id&quot;</span>, <span class="hljs-string">&quot;&quot;</span>))
+        <span class="hljs-keyword">if</span> order <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Order <span class="hljs-subst">{args.get(<span class="hljs-string">&#x27;order_id&#x27;</span>)}</span> not found&quot;</span>, <span class="hljs-literal">True</span>
+        <span class="hljs-keyword">if</span> name == <span class="hljs-string">&quot;get_order&quot;</span>:
+            <span class="hljs-keyword">return</span> json.dumps(order), <span class="hljs-literal">False</span>
+        <span class="hljs-keyword">if</span> name == <span class="hljs-string">&quot;issue_refund&quot;</span>:
+            <span class="hljs-variable language_">self</span>.refunds.append((args[<span class="hljs-string">&quot;order_id&quot;</span>], <span class="hljs-built_in">round</span>(<span class="hljs-built_in">float</span>(args[<span class="hljs-string">&quot;amount&quot;</span>]), <span class="hljs-number">2</span>)))
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Refund issued&quot;</span>, <span class="hljs-literal">False</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Unknown tool <span class="hljs-subst">{name}</span>&quot;</span>, <span class="hljs-literal">True</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_agent</span>(<span class="hljs-params">user_msg: <span class="hljs-built_in">str</span>, env: Env, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">10</span></span>) -&gt; <span class="hljs-built_in">dict</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: user_msg}]
+    <span class="hljs-keyword">for</span> step <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, max_steps + <span class="hljs-number">1</span>):
+        resp = client.messages.create(model=AGENT_MODEL, max_tokens=<span class="hljs-number">16000</span>, system=SYSTEM,
+                                      tools=TOOLS, messages=messages)
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:   <span class="hljs-comment"># end_turn, max_tokens, refusal...: stop and record it</span>
+            <span class="hljs-keyword">break</span>
+        results = []
+        <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> resp.content:
+            <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>:
+                out, is_error = env.call(block.name, block.<span class="hljs-built_in">input</span>)
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: out, <span class="hljs-string">&quot;is_error&quot;</span>: is_error})
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})  <span class="hljs-comment"># all results in ONE message</span>
+    final = <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+    <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;messages&quot;</span>: messages, <span class="hljs-string">&quot;final&quot;</span>: final, <span class="hljs-string">&quot;steps&quot;</span>: step, <span class="hljs-string">&quot;stop_reason&quot;</span>: resp.stop_reason}</code></pre></div>
+<p>Next, the tasks and the two graders. The judge receives the <strong>actual</strong> refunds from the environment, so it can fail a reply that claims something that didn&#39;t happen:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
+
+JUDGE_MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
+
+<span class="hljs-meta">@dataclass</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Task</span>:
+    <span class="hljs-built_in">id</span>: <span class="hljs-built_in">str</span>
+    prompt: <span class="hljs-built_in">str</span>
+    orders: <span class="hljs-built_in">dict</span>
+    expected_refunds: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">float</span>]]  <span class="hljs-comment"># the exact end state we require</span>
+    rubric: <span class="hljs-built_in">str</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">grade_outcome</span>(<span class="hljs-params">task: Task, env: Env, trial: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Code grader: the world must be in exactly the expected state.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">return</span> trial[<span class="hljs-string">&quot;stop_reason&quot;</span>] == <span class="hljs-string">&quot;end_turn&quot;</span> <span class="hljs-keyword">and</span> <span class="hljs-built_in">sorted</span>(env.refunds) == <span class="hljs-built_in">sorted</span>(task.expected_refunds)
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Verdict</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    reasoning: <span class="hljs-built_in">str</span>                  <span class="hljs-comment"># judge explains first...</span>
+    verdict: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;pass&quot;</span>, <span class="hljs-string">&quot;fail&quot;</span>]  <span class="hljs-comment"># ...then commits to a binary verdict</span>
+
+JUDGE_PROMPT = <span class="hljs-string">&quot;&quot;&quot;Grade a support agent&#x27;s final reply to a customer.
+Rubric (all must hold for PASS):
+{rubric}
+
+Ground truth - refunds actually issued: {refunds}
+&lt;reply&gt;{reply}&lt;/reply&gt;
+
+Judge only the rubric. Length, warmth and formatting are not criteria.
+If the reply states or implies an action not in the ground truth, it FAILS.&quot;&quot;&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">grade_reply</span>(<span class="hljs-params">task: Task, env: Env, trial: <span class="hljs-built_in">dict</span></span>) -&gt; Verdict:
+    resp = client.messages.parse(
+        model=JUDGE_MODEL, max_tokens=<span class="hljs-number">16000</span>,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: JUDGE_PROMPT.<span class="hljs-built_in">format</span>(
+            rubric=task.rubric, refunds=env.refunds <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;none&quot;</span>, reply=trial[<span class="hljs-string">&quot;final&quot;</span>])}],
+        output_format=Verdict,
+    )
+    <span class="hljs-keyword">return</span> resp.parsed_output</code></pre></div>
+<p>Finally, the runner: k trials per task, per-trial records to JSONL for later reading, and the aggregate metrics using the unbiased estimators from earlier:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> math <span class="hljs-keyword">import</span> comb
+<span class="hljs-keyword">from</span> statistics <span class="hljs-keyword">import</span> mean
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_eval</span>(<span class="hljs-params">tasks: <span class="hljs-built_in">list</span>[Task], k: <span class="hljs-built_in">int</span> = <span class="hljs-number">5</span>, out_path: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;eval_results.jsonl&quot;</span></span>) -&gt; <span class="hljs-literal">None</span>:
+    per_task: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">list</span>[<span class="hljs-built_in">bool</span>]] = {}
+    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(out_path, <span class="hljs-string">&quot;w&quot;</span>) <span class="hljs-keyword">as</span> f:
+        <span class="hljs-keyword">for</span> task <span class="hljs-keyword">in</span> tasks:
+            <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(k):
+                env = Env(task.orders)                    <span class="hljs-comment"># fresh state every trial</span>
+                trial = run_agent(task.prompt, env)
+                outcome_ok = grade_outcome(task, env, trial)
+                judged = grade_reply(task, env, trial)
+                passed = outcome_ok <span class="hljs-keyword">and</span> judged.verdict == <span class="hljs-string">&quot;pass&quot;</span>
+                per_task.setdefault(task.<span class="hljs-built_in">id</span>, []).append(passed)
+                f.write(json.dumps({<span class="hljs-string">&quot;task&quot;</span>: task.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;trial&quot;</span>: i, <span class="hljs-string">&quot;passed&quot;</span>: passed,
+                                    <span class="hljs-string">&quot;outcome_ok&quot;</span>: outcome_ok, <span class="hljs-string">&quot;judge&quot;</span>: judged.verdict,
+                                    <span class="hljs-string">&quot;judge_reasoning&quot;</span>: judged.reasoning, <span class="hljs-string">&quot;steps&quot;</span>: trial[<span class="hljs-string">&quot;steps&quot;</span>],
+                                    <span class="hljs-string">&quot;refunds&quot;</span>: env.refunds, <span class="hljs-string">&quot;reply&quot;</span>: trial[<span class="hljs-string">&quot;final&quot;</span>]}) + <span class="hljs-string">&quot;\n&quot;</span>)
+
+    n = k
+    pass1 = mean(mean(r) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> per_task.values())
+    pass_at_k = mean(<span class="hljs-number">1</span> - comb(n - <span class="hljs-built_in">sum</span>(r), k) / comb(n, k) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> per_task.values())
+    pass_hat_k = mean(comb(<span class="hljs-built_in">sum</span>(r), k) / comb(n, k) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> per_task.values())
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;tasks=<span class="hljs-subst">{<span class="hljs-built_in">len</span>(tasks)}</span> trials/task=<span class="hljs-subst">{k}</span>&quot;</span>)
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;pass@1=<span class="hljs-subst">{pass1:<span class="hljs-number">.2</span>f}</span>  pass@<span class="hljs-subst">{k}</span>=<span class="hljs-subst">{pass_at_k:<span class="hljs-number">.2</span>f}</span>  pass^<span class="hljs-subst">{k}</span>=<span class="hljs-subst">{pass_hat_k:<span class="hljs-number">.2</span>f}</span>&quot;</span>)
+    <span class="hljs-keyword">for</span> tid, r <span class="hljs-keyword">in</span> per_task.items():
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;  <span class="hljs-subst">{tid:&lt;<span class="hljs-number">24</span>}</span> <span class="hljs-subst">{<span class="hljs-string">&#x27;&#x27;</span>.join(<span class="hljs-string">&#x27;✓&#x27;</span> <span class="hljs-keyword">if</span> x <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;✗&#x27;</span> <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> r)}</span>&quot;</span>)
+
+tasks = [
+    Task(<span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;partial-damage&quot;</span>,
+         prompt=<span class="hljs-string">&quot;Order A100 arrived and the lamp is broken. The rug is fine. Please refund what&#x27;s fair.&quot;</span>,
+         orders={<span class="hljs-string">&quot;A100&quot;</span>: {<span class="hljs-string">&quot;items&quot;</span>: [{<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;lamp&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>: <span class="hljs-number">89.0</span>}, {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;rug&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>: <span class="hljs-number">120.0</span>}],
+                          <span class="hljs-string">&quot;shipping&quot;</span>: <span class="hljs-number">15.0</span>}},
+         expected_refunds=[(<span class="hljs-string">&quot;A100&quot;</span>, <span class="hljs-number">89.0</span>)],
+         rubric=<span class="hljs-string">&quot;- States the refund amount ($89)\n- Says the rug and shipping are not refunded&quot;</span>),
+    Task(<span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;no-damage-no-refund&quot;</span>,
+         prompt=<span class="hljs-string">&quot;Order B200 came. I just don&#x27;t like the color. Refund me including shipping.&quot;</span>,
+         orders={<span class="hljs-string">&quot;B200&quot;</span>: {<span class="hljs-string">&quot;items&quot;</span>: [{<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;mug&quot;</span>, <span class="hljs-string">&quot;price&quot;</span>: <span class="hljs-number">12.0</span>}], <span class="hljs-string">&quot;shipping&quot;</span>: <span class="hljs-number">5.0</span>}},
+         expected_refunds=[],   <span class="hljs-comment"># negative case: correct behavior is NOT to refund</span>
+         rubric=<span class="hljs-string">&quot;- Does not claim any refund was issued\n- Explains that only damaged items are refunded&quot;</span>),
+]
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:
+    run_eval(tasks, k=<span class="hljs-number">5</span>)</code></pre></div>
+<p>This harness gets the essentials right: fresh state per trial, outcome graded from the environment, a negative task, a judge that sees ground truth, pass^k, and a JSONL log so you can <em>read</em> every failure. What it lacks — parallelism, retries, cost tracking, judge calibration — is what the tools above provide and the exercises ask you to add.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Agent evals are hard because agents are non-deterministic, take long multi-step paths with many valid routes, and change environment state. Run multiple <strong>trials</strong> per <strong>task</strong> and grade the <strong>outcome</strong>, not the agent&#39;s claims.</li>
+<li>Use <strong>code graders</strong> (tests, state checks, assertions) wherever correctness is objective; <strong>LLM judges</strong> for subjective qualities; <strong>humans</strong> to calibrate judges and do error analysis.</li>
+<li>LLM judges have known biases — position, verbosity, self-preference, leniency. Use binary rubric criteria, reason-then-verdict structured output, ground truth in the prompt, and measure agreement with human labels (TPR/TNR or kappa, not just accuracy).</li>
+<li>Grade at the right level: <strong>outcome</strong> by default, <strong>trajectory</strong> as constraints (not golden paths), <strong>per-step</strong> for cheap tool-choice regressions. Keep <strong>capability</strong> and <strong>regression</strong> suites separate.</li>
+<li><strong>pass@k</strong> measures what an agent can do with best-of-k selection; <strong>pass^k</strong> measures consistency. Customer-facing agents live or die by pass^k.</li>
+<li>The best eval tasks come from <strong>error analysis</strong> of real transcripts: open coding, axial coding, count, then write tasks for the biggest categories.</li>
+<li>Eval scores have error bars. Small suites can&#39;t detect small improvements; use confidence intervals, clustered standard errors and paired comparisons.</li>
+<li>Beware grader hacking, ambiguous tasks, contamination and overfitting; always report cost and latency alongside quality.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Compute by hand.</strong> An agent has per-trial success p = 0.9 on a task. Compute pass@3 and pass^3. Now suppose you observed 7 successes in 10 trials: compute pass^3 with the unbiased estimator C(c,k)/C(n,k). Explain to a product manager why a &quot;90% accurate&quot; agent might still fail one in four customers who use it three times.</li>
+<li><strong>Add budgets and cost.</strong> Extend the harness to record <code>response.usage.input_tokens</code> and <code>output_tokens</code> for every model call in <code>run_agent</code>, compute cost per trial, and add a grader that fails any trial over 6 steps. Report mean cost and p95 steps per task.</li>
+<li><strong>Fix the judge&#39;s blind spots.</strong> Write three &quot;adversarial&quot; replies for the <code>partial-damage</code> task — one verbose and flattering but wrong, one terse but correct, one that claims a refund that wasn&#39;t issued — and check whether the judge grades them correctly. Adjust the rubric until it does.</li>
+<li><strong>Calibrate a judge.</strong> Generate 40 transcripts across both tasks, hand-label each pass/fail, and compute the judge&#39;s true positive rate, true negative rate and Cohen&#39;s kappa against your labels. Read every disagreement and categorize the cause.</li>
+<li><strong>Paired comparison (harder).</strong> Make a second version of the system prompt. Run both versions on 20+ tasks (write more), 5 trials each, and compute the per-task difference in pass rate, the mean difference, a 95% confidence interval for it (bootstrap over tasks), and the fail→pass / pass→fail flip counts. Would you ship?</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="evaluating-agents" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>A booking agent&#39;s final message says &quot;Your flight is booked!&quot; but the reservations table is empty. Which grading approach would have caught this most reliably?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An LLM judge scoring the final message for helpfulness</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Measuring the latency of the final response</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Counting how many tool calls the agent made</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A code grader that checks the environment&#39;s reservations table after the trial</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The outcome (environment state) is ground truth; the transcript is only the agent&#39;s account. A state check catches false claims of success that a judge reading only the reply might accept.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Your support agent has pass@1 = 0.85. Every customer gets exactly one conversation, and many customers return several times a month. Which metric best reflects their experience of reliability?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>pass^k, because it measures the probability that every one of k attempts succeeds</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>pass@k, because it shows the agent can solve the task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>pass@1 alone is sufficient</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>BLEU score against reference replies</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> pass@k assumes you can pick the best of k attempts, which customers can&#39;t. pass^k measures consistency across repeated interactions and falls quickly as k grows (0.85^5 ≈ 0.44).</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>In a pairwise LLM-judge comparison, response A wins when shown first but B wins when the order is swapped. What is the best interpretation and handling?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A is better, because the first verdict counts</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>This reflects position bias; treat inconsistent verdicts across orderings as a tie</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Average the two verdicts&#39; confidence scores</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The judge model is broken and should be replaced</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Judges show position bias. Evaluating both orderings and only counting consistent wins is the standard mitigation.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Your judge agrees with human labels 92% of the time. 90% of the labeled transcripts are passes. What should you check next?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Whether the judge uses a 1–10 scale</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Nothing — 92% agreement is excellent</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Whether the judge&#39;s reasoning is long enough</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The judge&#39;s true negative rate: how many of the human-labeled failures it actually catches</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With imbalanced labels, a judge that always says &quot;pass&quot; would score 90%. Measure how often it catches real failures (and use chance-corrected metrics like Cohen&#39;s kappa).</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Version B scores 76% vs version A&#39;s 72% on a 50-task suite. What&#39;s the most defensible conclusion?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A is better because it&#39;s the baseline</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>B is 4 points better; ship it</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The difference is within the noise for n=50 (CI roughly ±12 points); run a paired comparison with more tasks before deciding</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Rerun A until it also scores 76%</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> At n=50 the 95% CI on each score is around ±12 points. A paired analysis on the same tasks (and more tasks) is needed to detect a 4-point difference.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Which trajectory check is most robust to the &quot;many valid paths&quot; problem?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent must use exactly 6 steps</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent&#39;s tool calls must match a recorded golden transcript</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent must never call issue_refund before get_order has returned for that order</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The agent must call search, then read_page, then answer, in that order</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constraints (&quot;never X before Y&quot;, &quot;at most N&quot;, &quot;never call Z&quot;) allow any valid path while catching policy violations. Golden-path matching penalizes correct alternative strategies.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Where do the highest-value new eval tasks usually come from?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Error analysis of real transcripts: categorizing and counting how the agent actually fails</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Popular public benchmarks</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Asking the agent to generate tasks it finds hard</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Brainstorming edge cases in a meeting</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Error analysis grounds the suite in real failure modes, weighted by frequency. Synthetic and brainstormed cases help, but should supplement observed failures, not replace them.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents" target="_blank" rel="noopener">Demystifying evals for AI agents (Anthropic Engineering)</a> — practical guide to tasks, trials, graders, and building agent eval suites.</li>
+<li><a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener">Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena (Zheng et al., 2023)</a> — the foundational study of LLM judges, including position, verbosity and self-enhancement biases.</li>
+<li><a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener">τ-bench: A Benchmark for Tool-Agent-User Interaction (Yao et al., 2024)</a> — simulated users, state-based grading and the pass^k reliability metric.</li>
+<li><a href="https://arxiv.org/abs/2107.03374" target="_blank" rel="noopener">Evaluating Large Language Models Trained on Code (Chen et al., 2021)</a> — introduces HumanEval and the unbiased pass@k estimator.</li>
+<li><a href="https://arxiv.org/abs/2411.00640" target="_blank" rel="noopener">Adding Error Bars to Evals (Miller, 2024)</a> — a statistician&#39;s guide to confidence intervals, clustering and paired comparisons for model evals.</li>
+<li><a href="https://arxiv.org/abs/2404.12272" target="_blank" rel="noopener">Who Validates the Validators? (Shankar et al., 2024)</a> — how to align LLM graders with human preferences, and why criteria drift while grading.</li>
+<li><a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener">Your AI Product Needs Evals (Hamel Husain)</a> — a practitioner&#39;s case for error analysis and iterative eval building.</li>
+<li><a href="https://inspect.aisi.org.uk/" target="_blank" rel="noopener">Inspect AI documentation</a> — a well-designed open-source framework for agentic evals in sandboxes; worth reading for its abstractions alone.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="evaluating-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-evaluating-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-evaluating-agents" class="notes" data-slug="evaluating-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="build-agent-from-scratch.html"><small>← Previous</small><span>Build an Agent From Scratch</span></a>
+    <a class="pager-next" href="benchmarks.html"><small>Next →</small><span>Agent Benchmarks</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-agent-evals-are-hard">Why agent evals are hard</a></li>
+<li class="toc-h2"><a href="#the-vocabulary-of-agent-evals">The vocabulary of agent evals</a></li>
+<li class="toc-h2"><a href="#graders-code-models-and-humans">Graders: code, models and humans</a></li>
+<li class="toc-h3"><a href="#code-based-graders">Code-based graders</a></li>
+<li class="toc-h3"><a href="#model-based-graders-llm-as-judge">Model-based graders (LLM-as-judge)</a></li>
+<li class="toc-h3"><a href="#known-judge-biases">Known judge biases</a></li>
+<li class="toc-h3"><a href="#calibrating-judges-against-humans">Calibrating judges against humans</a></li>
+<li class="toc-h3"><a href="#human-review">Human review</a></li>
+<li class="toc-h2"><a href="#what-to-grade-outcome-trajectory-step">What to grade: outcome, trajectory, step</a></li>
+<li class="toc-h2"><a href="#capability-evals-vs-regression-evals">Capability evals vs regression evals</a></li>
+<li class="toc-h2"><a href="#passk-and-passk">pass@k and pass^k</a></li>
+<li class="toc-h2"><a href="#building-eval-sets-from-real-failures">Building eval sets from real failures</a></li>
+<li class="toc-h3"><a href="#start-small-and-start-now">Start small and start now</a></li>
+<li class="toc-h3"><a href="#error-analysis-read-the-transcripts">Error analysis: read the transcripts</a></li>
+<li class="toc-h3"><a href="#simulated-users">Simulated users</a></li>
+<li class="toc-h3"><a href="#environment-and-sandbox-based-evals">Environment and sandbox-based evals</a></li>
+<li class="toc-h2"><a href="#online-evals-and-ab-testing">Online evals and A/B testing</a></li>
+<li class="toc-h2"><a href="#statistics-is-that-improvement-real">Statistics: is that improvement real?</a></li>
+<li class="toc-h3"><a href="#confidence-intervals">Confidence intervals</a></li>
+<li class="toc-h3"><a href="#variance-across-trials-and-clustering">Variance across trials and clustering</a></li>
+<li class="toc-h3"><a href="#paired-comparisons">Paired comparisons</a></li>
+<li class="toc-h2"><a href="#the-eval-driven-development-loop">The eval-driven development loop</a></li>
+<li class="toc-h2"><a href="#pitfalls">Pitfalls</a></li>
+<li class="toc-h2"><a href="#tooling">Tooling</a></li>
+<li class="toc-h2"><a href="#hands-on-a-tiny-eval-harness">Hands-on: a tiny eval harness</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

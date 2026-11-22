@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Builder's Cheat Sheet · Agent Academy</title>
+<meta name="description" content="Everything essential on one page: patterns, loop code, tool design, context, evals, security, cost.">
+<meta property="og:title" content="Agent Builder's Cheat Sheet · Agent Academy">
+<meta property="og:description" content="Everything essential on one page: patterns, loop code, tool design, context, evals, security, cost.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="cheatsheet" data-mermaid="0">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html" aria-current="page">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson">
+  <header class="lesson-header"><p class="eyebrow">Reference</p><h1>Agent Builder's Cheat Sheet</h1><p class="lead">Everything essential on one page: patterns, loop code, tool design, context, evals, security, cost.</p>
+  <div class="lesson-meta"><button type="button" class="btn btn-ghost print-btn">🖨️ Print / save as PDF</button></div></header>
+  <article class="prose cheatsheet"><p>The whole course on one page. Each section links to the lesson that explains it in depth. Model names, prices and feature flags change fast; the principles here don&#39;t. Check current docs for exact values as of 2026.</p>
+<h2 id="the-agent-loop-in-25-lines"><a class="anchor" href="#the-agent-loop-in-25-lines" aria-hidden="true">#</a>The agent loop in 25 lines</h2>
+<p>A manual loop with the Anthropic Python SDK (<code>pip install anthropic</code>). In production, consider the SDK&#39;s Tool Runner, which handles this loop for you. Details: <a href="the-agent-loop.html">the agent loop</a>, <a href="tool-use.html">tool use</a>, <a href="build-agent-from-scratch.html">build an agent from scratch</a>.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_agent</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span>, tools: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>], run_tool, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">20</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_steps):                      <span class="hljs-comment"># hard step budget</span>
+        resp = client.messages.create(
+            model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+            system=<span class="hljs-string">&quot;You are a careful agent. Use tools when they help; verify before finishing.&quot;</span>,
+            tools=tools, messages=messages,
+        )
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        <span class="hljs-keyword">if</span> resp.stop_reason == <span class="hljs-string">&quot;pause_turn&quot;</span>:        <span class="hljs-comment"># server tool paused: re-send as-is to resume</span>
+            <span class="hljs-keyword">continue</span>
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:          <span class="hljs-comment"># end_turn / max_tokens / refusal / stop_sequence</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+        results = []
+        <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> (b <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>):
+            <span class="hljs-keyword">try</span>:
+                out, err = <span class="hljs-built_in">str</span>(run_tool(block.name, block.<span class="hljs-built_in">input</span>)), <span class="hljs-literal">False</span>
+            <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                  <span class="hljs-comment"># errors go back to the model, not up the stack</span>
+                out, err = <span class="hljs-string">f&quot;Error: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-literal">True</span>
+            results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;content&quot;</span>: out, <span class="hljs-string">&quot;is_error&quot;</span>: err})
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})  <span class="hljs-comment"># ALL results in ONE message</span>
+    <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&quot;Step budget exhausted&quot;</span>)</code></pre></div>
+<p>Current-API rules: no <code>temperature</code>/<code>top_p</code>/<code>top_k</code>, no assistant prefill, thinking via <code>thinking={&quot;type&quot;: &quot;adaptive&quot;}</code> plus <code>output_config={&quot;effort&quot;: ...}</code>, and <code>tool_choice</code> limited to <code>auto</code> or <code>none</code>.</p>
+<h2 id="choosing-an-architecture"><a class="anchor" href="#choosing-an-architecture" aria-hidden="true">#</a>Choosing an architecture</h2>
+<p>Start with the simplest thing that could work, and add autonomy only when evals show you need it. See <a href="when-to-use-agents.html">when to use agents</a> and <a href="agent-architectures.html">agent architectures</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>If the task...</th>
+<th>Use</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Is one well-defined step</td>
+<td>Single LLM call (+ retrieval, examples)</td>
+<td>Cheapest, fastest, easiest to evaluate</td>
+</tr>
+<tr>
+<td>Has fixed, known steps</td>
+<td>Workflow (<a href="workflow-patterns.html">patterns</a>)</td>
+<td>Predictable, debuggable, cost-bounded</td>
+</tr>
+<tr>
+<td>Has an unpredictable path, needs many tool calls, and its result can be checked</td>
+<td>Single agent with tools</td>
+<td>Flexibility where the path can&#39;t be scripted</td>
+</tr>
+<tr>
+<td>Is broad, parallelizable, larger than one context window, and high-value</td>
+<td>Orchestrator + subagents (<a href="multi-agent-systems.html">multi-agent</a>)</td>
+<td>Parallel exploration, context isolation, at roughly an order of magnitude more tokens</td>
+</tr>
+<tr>
+<td>Involves tightly coupled writes, like editing one codebase</td>
+<td>Single agent with shared context; subagents only for read-only research</td>
+<td>Parallel writers make conflicting implicit decisions</td>
+</tr>
+<tr>
+<td>Has irreversible or high-stakes actions</td>
+<td>Any of the above + <a href="human-in-the-loop.html">human approval gates</a></td>
+<td>Errors compound; humans catch the costly ones</td>
+</tr>
+</tbody></table>
+</div>
+<p>Agent go/no-go: is the task complex enough? Is it valuable enough to pay for the tokens? Are the needed capabilities reliable? How costly is an undetected error?</p>
+<h2 id="workflow-patterns-at-a-glance"><a class="anchor" href="#workflow-patterns-at-a-glance" aria-hidden="true">#</a>Workflow patterns at a glance</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Shape</th>
+<th>Use when</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt chaining</td>
+<td>A → gate → B → C</td>
+<td>Task splits cleanly into fixed steps</td>
+<td>Outline → check → draft → translate</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>Classify → specialized handler</td>
+<td>Inputs fall into distinct categories</td>
+<td>Support triage; easy queries to a small model</td>
+</tr>
+<tr>
+<td>Parallelization: sectioning</td>
+<td>Split → run in parallel → merge</td>
+<td>Independent subtasks</td>
+<td>Guardrail check alongside the main answer</td>
+</tr>
+<tr>
+<td>Parallelization: voting</td>
+<td>Same task N times → aggregate</td>
+<td>Need confidence or diverse attempts</td>
+<td>Several reviewers flag vulnerabilities</td>
+</tr>
+<tr>
+<td>Orchestrator-workers</td>
+<td>LLM plans subtasks dynamically → workers → synthesize</td>
+<td>Subtasks not knowable in advance</td>
+<td>Multi-file code change; research</td>
+</tr>
+<tr>
+<td>Evaluator-optimizer</td>
+<td>Generate ↔ critique loop</td>
+<td>Clear criteria and iteration helps</td>
+<td>Literary translation; search refinement</td>
+</tr>
+<tr>
+<td>Autonomous agent</td>
+<td>Loop: model → tools → observations</td>
+<td>Open-ended, many steps, verifiable outcome</td>
+<td>Coding agent, computer use</td>
+</tr>
+</tbody></table>
+</div>
+<p>More: <a href="workflow-patterns.html">workflow patterns</a>.</p>
+<h2 id="tool-design-checklist"><a class="anchor" href="#tool-design-checklist" aria-hidden="true">#</a>Tool design checklist</h2>
+<p>Details: <a href="designing-tools.html">designing tools</a>, <a href="structured-outputs.html">structured outputs</a>, <a href="protocols-mcp-a2a.html">MCP and A2A</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Few, high-level tools</strong> that match real workflows (<code>schedule_meeting</code>, not <code>list_users</code> + <code>list_events</code> + <code>create_event</code>).</li>
+<li><input disabled="" type="checkbox"> <strong>Unambiguous names</strong>, namespaced by service or resource (<code>github_create_issue</code>, <code>jira_search</code>).</li>
+<li><input disabled="" type="checkbox"> <strong>Descriptions written like docs for a new hire</strong>: what it does, when to use it (and when not to), formats, limits, an example.</li>
+<li><input disabled="" type="checkbox"> <strong>Strict input schema</strong>: typed params, enums over free text, <code>required</code> fields, <code>additionalProperties: false</code>; consider <code>strict: true</code>.</li>
+<li><input disabled="" type="checkbox"> <strong>Poka-yoke</strong>: make misuse hard (absolute paths, IDs from previous results, validated ranges).</li>
+<li><input disabled="" type="checkbox"> <strong>Token-efficient output</strong>: return meaningful fields and human-readable names rather than raw UUID dumps; paginate, filter and truncate with a clear note.</li>
+<li><input disabled="" type="checkbox"> <strong>Helpful errors</strong>: say what was wrong and how to fix it, returned as <code>is_error: true</code> results.</li>
+<li><input disabled="" type="checkbox"> <strong>Idempotent or guarded side effects</strong>: safe to retry; destructive actions need confirmation.</li>
+<li><input disabled="" type="checkbox"> <strong>Few overlapping tools</strong>: if a human can&#39;t say which tool to use, neither can the model.</li>
+<li><input disabled="" type="checkbox"> <strong>Evaluate tools with realistic multi-step tasks</strong>, then read the transcripts and iterate.</li>
+</ul>
+<h2 id="prompt-and-system-prompt-checklist"><a class="anchor" href="#prompt-and-system-prompt-checklist" aria-hidden="true">#</a>Prompt and system-prompt checklist</h2>
+<p>Details: <a href="prompting-for-agents.html">prompting for agents</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Role and goal</strong>: who the agent is, what success looks like, who it serves.</li>
+<li><input disabled="" type="checkbox"> <strong>Right altitude</strong>: specific enough to steer, general enough to leave room for judgment. Avoid brittle if-else rule lists and vague platitudes alike.</li>
+<li><input disabled="" type="checkbox"> <strong>Context the model can&#39;t infer</strong>: domain facts, user situation, why constraints exist.</li>
+<li><input disabled="" type="checkbox"> <strong>Tool guidance</strong>: when to use which tool, in what order, what to do with failures.</li>
+<li><input disabled="" type="checkbox"> <strong>Boundaries</strong>: what never to do, what needs confirmation, when to stop and ask.</li>
+<li><input disabled="" type="checkbox"> <strong>Done criteria</strong>: how to verify the work before finishing.</li>
+<li><input disabled="" type="checkbox"> <strong>Output format</strong>: structure, length, and where final answers go; use structured outputs when code consumes them.</li>
+<li><input disabled="" type="checkbox"> <strong>Clear sections</strong>: Markdown headers or XML tags separating instructions, context and data.</li>
+<li><input disabled="" type="checkbox"> <strong>A few diverse, canonical examples</strong> rather than an exhaustive list of edge cases.</li>
+<li><input disabled="" type="checkbox"> <strong>Stable prefix</strong>: static content first and dynamic content (dates, user data) last, to maximize cache hits.</li>
+<li><input disabled="" type="checkbox"> <strong>Version-controlled and evaluated</strong>: every prompt change runs the eval suite.</li>
+</ul>
+<h2 id="context-engineering-moves"><a class="anchor" href="#context-engineering-moves" aria-hidden="true">#</a>Context engineering moves</h2>
+<p>Details: <a href="context-engineering.html">context engineering</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Technique</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Context fills up on long tasks</td>
+<td><strong>Compaction</strong>: summarize history near the limit; keep decisions, open issues, file paths</td>
+</tr>
+<tr>
+<td>Old tool outputs clutter the window</td>
+<td><strong>Context editing</strong>: clear stale tool results and keep a stub (&quot;result cleared, re-run to view&quot;)</td>
+</tr>
+<tr>
+<td>Too much data to preload</td>
+<td><strong>Just-in-time retrieval</strong>: keep references (paths, IDs, URLs) and load on demand with tools</td>
+</tr>
+<tr>
+<td>Agent forgets goals mid-task</td>
+<td><strong>Recitation / structured notes</strong>: maintain a to-do or progress file and re-read it</td>
+</tr>
+<tr>
+<td>Work spans sessions or context resets</td>
+<td><strong>Progress files + git history</strong> as external memory; an initializer step sets them up</td>
+</tr>
+<tr>
+<td>Subtask exploration pollutes the main thread</td>
+<td><strong>Subagents</strong> with clean contexts that return condensed summaries</td>
+</tr>
+<tr>
+<td>Hundreds of tools bloat every call</td>
+<td><strong>Tool search / deferred loading</strong>, or tools as code APIs in a sandbox</td>
+</tr>
+<tr>
+<td>Skills and procedures too long to always include</td>
+<td><strong>Progressive disclosure</strong>: short descriptions in context, full skill files loaded on use</td>
+</tr>
+<tr>
+<td>Key facts buried in a long context</td>
+<td>Put critical instructions at the start or end; <strong>lost in the middle</strong> is real</td>
+</tr>
+<tr>
+<td>Cost and latency of repeated prefixes</td>
+<td><strong>Prompt caching</strong> with stable, append-only prefixes; never edit earlier turns</td>
+</tr>
+<tr>
+<td>Model keeps repeating a failed approach</td>
+<td>Keep errors in context (don&#39;t hide them); vary few-shot examples to avoid ruts</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="memory-types"><a class="anchor" href="#memory-types" aria-hidden="true">#</a>Memory types</h2>
+<p>Details: <a href="memory.html">memory</a>, <a href="rag-and-retrieval.html">RAG and retrieval</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Holds</th>
+<th>Lives in</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Working / short-term</td>
+<td>Current task state</td>
+<td>Context window</td>
+<td>The conversation and recent tool results</td>
+</tr>
+<tr>
+<td>Episodic</td>
+<td>Specific past events</td>
+<td>Logs, vector store, files</td>
+<td>&quot;Last deploy failed on a missing env var&quot;</td>
+</tr>
+<tr>
+<td>Semantic</td>
+<td>Facts and preferences</td>
+<td>DB, knowledge base, vector store</td>
+<td>&quot;User prefers metric units&quot;</td>
+</tr>
+<tr>
+<td>Procedural</td>
+<td>How to do things</td>
+<td>Weights, system prompt, skill files, code</td>
+<td>A deploy runbook skill</td>
+</tr>
+<tr>
+<td>Parametric</td>
+<td>Knowledge from training</td>
+<td>Model weights</td>
+<td>General world knowledge (up to cutoff)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Memory ops to design: <strong>write</strong> (what is worth saving, and who decides), <strong>retrieve</strong> (recency, relevance, importance), <strong>update/forget</strong> (contradictions, staleness), <strong>scope</strong> (per user, per project, global). Treat stored memory as untrusted input, since it can be poisoned.</p>
+<h2 id="stop-reasons-and-how-to-handle-them"><a class="anchor" href="#stop-reasons-and-how-to-handle-them" aria-hidden="true">#</a>Stop reasons and how to handle them</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>stop_reason</code></th>
+<th>Meaning</th>
+<th>Handle by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>end_turn</code></td>
+<td>Model finished naturally</td>
+<td>Return the final text; optionally run a verification step</td>
+</tr>
+<tr>
+<td><code>tool_use</code></td>
+<td>Model wants tools run</td>
+<td>Execute <strong>every</strong> <code>tool_use</code> block; return all <code>tool_result</code>s (matching <code>tool_use_id</code>) in <strong>one</strong> user message; loop</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>Output hit the <code>max_tokens</code> cap</td>
+<td>Treat output as truncated; <strong>never run a truncated tool call</strong>; raise <code>max_tokens</code>, stream, or ask for shorter output</td>
+</tr>
+<tr>
+<td><code>pause_turn</code></td>
+<td>A server-side tool loop paused mid-turn</td>
+<td>Append the assistant content and re-send <strong>without</strong> a new user message; cap continuations</td>
+</tr>
+<tr>
+<td><code>refusal</code></td>
+<td>Model declined for safety reasons</td>
+<td>Don&#39;t execute that turn&#39;s tools; inspect <code>stop_details</code>; surface it, rephrase, or use a configured fallback, but don&#39;t blindly retry</td>
+</tr>
+<tr>
+<td><code>stop_sequence</code></td>
+<td>A custom stop sequence was generated</td>
+<td>Check <code>resp.stop_sequence</code> and continue per your protocol</td>
+</tr>
+</tbody></table>
+</div>
+<p>Also handle API errors separately: 429 rate limits and 5xx/overloaded errors → retry with exponential backoff and jitter; 400s → fix the request, don&#39;t retry.</p>
+<h2 id="evaluation-checklist-and-passk-passk"><a class="anchor" href="#evaluation-checklist-and-passk-passk" aria-hidden="true">#</a>Evaluation checklist and pass@k / pass^k</h2>
+<p>Details: <a href="evaluating-agents.html">evaluating agents</a>, <a href="benchmarks.html">benchmarks</a>, <a href="observability.html">observability</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> Start early with <strong>20–50 real tasks</strong> drawn from actual failures and usage; grow from there.</li>
+<li><input disabled="" type="checkbox"> Each task has an unambiguous success criterion that a domain expert would agree with.</li>
+<li><input disabled="" type="checkbox"> Prefer <strong>code-based graders</strong> (tests, state checks); use <strong>LLM judges</strong> with rubrics where needed and calibrate them against human labels.</li>
+<li><input disabled="" type="checkbox"> <strong>Grade outcomes</strong>, not exact tool sequences; check trajectories for policy violations and waste.</li>
+<li><input disabled="" type="checkbox"> Run <strong>multiple trials</strong> per task; report the mean and variance, not one lucky run.</li>
+<li><input disabled="" type="checkbox"> Keep separate suites for <strong>capability</strong> (hard, low pass rate) and <strong>regression</strong> (should stay near 100%).</li>
+<li><input disabled="" type="checkbox"> Isolate trials: clean environment, no shared state or leaked answers.</li>
+<li><input disabled="" type="checkbox"> <strong>Read transcripts</strong> and do error analysis; label failure modes and count them.</li>
+<li><input disabled="" type="checkbox"> Track cost, latency, steps and tokens per task alongside success.</li>
+<li><input disabled="" type="checkbox"> Run evals in CI on every prompt, tool or model change.</li>
+</ul>
+<p>With per-trial success probability <em>p</em> and <em>k</em> trials:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Question it answers</th>
+<th>Formula</th>
+<th>p = 0.8, k = 3</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pass@k</td>
+<td>Does <strong>at least one</strong> of k attempts succeed?</td>
+<td>1 − (1 − p)^k</td>
+<td>0.992</td>
+</tr>
+<tr>
+<td>pass^k</td>
+<td>Do <strong>all</strong> k attempts succeed?</td>
+<td>p^k</td>
+<td>0.512</td>
+</tr>
+</tbody></table>
+</div>
+<p>Unbiased estimators from <em>n</em> trials with <em>c</em> successes: pass@k = 1 − C(n−c, k) / C(n, k); pass^k = C(c, k) / C(n, k). Use pass@k when a human or verifier can pick the best attempt; use <strong>pass^k for customer-facing reliability</strong>.</p>
+<h2 id="reliability-checklist"><a class="anchor" href="#reliability-checklist" aria-hidden="true">#</a>Reliability checklist</h2>
+<p>Details: <a href="reliability.html">reliability</a>, <a href="deployment.html">deployment</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Budgets</strong> on steps, tokens, wall-clock time and dollars per run.</li>
+<li><input disabled="" type="checkbox"> <strong>Retries with exponential backoff + jitter</strong> for transient errors; timeouts on every model and tool call.</li>
+<li><input disabled="" type="checkbox"> <strong>Idempotent tools</strong> (or idempotency keys) so retries don&#39;t double-charge or double-send.</li>
+<li><input disabled="" type="checkbox"> <strong>Tool errors returned to the model</strong> as <code>is_error</code> results, so it can self-correct.</li>
+<li><input disabled="" type="checkbox"> <strong>Validation</strong> of tool inputs and of final outputs (schemas, tests, business rules).</li>
+<li><input disabled="" type="checkbox"> <strong>Loop detection</strong>: same call repeated with no progress → nudge, stop or escalate.</li>
+<li><input disabled="" type="checkbox"> <strong>Verification step</strong> before declaring done (run tests, re-read requirements).</li>
+<li><input disabled="" type="checkbox"> <strong>Checkpointing / durable execution</strong> for long runs; resume rather than restart.</li>
+<li><input disabled="" type="checkbox"> <strong>Fallbacks</strong>: alternate model, simpler workflow, or human handoff.</li>
+<li><input disabled="" type="checkbox"> <strong>Compounding math</strong>: per-step reliability r over n steps ≈ rⁿ, so shorten chains and add checkpoints.</li>
+<li><input disabled="" type="checkbox"> <strong>Full tracing</strong> of every run (inputs, outputs, tool calls, tokens, latency, cost).</li>
+</ul>
+<h2 id="cost-formulas-and-levers"><a class="anchor" href="#cost-formulas-and-levers" aria-hidden="true">#</a>Cost formulas and levers</h2>
+<p>Details: <a href="cost-and-latency.html">cost and latency</a>.</p>
+<p><strong>Per call</strong></p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">cost = (uncached_in × P_in + cache_write × P_in × 1.25 + cache_read × P_in × r + out × P_out) / 1,000,000</code></pre></div>
+<p><code>P_in</code>/<code>P_out</code> are prices per million tokens. Cache writes cost 1.25× base input for the 5-minute TTL (2× for 1-hour). Cache reads (r) cost about 0.1× base input, and some newer models are cheaper still. Output tokens typically cost several times more than input (5× on Claude models).</p>
+<p><strong>Per agent run</strong>: context grows each turn, so input tokens grow roughly quadratically:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">total_input ≈ n × S + T × n(n−1)/2</code></pre></div>
+<p>Here <em>n</em> is the number of model calls, <em>S</em> the static prefix (system prompt + tools) and <em>T</em> the tokens added per turn. This is why caching and compaction matter.</p>
+<p><strong>Caching example</strong>: a 50K-token prefix reused across 20 calls costs 1,000K input-token-equivalents uncached. Cached, it costs 1.25 × 50K + 19 × 0.1 × 50K = 157.5K, <strong>about 84% less</strong> on that prefix, and time to first token drops too. With a 5-minute TTL, caching pays off from the first reuse (1.25 + 0.1 = 1.35 vs 2.0).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Lever</th>
+<th>Typical effect</th>
+<th>Watch out for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt caching</td>
+<td>Large input savings on repeated prefixes</td>
+<td>Any change to the prefix invalidates the cache from that point on</td>
+</tr>
+<tr>
+<td>Smaller model / routing / cascades</td>
+<td>Big savings on easy traffic</td>
+<td>Quality on the hard tail; needs evals</td>
+</tr>
+<tr>
+<td>Lower effort / less thinking</td>
+<td>Fewer output tokens, lower latency</td>
+<td>Accuracy on hard problems</td>
+</tr>
+<tr>
+<td>Batch API</td>
+<td>50% discount for async work</td>
+<td>Results can take up to 24h</td>
+</tr>
+<tr>
+<td>Compaction &amp; context editing</td>
+<td>Caps context growth</td>
+<td>Lost details; cache invalidation</td>
+</tr>
+<tr>
+<td>Concise tool outputs</td>
+<td>Fewer input tokens every later turn</td>
+<td>Dropping fields the model needs</td>
+</tr>
+<tr>
+<td>Workflow instead of agent</td>
+<td>Fewer calls, predictable spend</td>
+<td>Less flexibility</td>
+</tr>
+<tr>
+<td>Parallel tool calls</td>
+<td>Lower latency (not cost)</td>
+<td>Rate limits</td>
+</tr>
+</tbody></table>
+</div>
+<p>Measure <strong>cost per successful task</strong>, not cost per call.</p>
+<h2 id="security-checklist"><a class="anchor" href="#security-checklist" aria-hidden="true">#</a>Security checklist</h2>
+<p>Details: <a href="agent-security.html">agent security</a>, <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Assume prompt injection will succeed</strong> sometimes. Any text the agent reads (web, email, docs, tool output, memory) can carry instructions.</li>
+<li><input disabled="" type="checkbox"> <strong>Break the lethal trifecta</strong>: never give one agent all three of private data access, exposure to untrusted content, and an external communication channel. Removing exfiltration paths is usually easiest.</li>
+<li><input disabled="" type="checkbox"> <strong>Least privilege</strong>: minimal tools, scoped and short-lived credentials, read-only by default, per-user authorization enforced in the tool, never by the model.</li>
+<li><input disabled="" type="checkbox"> <strong>Human confirmation</strong> for irreversible, financial or external-facing actions, showing exactly what will happen.</li>
+<li><input disabled="" type="checkbox"> <strong>Egress control</strong>: network allowlists; block rendering of untrusted URLs and images in output (a common exfiltration channel).</li>
+<li><input disabled="" type="checkbox"> <strong>Sandbox code execution</strong> (container or microVM, no host secrets, resource limits).</li>
+<li><input disabled="" type="checkbox"> <strong>Design patterns over filters</strong>: plan-then-execute, dual LLM / quarantined LLM, CaMeL-style data-flow control. Classifiers and spotlighting help, but they are not guarantees.</li>
+<li><input disabled="" type="checkbox"> <strong>Vet MCP servers and tools</strong>: pin versions, review descriptions for hidden instructions, watch for changes after approval.</li>
+<li><input disabled="" type="checkbox"> <strong>Treat model output as untrusted</strong> before it reaches shells, SQL, HTML or other agents.</li>
+<li><input disabled="" type="checkbox"> <strong>Log and audit</strong> every tool call; alert on anomalies; red-team with injection suites such as AgentDojo.</li>
+</ul>
+<h2 id="production-readiness-checklist"><a class="anchor" href="#production-readiness-checklist" aria-hidden="true">#</a>Production readiness checklist</h2>
+<p>Details: <a href="deployment.html">deployment</a>, <a href="observability.html">observability</a>, <a href="human-in-the-loop.html">human in the loop</a>.</p>
+<ul>
+<li><input disabled="" type="checkbox"> Clear scope, success metric and <strong>owner</strong>; a simpler non-agent baseline measured for comparison.</li>
+<li><input disabled="" type="checkbox"> <strong>Eval suite</strong> passing at agreed thresholds (including pass^k for consistency) and wired into CI.</li>
+<li><input disabled="" type="checkbox"> <strong>Tracing and dashboards</strong>: success rate, cost per task, latency (p50/p95), step counts, error and refusal rates.</li>
+<li><input disabled="" type="checkbox"> <strong>Budgets, rate-limit handling, timeouts and fallbacks</strong> configured and tested.</li>
+<li><input disabled="" type="checkbox"> <strong>Security review</strong> done: trifecta analysis, permissions, sandbox, egress, secrets handling.</li>
+<li><input disabled="" type="checkbox"> <strong>Human escalation path</strong> and approval gates for risky actions.</li>
+<li><input disabled="" type="checkbox"> <strong>Graceful failure UX</strong>: the agent says what it couldn&#39;t do rather than inventing success.</li>
+<li><input disabled="" type="checkbox"> <strong>Staged rollout</strong> (internal → beta → GA) with kill switch and the ability to roll back prompts and models.</li>
+<li><input disabled="" type="checkbox"> <strong>Online evaluation</strong>: sampled transcript review, user feedback, drift monitoring.</li>
+<li><input disabled="" type="checkbox"> <strong>Versioned</strong> prompts, tools, models and configs, so every run is reproducible.</li>
+<li><input disabled="" type="checkbox"> Data retention, privacy and compliance requirements reviewed.</li>
+</ul>
+<h2 id="key-numbers-to-remember"><a class="anchor" href="#key-numbers-to-remember" aria-hidden="true">#</a>Key numbers to remember</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Number</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0.95²⁰ ≈ 36%</strong></td>
+<td>20 steps at 95% per-step reliability succeed end-to-end only about a third of the time</td>
+</tr>
+<tr>
+<td><strong>0.9⁸ ≈ 43%</strong></td>
+<td>pass^8 for a 90%-reliable agent; consistency is much harder than capability</td>
+</tr>
+<tr>
+<td><strong>1 token ≈ 4 characters ≈ ¾ of an English word</strong></td>
+<td>Rule of thumb for estimating token counts (varies by tokenizer and language)</td>
+</tr>
+<tr>
+<td><strong>1.25× / 2× / ~0.1×</strong></td>
+<td>Cache write (5-minute TTL) / cache write (1-hour TTL) / cache read, relative to base input price</td>
+</tr>
+<tr>
+<td><strong>5 minutes</strong></td>
+<td>Default prompt-cache TTL, refreshed on each hit</td>
+</tr>
+<tr>
+<td><strong>50%</strong></td>
+<td>Typical Batch API discount, for asynchronous jobs</td>
+</tr>
+<tr>
+<td><strong>~15×</strong></td>
+<td>Tokens used by Anthropic&#39;s multi-agent research system relative to chat (agents alone ~4×)</td>
+</tr>
+<tr>
+<td><strong>~7 months</strong></td>
+<td>Historical doubling time of METR&#39;s 50% task time horizon (2019 to early 2025)</td>
+</tr>
+<tr>
+<td><strong>14 modes, 3 categories</strong></td>
+<td>MAST taxonomy of multi-agent failures: specification, inter-agent misalignment, verification</td>
+</tr>
+<tr>
+<td><strong>~100:1</strong></td>
+<td>Input-to-output token ratio Manus reports for its agent; input (and caching) dominates agent cost</td>
+</tr>
+<tr>
+<td><strong>500</strong></td>
+<td>Human-validated tasks in SWE-bench Verified</td>
+</tr>
+<tr>
+<td><strong>Nov 2024 / Apr 2025</strong></td>
+<td>MCP launched (Anthropic) / A2A announced (Google)</td>
+</tr>
+</tbody></table>
+</div>
+</article>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#the-agent-loop-in-25-lines">The agent loop in 25 lines</a></li>
+<li class="toc-h2"><a href="#choosing-an-architecture">Choosing an architecture</a></li>
+<li class="toc-h2"><a href="#workflow-patterns-at-a-glance">Workflow patterns at a glance</a></li>
+<li class="toc-h2"><a href="#tool-design-checklist">Tool design checklist</a></li>
+<li class="toc-h2"><a href="#prompt-and-system-prompt-checklist">Prompt and system-prompt checklist</a></li>
+<li class="toc-h2"><a href="#context-engineering-moves">Context engineering moves</a></li>
+<li class="toc-h2"><a href="#memory-types">Memory types</a></li>
+<li class="toc-h2"><a href="#stop-reasons-and-how-to-handle-them">Stop reasons and how to handle them</a></li>
+<li class="toc-h2"><a href="#evaluation-checklist-and-passk-passk">Evaluation checklist and pass@k / pass^k</a></li>
+<li class="toc-h2"><a href="#reliability-checklist">Reliability checklist</a></li>
+<li class="toc-h2"><a href="#cost-formulas-and-levers">Cost formulas and levers</a></li>
+<li class="toc-h2"><a href="#security-checklist">Security checklist</a></li>
+<li class="toc-h2"><a href="#production-readiness-checklist">Production readiness checklist</a></li>
+<li class="toc-h2"><a href="#key-numbers-to-remember">Key numbers to remember</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

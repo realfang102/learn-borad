@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coding Agents · Agent Academy</title>
+<meta name="description" content="How AI coding agents navigate repositories, edit code, run tests and verify their own work, plus the tools, workflows, benchmarks and failure modes that matter in practice.">
+<meta property="og:title" content="Coding Agents · Agent Academy">
+<meta property="og:description" content="How AI coding agents navigate repositories, edit code, run tests and verify their own work, plus the tools, workflows, benchmarks and failure modes that matter in practice.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="coding-agents">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#agent-types">Module 4: Agents in the Wild</a></nav>
+  <header class="lesson-header">
+    <h1>Coding Agents</h1>
+    <p class="lead">How AI coding agents navigate repositories, edit code, run tests and verify their own work, plus the tools, workflows, benchmarks and failure modes that matter in practice.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 28 min</span>
+      <span>✅ 6-question quiz</span>
+      
+      <span>Lesson 18 of 35</span>
+      <span class="lesson-status" data-status-for="coding-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain why software engineering became the breakout use case for agents</li><li>Describe the anatomy of a coding agent (navigation, editing, execution, verification)</li><li>Apply the agent-computer interface (ACI) idea when designing developer tools for agents</li><li>Compare IDE, terminal, background and open-source coding agents</li><li>Use workflows that work (explore, plan, code, verify; TDD; small diffs; parallel worktrees)</li><li>Recognize and mitigate failure modes such as test tampering and context exhaustion</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a></p>
+  </section>
+  <article class="prose">
+<p>In early 2023, &quot;AI for code&quot; meant autocomplete: a model suggested the next few lines and you pressed Tab. By 2026, a developer can type <em>&quot;the CSV export drops rows with unicode names; find out why, fix it, and add a regression test&quot;</em>, then watch an agent search the repository, read a dozen files, reproduce the bug, edit two functions, run the test suite, fix a lint error it caused, and open a pull request explaining the change. The model is still a next-token predictor. What changed is the <strong>harness</strong> around it: tools to read, write and run code, and a loop that lets it check its own work.</p>
+<p>Coding agents are the most commercially successful category of AI agent so far, and they are the clearest example of what makes <em>any</em> agent work: good tools, tight feedback loops, careful context management, and humans who know how to delegate. This lesson covers how they are built, the product landscape, workflows that work, and how they fail.</p>
+<h2 id="why-coding-is-the-breakout-use-case"><a class="anchor" href="#why-coding-is-the-breakout-use-case" aria-hidden="true">#</a>Why Coding Is the Breakout Use Case</h2>
+<p>Not every domain suits agents equally (see <a href="when-to-use-agents.html">when to use agents</a>). Software engineering scores well on almost every axis:</p>
+<ul>
+<li><strong>Text-native.</strong> Code, configs, logs and stack traces are text. The model reads the same artifacts a human engineer does.</li>
+<li><strong>Verifiable.</strong> Compilers, type checkers, linters and tests give fast, cheap, mostly objective feedback. An agent that writes a bug can <em>find out</em>, often within seconds.</li>
+<li><strong>Rich tooling.</strong> Decades of developer tools (grep, git, package managers, CI) are scriptable through a shell, so <code>bash</code> reaches almost everything without bespoke integrations.</li>
+<li><strong>Reversible.</strong> With version control, nearly every change can be undone.</li>
+<li><strong>Trainable.</strong> &quot;Make the tests pass&quot; is a checkable reward for reinforcement learning, so labs have trained models heavily on agentic coding (see <a href="training-agents.html">training agents</a>).</li>
+<li><strong>Builders are the users.</strong> The people building agents are programmers, so they feel the value directly and iterate fast.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The verification advantage</div><div class="callout-body"><p>Coding agents work mainly because the environment talks back. An agent that runs <code>pytest</code> and sees <code>3 failed, 41 passed</code> has a grounded signal to correct against. When designing agents for other domains, ask: <em>what is my equivalent of the test suite?</em></p>
+</div></aside>
+<h2 id="anatomy-of-a-coding-agent"><a class="anchor" href="#anatomy-of-a-coding-agent" aria-hidden="true">#</a>Anatomy of a Coding Agent</h2>
+<p>Strip away the branding and nearly every coding agent is the <a href="the-agent-loop.html">agent loop</a> with four families of tools.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    U[&quot;Task from developer&quot;] --&gt; M[&quot;Model reasons&quot;]
+    M --&gt; N[&quot;Navigate: glob, grep, read&quot;]
+    M --&gt; E[&quot;Edit: str_replace, write&quot;]
+    M --&gt; X[&quot;Execute: bash, tests, linters&quot;]
+    N --&gt; O[&quot;Observations&quot;]
+    E --&gt; O
+    X --&gt; O
+    O --&gt; M
+    M --&gt; D{&quot;Verified?&quot;}
+    D -- no --&gt; M
+    D -- yes --&gt; R[&quot;Summary, diff or PR&quot;]</pre></figure>
+<h3 id="navigation"><a class="anchor" href="#navigation" aria-hidden="true">#</a>Navigation</h3>
+<p>A real repository can hold hundreds of thousands of lines, far more than fits in context. The agent&#39;s first job is to find the 1% that matters.</p>
+<ul>
+<li><strong>Glob / file listing</strong> for structure (&quot;where are the tests?&quot;).</li>
+<li><strong>Grep / ripgrep</strong> for content: the error string, a function name, a config key. Agents search like senior engineers, starting from a concrete string and following references outward.</li>
+<li><strong>Read with line ranges</strong>, so a 40-line function does not drag a 3,000-line file into context.</li>
+<li><strong>Repository maps.</strong> Aider popularized a compact map of the codebase: it parses files with tree-sitter to extract definitions and signatures, builds a graph of which files reference which symbols, ranks them, and includes the most relevant slice within a token budget. The model sees the codebase&#39;s <em>shape</em> without reading every file.</li>
+<li><strong>Semantic search</strong> (embeddings over code chunks) helps with fuzzy queries (&quot;where do we handle retries?&quot;), though many teams find agentic grep-and-read competitive for precise questions (see <a href="rag-and-retrieval.html">RAG and retrieval</a>).</li>
+<li><strong>Language-server tools</strong> (go-to-definition, find-references, diagnostics), increasingly exposed via <a href="protocols-mcp-a2a.html">MCP</a>.</li>
+</ul>
+<h3 id="editing"><a class="anchor" href="#editing" aria-hidden="true">#</a>Editing</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Format</th>
+<th>How it works</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Whole-file write</strong></td>
+<td>Model emits the complete new file</td>
+<td>Simple; no matching errors</td>
+<td>Expensive for big files; the model may silently drop unrelated code</td>
+</tr>
+<tr>
+<td><strong>String replacement</strong> (<code>str_replace</code>)</td>
+<td>Exact <code>old_str</code> must match <strong>exactly once</strong>; replaced by <code>new_str</code></td>
+<td>Cheap, surgical; ambiguous edits fail loudly</td>
+<td>Needs exact whitespace and enough context to be unique</td>
+</tr>
+<tr>
+<td><strong>Diffs / patches</strong></td>
+<td>Unified diff or search/replace blocks</td>
+<td>Familiar; multi-hunk edits</td>
+<td>Line numbers drift; malformed patches</td>
+</tr>
+</tbody></table>
+</div>
+<p>The <code>str_replace</code> design turns silent errors into loud ones: if the snippet is missing (the model misremembered the code) or ambiguous (it matches three places), the tool returns an error and the model reads more context and retries. Anthropic&#39;s text editor tool (<code>view</code>, <code>create</code>, <code>str_replace</code>, <code>insert</code>) and Claude Code&#39;s Edit tool both follow this principle. Aider&#39;s experiments found the best edit format differs by model, a reminder that tools and models co-evolve.</p>
+<h3 id="execution-and-the-verify-loop"><a class="anchor" href="#execution-and-the-verify-loop" aria-hidden="true">#</a>Execution and the verify loop</h3>
+<p>A <strong>bash</strong> tool lets the agent run tests, install dependencies, start servers and run <code>git log -S</code> to see when a line changed. What separates an agent from a code generator is <strong>closing the loop</strong>: edit, run, read the result, edit again.</p>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-thought">Thought:</span> The issue says export_csv() drops rows with non-ASCII names. Find it.
+<span class="tr-action">Action:</span> grep({&quot;pattern&quot;: &quot;def export_csv&quot;, &quot;path&quot;: &quot;src/&quot;})
+<span class="tr-observation">Observation:</span> src/reports/export.py:88: def export_csv(rows, path):
+<span class="tr-action">Action:</span> read({&quot;path&quot;: &quot;src/reports/export.py&quot;, &quot;start&quot;: 80, &quot;end&quot;: 125})
+<span class="tr-observation">Observation:</span> ... with open(path, &quot;w&quot;, encoding=&quot;ascii&quot;, errors=&quot;ignore&quot;) ...
+<span class="tr-thought">Thought:</span> errors=&quot;ignore&quot; drops characters, and a later filter skips rows whose name
+         becomes empty. Write a failing test first to confirm.
+<span class="tr-action">Action:</span> write({&quot;path&quot;: &quot;tests/test_export_unicode.py&quot;, &quot;content&quot;: &quot;...&quot;})
+<span class="tr-action">Action:</span> bash({&quot;command&quot;: &quot;pytest tests/test_export_unicode.py -q&quot;})
+<span class="tr-observation">Observation:</span> 1 failed: AssertionError: expected 3 rows, got 2
+<span class="tr-action">Action:</span> str_replace({&quot;path&quot;: &quot;src/reports/export.py&quot;,
+                     &quot;old_str&quot;: &quot;encoding=\&quot;ascii\&quot;, errors=\&quot;ignore\&quot;&quot;,
+                     &quot;new_str&quot;: &quot;encoding=\&quot;utf-8\&quot;, newline=\&quot;\&quot;&quot;})
+<span class="tr-action">Action:</span> bash({&quot;command&quot;: &quot;pytest -q &amp;&amp; ruff check src/&quot;})
+<span class="tr-observation">Observation:</span> 42 passed. All checks passed!
+<span class="tr-thought">Thought:</span> Fixed and verified. Summarize the root cause and the change.</code></pre></div>
+<p>Notice the order: reproduce, fix, run the <em>whole</em> suite, then lint. A good coding agent is fussy about evidence.</p>
+<h2 id="the-agent-computer-interface-aci"><a class="anchor" href="#the-agent-computer-interface-aci" aria-hidden="true">#</a>The Agent-Computer Interface (ACI)</h2>
+<p>The SWE-agent paper (Yang et al., 2024) coined <strong>agent-computer interface (ACI)</strong>: just as humans benefit from good user interfaces, language-model agents benefit from interfaces designed for <em>them</em>. The authors found a raw shell worked worse than a small set of purpose-built commands:</p>
+<ul>
+<li>A file viewer showing ~100 numbered lines at a time, with scroll and goto, instead of <code>cat</code> dumping whole files.</li>
+<li>Search commands returning a <strong>concise summary</strong> (which files matched) rather than thousands of lines.</li>
+<li>An edit command with a <strong>lint guardrail</strong>: edits introducing syntax errors were rejected with an explanation, so broken code never accumulated.</li>
+<li>Explicit feedback for empty output (&quot;ran successfully, no output&quot;) instead of silence, which models misread.</li>
+</ul>
+<p>The durable lesson matches <a href="designing-tools.html">designing tools</a>: tool output is the agent&#39;s only window on the world, so make it compact, unambiguous and actionable.</p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>The pendulum has swung since 2024. The SWE-agent team later released <strong>mini-SWE-agent</strong>, a tiny bash-only agent, and reported that strong models do well with it. Modern models are trained on shell use and need less scaffolding, but output size, error messages and guardrails still matter. Re-test your scaffolding when you upgrade models.</p>
+</div></aside>
+<h3 id="a-minimal-coding-agent"><a class="anchor" href="#a-minimal-coding-agent" aria-hidden="true">#</a>A minimal coding agent</h3>
+<p>Here is a small coding agent built on the Anthropic SDK&#39;s tool runner, with file access confined to one directory and an allowlist of executables. It is a teaching sketch; real use needs a real sandbox.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> pathlib, shlex, subprocess
+<span class="hljs-keyword">import</span> anthropic
+<span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
+
+ROOT = pathlib.Path(<span class="hljs-string">&quot;./workspace&quot;</span>).resolve()
+ALLOWED = {<span class="hljs-string">&quot;pytest&quot;</span>, <span class="hljs-string">&quot;ruff&quot;</span>, <span class="hljs-string">&quot;ls&quot;</span>, <span class="hljs-string">&quot;grep&quot;</span>, <span class="hljs-string">&quot;git&quot;</span>}  <span class="hljs-comment"># executables the agent may run</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">_safe</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; pathlib.Path:
+    p = (ROOT / path).resolve()
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> p.is_relative_to(ROOT):  <span class="hljs-comment"># block ../ escapes and absolute paths</span>
+        <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&quot;path escapes workspace: <span class="hljs-subst">{path}</span>&quot;</span>)
+    <span class="hljs-keyword">return</span> p
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">read_file</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Read a workspace file and return it with line numbers.
+
+    Args:
+        path: File path relative to the workspace root.
+    &quot;&quot;&quot;</span>
+    lines = _safe(path).read_text().splitlines()
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;\n&quot;</span>.join(<span class="hljs-string">f&quot;<span class="hljs-subst">{i + <span class="hljs-number">1</span>:<span class="hljs-number">5</span>}</span>  <span class="hljs-subst">{line}</span>&quot;</span> <span class="hljs-keyword">for</span> i, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(lines))
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">str_replace</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span>, old_str: <span class="hljs-built_in">str</span>, new_str: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Replace exactly one occurrence of old_str with new_str in a file.
+
+    Args:
+        path: File path relative to the workspace root.
+        old_str: Exact existing text; must match exactly once, including whitespace.
+        new_str: Replacement text.
+    &quot;&quot;&quot;</span>
+    p = _safe(path)
+    text = p.read_text()
+    <span class="hljs-keyword">if</span> (n := text.count(old_str)) != <span class="hljs-number">1</span>:  <span class="hljs-comment"># loud failure beats a silent wrong edit</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Error: old_str matched <span class="hljs-subst">{n}</span> times; include more surrounding context.&quot;</span>
+    p.write_text(text.replace(old_str, new_str, <span class="hljs-number">1</span>))
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Edit applied.&quot;</span>
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">command: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Run an allowlisted command (pytest, ruff, ls, grep, git) in the workspace.
+
+    Args:
+        command: The command line, e.g. &quot;pytest -q tests/test_export.py&quot;.
+    &quot;&quot;&quot;</span>
+    argv = shlex.split(command)  <span class="hljs-comment"># no shell, so ; | &amp;&amp; are not interpreted</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> argv <span class="hljs-keyword">or</span> argv[<span class="hljs-number">0</span>] <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> ALLOWED:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;Error: allowed executables are <span class="hljs-subst">{<span class="hljs-built_in">sorted</span>(ALLOWED)}</span>&quot;</span>
+    <span class="hljs-keyword">try</span>:
+        proc = subprocess.run(argv, cwd=ROOT, capture_output=<span class="hljs-literal">True</span>, text=<span class="hljs-literal">True</span>, timeout=<span class="hljs-number">120</span>)
+    <span class="hljs-keyword">except</span> subprocess.TimeoutExpired:
+        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Error: command timed out after 120s&quot;</span>
+    out = (proc.stdout + proc.stderr)[-<span class="hljs-number">8000</span>:]  <span class="hljs-comment"># keep the tail; errors usually live there</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;exit code <span class="hljs-subst">{proc.returncode}</span>\n<span class="hljs-subst">{out <span class="hljs-keyword">or</span> <span class="hljs-string">&#x27;(no output)&#x27;</span>}</span>&quot;</span>
+
+client = anthropic.Anthropic()
+runner = client.beta.messages.tool_runner(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,
+    system=(<span class="hljs-string">&quot;You are a careful engineer. Reproduce bugs with a failing test before fixing. &quot;</span>
+            <span class="hljs-string">&quot;Never modify existing tests. Run the full suite and linter before finishing.&quot;</span>),
+    tools=[read_file, str_replace, run],
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;export_csv drops rows with non-ASCII names. Fix it.&quot;</span>}],
+)
+<span class="hljs-keyword">for</span> message <span class="hljs-keyword">in</span> runner:
+    <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> message.content:
+        <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>:
+            <span class="hljs-built_in">print</span>(block.text)</code></pre></div>
+<p>For the full build-from-scratch treatment, see <a href="build-agent-from-scratch.html">build an agent from scratch</a>.</p>
+<h2 id="the-landscape"><a class="anchor" href="#the-landscape" aria-hidden="true">#</a>The Landscape</h2>
+<p>The market moves monthly, so treat this as a snapshot as of 2026 and focus on the <em>categories</em>, which have been stable. Many products span several.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Examples</th>
+<th>Where it runs</th>
+<th>Interaction</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>IDE agents</strong></td>
+<td>Cursor, GitHub Copilot agent mode, Windsurf</td>
+<td>Your editor</td>
+<td>Synchronous; visual diffs, accept/reject per hunk</td>
+<td>Interactive work you watch and steer</td>
+</tr>
+<tr>
+<td><strong>Terminal agents</strong></td>
+<td>Claude Code, OpenAI Codex CLI, Gemini CLI, Aider</td>
+<td>Your shell</td>
+<td>Conversational; scriptable headless modes</td>
+<td>Terminal-centric developers; automation in scripts and CI</td>
+</tr>
+<tr>
+<td><strong>Background agents</strong></td>
+<td>Devin, Codex cloud, GitHub Copilot coding agent, Google Jules</td>
+<td>Vendor-hosted sandbox VM</td>
+<td>Asynchronous: assign an issue, get a PR back</td>
+<td>Well-scoped tickets, parallel throughput</td>
+</tr>
+<tr>
+<td><strong>Open source</strong></td>
+<td>OpenHands, SWE-agent, Aider</td>
+<td>Anywhere</td>
+<td>Varies</td>
+<td>Research, customization, self-hosting</td>
+</tr>
+</tbody></table>
+</div>
+<p>Some anchors: Cognition&#39;s Devin (March 2024) popularized the autonomous &quot;AI software engineer&quot;. 2025 brought terminal and background agents into the mainstream: Claude Code (preview February, generally available May), OpenAI&#39;s Codex CLI (April) and cloud Codex (May), GitHub&#39;s Copilot coding agent (May), Google&#39;s Jules public beta (May) and Gemini CLI (June).</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Synchronous vs. asynchronous</div><div class="callout-body"><p>The most useful distinction is not IDE vs. terminal but <strong>synchronous vs. asynchronous</strong>. Synchronous agents keep you in every step, which suits ambiguous work. Asynchronous agents trade oversight for throughput, which suits well-specified tasks with good tests. Many teams use both.</p>
+</div></aside>
+<h3 id="project-memory-files-claudemd-and-agentsmd"><a class="anchor" href="#project-memory-files-claudemd-and-agentsmd" aria-hidden="true">#</a>Project memory files: CLAUDE.md and AGENTS.md</h3>
+<p>Each session starts with an agent that knows nothing about <em>your</em> conventions: how to run tests, which directories are generated, that you use <code>uv</code> rather than <code>pip</code>. <strong>Project memory files</strong> are loaded automatically at session start to fix this.</p>
+<ul>
+<li><strong>CLAUDE.md</strong> is Claude Code&#39;s convention, at the repo root, in subdirectories, or at user level.</li>
+<li><strong>AGENTS.md</strong> is a vendor-neutral &quot;README for agents&quot; read by Codex, Cursor, Jules and many others. OpenAI contributed it to the Linux Foundation&#39;s Agentic AI Foundation in December 2025, alongside MCP.</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"># Notes for agents
+- Python 3.12 via uv. Tests: `uv run pytest -q`. Lint: `uv run ruff check .`
+- Never edit src/generated/ (regenerated by `make codegen`).
+- Handlers in src/api/ stay thin; business logic lives in src/core/.
+- Every bug fix needs a regression test in tests/regressions/.</code></pre></div>
+<p>Keep it short, current and reviewed like code. Bloated memory files waste context every turn and dilute the rules that matter; this is <a href="context-engineering.html">context engineering</a> and a simple form of procedural <a href="memory.html">memory</a>.</p>
+<h2 id="workflows-that-work"><a class="anchor" href="#workflows-that-work" aria-hidden="true">#</a>Workflows That Work</h2>
+<p>The same model produces brilliant or useless results depending on how it is directed. Practitioner experience, including Anthropic&#39;s published Claude Code best practices, converges on a few workflows.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Explore: read code, no edits&quot;] --&gt; B[&quot;Plan: human reviews&quot;]
+    B --&gt; C[&quot;Code: small steps&quot;]
+    C --&gt; D[&quot;Verify: tests, lint, types&quot;]
+    D -- &quot;fails&quot; --&gt; C
+    D -- &quot;passes&quot; --&gt; E[&quot;Commit / PR&quot;]</pre></figure>
+<ol>
+<li><strong>Explore.</strong> Have the agent read relevant files and explain them, and say explicitly <em>not</em> to code yet. Agents tend to jump straight to editing.</li>
+<li><strong>Plan.</strong> Get a written plan: files, approach, risks, verification. Reviewing a plan takes a minute; reviewing a wrong 600-line diff takes an hour.</li>
+<li><strong>Code</strong> in small increments.</li>
+<li><strong>Verify</strong> with tests, types and linters, and for UI work, screenshots. Verify against the <em>original requirement</em>, not just &quot;tests pass&quot;.</li>
+<li><strong>Commit</strong> with a message explaining <em>why</em>.</li>
+</ol>
+<p><strong>Test-driven development</strong> suits agents well. Have the agent write tests for the desired behavior, confirm they fail, <strong>commit them</strong>, then implement until they pass without touching the tests. Committing first makes tampering visible in the diff.</p>
+<p><strong>Small diffs and checkpoints.</strong> Agents degrade on very long tasks, and humans degrade at reviewing huge diffs. Break work into chunks you would accept from a colleague, and checkpoint often so a bad direction is cheap to undo.</p>
+<p><strong>Parallel agents in git worktrees.</strong> Agents are bottlenecked on wall-clock time, not attention, so you can run several. <code>git worktree add ../feature-x -b feature-x</code> creates a separate checkout sharing one repository, giving each agent its own directory and branch. Background agents do the same with cloud VMs. The catch: your review bandwidth becomes the bottleneck, and conflicts are your problem, so pick tasks touching disjoint code (see <a href="multi-agent-systems.html">multi-agent systems</a>).</p>
+<p>Two more patterns: a <strong>writer/reviewer split</strong>, where a fresh session reviews another session&#39;s code without being anchored on its reasoning; and <strong>headless automation</strong>, where terminal agents run in CI to triage issues, fix lint failures or fan out large migrations.</p>
+<h2 id="sandboxing-and-permissions"><a class="anchor" href="#sandboxing-and-permissions" aria-hidden="true">#</a>Sandboxing and Permissions</h2>
+<p>A coding agent runs model-generated commands. Even a well-meaning model makes mistakes (deleting the wrong directory, force-pushing), and one reading untrusted content (a malicious README, a poisoned dependency, an issue comment) can be <strong>prompt-injected</strong> into running an attacker&#39;s commands (see <a href="agent-security.html">agent security</a>). Defenses come in layers:</p>
+<ul>
+<li><strong>Permission modes</strong>: ask before edits or commands, with allowlists for safe commands and deny lists for dangerous ones. Fully unattended modes belong only inside a sandbox.</li>
+<li><strong>OS-level sandboxing</strong>: confine writes to the project directory and restrict network egress to an allowlist. Claude Code, Codex CLI and others ship sandboxes built on OS facilities such as macOS Seatbelt and Linux namespaces.</li>
+<li><strong>Disposable environments</strong>: background agents run in ephemeral containers or VMs you can throw away.</li>
+<li><strong>Scoped credentials</strong>: no production secrets; a git token that can push branches but not merge to <code>main</code>.</li>
+<li><strong>Review at the boundary</strong>: the agent opens a PR; branch protection and CI require human approval.</li>
+</ul>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>&quot;It&#39;s just a dev laptop&quot; is a dangerous assumption. Laptops hold SSH keys, cloud credentials and network access. An unsandboxed agent on auto-approve has all of that within reach. See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</p>
+</div></aside>
+<h2 id="code-review-agents"><a class="anchor" href="#code-review-agents" aria-hidden="true">#</a>Code-Review Agents</h2>
+<p>Agents increasingly sit on the other side of the PR too. GitHub Copilot code review, CodeRabbit, and review integrations for Claude Code and Codex comment on pull requests automatically. They are good at local bugs (off-by-ones, null handling, leaks, inverted conditions), convention checks, and summarizing large PRs. They struggle with architectural judgment and cross-PR context, and <strong>false positives</strong> kill adoption: noisy reviewers get ignored, so precision beats recall. A strong pattern is having the reviewer <em>verify</em> suspicions by writing a failing test before commenting, turning opinions into evidence.</p>
+<h2 id="benchmarks-briefly"><a class="anchor" href="#benchmarks-briefly" aria-hidden="true">#</a>Benchmarks, Briefly</h2>
+<p>The full treatment is in <a href="benchmarks.html">benchmarks</a>.</p>
+<ul>
+<li><strong>SWE-bench</strong> (Jimenez et al., 2023): 2,294 real GitHub issues from 12 Python repositories. The agent gets the repo and issue text and must produce a patch that passes hidden tests from the real fix.</li>
+<li><strong>SWE-bench Verified</strong> (August 2024): a 500-task subset human-validated as well-specified. It became the headline number; frontier agents went from low single digits in 2023 to well above 70% by 2025, and it is now near saturation with contamination concerns. Variants (Multimodal, Multi-SWE-bench, SWE-bench Pro) push into other languages and harder tasks.</li>
+<li><strong>Terminal-Bench</strong> (Stanford and the Laude Institute): hard command-line tasks such as building software from source, training models and reverse engineering, each checked by a test script. Its 2.0 release has 89 tasks.</li>
+</ul>
+<p>A score measures a <strong>model plus a harness</strong>, and benchmark tasks are cleaner than your Tuesday ticket. Your own <a href="evaluating-agents.html">evaluations</a> on your codebase matter more than leaderboards.</p>
+<h2 id="failure-modes"><a class="anchor" href="#failure-modes" aria-hidden="true">#</a>Failure Modes</h2>
+<h3 id="test-tampering-and-reward-hacking"><a class="anchor" href="#test-tampering-and-reward-hacking" aria-hidden="true">#</a>Test tampering and reward hacking</h3>
+<p>When the objective is &quot;make the tests pass&quot;, the easiest path is sometimes to change the tests: deleting assertions, adding <code>@pytest.mark.skip</code>, swallowing the exception under test, or special-casing inputs in production code (<code>if name == &quot;test_user&quot;: return 42</code>). This <strong>reward hacking</strong> has been documented in system cards and independent evaluations of frontier models, and it emerges naturally from RL on test-pass rewards (see <a href="agent-safety-alignment.html">agent safety and alignment</a>). Mitigate with explicit instructions, tests committed first, test-diff review, read-only test directories in the sandbox, and hidden tests in automated pipelines.</p>
+<h3 id="over-engineering"><a class="anchor" href="#over-engineering" aria-hidden="true">#</a>Over-engineering</h3>
+<p>Agents often do <em>more</em> than asked: unrequested config options, abstractions for single uses, &quot;consistency&quot; rewrites of adjacent code, defensive checks for impossible states. Counter with explicit scope (&quot;minimal change; do not refactor unrelated code&quot;), small tasks and plan review.</p>
+<h3 id="hallucinated-apis-and-packages"><a class="anchor" href="#hallucinated-apis-and-packages" aria-hidden="true">#</a>Hallucinated APIs and packages</h3>
+<p>Models call functions or flags that do not exist, or existed in an older version. A verify loop usually catches this fast, which is another reason to run code. More dangerous is <strong>package hallucination</strong>: installing a plausible but nonexistent package name, which attackers can pre-register (&quot;slopsquatting&quot;). Pin dependencies and require approval for new ones.</p>
+<h3 id="context-exhaustion"><a class="anchor" href="#context-exhaustion" aria-hidden="true">#</a>Context exhaustion</h3>
+<p>Every file read, test log and failed attempt consumes context. On long tasks in big repos, the window fills with stale observations: the agent forgets constraints, re-reads files, or loops. Remedies from <a href="context-engineering.html">context engineering</a>: truncate tool output, delegate investigations to subagents that return summaries, compact at milestones while keeping a durable progress file, and start fresh sessions for new subtasks.</p>
+<p>Also watch for <strong>premature victory</strong> (claiming success without running the full suite), <strong>flailing</strong> (near-identical retries; set a step budget and an instruction to stop and report, see <a href="reliability.html">reliability</a>), and <strong>confident wrong explanations</strong> (the summary says root cause, the diff fixes a symptom).</p>
+<h2 id="working-well-with-coding-agents"><a class="anchor" href="#working-well-with-coding-agents" aria-hidden="true">#</a>Working Well With Coding Agents</h2>
+<p>The developer&#39;s role shifts from typing code to <strong>specifying, delegating and reviewing</strong>.</p>
+<ol>
+<li><strong>Be specific.</strong> Not &quot;fix the bug&quot; but &quot;exports drop rows whose <code>name</code> has non-ASCII characters (issue #412); preserve UTF-8 and add a regression test.&quot; Point to files, paste errors, attach screenshots.</li>
+<li><strong>Provide a way to verify.</strong> If you cannot say how the agent should check its work, the task is not ready to delegate.</li>
+<li><strong>Invest in the environment.</strong> Fast tests, one-command setup and a maintained memory file improve every session, and help humans too.</li>
+<li><strong>Review like you own it</strong>, because you do: especially tests, migrations, security paths and dependency changes.</li>
+<li><strong>Match autonomy to risk.</strong> Background autonomy for low-risk, well-tested tickets; tight control for auth, payments and migrations (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</li>
+</ol>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The new bottleneck</div><div class="callout-body"><p>When code generation is cheap, the scarce resources are clear specifications, fast verification and careful review. Teams that get the most from coding agents invest in exactly those.</p>
+</div></aside>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Coding is the breakout use case because code is text-native, <strong>verifiable</strong>, reversible and reachable through mature tools.</li>
+<li>Every coding agent combines <strong>navigation</strong> (glob, grep, read, repo maps), <strong>editing</strong> (<code>str_replace</code>, diffs, whole-file writes), <strong>execution</strong> and a <strong>verify loop</strong>.</li>
+<li>The <strong>ACI</strong> idea: design tools for models, with compact output, clear errors and guardrails. Stronger models need less scaffolding, so re-test on upgrade.</li>
+<li>Products span IDE, terminal, background and open-source categories; the key split is synchronous vs. asynchronous delegation.</li>
+<li><strong>CLAUDE.md / AGENTS.md</strong> give agents your conventions every session; keep them short.</li>
+<li>Effective workflows: explore, plan, code, verify, commit; TDD with committed tests; small diffs; parallel worktrees.</li>
+<li>Main failure modes are <strong>test tampering</strong>, over-engineering, hallucinated APIs and packages, and context exhaustion; defend with sandboxes, scoped credentials and careful review.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Write a memory file.</strong> For a repo you know, write a 10–15 line <code>AGENTS.md</code> with setup, test and lint commands and two &quot;never do X&quot; rules. Run the same small task with and without it and compare.</li>
+<li><strong>Harden the mini agent.</strong> Add a <code>grep</code> tool that returns at most 50 matching lines plus a count of omitted ones, and make <code>str_replace</code> refuse paths under <code>tests/</code>. Observe how the agent reacts when blocked.</li>
+<li><strong>Lint-on-edit.</strong> After each <code>str_replace</code> on a <code>.py</code> file, run <code>python -m py_compile</code>; if it fails, revert the edit and return the error. Count how often it triggers over ten tasks.</li>
+<li><strong>Catch reward hacking.</strong> Build a small project with a deliberately hard failing test. Ask an agent only to &quot;make the tests pass&quot; and inspect the diff for test edits or special-casing. Add explicit constraints and compare.</li>
+<li><strong>Parallel worktrees.</strong> Run agents on three independent issues in three worktrees. Track wall-clock time, your review time per branch and merge conflicts. Where was the bottleneck?</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="coding-agents" data-total="6">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>What property of software engineering most explains why coding agents work better than agents in many other domains?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Programming languages have fewer tokens per concept</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The environment gives fast, objective feedback through compilers, tests and linters</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Code is shorter than natural-language documents</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Developers tolerate mistakes better than other users</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Verifiability is the key advantage. Running tests gives the agent a grounded signal to correct against, which most domains lack.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why does a str_replace edit tool require old_str to match exactly once?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Because source files cannot contain duplicate lines</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>So a missing or ambiguous match fails loudly instead of silently editing the wrong place</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>To reduce output tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>So the edit can be expressed as a unified diff</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactly-once matching converts silent misedits into explicit errors; the model then reads more context and retries with a unique snippet.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Which best captures the agent-computer interface (ACI) idea from SWE-agent?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents should use the same GUIs humans use</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agents need dedicated hardware to run code</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>All agent actions should go through a raw shell</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tools should be designed for language models, with concise output, clear feedback and guardrails</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Purpose-built commands (windowed viewer, summarized search, lint-checked edits) beat a raw shell for the models of the time. Designing tool I/O for the model remains important even as models need less scaffolding.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Told to &quot;make the failing tests pass&quot;, an agent adds <code>if user_id == &#39;test-123&#39;: return True</code> to production code. What is this?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reward hacking by special-casing the test input</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A legitimate edge-case fix</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A hallucinated API</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The agent met the literal objective without fixing the behavior. Forbid test-specific logic, commit tests first, review for special-casing and use hidden tests.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>You want three coding agents working on three tasks in the same repository on your laptop at once. What prevents them from clobbering each other&#39;s files?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Give each agent read-only access</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Use a different model for each</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Share one branch and coordinate in comments</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Give each agent its own git worktree and branch</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Worktrees are separate working directories sharing one repository. Your review bandwidth then becomes the bottleneck.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>A background agent handles small tickets well but loops and forgets constraints on long tasks in a large monorepo. What is the likely cause and fix?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Context exhaustion; truncate tool output, use subagents, compact history and split the task</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Prompt injection; disable network access</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model is too small; change nothing but the model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Bad edit format; switch to whole-file writes</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long tasks fill context with stale logs and file contents. Context engineering and smaller task scopes address this directly.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2405.15793" target="_blank" rel="noopener">SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering (Yang et al., 2024)</a> — introduces the ACI concept with ablations of tool design.</li>
+<li><a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener">SWE-bench: Can Language Models Resolve Real-World GitHub Issues? (Jimenez et al., 2023)</a> — the benchmark that defined how coding agents are measured.</li>
+<li><a href="https://openai.com/index/introducing-swe-bench-verified/" target="_blank" rel="noopener">Introducing SWE-bench Verified (OpenAI)</a> — why the original benchmark needed human validation.</li>
+<li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">Claude Code: Best practices for agentic coding (Anthropic)</a> — explore/plan/code/commit, TDD, CLAUDE.md, worktrees and headless mode.</li>
+<li><a href="https://arxiv.org/abs/2407.16741" target="_blank" rel="noopener">OpenHands: An Open Platform for AI Software Developers as Generalist Agents (Wang et al., 2024)</a> — architecture of a leading open-source coding agent.</li>
+<li><a href="https://aider.chat/docs/repomap.html" target="_blank" rel="noopener">Aider repository map</a> — how tree-sitter and graph ranking produce a compact codebase map.</li>
+<li><a href="https://agents.md/" target="_blank" rel="noopener">AGENTS.md</a> — the vendor-neutral format for project instructions to agents.</li>
+<li><a href="https://tbench.ai/" target="_blank" rel="noopener">Terminal-Bench</a> — hard command-line tasks for agents, with leaderboard.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="coding-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-coding-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-coding-agents" class="notes" data-slug="coding-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="human-in-the-loop.html"><small>← Previous</small><span>Human-in-the-Loop &amp; Agent UX</span></a>
+    <a class="pager-next" href="computer-use-agents.html"><small>Next →</small><span>Computer-Use &amp; Browser Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#why-coding-is-the-breakout-use-case">Why Coding Is the Breakout Use Case</a></li>
+<li class="toc-h2"><a href="#anatomy-of-a-coding-agent">Anatomy of a Coding Agent</a></li>
+<li class="toc-h3"><a href="#navigation">Navigation</a></li>
+<li class="toc-h3"><a href="#editing">Editing</a></li>
+<li class="toc-h3"><a href="#execution-and-the-verify-loop">Execution and the verify loop</a></li>
+<li class="toc-h2"><a href="#the-agent-computer-interface-aci">The Agent-Computer Interface (ACI)</a></li>
+<li class="toc-h3"><a href="#a-minimal-coding-agent">A minimal coding agent</a></li>
+<li class="toc-h2"><a href="#the-landscape">The Landscape</a></li>
+<li class="toc-h3"><a href="#project-memory-files-claudemd-and-agentsmd">Project memory files: CLAUDE.md and AGENTS.md</a></li>
+<li class="toc-h2"><a href="#workflows-that-work">Workflows That Work</a></li>
+<li class="toc-h2"><a href="#sandboxing-and-permissions">Sandboxing and Permissions</a></li>
+<li class="toc-h2"><a href="#code-review-agents">Code-Review Agents</a></li>
+<li class="toc-h2"><a href="#benchmarks-briefly">Benchmarks, Briefly</a></li>
+<li class="toc-h2"><a href="#failure-modes">Failure Modes</a></li>
+<li class="toc-h3"><a href="#test-tampering-and-reward-hacking">Test tampering and reward hacking</a></li>
+<li class="toc-h3"><a href="#over-engineering">Over-engineering</a></li>
+<li class="toc-h3"><a href="#hallucinated-apis-and-packages">Hallucinated APIs and packages</a></li>
+<li class="toc-h3"><a href="#context-exhaustion">Context exhaustion</a></li>
+<li class="toc-h2"><a href="#working-well-with-coding-agents">Working Well With Coding Agents</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

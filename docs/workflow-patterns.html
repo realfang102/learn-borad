@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Workflow Patterns · Agent Academy</title>
+<meta name="description" content="The six composable patterns behind most successful LLM systems: the augmented LLM, prompt chaining, routing, parallelization, orchestrator-workers and evaluator-optimizer, and when to graduate to a fully autonomous agent.">
+<meta property="og:title" content="Workflow Patterns · Agent Academy">
+<meta property="og:description" content="The six composable patterns behind most successful LLM systems: the augmented LLM, prompt chaining, routing, parallelization, orchestrator-workers and evaluator-optimizer, and when to graduate to a fully autonomous agent.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="workflow-patterns">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#architectures">Module 3: Architectures &amp; Patterns</a></nav>
+  <header class="lesson-header">
+    <h1>Workflow Patterns</h1>
+    <p class="lead">The six composable patterns behind most successful LLM systems: the augmented LLM, prompt chaining, routing, parallelization, orchestrator-workers and evaluator-optimizer, and when to graduate to a fully autonomous agent.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      <span>🧪 Interactive</span>
+      <span>Lesson 14 of 35</span>
+      <span class="lesson-status" data-status-for="workflow-patterns"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Distinguish workflows (code-defined control flow) from agents (model-defined control flow)</li><li>Implement prompt chaining, routing, parallelization, orchestrator-workers and evaluator-optimizer with the Anthropic SDK</li><li>Choose the simplest pattern that solves a problem, and know the signals that justify moving up a level</li><li>Combine patterns into production pipelines while keeping them testable and debuggable</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="when-to-use-agents.html">Agents vs. Workflows: When (Not) to Build an Agent</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="structured-outputs.html">Structured Outputs &amp; Control Flow</a></p>
+  </section>
+  <article class="prose">
+<p>Most of the LLM systems that work reliably in production are not open-ended autonomous agents. They are <strong>workflows</strong>: a handful of model calls wired together by ordinary code, each call doing one well-scoped job. A support system that classifies a ticket and then hands it to one of four specialized prompts. A report generator that writes an outline, checks it, then drafts each section in parallel. A translator that drafts, critiques its own draft, and revises. None of these let the model decide what happens next, and that is exactly why they are fast, cheap and debuggable.</p>
+<p>In December 2024 Anthropic published &quot;Building Effective Agents&quot;, a short essay distilled from dozens of customer deployments. Its central claim was that the teams who succeeded were not using elaborate frameworks: they were using <strong>simple, composable patterns</strong>. This lesson teaches those patterns one by one: what each looks like, when to use it, a concrete example, working Python, and the trade-offs. At the end we look at the fully autonomous agent, the pattern you reach for only when the others run out, and at how the patterns combine.</p>
+<h2 id="workflows-vs-agents"><a class="anchor" href="#workflows-vs-agents" aria-hidden="true">#</a>Workflows vs. Agents</h2>
+<p>Anthropic draws a useful line between two kinds of <strong>agentic systems</strong>:</p>
+<ul>
+<li>A <strong>workflow</strong> is a system where LLMs and tools are orchestrated through <strong>predefined code paths</strong>. You, the developer, decide the control flow. The model fills in the content.</li>
+<li>An <strong>agent</strong> is a system where the LLM <strong>dynamically directs its own process and tool usage</strong>, deciding what to do next, how many steps to take, and when it is done.</li>
+</ul>
+<p>This is a spectrum rather than a binary (see <a href="what-is-an-agent.html">What Is an AI Agent?</a>), but the distinction matters for engineering. A workflow&#39;s behavior is bounded by its code: you can enumerate the paths, unit-test each step, and predict its cost. An agent&#39;s behavior is bounded only by its tools, its budget and its judgment. As <a href="when-to-use-agents.html">When to Use Agents</a> argued, autonomy buys flexibility at the price of latency, cost and compounding errors.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Start simple</div><div class="callout-body"><p>Find the simplest solution that works, and add complexity only when it demonstrably improves outcomes. Often that is a single well-prompted LLM call with retrieval and good examples. Workflows are the next step up; autonomous agents are the step after that.</p>
+</div></aside>
+<p>Try it yourself: explore each pattern&#39;s shape, and see how data flows through it, before reading the details.</p>
+<div class="widget" data-widget="pattern-explorer"></div>
+
+<p>All the code below shares two tiny helpers so each pattern stays short:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> TypeVar
+<span class="hljs-keyword">import</span> anthropic
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
+
+client = anthropic.Anthropic()          <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
+MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
+FAST = <span class="hljs-string">&quot;claude-haiku-5-5&quot;</span>               <span class="hljs-comment"># cheaper model for simple steps</span>
+T = TypeVar(<span class="hljs-string">&quot;T&quot;</span>, bound=BaseModel)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">llm</span>(<span class="hljs-params">prompt: <span class="hljs-built_in">str</span>, system: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;&quot;</span>, model: <span class="hljs-built_in">str</span> = MODEL</span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;One plain LLM call; returns the text of the reply.&quot;&quot;&quot;</span>
+    resp = client.messages.create(
+        model=model, max_tokens=<span class="hljs-number">16000</span>,
+        system=system <span class="hljs-keyword">or</span> anthropic.omit,    <span class="hljs-comment"># omit the field when no system prompt</span>
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: prompt}],
+    )
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">llm_json</span>(<span class="hljs-params">prompt: <span class="hljs-built_in">str</span>, schema: <span class="hljs-built_in">type</span>[T], system: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;&quot;</span>, model: <span class="hljs-built_in">str</span> = MODEL</span>) -&gt; T:
+    <span class="hljs-string">&quot;&quot;&quot;One LLM call whose output is validated against a Pydantic model.&quot;&quot;&quot;</span>
+    resp = client.messages.parse(
+        model=model, max_tokens=<span class="hljs-number">16000</span>,
+        system=system <span class="hljs-keyword">or</span> anthropic.omit,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: prompt}],
+        output_format=schema,
+    )
+    <span class="hljs-keyword">return</span> resp.parsed_output</code></pre></div>
+<p>Note that <code>llm_json</code> uses <strong>structured outputs</strong> (<a href="structured-outputs.html">lesson</a>). Almost every pattern below depends on one step producing machine-readable output that code can branch on, so reliable JSON is the glue that holds workflows together.</p>
+<h2 id="the-augmented-llm"><a class="anchor" href="#the-augmented-llm" aria-hidden="true">#</a>The Augmented LLM</h2>
+<p>Every pattern is built from the same brick: an <strong>augmented LLM</strong>, meaning a model enhanced with three capabilities:</p>
+<ul>
+<li><strong>Retrieval</strong>: it can pull in relevant information (search, a vector store, a database) rather than relying on its weights. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
+<li><strong>Tools</strong>: it can take actions and fetch live data through function calls. See <a href="tool-use.html">Tool Use</a>.</li>
+<li><strong>Memory</strong>: it can read and write information that persists beyond the current context window. See <a href="memory.html">Memory</a>.</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Input]) --&gt; LLM[&quot;Augmented LLM&quot;]
+    LLM --&gt; Out([Output])
+    LLM &lt;--&gt;|query / results| R[(Retrieval)]
+    LLM &lt;--&gt;|call / response| T[Tools]
+    LLM &lt;--&gt;|read / write| M[(Memory)]</pre></figure>
+<p>Modern models decide for themselves when to search, which tool to call and what to remember. The engineering work is in tailoring these capabilities to your use case and giving the model a clean, well-documented interface to them (the subject of <a href="designing-tools.html">Designing Tools</a>). One standard way to plug capabilities in is the <a href="protocols-mcp-a2a.html">Model Context Protocol</a>.</p>
+<p>A single augmented call with the SDK&#39;s tool runner:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">lookup_order</span>(<span class="hljs-params">order_id: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Look up an order&#x27;s status. Call this whenever the user mentions an order number.
+
+    Args:
+        order_id: The order identifier, e.g. &quot;A-1042&quot;.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;{&quot;order_id&quot;: &quot;A-1042&quot;, &quot;status&quot;: &quot;shipped&quot;, &quot;eta&quot;: &quot;2026-11-25&quot;}&#x27;</span>  <span class="hljs-comment"># stub</span>
+
+runner = client.beta.messages.tool_runner(
+    model=MODEL, max_tokens=<span class="hljs-number">16000</span>,
+    tools=[lookup_order, {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;web_search_20260209&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;web_search&quot;</span>}],
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Where is order A-1042?&quot;</span>}],
+)
+<span class="hljs-built_in">print</span>(runner.until_done().content[-<span class="hljs-number">1</span>].text)</code></pre></div>
+<p>Every box labelled &quot;LLM&quot; in the diagrams below can be one of these: a call that may itself use tools and retrieval.</p>
+<h2 id="prompt-chaining"><a class="anchor" href="#prompt-chaining" aria-hidden="true">#</a>Prompt Chaining</h2>
+<p><strong>Prompt chaining</strong> decomposes a task into a fixed sequence of steps, where each LLM call processes the output of the previous one. Between steps you can insert <strong>programmatic gates</strong>: plain code checks that verify the intermediate output and stop, retry or branch if it is not acceptable.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Input]) --&gt; A[&quot;LLM 1: outline&quot;]
+    A --&gt; G{&quot;Gate: valid?&quot;}
+    G --&gt;|pass| B[&quot;LLM 2: draft&quot;]
+    G --&gt;|fail| X([Stop / retry])
+    B --&gt; C[&quot;LLM 3: polish&quot;]
+    C --&gt; Out([Output])</pre></figure>
+<p><strong>When to use it:</strong> the task cleanly decomposes into fixed subtasks, and you are willing to trade latency for accuracy. Each call gets an easier job, a shorter prompt and a focused instruction set, so it does that job better than one giant prompt doing everything at once.</p>
+<p><strong>Example:</strong> generating marketing copy, checking it meets constraints, then translating it. Or: write an outline, verify the outline covers the required points, then write the document.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Outline</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    title: <span class="hljs-built_in">str</span>
+    sections: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">write_brief</span>(<span class="hljs-params">topic: <span class="hljs-built_in">str</span>, must_cover: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>]</span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-comment"># Step 1: outline (structured, so the gate can inspect it)</span>
+    outline = llm_json(<span class="hljs-string">f&quot;Outline a 1-page brief on: <span class="hljs-subst">{topic}</span>. Use 3-6 sections.&quot;</span>, Outline)
+
+    <span class="hljs-comment"># Gate: deterministic check, no LLM needed</span>
+    text = <span class="hljs-string">&quot; &quot;</span>.join(outline.sections).lower()
+    missing = [m <span class="hljs-keyword">for</span> m <span class="hljs-keyword">in</span> must_cover <span class="hljs-keyword">if</span> m.lower() <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> text]
+    <span class="hljs-keyword">if</span> missing:
+        <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&quot;Outline missing required topics: <span class="hljs-subst">{missing}</span>&quot;</span>)
+
+    <span class="hljs-comment"># Step 2: draft from the validated outline</span>
+    draft = llm(<span class="hljs-string">f&quot;Write the brief &#x27;<span class="hljs-subst">{outline.title}</span>&#x27; with sections: <span class="hljs-subst">{outline.sections}</span>&quot;</span>)
+
+    <span class="hljs-comment"># Step 3: polish with a narrow instruction</span>
+    <span class="hljs-keyword">return</span> llm(<span class="hljs-string">f&quot;Tighten this for executives; keep every fact, cut 30% of words:\n\n<span class="hljs-subst">{draft}</span>&quot;</span>)</code></pre></div>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Each step is independently testable and its prompt can be tuned in isolation.</li>
+<li>(+) Gates catch errors early, before they compound through later steps.</li>
+<li>(+) You can use different models per step (a cheap model for formatting, a strong one for reasoning).</li>
+<li>(−) Latency adds up: three sequential calls take roughly three times as long as one.</li>
+<li>(−) Information can be lost between steps if you pass only summaries. Pass what the next step actually needs.</li>
+</ul>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Gates should be cheap and deterministic where possible</div><div class="callout-body"><p>Length limits, required keywords, schema validation, a regex, a compile step, a unit test. Reserve LLM-as-judge gates for properties code cannot check, and remember they cost a call and can be wrong.</p>
+</div></aside>
+<h2 id="routing"><a class="anchor" href="#routing" aria-hidden="true">#</a>Routing</h2>
+<p><strong>Routing</strong> classifies an input and directs it to a specialized follow-up path. It lets you separate concerns: each downstream prompt (or model, or tool set) is optimized for one category, without that optimization degrading performance on the others.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Input]) --&gt; R[&quot;Router LLM (classify)&quot;]
+    R --&gt;|refund| A[&quot;Refund handler&quot;]
+    R --&gt;|technical| B[&quot;Tech support handler&quot;]
+    R --&gt;|general| C[&quot;FAQ handler (small model)&quot;]
+    A --&gt; Out([Output])
+    B --&gt; Out
+    C --&gt; Out</pre></figure>
+<p><strong>When to use it:</strong> inputs fall into distinct categories that are better handled separately, and classification can be done accurately, by an LLM or by a traditional classifier.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Customer service: route refund requests, technical issues and general questions to different prompts, tools and escalation policies.</li>
+<li><strong>Model routing</strong>: send easy questions to a small, fast model and hard ones to a frontier model. This is one of the most effective cost levers available (<a href="cost-and-latency.html">Cost &amp; Latency</a>).</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Route</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    category: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;refund&quot;</span>, <span class="hljs-string">&quot;technical&quot;</span>, <span class="hljs-string">&quot;general&quot;</span>]
+    reasoning: <span class="hljs-built_in">str</span>
+
+HANDLERS = {
+    <span class="hljs-string">&quot;refund&quot;</span>:    (<span class="hljs-string">&quot;You process refunds. Policy: 30 days, receipt required. Never promise exceptions.&quot;</span>, MODEL),
+    <span class="hljs-string">&quot;technical&quot;</span>: (<span class="hljs-string">&quot;You are a senior support engineer. Ask for logs before guessing.&quot;</span>, MODEL),
+    <span class="hljs-string">&quot;general&quot;</span>:   (<span class="hljs-string">&quot;You answer general questions briefly and link to the FAQ.&quot;</span>, FAST),
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">handle_ticket</span>(<span class="hljs-params">ticket: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    route = llm_json(
+        <span class="hljs-string">f&quot;Classify this support ticket:\n\n<span class="hljs-subst">{ticket}</span>&quot;</span>, Route,
+        system=<span class="hljs-string">&quot;Categories: refund (money back, cancellations), technical (bugs, errors), general (everything else).&quot;</span>,
+        model=FAST,                          <span class="hljs-comment"># classification is easy; use the cheap model</span>
+    )
+    system, model = HANDLERS[route.category]
+    <span class="hljs-keyword">return</span> llm(ticket, system=system, model=model)</code></pre></div>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Specialized prompts outperform one prompt that tries to cover everything.</li>
+<li>(+) Big cost savings when most traffic can go to a cheaper path.</li>
+<li>(−) Misroutes are silent failures: a technical question answered by the FAQ handler looks like a bad answer, not an error. Log the router&#39;s decision and evaluate it as its own classifier, with a confusion matrix.</li>
+<li>(−) Ambiguous inputs that span categories need a fallback (a &quot;general&quot; route with access to everything, or a clarifying question).</li>
+</ul>
+<h2 id="parallelization"><a class="anchor" href="#parallelization" aria-hidden="true">#</a>Parallelization</h2>
+<p><strong>Parallelization</strong> runs several LLM calls simultaneously and aggregates their outputs programmatically. It comes in two flavors:</p>
+<ul>
+<li><strong>Sectioning</strong>: split a task into <em>independent</em> subtasks that run in parallel.</li>
+<li><strong>Voting</strong>: run the <em>same</em> task several times to get diverse outputs, then aggregate (majority vote, threshold, best-of).</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Input]) --&gt; S{&quot;Split / fan out&quot;}
+    S --&gt; A[&quot;LLM call 1&quot;]
+    S --&gt; B[&quot;LLM call 2&quot;]
+    S --&gt; C[&quot;LLM call 3&quot;]
+    A --&gt; Agg[&quot;Aggregator (code)&quot;]
+    B --&gt; Agg
+    C --&gt; Agg
+    Agg --&gt; Out([Output])</pre></figure>
+<p><strong>When to use it:</strong> subtasks are independent and can run concurrently for speed, or you want multiple perspectives or attempts for higher confidence. A subtle but important insight from Anthropic&#39;s essay: for complex tasks with several considerations, LLMs generally do better when <strong>each consideration is handled by a separate call</strong>, giving focused attention to each.</p>
+<p><strong>Sectioning examples:</strong></p>
+<ul>
+<li><strong>Guardrails in parallel</strong>: one call answers the user while another screens the input for policy violations. This tends to work better than asking a single call to do both.</li>
+<li><strong>Multi-aspect evaluation</strong>: score a response for accuracy, tone and safety in three separate calls.</li>
+</ul>
+<p><strong>Voting examples:</strong></p>
+<ul>
+<li>Review code for vulnerabilities with several differently-prompted reviewers; flag the code if any of them finds a problem.</li>
+<li>Content moderation where you tune the threshold (2 of 3 votes) to balance false positives and negatives.</li>
+<li><strong>Self-consistency</strong>: sample several reasoning paths and take the majority answer, a classic technique from the <a href="reasoning-and-planning.html">reasoning</a> literature.</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
+
+aclient = anthropic.AsyncAnthropic()
+
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">acall</span>(<span class="hljs-params">prompt: <span class="hljs-built_in">str</span>, system: <span class="hljs-built_in">str</span> = <span class="hljs-string">&quot;&quot;</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    resp = <span class="hljs-keyword">await</span> aclient.messages.create(
+        model=MODEL, max_tokens=<span class="hljs-number">16000</span>, system=system <span class="hljs-keyword">or</span> anthropic.omit,
+        messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: prompt}],
+    )
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+<span class="hljs-comment"># Sectioning: independent aspects reviewed concurrently</span>
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">review</span>(<span class="hljs-params">doc: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>]:
+    aspects = {
+        <span class="hljs-string">&quot;accuracy&quot;</span>: <span class="hljs-string">&quot;Check every factual claim. List any that look wrong.&quot;</span>,
+        <span class="hljs-string">&quot;clarity&quot;</span>:  <span class="hljs-string">&quot;Identify confusing sentences and suggest rewrites.&quot;</span>,
+        <span class="hljs-string">&quot;risk&quot;</span>:     <span class="hljs-string">&quot;Flag legal or reputational risks.&quot;</span>,
+    }
+    results = <span class="hljs-keyword">await</span> asyncio.gather(*(acall(doc, system=s) <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> aspects.values()))
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">dict</span>(<span class="hljs-built_in">zip</span>(aspects, results))
+
+<span class="hljs-comment"># Voting: differently-framed reviewers, flag if ANY says vulnerable</span>
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">is_vulnerable</span>(<span class="hljs-params">code: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    lenses = [<span class="hljs-string">&quot;injection flaws&quot;</span>, <span class="hljs-string">&quot;authentication and authorization bugs&quot;</span>, <span class="hljs-string">&quot;unsafe deserialization&quot;</span>]
+    votes = <span class="hljs-keyword">await</span> asyncio.gather(*(
+        acall(<span class="hljs-string">f&quot;Review for <span class="hljs-subst">{lens}</span>. Answer only VULNERABLE or SAFE.\n\n<span class="hljs-subst">{code}</span>&quot;</span>) <span class="hljs-keyword">for</span> lens <span class="hljs-keyword">in</span> lenses
+    ))
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">any</span>(<span class="hljs-string">&quot;VULNERABLE&quot;</span> <span class="hljs-keyword">in</span> v.upper() <span class="hljs-keyword">for</span> v <span class="hljs-keyword">in</span> votes)</code></pre></div>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Where does diversity come from?</div><div class="callout-body"><p>Current Claude models do not accept a <code>temperature</code> parameter, so for voting you should not rely on sampling noise alone. Make the voters <em>genuinely different</em>: different instructions or lenses, different context slices, or different models. Correlated voters that make the same mistake add cost without adding confidence.</p>
+</div></aside>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Sectioning cuts wall-clock latency to roughly the slowest branch.</li>
+<li>(+) Voting raises reliability on high-stakes binary decisions.</li>
+<li>(−) Token cost multiplies by the number of branches.</li>
+<li>(−) The aggregation step is where bugs hide: decide in advance how to merge conflicting outputs.</li>
+<li>(−) Watch your rate limits when fanning out widely.</li>
+</ul>
+<h2 id="orchestrator-workers"><a class="anchor" href="#orchestrator-workers" aria-hidden="true">#</a>Orchestrator-Workers</h2>
+<p>In <strong>orchestrator-workers</strong>, a central LLM (the <strong>orchestrator</strong>) dynamically breaks a task into subtasks, delegates them to <strong>worker</strong> LLM calls, and synthesizes their results.</p>
+<figure class="diagram"><pre class="mermaid">flowchart TB
+    In([Task]) --&gt; O[&quot;Orchestrator LLM (plan)&quot;]
+    O --&gt;|subtask 1| W1[&quot;Worker&quot;]
+    O --&gt;|subtask 2| W2[&quot;Worker&quot;]
+    O --&gt;|subtask n| W3[&quot;Worker&quot;]
+    W1 --&gt; Syn[&quot;Synthesizer LLM&quot;]
+    W2 --&gt; Syn
+    W3 --&gt; Syn
+    Syn --&gt; Out([Result])</pre></figure>
+<p>It looks like parallelization, but the key difference is that <strong>the subtasks are not predefined</strong>. The orchestrator decides how many there are and what each one is, based on the specific input.</p>
+<p><strong>When to use it:</strong> complex tasks where you cannot predict the subtasks in advance. Examples:</p>
+<ul>
+<li>A coding change that touches an unknown number of files; the orchestrator decides which files need edits and what each edit is.</li>
+<li>A research question where the orchestrator decides which sources or angles to investigate.</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Subtask</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    <span class="hljs-built_in">id</span>: <span class="hljs-built_in">str</span>
+    instruction: <span class="hljs-built_in">str</span>          <span class="hljs-comment"># self-contained: a worker sees only this</span>
+    output_format: <span class="hljs-built_in">str</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Plan</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    subtasks: <span class="hljs-built_in">list</span>[Subtask]
+
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">orchestrate</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    plan = llm_json(
+        <span class="hljs-string">f&quot;Break this task into 2-6 independent subtasks a worker can do without &quot;</span>
+        <span class="hljs-string">f&quot;seeing the others. Make each instruction fully self-contained.\n\nTask: <span class="hljs-subst">{task}</span>&quot;</span>,
+        Plan,
+    )
+    results = <span class="hljs-keyword">await</span> asyncio.gather(*(
+        acall(<span class="hljs-string">f&quot;<span class="hljs-subst">{s.instruction}</span>\n\nReturn: <span class="hljs-subst">{s.output_format}</span>&quot;</span>) <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> plan.subtasks
+    ))
+    joined = <span class="hljs-string">&quot;\n\n&quot;</span>.join(<span class="hljs-string">f&quot;## <span class="hljs-subst">{s.<span class="hljs-built_in">id</span>}</span>\n<span class="hljs-subst">{r}</span>&quot;</span> <span class="hljs-keyword">for</span> s, r <span class="hljs-keyword">in</span> <span class="hljs-built_in">zip</span>(plan.subtasks, results))
+    <span class="hljs-keyword">return</span> llm(<span class="hljs-string">f&quot;Task: <span class="hljs-subst">{task}</span>\n\nWorker results:\n<span class="hljs-subst">{joined}</span>\n\nSynthesize a single coherent answer.&quot;</span>)</code></pre></div>
+<p>The single most important line in that code is the instruction to make each subtask <strong>self-contained</strong>. Workers see none of the orchestrator&#39;s context, so vague delegation (&quot;research the second part&quot;) produces duplicated or irrelevant work. We will return to this at length in <a href="multi-agent-systems.html">Multi-Agent Systems</a>, where orchestrator-workers grows into fully agentic subagents.</p>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Adapts to the input: a simple task gets two subtasks, a complex one gets six.</li>
+<li>(+) Workers can run in parallel and each has a clean, focused context.</li>
+<li>(−) Plan quality caps result quality. A bad decomposition cannot be rescued by good workers.</li>
+<li>(−) Harder to test than fixed workflows, because the shape of the run varies.</li>
+<li>(−) Synthesis must reconcile overlaps and contradictions between workers.</li>
+</ul>
+<h2 id="evaluator-optimizer"><a class="anchor" href="#evaluator-optimizer" aria-hidden="true">#</a>Evaluator-Optimizer</h2>
+<p>In <strong>evaluator-optimizer</strong>, one LLM call generates a response while another evaluates it and provides feedback, in a loop, until the output passes or a budget runs out.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Task]) --&gt; Gen[&quot;Generator LLM&quot;]
+    Gen --&gt;|candidate| Ev[&quot;Evaluator LLM&quot;]
+    Ev --&gt;|&quot;feedback (fail)&quot;| Gen
+    Ev --&gt;|pass| Out([Accepted output])</pre></figure>
+<p><strong>When to use it:</strong> you have clear evaluation criteria, and iterative refinement provides measurable value. Two signs of a good fit: (1) a human&#39;s written feedback would demonstrably improve the output, and (2) an LLM can produce that kind of feedback. It is the same loop a writer goes through with an editor.</p>
+<p><strong>Examples:</strong></p>
+<ul>
+<li>Literary translation, where nuance the translator missed on the first pass can be pointed out by a critic.</li>
+<li>Complex search tasks that require several rounds of searching and analysis; the evaluator decides whether more searching is warranted.</li>
+<li>Code generation where the evaluator is (partly) <em>not an LLM at all</em>: a compiler and a test suite.</li>
+</ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Verdict</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    passed: <span class="hljs-built_in">bool</span>
+    feedback: <span class="hljs-built_in">str</span>            <span class="hljs-comment"># concrete, actionable issues; empty if passed</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">refine</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span>, criteria: <span class="hljs-built_in">str</span>, max_rounds: <span class="hljs-built_in">int</span> = <span class="hljs-number">4</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    candidate = llm(task)
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_rounds):
+        verdict = llm_json(
+            <span class="hljs-string">f&quot;Criteria:\n<span class="hljs-subst">{criteria}</span>\n\nCandidate:\n<span class="hljs-subst">{candidate}</span>\n\n&quot;</span>
+            <span class="hljs-string">&quot;Does the candidate meet ALL criteria? If not, list specific fixes.&quot;</span>,
+            Verdict,
+            system=<span class="hljs-string">&quot;You are a strict reviewer. Do not rewrite; only judge and explain.&quot;</span>,
+        )
+        <span class="hljs-keyword">if</span> verdict.passed:
+            <span class="hljs-keyword">return</span> candidate
+        candidate = llm(
+            <span class="hljs-string">f&quot;Task: <span class="hljs-subst">{task}</span>\n\nPrevious attempt:\n<span class="hljs-subst">{candidate}</span>\n\n&quot;</span>
+            <span class="hljs-string">f&quot;Reviewer feedback:\n<span class="hljs-subst">{verdict.feedback}</span>\n\nProduce an improved version.&quot;</span>
+        )
+    <span class="hljs-keyword">return</span> candidate   <span class="hljs-comment"># budget exhausted: return best effort (and log it!)</span></code></pre></div>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Measurably better quality on tasks with checkable criteria.</li>
+<li>(+) Separating the generator and evaluator roles avoids the &quot;grading your own homework&quot; leniency of a single prompt that both writes and critiques.</li>
+<li>(−) Cost and latency multiply with rounds; always cap them.</li>
+<li>(−) An LLM evaluator can be miscalibrated: too lenient (accepts junk) or too picky (never converges). Calibrate it against human judgments, as covered in <a href="evaluating-agents.html">Evaluating Agents</a>.</li>
+<li>(−) Oscillation: the generator can flip-flop between two versions. Passing the full history of feedback helps.</li>
+</ul>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Ground the evaluator whenever you can</div><div class="callout-body"><p>The best evaluators are external signals: tests passing, a schema validating, a fact found in a retrieved source. An LLM judging an LLM is the fallback, not the first choice. Research such as Self-Refine showed iterative self-feedback can help, but gains are much more reliable when feedback is grounded in real execution.</p>
+</div></aside>
+<h2 id="the-autonomous-agent"><a class="anchor" href="#the-autonomous-agent" aria-hidden="true">#</a>The Autonomous Agent</h2>
+<p>When none of the fixed shapes fit, because you genuinely cannot predict the number of steps or the path through the problem, you move to an <strong>autonomous agent</strong>: an LLM using tools in a loop, based on environmental feedback, until it decides the task is done (or hits a stopping condition you set).</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    H([Human]) --&gt;|task| L[&quot;LLM&quot;]
+    L --&gt;|action| E[(Environment / tools)]
+    E --&gt;|feedback| L
+    L --&gt;|&quot;clarify / checkpoint&quot;| H
+    L --&gt;|done or budget hit| Stop([Stop])</pre></figure>
+<p>Agents begin with a command from, or an interactive discussion with, a human. Once the task is clear they plan and operate independently, getting <strong>ground truth from the environment</strong> at each step (tool results, test output, page contents) to assess progress. They may pause for human feedback at checkpoints or when blocked (<a href="human-in-the-loop.html">Human-in-the-Loop</a>). They need <strong>stopping conditions</strong>, such as a maximum number of iterations, to keep control.</p>
+<p><strong>When to use it:</strong> open-ended problems where the number of steps is unpredictable and a fixed path cannot be hard-coded, and where you have enough trust in the model&#39;s decisions to let it operate. Canonical examples are <a href="coding-agents.html">coding agents</a> that resolve a GitHub issue across many files, and <a href="computer-use-agents.html">computer-use agents</a>.</p>
+<p>The implementation is surprisingly short. It is the <a href="the-agent-loop.html">agent loop</a>, which the tool runner gives you for free:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_tests</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Run the test suite under `path` and return a summary of failures.&quot;&quot;&quot;</span>
+    ...
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">edit_file</span>(<span class="hljs-params">path: <span class="hljs-built_in">str</span>, old: <span class="hljs-built_in">str</span>, new: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Replace the exact string `old` with `new` in the file at `path`.&quot;&quot;&quot;</span>
+    ...
+
+runner = client.beta.messages.tool_runner(
+    model=MODEL, max_tokens=<span class="hljs-number">16000</span>,
+    tools=[run_tests, edit_file],
+    max_iterations=<span class="hljs-number">30</span>,          <span class="hljs-comment"># stopping condition: bound cost and time</span>
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Make the failing tests in ./billing pass.&quot;</span>}],
+)
+final = runner.until_done()</code></pre></div>
+<p>The simplicity is deceptive. Almost all the engineering effort goes into the tools and their documentation (Anthropic reported spending more time optimizing tools than the overall prompt for its SWE-bench agent), into sandboxing (<a href="guardrails-and-sandboxing.html">Guardrails &amp; Sandboxing</a>), and into evaluation.</p>
+<p><strong>Trade-offs:</strong></p>
+<ul>
+<li>(+) Handles problems no fixed workflow can.</li>
+<li>(−) Higher cost and latency, and the potential for compounding errors over many steps.</li>
+<li>(−) Requires extensive testing in sandboxed environments plus appropriate guardrails.</li>
+</ul>
+<h2 id="comparing-the-patterns"><a class="anchor" href="#comparing-the-patterns" aria-hidden="true">#</a>Comparing the Patterns</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Who decides the steps?</th>
+<th>Typical calls</th>
+<th>Latency</th>
+<th>Best for</th>
+<th>Main risk</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Single augmented call</td>
+<td>—</td>
+<td>1 (+ tool calls)</td>
+<td>Lowest</td>
+<td>Most tasks; start here</td>
+<td>Prompt does too much</td>
+</tr>
+<tr>
+<td>Prompt chaining</td>
+<td>Code (fixed sequence)</td>
+<td>2–5 sequential</td>
+<td>Sum of steps</td>
+<td>Decomposable, fixed tasks</td>
+<td>Info lost between steps</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>Code (after classification)</td>
+<td>2</td>
+<td>Low</td>
+<td>Distinct input categories</td>
+<td>Silent misroutes</td>
+</tr>
+<tr>
+<td>Parallelization</td>
+<td>Code (fixed fan-out)</td>
+<td>N parallel</td>
+<td>Max of branches</td>
+<td>Independent aspects, voting</td>
+<td>Aggregation bugs, N× cost</td>
+</tr>
+<tr>
+<td>Orchestrator-workers</td>
+<td>LLM plans, code executes</td>
+<td>2 + N</td>
+<td>Medium</td>
+<td>Unpredictable subtasks</td>
+<td>Bad decomposition</td>
+</tr>
+<tr>
+<td>Evaluator-optimizer</td>
+<td>Code loop, LLM verdict</td>
+<td>2 per round</td>
+<td>High</td>
+<td>Clear criteria, iterative gains</td>
+<td>Non-convergence</td>
+</tr>
+<tr>
+<td>Autonomous agent</td>
+<td>LLM, every step</td>
+<td>Unbounded (capped)</td>
+<td>Highest</td>
+<td>Open-ended, path unknown</td>
+<td>Compounding errors</td>
+</tr>
+</tbody></table>
+</div>
+<p>A useful way to read this table: going down the rows, you hand more control flow to the model. Each step down should be justified by an evaluation showing the simpler pattern falls short.</p>
+<h2 id="combining-patterns"><a class="anchor" href="#combining-patterns" aria-hidden="true">#</a>Combining Patterns</h2>
+<p>The patterns are building blocks, not a menu where you pick one. Real systems nest them. A few common compositions:</p>
+<ul>
+<li><strong>Route, then chain</strong>: a router picks the category, and each category runs its own prompt chain.</li>
+<li><strong>Chain with a parallel step</strong>: outline → draft each section in parallel (sectioning) → merge → evaluator-optimizer loop on the merged draft.</li>
+<li><strong>Orchestrator whose workers are agents</strong>: the orchestrator plans, and each worker is itself an autonomous tool-using loop. This is the architecture of most <a href="research-agents.html">deep research agents</a>.</li>
+<li><strong>Agent with workflow tools</strong>: an autonomous agent whose tools are themselves deterministic workflows (a <code>generate_report</code> tool that internally runs a fixed chain). This keeps the agent&#39;s action space small and each action reliable.</li>
+<li><strong>Guardrail sectioning around anything</strong>: an input screen running in parallel with the main path, and an output check after it.</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    In([Ticket]) --&gt; R{&quot;Router&quot;}
+    R --&gt;|simple| F[&quot;FAQ call (small model)&quot;]
+    R --&gt;|complex| O[&quot;Orchestrator&quot;]
+    O --&gt; W1[&quot;Worker agent&quot;]
+    O --&gt; W2[&quot;Worker agent&quot;]
+    W1 --&gt; S[&quot;Synthesize&quot;]
+    W2 --&gt; S
+    S --&gt; E{&quot;Evaluator&quot;}
+    E --&gt;|revise| S
+    E --&gt;|pass| Out([Reply])
+    F --&gt; Out</pre></figure>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A realistic composition: contract review</div><div class="callout-body">
+<ol>
+<li><strong>Routing</strong>: classify the contract type (NDA, MSA, employment) with a small model.</li>
+<li><strong>Sectioning</strong>: in parallel, extract parties and dates, check each clause against the playbook for that contract type, and screen for unusual indemnities.</li>
+<li><strong>Chaining with a gate</strong>: if any clause is flagged &quot;high risk&quot;, run a deeper analysis step; otherwise skip it.</li>
+<li><strong>Evaluator-optimizer</strong>: draft the summary memo, have an evaluator verify every claim cites a clause number, and revise until it does.</li>
+</ol>
+<p>Every step is a fixed code path. There is no autonomous agent anywhere, and yet the system adapts substantially to its input.</p>
+</div></aside>
+<h3 id="frameworks-helpful-but-know-whats-underneath"><a class="anchor" href="#frameworks-helpful-but-know-whats-underneath" aria-hidden="true">#</a>Frameworks: helpful, but know what&#39;s underneath</h3>
+<p>Frameworks such as LangGraph, the Claude Agent SDK, the OpenAI Agents SDK, CrewAI and many others make these patterns easier to start with (<a href="agent-frameworks.html">Agent Frameworks</a>). Anthropic&#39;s advice is to start by using LLM APIs directly, since many patterns take only a few lines, and if you do use a framework, make sure you understand the code underneath. Extra abstraction layers can obscure the actual prompts and responses, making systems harder to debug, and make it tempting to add complexity a simpler setup would not need.</p>
+<h3 id="three-principles-for-whichever-pattern-you-choose"><a class="anchor" href="#three-principles-for-whichever-pattern-you-choose" aria-hidden="true">#</a>Three principles for whichever pattern you choose</h3>
+<ol>
+<li><strong>Simplicity</strong>: keep the design as simple as the task allows.</li>
+<li><strong>Transparency</strong>: make the system&#39;s steps visible: log every call, show plans, keep traces (<a href="observability.html">Observability</a>).</li>
+<li><strong>A well-crafted agent-computer interface (ACI)</strong>: invest as much in tool design and documentation as you would in a human-facing UI.</li>
+</ol>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li><strong>Workflows</strong> use code-defined control flow; <strong>agents</strong> let the model direct its own process. Both are built from the <strong>augmented LLM</strong> (retrieval + tools + memory).</li>
+<li><strong>Prompt chaining</strong> trades latency for accuracy by giving each call one job; <strong>programmatic gates</strong> catch errors between steps.</li>
+<li><strong>Routing</strong> sends each input to a specialized path or a cheaper model; evaluate the router as a classifier because misroutes fail silently.</li>
+<li><strong>Parallelization</strong> comes as <strong>sectioning</strong> (independent subtasks) or <strong>voting</strong> (same task, diverse attempts); make voters genuinely different.</li>
+<li><strong>Orchestrator-workers</strong> fits when subtasks cannot be predicted; self-contained delegation instructions are critical.</li>
+<li><strong>Evaluator-optimizer</strong> fits when criteria are clear and feedback helps; ground the evaluator in real signals and cap the rounds.</li>
+<li>Use an <strong>autonomous agent</strong> only when the path is genuinely unpredictable, and give it stopping conditions, sandboxing and evaluations.</li>
+<li>Patterns compose. Move down the autonomy ladder only when an evaluation shows the simpler design falls short.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Pattern spotting.</strong> For each task, name the pattern you would start with and why: (a) summarizing 500 customer reviews into themes, (b) answering HR policy questions where 80% are about vacation days, (c) converting a legacy Java service to Python, (d) writing a product description that must be under 50 words and mention three features.</li>
+<li><strong>Add a gate.</strong> Extend <code>write_brief</code> so that if the gate fails, it retries the outline step once with the missing topics named explicitly, before raising. Log how often the retry is needed over 20 runs.</li>
+<li><strong>Measure routing.</strong> Build a labelled set of 30 support tickets across the three categories. Run <code>handle_ticket</code>&#39;s router on them, compute accuracy and a confusion matrix, then improve the router&#39;s system prompt and re-measure.</li>
+<li><strong>Ground the evaluator.</strong> Rewrite <code>refine</code> for code generation: the generator writes a Python function, and the evaluator first runs a provided set of <code>assert</code> tests (in a sandbox) and only calls the LLM reviewer if all tests pass. Compare rounds-to-success with the pure-LLM evaluator.</li>
+<li><strong>Design challenge.</strong> Sketch, as a mermaid diagram, a pipeline that combines at least three patterns for &quot;turn a 2-hour meeting transcript into decisions, action items with owners, and a follow-up email.&quot; Justify each pattern and identify where you would put human review.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="workflow-patterns" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>What is the defining difference between a workflow and an agent in Anthropic&#39;s framing?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents always involve multiple LLMs, workflows only one</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In a workflow, code defines the control flow; in an agent, the LLM dynamically decides its own steps</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Workflows use small models; agents use frontier models</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflows use tools; agents do not</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can use tools and any model. The distinction is who controls the path: predefined code paths (workflow) versus the model directing its own process and tool usage (agent).</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Your support bot handles billing, technical and sales questions, and improving the technical prompt keeps hurting billing answers. Which pattern most directly addresses this?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Routing</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Evaluator-optimizer</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Voting</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt chaining</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Routing separates concerns: each category gets its own specialized prompt, so optimizing one path no longer degrades the others.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>How does orchestrator-workers differ from sectioning-style parallelization?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Orchestrator-workers runs sequentially; sectioning runs in parallel</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In orchestrator-workers the subtasks are decided by an LLM at runtime; in sectioning they are predefined in code</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Sectioning requires multiple models; orchestrator-workers uses one</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>There is no difference; they are synonyms</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can fan out in parallel. The key difference is flexibility: the orchestrator determines how many subtasks there are and what they are based on the specific input.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>You run three identical prompts in a voting setup and they almost always agree, even when wrong. What is the most likely fix?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Make the voters genuinely diverse, with different instructions, lenses, context or models</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Lower the vote threshold to 1 of 3</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add more identical voters</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Switch to prompt chaining</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Correlated voters share failure modes, so adding more of them adds cost without confidence. Diversity in framing or model decorrelates their errors.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>Which is the best signal that evaluator-optimizer will pay off for a task?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The inputs fall into several distinct categories</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Clear criteria exist, and written feedback would demonstrably improve a first draft</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of steps is unpredictable</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The task is latency-sensitive</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Evaluator-optimizer works when evaluation criteria are clear and iterative refinement adds measurable value, much like a writer revising with an editor&#39;s notes.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>What is a &quot;programmatic gate&quot; in prompt chaining?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A human approval step</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A special API parameter that blocks unsafe output</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A code check on an intermediate output that decides whether the chain continues, retries or stops</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rate limiter between API calls</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Gates are ordinary code (schema validation, keyword checks, tests) that verify intermediate results, catching errors before they compound through later steps.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>A team jumps straight to an autonomous multi-tool agent for a task that always follows the same four steps. What is the main problem?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The task requires voting</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agents cannot call more than three tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They pay extra latency, cost and unpredictability for flexibility the task does not need; a prompt chain would be simpler and more reliable</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Autonomous agents cannot run fixed sequences</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> When the path is known in advance, encoding it in code is cheaper, faster, easier to test and less error-prone than letting the model rediscover it every run.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents (Anthropic)</a> — the source of these patterns; short, practical and still the best introduction.</li>
+<li><a href="https://github.com/anthropics/anthropic-cookbook/tree/main/patterns/agents" target="_blank" rel="noopener">Anthropic Cookbook: agent patterns</a> — reference notebooks implementing each workflow pattern.</li>
+<li><a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener">Writing effective tools for agents (Anthropic)</a> — how to build the agent-computer interface that every pattern depends on.</li>
+<li><a href="https://arxiv.org/abs/2203.11171" target="_blank" rel="noopener">Self-Consistency Improves Chain of Thought Reasoning (Wang et al., 2022)</a> — the research basis for voting over multiple reasoning paths.</li>
+<li><a href="https://arxiv.org/abs/2303.17651" target="_blank" rel="noopener">Self-Refine: Iterative Refinement with Self-Feedback (Madaan et al., 2023)</a> — an early, influential study of generate-critique-revise loops.</li>
+<li><a href="https://www.langchain.com/langgraph" target="_blank" rel="noopener">LangGraph</a> — a popular framework whose docs express these same workflow patterns as graphs (APIs evolve; check current docs).</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="workflow-patterns">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-workflow-patterns"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-workflow-patterns" class="notes" data-slug="workflow-patterns" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="context-engineering.html"><small>← Previous</small><span>Context Engineering</span></a>
+    <a class="pager-next" href="agent-architectures.html"><small>Next →</small><span>Single-Agent Architectures</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#workflows-vs-agents">Workflows vs. Agents</a></li>
+<li class="toc-h2"><a href="#the-augmented-llm">The Augmented LLM</a></li>
+<li class="toc-h2"><a href="#prompt-chaining">Prompt Chaining</a></li>
+<li class="toc-h2"><a href="#routing">Routing</a></li>
+<li class="toc-h2"><a href="#parallelization">Parallelization</a></li>
+<li class="toc-h2"><a href="#orchestrator-workers">Orchestrator-Workers</a></li>
+<li class="toc-h2"><a href="#evaluator-optimizer">Evaluator-Optimizer</a></li>
+<li class="toc-h2"><a href="#the-autonomous-agent">The Autonomous Agent</a></li>
+<li class="toc-h2"><a href="#comparing-the-patterns">Comparing the Patterns</a></li>
+<li class="toc-h2"><a href="#combining-patterns">Combining Patterns</a></li>
+<li class="toc-h3"><a href="#frameworks-helpful-but-know-whats-underneath">Frameworks: helpful, but know what's underneath</a></li>
+<li class="toc-h3"><a href="#three-principles-for-whichever-pattern-you-choose">Three principles for whichever pattern you choose</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

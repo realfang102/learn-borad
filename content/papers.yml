@@ -1,0 +1,894 @@
+# Essential reading for Agent Academy: papers, essays, guides and specs.
+# URLs point to arXiv abstract pages or to the official page of the author, publisher or organization.
+
+# ---------------------------------------------------------------- Foundations
+- title: "Artificial Intelligence: A Modern Approach (4th edition)"
+  authors: "Russell & Norvig"
+  year: 2020
+  url: "https://aima.cs.berkeley.edu/"
+  category: "Foundations"
+  summary: "The classic AI textbook; its rational-agent framing (percepts, actions, performance measures, environments) is still the clearest vocabulary for what an agent is."
+  essential: false
+  lesson: history-of-agents
+
+- title: "Attention Is All You Need"
+  authors: "Vaswani et al."
+  year: 2017
+  url: "https://arxiv.org/abs/1706.03762"
+  category: "Foundations"
+  summary: "Introduced the Transformer, the architecture underneath every modern LLM and therefore every LLM agent."
+  essential: false
+  lesson: llm-fundamentals
+
+- title: "Language Models are Few-Shot Learners"
+  authors: "Brown et al."
+  year: 2020
+  url: "https://arxiv.org/abs/2005.14165"
+  category: "Foundations"
+  summary: "GPT-3: showed that scale unlocks in-context learning, so a model can pick up new tasks from instructions and examples in the prompt alone."
+  essential: false
+  lesson: llm-fundamentals
+
+- title: "The Bitter Lesson"
+  authors: "Rich Sutton"
+  year: 2019
+  url: "http://www.incompleteideas.net/IncIdeas/BitterLesson.html"
+  category: "Foundations"
+  summary: "Short essay arguing that general methods that scale with compute beat hand-engineered knowledge; a useful lens for deciding how much structure to build into an agent harness."
+  essential: false
+  lesson: future-of-agents
+
+- title: "A Survey on Large Language Model based Autonomous Agents"
+  authors: "Wang et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2308.11432"
+  category: "Foundations"
+  summary: "Broad survey organizing LLM agents into profile, memory, planning and action modules, with applications and evaluation methods."
+  essential: false
+  lesson: what-is-an-agent
+
+# ------------------------------------------------------- Reasoning & Planning
+- title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"
+  authors: "Wei et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2201.11903"
+  category: "Reasoning & Planning"
+  summary: "Showed that prompting with step-by-step worked examples dramatically improves multi-step reasoning in large models."
+  essential: true
+  lesson: reasoning-and-planning
+
+- title: "Large Language Models are Zero-Shot Reasoners"
+  authors: "Kojima et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2205.11916"
+  category: "Reasoning & Planning"
+  summary: "The \"Let's think step by step\" paper: chain-of-thought can be elicited without any examples."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "Self-Consistency Improves Chain of Thought Reasoning in Language Models"
+  authors: "Wang et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2203.11171"
+  category: "Reasoning & Planning"
+  summary: "Sample many reasoning paths and take the majority answer; an early, simple demonstration that extra test-time compute buys accuracy."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "Tree of Thoughts: Deliberate Problem Solving with Large Language Models"
+  authors: "Yao et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.10601"
+  category: "Reasoning & Planning"
+  summary: "Turns reasoning into search: the model proposes and evaluates partial thoughts, exploring and backtracking over a tree."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "ReAct: Synergizing Reasoning and Acting in Language Models"
+  authors: "Yao et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2210.03629"
+  category: "Reasoning & Planning"
+  summary: "Interleaves chain-of-thought with tool actions; the template for most modern agent loops."
+  essential: true
+  lesson: agent-architectures
+
+- title: "Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models"
+  authors: "Wang et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.04091"
+  category: "Reasoning & Planning"
+  summary: "Ask the model to devise a plan first, then carry it out; reduces missing-step errors and foreshadows plan-and-execute agents."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "ReWOO: Decoupling Reasoning from Observations for Efficient Augmented Language Models"
+  authors: "Xu et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.18323"
+  category: "Reasoning & Planning"
+  summary: "Planner, worker and solver modules: plan all tool calls up front with placeholders, cutting the token cost of ReAct-style loops."
+  essential: false
+  lesson: agent-architectures
+
+- title: "An LLM Compiler for Parallel Function Calling"
+  authors: "Kim et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2312.04511"
+  category: "Reasoning & Planning"
+  summary: "Plans tool calls as a dependency graph and executes independent calls in parallel, improving latency and cost over sequential ReAct."
+  essential: false
+  lesson: agent-architectures
+
+- title: "Language Agent Tree Search Unifies Reasoning Acting and Planning in Language Models"
+  authors: "Zhou et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2310.04406"
+  category: "Reasoning & Planning"
+  summary: "LATS applies Monte Carlo tree search over agent trajectories, with the LLM serving as policy, value function and self-reflector."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "Reflexion: Language Agents with Verbal Reinforcement Learning"
+  authors: "Shinn et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2303.11366"
+  category: "Reasoning & Planning"
+  summary: "Agents write natural-language reflections on failed attempts and reuse them as memory, improving over trials without weight updates."
+  essential: true
+  lesson: agent-architectures
+
+- title: "Self-Refine: Iterative Refinement with Self-Feedback"
+  authors: "Madaan et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2303.17651"
+  category: "Reasoning & Planning"
+  summary: "Generate, critique, revise with a single model; the simplest form of the evaluator-optimizer pattern."
+  essential: false
+  lesson: workflow-patterns
+
+- title: "Large Language Models Cannot Self-Correct Reasoning Yet"
+  authors: "Huang et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2310.01798"
+  category: "Reasoning & Planning"
+  summary: "Important corrective: without external feedback, self-correction often fails to help and can hurt; ground critiques in tests and tool results."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "LLMs Can't Plan, But Can Help Planning in LLM-Modulo Frameworks"
+  authors: "Kambhampati et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2402.01817"
+  category: "Reasoning & Planning"
+  summary: "Position paper arguing LLMs should generate candidate plans that external verifiers check, rather than be trusted as planners on their own."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Model Parameters"
+  authors: "Snell et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2408.03314"
+  category: "Reasoning & Planning"
+  summary: "Studies how to allocate inference compute (search against verifiers, sequential revision) and when it beats using a bigger model."
+  essential: false
+  lesson: reasoning-and-planning
+
+# ---------------------------------------------------------- Tools & Actions
+- title: "MRKL Systems: A modular, neuro-symbolic architecture that combines large language models, external knowledge sources and discrete reasoning"
+  authors: "Karpas et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2205.00445"
+  category: "Tools & Actions"
+  summary: "Early blueprint for routing an LLM's requests to expert modules such as calculators and APIs, a precursor to tool use."
+  essential: false
+  lesson: history-of-agents
+
+- title: "WebGPT: Browser-assisted question-answering with human feedback"
+  authors: "Nakano et al."
+  year: 2021
+  url: "https://arxiv.org/abs/2112.09332"
+  category: "Tools & Actions"
+  summary: "Fine-tuned GPT-3 to search and browse a text web environment and cite sources; an early tool-using, research-style agent."
+  essential: false
+  lesson: research-agents
+
+- title: "Toolformer: Language Models Can Teach Themselves to Use Tools"
+  authors: "Schick et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2302.04761"
+  category: "Tools & Actions"
+  summary: "A model learns when and how to call APIs via self-supervision, keeping only calls that improve its predictions."
+  essential: false
+  lesson: tool-use
+
+- title: "Gorilla: Large Language Model Connected with Massive APIs"
+  authors: "Patil et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.15334"
+  category: "Tools & Actions"
+  summary: "Fine-tunes a model for accurate API calls with retrieval over documentation, reducing hallucinated arguments; origin of the Berkeley Function Calling Leaderboard."
+  essential: false
+  lesson: tool-use
+
+- title: "ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs"
+  authors: "Qin et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2307.16789"
+  category: "Tools & Actions"
+  summary: "Builds ToolBench, a large instruction dataset over real REST APIs, and trains models to plan multi-step tool use with tree search."
+  essential: false
+  lesson: tool-use
+
+- title: "Executable Code Actions Elicit Better LLM Agents"
+  authors: "Wang et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2402.01030"
+  category: "Tools & Actions"
+  summary: "CodeAct: letting agents act by writing Python instead of JSON tool calls improves success rates and reduces the number of steps."
+  essential: false
+  lesson: tool-use
+
+- title: "Model Context Protocol (specification and documentation)"
+  authors: "Anthropic and MCP contributors"
+  year: 2024
+  url: "https://modelcontextprotocol.io"
+  category: "Tools & Actions"
+  summary: "The open standard for connecting agents to tools, resources and prompts via servers; read the spec's architecture and security sections."
+  essential: true
+  lesson: protocols-mcp-a2a
+
+- title: "Introducing the Model Context Protocol"
+  authors: "Anthropic"
+  year: 2024
+  url: "https://www.anthropic.com/news/model-context-protocol"
+  category: "Tools & Actions"
+  summary: "The launch announcement explaining the M×N integration problem MCP was designed to solve."
+  essential: false
+  lesson: protocols-mcp-a2a
+
+- title: "Announcing the Agent2Agent Protocol (A2A)"
+  authors: "Google"
+  year: 2025
+  url: "https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/"
+  category: "Tools & Actions"
+  summary: "Introduces A2A, an open protocol for agents from different vendors to discover each other via Agent Cards and collaborate on tasks; complements MCP."
+  essential: false
+  lesson: protocols-mcp-a2a
+
+- title: "Code execution with MCP: Building more efficient agents"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/code-execution-with-mcp"
+  category: "Tools & Actions"
+  summary: "Presenting MCP tools as code APIs that the agent calls from a sandbox, so tool definitions load on demand and bulky intermediate data never enters context."
+  essential: false
+  lesson: designing-tools
+
+# ------------------------------------------------------ Memory & Retrieval
+- title: "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"
+  authors: "Lewis et al."
+  year: 2020
+  url: "https://arxiv.org/abs/2005.11401"
+  category: "Memory & Retrieval"
+  summary: "Coined RAG: combine a neural retriever with a generator so answers draw on an external, updatable corpus."
+  essential: true
+  lesson: rag-and-retrieval
+
+- title: "Dense Passage Retrieval for Open-Domain Question Answering"
+  authors: "Karpukhin et al."
+  year: 2020
+  url: "https://arxiv.org/abs/2004.04906"
+  category: "Memory & Retrieval"
+  summary: "Showed learned dense embeddings can beat BM25 for passage retrieval; the basis of embedding-based search."
+  essential: false
+  lesson: rag-and-retrieval
+
+- title: "Precise Zero-Shot Dense Retrieval without Relevance Labels"
+  authors: "Gao et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2212.10496"
+  category: "Memory & Retrieval"
+  summary: "HyDE: embed a model-written hypothetical answer instead of the query to find similar real documents."
+  essential: false
+  lesson: rag-and-retrieval
+
+- title: "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection"
+  authors: "Asai et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2310.11511"
+  category: "Memory & Retrieval"
+  summary: "Trains a model to decide when to retrieve and to grade its own outputs for relevance and support with reflection tokens."
+  essential: false
+  lesson: rag-and-retrieval
+
+- title: "From Local to Global: A Graph RAG Approach to Query-Focused Summarization"
+  authors: "Edge et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2404.16130"
+  category: "Memory & Retrieval"
+  summary: "GraphRAG: build an entity graph and community summaries from a corpus to answer global, sensemaking questions that chunk retrieval misses."
+  essential: false
+  lesson: rag-and-retrieval
+
+- title: "Introducing Contextual Retrieval"
+  authors: "Anthropic"
+  year: 2024
+  url: "https://www.anthropic.com/news/contextual-retrieval"
+  category: "Memory & Retrieval"
+  summary: "Prepend chunk-specific context before embedding and BM25 indexing, then rerank; a practical recipe that substantially reduces retrieval failures."
+  essential: false
+  lesson: rag-and-retrieval
+
+- title: "Lost in the Middle: How Language Models Use Long Contexts"
+  authors: "Liu et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2307.03172"
+  category: "Memory & Retrieval"
+  summary: "Models use information at the start and end of long contexts far better than in the middle; a foundational result for context engineering."
+  essential: true
+  lesson: context-engineering
+
+- title: "RULER: What's the Real Context Size of Your Long-Context Language Models?"
+  authors: "Hsieh et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2404.06654"
+  category: "Memory & Retrieval"
+  summary: "Goes beyond needle-in-a-haystack with multi-hop and aggregation tasks, showing effective context is often much shorter than advertised."
+  essential: false
+  lesson: context-engineering
+
+- title: "MemGPT: Towards LLMs as Operating Systems"
+  authors: "Packer et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2310.08560"
+  category: "Memory & Retrieval"
+  summary: "Treats the context window as RAM and external stores as disk, with the agent paging memory in and out through function calls."
+  essential: false
+  lesson: memory
+
+- title: "Generative Agents: Interactive Simulacra of Human Behavior"
+  authors: "Park et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2304.03442"
+  category: "Memory & Retrieval"
+  summary: "Simulated townspeople with a memory stream, retrieval by recency/importance/relevance, reflection and planning; the reference design for agent memory."
+  essential: false
+  lesson: memory
+
+# ---------------------------------------------- Architectures & Multi-Agent
+- title: "Cognitive Architectures for Language Agents"
+  authors: "Sumers et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2309.02427"
+  category: "Architectures & Multi-Agent"
+  summary: "CoALA: a unifying framework describing agents by memory modules, action space and decision procedure, grounded in cognitive science."
+  essential: false
+  lesson: agent-architectures
+
+- title: "HuggingGPT: Solving AI Tasks with ChatGPT and its Friends in Hugging Face"
+  authors: "Shen et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2303.17580"
+  category: "Architectures & Multi-Agent"
+  summary: "An LLM controller plans tasks, selects specialist models from Hugging Face, executes them and summarizes results; an early orchestrator design."
+  essential: false
+  lesson: agent-architectures
+
+- title: "CAMEL: Communicative Agents for \"Mind\" Exploration of Large Language Model Society"
+  authors: "Li et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2303.17760"
+  category: "Architectures & Multi-Agent"
+  summary: "Role-playing between an AI user and an AI assistant via inception prompting; an early study of autonomous agent-to-agent cooperation."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation"
+  authors: "Wu et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2308.08155"
+  category: "Architectures & Multi-Agent"
+  summary: "A framework for composing conversable agents (LLMs, tools, humans) into multi-agent conversations; influential in multi-agent tooling."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "MetaGPT: Meta Programming for A Multi-Agent Collaborative Framework"
+  authors: "Hong et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2308.00352"
+  category: "Architectures & Multi-Agent"
+  summary: "Encodes standard operating procedures into role-specialized agents (PM, architect, engineer) that exchange structured documents."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "ChatDev: Communicative Agents for Software Development"
+  authors: "Qian et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2307.07924"
+  category: "Architectures & Multi-Agent"
+  summary: "A virtual software company of chatting agents following a waterfall-style process from design to testing."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "Improving Factuality and Reasoning in Language Models through Multiagent Debate"
+  authors: "Du et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.14325"
+  category: "Architectures & Multi-Agent"
+  summary: "Multiple model instances propose and debate answers over rounds, improving reasoning and reducing hallucinations."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "Why Do Multi-Agent LLM Systems Fail?"
+  authors: "Cemri et al."
+  year: 2025
+  url: "https://arxiv.org/abs/2503.13657"
+  category: "Architectures & Multi-Agent"
+  summary: "MAST: a taxonomy of 14 failure modes in 3 categories (specification, inter-agent misalignment, verification) from annotated multi-agent traces; read before building one."
+  essential: true
+  lesson: multi-agent-systems
+
+# ------------------------------------------------- Coding & Computer Use
+- title: "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?"
+  authors: "Jimenez et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2310.06770"
+  category: "Coding & Computer Use"
+  summary: "Real issues from popular Python repositories, graded by hidden tests; became the defining benchmark for coding agents."
+  essential: true
+  lesson: coding-agents
+
+- title: "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering"
+  authors: "Yang et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2405.15793"
+  category: "Coding & Computer Use"
+  summary: "Shows that designing the agent-computer interface (search, view, edit commands with concise feedback) matters as much as the model."
+  essential: true
+  lesson: coding-agents
+
+- title: "OpenHands: An Open Platform for AI Software Developers as Generalist Agents"
+  authors: "Wang et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2407.16741"
+  category: "Coding & Computer Use"
+  summary: "Open-source platform (formerly OpenDevin) for coding and web agents with sandboxed execution, browsing and multi-agent delegation."
+  essential: false
+  lesson: coding-agents
+
+- title: "Agentless: Demystifying LLM-based Software Engineering Agents"
+  authors: "Xia et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2407.01489"
+  category: "Coding & Computer Use"
+  summary: "A fixed localize-repair-validate pipeline rivals complex agents on SWE-bench Lite at low cost; a strong argument for trying workflows first."
+  essential: false
+  lesson: coding-agents
+
+- title: "Mind2Web: Towards a Generalist Agent for the Web"
+  authors: "Deng et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2306.06070"
+  category: "Coding & Computer Use"
+  summary: "A large dataset of real tasks across many websites for training and evaluating generalist web agents."
+  essential: false
+  lesson: computer-use-agents
+
+- title: "Introducing computer use, a new Claude 3.5 Sonnet, and Claude 3.5 Haiku"
+  authors: "Anthropic"
+  year: 2024
+  url: "https://www.anthropic.com/news/3-5-models-and-computer-use"
+  category: "Coding & Computer Use"
+  summary: "The first frontier-model computer-use capability in public beta: screenshots in, mouse and keyboard actions out."
+  essential: false
+  lesson: computer-use-agents
+
+- title: "Claude Code: Best practices for agentic coding"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/claude-code-best-practices"
+  category: "Coding & Computer Use"
+  summary: "Practical workflows for coding agents: project instruction files, explore-plan-code-commit, test-driven loops, and parallel sessions (current guidance now lives in the Claude Code docs)."
+  essential: false
+  lesson: coding-agents
+
+# ------------------------------------------------ Evaluation & Benchmarks
+- title: "Evaluating Large Language Models Trained on Code"
+  authors: "Chen et al."
+  year: 2021
+  url: "https://arxiv.org/abs/2107.03374"
+  category: "Evaluation & Benchmarks"
+  summary: "The Codex paper; introduced HumanEval and the unbiased pass@k estimator used throughout agent evaluation."
+  essential: false
+  lesson: evaluating-agents
+
+- title: "WebShop: Towards Scalable Real-World Web Interaction with Grounded Language Agents"
+  authors: "Yao et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2207.01206"
+  category: "Evaluation & Benchmarks"
+  summary: "A simulated e-commerce site with real product data where agents must search, navigate and buy to match instructions; used in ReAct and many later papers."
+  essential: false
+  lesson: benchmarks
+
+- title: "Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena"
+  authors: "Zheng et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2306.05685"
+  category: "Evaluation & Benchmarks"
+  summary: "Validated strong LLMs as graders against human preferences and documented their biases (position, verbosity, self-preference)."
+  essential: false
+  lesson: evaluating-agents
+
+- title: "AgentBench: Evaluating LLMs as Agents"
+  authors: "Liu et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2308.03688"
+  category: "Evaluation & Benchmarks"
+  summary: "Multi-environment benchmark (OS, database, web, games and more) that exposed a large gap between commercial and open models as agents."
+  essential: false
+  lesson: benchmarks
+
+- title: "WebArena: A Realistic Web Environment for Building Autonomous Agents"
+  authors: "Zhou et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2307.13854"
+  category: "Evaluation & Benchmarks"
+  summary: "Self-hosted, functional websites with execution-based checks; the standard reproducible benchmark for web agents."
+  essential: false
+  lesson: benchmarks
+
+- title: "GAIA: a benchmark for General AI Assistants"
+  authors: "Mialon et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2311.12983"
+  category: "Evaluation & Benchmarks"
+  summary: "Questions easy for humans but hard for AI, requiring browsing, tools, files and multi-step reasoning, with short unambiguous answers."
+  essential: false
+  lesson: benchmarks
+
+- title: "OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments"
+  authors: "Xie et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2404.07972"
+  category: "Evaluation & Benchmarks"
+  summary: "Real desktop tasks across operating systems and apps with execution-based evaluation; the main yardstick for computer-use agents."
+  essential: false
+  lesson: computer-use-agents
+
+- title: "τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains"
+  authors: "Yao et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2406.12045"
+  category: "Evaluation & Benchmarks"
+  summary: "Customer-service agents talk to a simulated user under domain policies; introduced pass^k to measure reliability across repeated trials."
+  essential: true
+  lesson: evaluating-agents
+
+- title: "τ²-Bench: Evaluating Conversational Agents in a Dual-Control Environment"
+  authors: "Barres et al."
+  year: 2025
+  url: "https://arxiv.org/abs/2506.07982"
+  category: "Evaluation & Benchmarks"
+  summary: "Extends τ-bench so both the agent and the user act on a shared environment (e.g. telecom troubleshooting), revealing big drops when users must act too."
+  essential: false
+  lesson: benchmarks
+
+- title: "Measuring AI Ability to Complete Long Tasks"
+  authors: "Kwa et al. (METR)"
+  year: 2025
+  url: "https://arxiv.org/abs/2503.14499"
+  category: "Evaluation & Benchmarks"
+  summary: "Defines the 50% task-completion time horizon and finds it has been doubling roughly every seven months; the key trend line for agent capability."
+  essential: true
+  lesson: benchmarks
+
+- title: "Your AI Product Needs Evals"
+  authors: "Hamel Husain"
+  year: 2024
+  url: "https://hamel.dev/blog/posts/evals/"
+  category: "Evaluation & Benchmarks"
+  summary: "Practitioner's guide to building domain-specific evals: unit-test-style assertions, trace review, and validated LLM judges."
+  essential: false
+  lesson: evaluating-agents
+
+- title: "Demystifying evals for AI agents"
+  authors: "Anthropic"
+  year: 2026
+  url: "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+  category: "Evaluation & Benchmarks"
+  summary: "How to design agent evals: tasks, graders (code, model, human), capability vs. regression suites, outcome-based grading and pass^k."
+  essential: false
+  lesson: evaluating-agents
+
+# ----------------------------------------------------- Safety & Security
+- title: "Prompt injection attacks against GPT-3"
+  authors: "Simon Willison"
+  year: 2022
+  url: "https://simonwillison.net/2022/Sep/12/prompt-injection/"
+  category: "Safety & Security"
+  summary: "The post that named prompt injection and drew the analogy to SQL injection."
+  essential: false
+  lesson: agent-security
+
+- title: "Not what you've signed up for: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection"
+  authors: "Greshake et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2302.12173"
+  category: "Safety & Security"
+  summary: "Showed that instructions hidden in retrieved content (web pages, emails, documents) can hijack LLM apps; the founding paper on indirect injection."
+  essential: true
+  lesson: agent-security
+
+- title: "The Instruction Hierarchy: Training LLMs to Prioritize Privileged Instructions"
+  authors: "Wallace et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2404.13208"
+  category: "Safety & Security"
+  summary: "Trains models to rank system over user over third-party instructions, improving robustness to injection, but as a probabilistic defense."
+  essential: false
+  lesson: agent-security
+
+- title: "AgentDojo: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for LLM Agents"
+  authors: "Debenedetti et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2406.13352"
+  category: "Safety & Security"
+  summary: "An extensible benchmark of agent tasks and injection attacks that measures utility and security together."
+  essential: false
+  lesson: agent-security
+
+- title: "Defeating Prompt Injections by Design"
+  authors: "Debenedetti et al."
+  year: 2025
+  url: "https://arxiv.org/abs/2503.18813"
+  category: "Safety & Security"
+  summary: "CaMeL: extract control flow from the trusted query, track data provenance with capabilities, and enforce policies so untrusted data cannot steer actions."
+  essential: false
+  lesson: agent-security
+
+- title: "Design Patterns for Securing LLM Agents against Prompt Injections"
+  authors: "Beurer-Kellner et al."
+  year: 2025
+  url: "https://arxiv.org/abs/2506.08837"
+  category: "Safety & Security"
+  summary: "Six architectural patterns (action-selector, plan-then-execute, map-reduce, dual LLM, code-then-execute, context minimization) that trade utility for provable resistance."
+  essential: true
+  lesson: agent-security
+
+- title: "The lethal trifecta for AI agents: private data, untrusted content, and external communication"
+  authors: "Simon Willison"
+  year: 2025
+  url: "https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/"
+  category: "Safety & Security"
+  summary: "The clearest mental model for agent data exfiltration risk: never combine all three capabilities in one agent."
+  essential: true
+  lesson: agent-security
+
+- title: "OWASP Top 10 for LLM Applications"
+  authors: "OWASP GenAI Security Project"
+  year: 2025
+  url: "https://genai.owasp.org/llm-top-10/"
+  category: "Safety & Security"
+  summary: "Industry checklist of LLM application risks, including prompt injection, excessive agency, system prompt leakage and unbounded consumption."
+  essential: false
+  lesson: guardrails-and-sandboxing
+
+- title: "Constitutional AI: Harmlessness from AI Feedback"
+  authors: "Bai et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2212.08073"
+  category: "Safety & Security"
+  summary: "Trains harmless assistants from a written set of principles using self-critique and AI feedback (RLAIF)."
+  essential: false
+  lesson: agent-safety-alignment
+
+- title: "AI Control: Improving Safety Despite Intentional Subversion"
+  authors: "Greenblatt et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2312.06942"
+  category: "Safety & Security"
+  summary: "Designs and stress-tests protocols such as trusted monitoring that stay safe even if a capable model is actively trying to subvert them."
+  essential: false
+  lesson: agent-safety-alignment
+
+- title: "Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training"
+  authors: "Hubinger et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2401.05566"
+  category: "Safety & Security"
+  summary: "Backdoored behaviors (e.g. writing vulnerable code on a trigger) survived standard safety training, highlighting limits of behavioral fixes."
+  essential: false
+  lesson: agent-safety-alignment
+
+- title: "Alignment faking in large language models"
+  authors: "Greenblatt et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2412.14093"
+  category: "Safety & Security"
+  summary: "Evidence that a model can strategically comply during training to preserve its preferences, behaving differently when it believes it is unmonitored."
+  essential: false
+  lesson: agent-safety-alignment
+
+# -------------------------------------------- Training & Self-Improvement
+- title: "Training language models to follow instructions with human feedback"
+  authors: "Ouyang et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2203.02155"
+  category: "Training & Self-Improvement"
+  summary: "InstructGPT: the SFT + reward model + PPO recipe (RLHF) that turned base models into instruction-following assistants."
+  essential: false
+  lesson: training-agents
+
+- title: "STaR: Bootstrapping Reasoning With Reasoning"
+  authors: "Zelikman et al."
+  year: 2022
+  url: "https://arxiv.org/abs/2203.14465"
+  category: "Training & Self-Improvement"
+  summary: "A model improves by fine-tuning on its own rationales that led to correct answers; an early self-improvement loop for reasoning."
+  essential: false
+  lesson: training-agents
+
+- title: "Direct Preference Optimization: Your Language Model is Secretly a Reward Model"
+  authors: "Rafailov et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.18290"
+  category: "Training & Self-Improvement"
+  summary: "DPO learns directly from preference pairs with a simple loss, avoiding a separate reward model and RL loop."
+  essential: false
+  lesson: training-agents
+
+- title: "Let's Verify Step by Step"
+  authors: "Lightman et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.20050"
+  category: "Training & Self-Improvement"
+  summary: "Process supervision (rewarding each reasoning step) outperformed outcome supervision for training verifiers on math."
+  essential: false
+  lesson: training-agents
+
+- title: "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models"
+  authors: "Shao et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2402.03300"
+  category: "Training & Self-Improvement"
+  summary: "Introduced GRPO, a critic-free RL algorithm using group-relative advantages, now widely used for reasoning and agent RL."
+  essential: false
+  lesson: training-agents
+
+- title: "Learning to Reason with LLMs"
+  authors: "OpenAI"
+  year: 2024
+  url: "https://openai.com/index/learning-to-reason-with-llms/"
+  category: "Training & Self-Improvement"
+  summary: "The o1 announcement: large-scale RL teaches a model to think in long chains before answering, with accuracy scaling in both train- and test-time compute."
+  essential: false
+  lesson: reasoning-and-planning
+
+- title: "DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning"
+  authors: "DeepSeek-AI"
+  year: 2025
+  url: "https://arxiv.org/abs/2501.12948"
+  category: "Training & Self-Improvement"
+  summary: "Open recipe showing reasoning behaviors (long CoT, self-verification) emerge from RL with verifiable rewards, plus distillation into small models."
+  essential: true
+  lesson: training-agents
+
+- title: "Voyager: An Open-Ended Embodied Agent with Large Language Models"
+  authors: "Wang et al."
+  year: 2023
+  url: "https://arxiv.org/abs/2305.16291"
+  category: "Training & Self-Improvement"
+  summary: "A Minecraft agent with an automatic curriculum and a growing library of verified code skills; the canonical lifelong-learning agent."
+  essential: false
+  lesson: self-improving-agents
+
+- title: "Automated Design of Agentic Systems"
+  authors: "Hu et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2408.08435"
+  category: "Training & Self-Improvement"
+  summary: "ADAS / Meta Agent Search: a meta agent writes new agent designs in code, evaluates them and archives the best, outperforming hand-designed agents."
+  essential: false
+  lesson: self-improving-agents
+
+- title: "AlphaEvolve: A Gemini-powered coding agent for designing advanced algorithms"
+  authors: "Google DeepMind"
+  year: 2025
+  url: "https://deepmind.google/discover/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/"
+  category: "Training & Self-Improvement"
+  summary: "An evolutionary coding agent pairing LLM-proposed code changes with automated evaluators, used to find better algorithms and optimize Google infrastructure."
+  essential: false
+  lesson: self-improving-agents
+
+- title: "Darwin Gödel Machine: Open-Ended Evolution of Self-Improving Agents"
+  authors: "Zhang et al."
+  year: 2025
+  url: "https://arxiv.org/abs/2505.22954"
+  category: "Training & Self-Improvement"
+  summary: "A coding agent that rewrites its own code, keeps an archive of variants and validates changes empirically on benchmarks, improving itself open-endedly."
+  essential: false
+  lesson: self-improving-agents
+
+# ---------------------------------------------------- Engineering Guides
+- title: "LLM Powered Autonomous Agents"
+  authors: "Lilian Weng"
+  year: 2023
+  url: "https://lilianweng.github.io/posts/2023-06-23-agent/"
+  category: "Engineering Guides"
+  summary: "The classic overview of agent components (planning, memory, tool use) with a tour of the early literature; still the best single primer."
+  essential: true
+  lesson: what-is-an-agent
+
+- title: "Building effective agents"
+  authors: "Anthropic (Schluntz & Zhang)"
+  year: 2024
+  url: "https://www.anthropic.com/engineering/building-effective-agents"
+  category: "Engineering Guides"
+  summary: "Workflows vs. agents, the five workflow patterns, and the advice to start simple; the most-cited practical guide in the field."
+  essential: true
+  lesson: workflow-patterns
+
+- title: "A practical guide to building agents"
+  authors: "OpenAI"
+  year: 2025
+  url: "https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf"
+  category: "Engineering Guides"
+  summary: "When to build an agent, choosing models, tools and instructions, single- vs. multi-agent orchestration, and layered guardrails."
+  essential: true
+  lesson: when-to-use-agents
+
+- title: "How we built our multi-agent research system"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/multi-agent-research-system"
+  category: "Engineering Guides"
+  summary: "Orchestrator-worker research agents in production: delegation prompts, parallel subagents, token economics, evals and failure modes."
+  essential: true
+  lesson: multi-agent-systems
+
+- title: "Don't Build Multi-Agents"
+  authors: "Walden Yan (Cognition)"
+  year: 2025
+  url: "https://cognition.ai/blog/dont-build-multi-agents"
+  category: "Engineering Guides"
+  summary: "The counterpoint: share full context and avoid parallel agents making conflicting implicit decisions; read alongside Anthropic's research-system post."
+  essential: false
+  lesson: multi-agent-systems
+
+- title: "Writing effective tools for agents — with agents"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/writing-tools-for-agents"
+  category: "Engineering Guides"
+  summary: "Design tools for agents, not developers: consolidate, namespace, return meaningful token-efficient output, and iterate with evals."
+  essential: true
+  lesson: designing-tools
+
+- title: "Effective context engineering for AI agents"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+  category: "Engineering Guides"
+  summary: "Context as a finite attention budget: right-altitude prompts, just-in-time retrieval, compaction, structured notes and subagents."
+  essential: true
+  lesson: context-engineering
+
+- title: "Context Engineering for AI Agents: Lessons from Building Manus"
+  authors: "Yichao \"Peak\" Ji (Manus)"
+  year: 2025
+  url: "https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus"
+  category: "Engineering Guides"
+  summary: "Production lessons: optimize KV-cache hit rate, mask rather than remove tools, use the file system as memory, recite goals, keep errors in context."
+  essential: false
+  lesson: context-engineering
+
+- title: "Effective harnesses for long-running agents"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents"
+  category: "Engineering Guides"
+  summary: "How to keep agents productive across many context windows: an initializer session, progress files, git history and incremental feature work."
+  essential: false
+  lesson: reliability

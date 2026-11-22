@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human-in-the-Loop &amp; Agent UX · Agent Academy</title>
+<meta name="description" content="Designing oversight into agents: approval gates, interrupts and resume, clarifying questions, escalation, plans, progress, steering, undo, background agents, permission modes, and calibrated trust.">
+<meta property="og:title" content="Human-in-the-Loop &amp; Agent UX · Agent Academy">
+<meta property="og:description" content="Designing oversight into agents: approval gates, interrupts and resume, clarifying questions, escalation, plans, progress, steering, undo, background agents, permission modes, and calibrated trust.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="human-in-the-loop">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#architectures">Module 3: Architectures &amp; Patterns</a></nav>
+  <header class="lesson-header">
+    <h1>Human-in-the-Loop &amp; Agent UX</h1>
+    <p class="lead">Designing oversight into agents: approval gates, interrupts and resume, clarifying questions, escalation, plans, progress, steering, undo, background agents, permission modes, and calibrated trust.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-intermediate">Intermediate</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 17 of 35</span>
+      <span class="lesson-status" data-status-for="human-in-the-loop"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Choose the right level of human oversight for an action using a risk × reversibility matrix</li><li>Implement an approval gate, with feedback on denial, inside an agent tool loop</li><li>Design interrupt, checkpoint and resume flows, clarifying questions, and escalation to humans</li><li>Apply UX patterns (plans, progress, steering, undo, diffs, citations) that keep humans meaningfully in control without approval fatigue</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a></p>
+  </section>
+  <article class="prose">
+<p>An agent is about to run <code>DROP TABLE customers</code> on what it believes is a staging database. Or email a draft contract to the client instead of the internal legal team. Or spend $4,000 on cloud GPUs to &quot;speed up the tests.&quot; In each case the model is not malicious; it is confidently wrong in a way that a human would catch in two seconds, if a human were asked. The question this lesson answers is: <strong>when should the human be asked, and how should the asking feel?</strong></p>
+<p>Ask too rarely and the agent occasionally does something expensive and irreversible. Ask too often and people stop reading the prompts and click &quot;approve&quot; on everything, which is worse than not asking, because it creates the illusion of oversight. Good <strong>human-in-the-loop (HITL)</strong> design sits between these failures. It is part safety engineering, part interface design, and part human psychology.</p>
+<p>We&#39;ll cover levels of oversight, approval gates and how to choose where they go, interrupts and resumable execution, clarifying questions and escalation, the UX of plans, progress, steering and undo, background agents, permission modes, trust calibration, efficient review, and feedback capture, with a working approval gate in an agent loop.</p>
+<h2 id="levels-of-oversight"><a class="anchor" href="#levels-of-oversight" aria-hidden="true">#</a>Levels of Oversight</h2>
+<p>Human factors research has studied this for decades. Sheridan and Verplank (1978) proposed a ladder of <strong>levels of automation</strong>, from &quot;the computer offers no assistance&quot; to &quot;the computer acts entirely autonomously, ignoring the human.&quot; Parasuraman, Sheridan and Wickens (2000) refined it: automation can be applied at different levels to different <em>stages</em> of a task (gathering information, analyzing it, deciding, acting). For agents, a practical simplification has three positions:</p>
+<ul>
+<li><strong>Human-in-the-loop</strong>: the agent proposes; a human must approve before the action happens. Maximum control, maximum friction.</li>
+<li><strong>Human-on-the-loop</strong>: the agent acts on its own while a human monitors and can intervene, pause or roll back. The human supervises rather than approves.</li>
+<li><strong>Human-out-of-the-loop</strong>: the agent acts autonomously; humans review outcomes after the fact, if at all.</li>
+</ul>
+<p>The most important idea from the human factors literature is that <strong>this is not one setting for the whole agent</strong>. A coding agent can read any file without asking (out of the loop), edit files while you watch (on the loop) and require approval to push to <code>main</code> (in the loop), all in the same session. Oversight should be set <strong>per action</strong>, based on what the action can do. See <a href="what-is-an-agent.html">What Is an AI Agent?</a> for the broader autonomy spectrum.</p>
+<h2 id="approval-gates-where-to-put-them"><a class="anchor" href="#approval-gates-where-to-put-them" aria-hidden="true">#</a>Approval Gates: Where to Put Them</h2>
+<p>An <strong>approval gate</strong> is a point where the agent&#39;s proposed action is paused until a human approves, edits or rejects it. The question is which actions deserve one. Two dimensions matter most:</p>
+<ul>
+<li><strong>Impact</strong>: how bad is it if this action is wrong? (Money, data, reputation, safety, other people affected.)</li>
+<li><strong>Reversibility</strong>: how easily can a wrong action be undone? (A file edit in git: trivially. A sent email, a wire transfer, a deleted production database without backups: not at all.)</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Easily reversible</strong></th>
+<th><strong>Hard / impossible to reverse</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Low impact</strong></td>
+<td>Act autonomously. <em>Read files, search, edit in a sandbox, draft a message.</em></td>
+<td>Act, but log and notify. <em>Post to an internal channel, create a calendar hold.</em></td>
+</tr>
+<tr>
+<td><strong>High impact</strong></td>
+<td>Act with monitoring and easy undo. <em>Bulk-edit a working branch, change staging config.</em></td>
+<td><strong>Require approval.</strong> <em>Send external email, make payments, delete data, deploy to production, change permissions.</em></td>
+</tr>
+</tbody></table>
+</div>
+<p>Additional factors push an action toward the gated corner:</p>
+<ul>
+<li><strong>External visibility</strong>: anything other people see (emails, posts, PR comments, customer replies).</li>
+<li><strong>Spending money</strong> or consuming scarce resources.</li>
+<li><strong>Security-relevant changes</strong>: credentials, permissions, firewall rules.</li>
+<li><strong>Untrusted input in context</strong>: if the agent has just read a web page or an inbound email, its next action might be the result of a <strong>prompt injection</strong> (<a href="agent-security.html">Agent Security</a>). Gating consequential actions after untrusted input is a key defense.</li>
+<li><strong>Novelty</strong>: the first time an agent does something in a new environment, a human should see it.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Gate the action, not the agent</div><div class="callout-body"><p>Approval should attach to specific, typed actions with clear consequences. That is a strong reason to expose consequential operations as <strong>dedicated tools</strong> (<code>send_email</code>, <code>deploy</code>) rather than letting the agent do everything through a generic shell, where <code>curl -X POST</code> looks the same as <code>ls</code>. A dedicated tool gives the harness a hook to intercept, render and gate. See <a href="designing-tools.html">Designing Tools</a>.</p>
+</div></aside>
+<h3 id="what-a-good-approval-request-looks-like"><a class="anchor" href="#what-a-good-approval-request-looks-like" aria-hidden="true">#</a>What a good approval request looks like</h3>
+<p>An approval prompt is a tiny interface, and its design decides whether people actually read it:</p>
+<ul>
+<li><strong>Say what will happen in plain language</strong>, with the consequential details up front: &quot;Send email to <strong><a href="mailto:alex@client.com">alex@client.com</a></strong> (external) with attachment <code>contract_v3.pdf</code>.&quot;</li>
+<li><strong>Show the exact payload</strong> (the email body, the SQL, the diff), collapsed if long.</li>
+<li><strong>Explain why</strong> the agent wants to do it: one sentence connecting it to the task.</li>
+<li><strong>Offer more than yes/no</strong>: approve, reject, <strong>edit</strong> the arguments, or reject <strong>with feedback</strong> that goes back to the agent.</li>
+<li><strong>Offer scoped standing permission</strong> where safe: &quot;Allow <code>npm test</code> for this session.&quot;</li>
+</ul>
+<h2 id="an-approval-gate-in-the-tool-loop"><a class="anchor" href="#an-approval-gate-in-the-tool-loop" aria-hidden="true">#</a>An Approval Gate in the Tool Loop</h2>
+<p>Here is a manual agent loop with a risk policy. Low-risk tools run automatically; consequential ones pause for a human. The policy is a <strong>function of the tool and its arguments</strong>, because risk often depends on the arguments (an email to a colleague versus a customer). When the human declines, the agent receives an error result with the human&#39;s feedback, so it can adapt rather than blindly retry.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">needs_approval</span>(<span class="hljs-params">name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Risk policy: decide per call, using the arguments.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">if</span> name <span class="hljs-keyword">in</span> {<span class="hljs-string">&quot;search_docs&quot;</span>, <span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;draft_email&quot;</span>}:
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>                                          <span class="hljs-comment"># read-only or draft-only</span>
+    <span class="hljs-keyword">if</span> name == <span class="hljs-string">&quot;send_email&quot;</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">not</span> args[<span class="hljs-string">&quot;to&quot;</span>].endswith(<span class="hljs-string">&quot;@ourcompany.com&quot;</span>)    <span class="hljs-comment"># external recipients need a human</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span>                                               <span class="hljs-comment"># unknown tools: fail closed</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">audit_log</span>(<span class="hljs-params">name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span>, approved: <span class="hljs-built_in">bool</span>, feedback: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-literal">None</span>:
+    ...                                                       <span class="hljs-comment"># append to your audit store</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">ask_human</span>(<span class="hljs-params">name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">bool</span>, <span class="hljs-built_in">str</span>]:
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;\nThe agent wants to run <span class="hljs-subst">{name}</span>:\n<span class="hljs-subst">{json.dumps(args, indent=<span class="hljs-number">2</span>)}</span>&quot;</span>)
+    reply = <span class="hljs-built_in">input</span>(<span class="hljs-string">&quot;Approve? [y = yes / anything else = feedback for the agent]: &quot;</span>).strip()
+    <span class="hljs-keyword">return</span> (<span class="hljs-literal">True</span>, <span class="hljs-string">&quot;&quot;</span>) <span class="hljs-keyword">if</span> reply.lower() == <span class="hljs-string">&quot;y&quot;</span> <span class="hljs-keyword">else</span> (<span class="hljs-literal">False</span>, reply <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;No reason given.&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">task: <span class="hljs-built_in">str</span>, tools: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">dict</span>], execute, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">25</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_steps):
+        resp = client.messages.create(model=MODEL, max_tokens=<span class="hljs-number">16000</span>, tools=tools, messages=messages)
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        <span class="hljs-keyword">if</span> resp.stop_reason == <span class="hljs-string">&quot;pause_turn&quot;</span>:
+            <span class="hljs-keyword">continue</span>                                          <span class="hljs-comment"># server tool paused; resend to resume</span>
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:                    <span class="hljs-comment"># end_turn, max_tokens or refusal</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+
+        results = []
+        <span class="hljs-keyword">for</span> call <span class="hljs-keyword">in</span> (b <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>):
+            <span class="hljs-keyword">if</span> needs_approval(call.name, call.<span class="hljs-built_in">input</span>):
+                approved, feedback = ask_human(call.name, call.<span class="hljs-built_in">input</span>)
+                audit_log(call.name, call.<span class="hljs-built_in">input</span>, approved, feedback)
+                <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> approved:
+                    results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: call.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>,
+                        <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;The user declined this action. Feedback: <span class="hljs-subst">{feedback}</span> &quot;</span>
+                                   <span class="hljs-string">&quot;Do not retry it unchanged; revise your approach or ask the user.&quot;</span>})
+                    <span class="hljs-keyword">continue</span>
+            <span class="hljs-keyword">try</span>:
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: call.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: execute(call.name, call.<span class="hljs-built_in">input</span>)})
+            <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                            <span class="hljs-comment"># tool failures go back to the model</span>
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: call.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Error: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>})
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})  <span class="hljs-comment"># all results in ONE user message</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Stopped: step budget exhausted.&quot;</span></code></pre></div>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant A as Agent (LLM)
+    participant H as Harness
+    participant P as Human
+    participant T as Tool
+    A-&gt;&gt;H: tool_use send_email(to: client)
+    H-&gt;&gt;H: needs_approval? yes (external)
+    H-&gt;&gt;P: Show recipient, body, reason
+    P--&gt;&gt;H: Decline: &quot;CC legal first&quot;
+    H-&gt;&gt;A: tool_result (is_error) with feedback
+    A-&gt;&gt;H: tool_use send_email(to: legal@ourcompany.com)
+    H-&gt;&gt;H: needs_approval? no (internal)
+    H-&gt;&gt;T: execute
+    T--&gt;&gt;H: sent
+    H-&gt;&gt;A: tool_result: sent</pre></figure>
+<p>Three details matter. <strong>Fail closed</strong>: unknown tools require approval by default. <strong>Feedback flows back</strong>: a decline is information the agent can use. <strong>Audit everything</strong>: who approved what, when, with what payload, which matters both for debugging and compliance (<a href="observability.html">Observability</a>).</p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Using the SDK&#39;s tool runner instead</div><div class="callout-body"><p>You don&#39;t need a manual loop to gate actions. With the tool runner you can put the check inside the tool function itself (return a &quot;user declined&quot; message instead of executing), or inspect the pending tool calls on each yielded message before they run. The manual loop above just makes the mechanics visible.</p>
+</div></aside>
+<h2 id="interrupts-checkpoints-and-resume"><a class="anchor" href="#interrupts-checkpoints-and-resume" aria-hidden="true">#</a>Interrupts, Checkpoints and Resume</h2>
+<p>The <code>input()</code> call above blocks a process while a human thinks. That works in a terminal, but not when approval comes from a phone notification three hours later, or when the server restarts in between. Production HITL needs <strong>durable, resumable execution</strong>:</p>
+<ul>
+<li><strong>Interrupt</strong>: the agent reaches a gate and <em>stops</em>, emitting a pending request (&quot;approval needed for X&quot;) rather than blocking a thread.</li>
+<li><strong>Checkpoint</strong>: the full agent state (messages, plan, pending tool calls, variables) is persisted, typically after every step.</li>
+<li><strong>Resume</strong>: when the human responds, possibly from a different device, hours later, the harness loads the checkpoint, injects the decision, and continues exactly where it stopped.</li>
+</ul>
+<figure class="diagram"><pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Running
+    Running --&gt; AwaitingHuman: gate hit (interrupt)
+    AwaitingHuman --&gt; Running: approved / edited (resume)
+    AwaitingHuman --&gt; Running: declined + feedback
+    AwaitingHuman --&gt; Expired: no response by deadline
+    Running --&gt; Completed: task done
+    Running --&gt; Failed: error or budget exhausted
+    Expired --&gt; [*]
+    Completed --&gt; [*]
+    Failed --&gt; [*]</pre></figure>
+<p>Because the Messages API is stateless (you send the full conversation each call), checkpointing is conceptually simple: persist the <code>messages</code> list plus the pending <code>tool_use</code> blocks, and to resume, append the <code>tool_result</code> that reflects the human&#39;s decision. Graph frameworks make this first-class. LangGraph, for example, pairs a <strong>checkpointer</strong> with an <code>interrupt()</code> primitive that pauses a node and a resume command that continues it. Durable-execution engines (Temporal and similar) are another common foundation (<a href="deployment.html">Deployment</a>, <a href="reliability.html">Reliability</a>).</p>
+<p>Design questions to settle up front: What happens if nobody responds (expire, escalate, or proceed with a safe default)? Can the world change while the agent waits (re-validate before executing, since the file may have been edited or the price may have moved)? Who is <em>allowed</em> to approve (role-based approvals for high-stakes actions)?</p>
+<h2 id="clarifying-questions-and-elicitation"><a class="anchor" href="#clarifying-questions-and-elicitation" aria-hidden="true">#</a>Clarifying Questions and Elicitation</h2>
+<p>Many agent failures start before the first action: the task was ambiguous and the agent guessed. &quot;Clean up the old branches&quot; (merged ones? older than when? remote too?). Asking one good question up front is cheaper than undoing an hour of wrong work.</p>
+<p>Practical patterns:</p>
+<ul>
+<li><strong>Give the agent an <code>ask_user</code> tool</strong> with a schema for a question and optional multiple-choice options. Coding agents render this as a modal that blocks the loop until answered. Making it a tool means the harness can render it properly and the model knows it is an allowed action.</li>
+<li><strong>Instruct when to ask</strong>: ask when an ambiguity would change the outcome materially <em>and</em> cannot be resolved by looking (reading the repo, checking the docs). Do not ask what you can find out.</li>
+<li><strong>Batch questions</strong>: one message with three questions beats three interruptions.</li>
+<li><strong>Offer defaults</strong>: &quot;I&#39;ll assume remote branches merged more than 30 days ago unless you say otherwise.&quot; The human can just say &quot;go.&quot;</li>
+<li><strong>Structured elicitation</strong>: protocols now support it directly. The Model Context Protocol lets a server request structured input from the user mid-operation via <strong>elicitation</strong>, with a schema for the expected answer (<a href="protocols-mcp-a2a.html">Protocols: MCP &amp; A2A</a>).</li>
+</ul>
+<p>There is a tension: for <strong>background</strong> tasks, every question stalls progress until the human returns. A good compromise is to ask early (during planning, while the human is present), then proceed autonomously with documented assumptions.</p>
+<h2 id="escalation-and-handoff-to-humans"><a class="anchor" href="#escalation-and-handoff-to-humans" aria-hidden="true">#</a>Escalation and Handoff to Humans</h2>
+<p>Sometimes the right move is to stop being the agent. <strong>Escalation</strong> transfers the task, or the customer, to a human. Typical triggers:</p>
+<ul>
+<li><strong>Policy</strong>: refunds above a threshold, legal threats, medical or safety issues, vulnerable users.</li>
+<li><strong>Explicit request</strong>: the user asks for a human. Honor it promptly; making people fight the bot destroys trust.</li>
+<li><strong>Low confidence or repeated failure</strong>: the same tool failing three times, or the agent going in circles.</li>
+<li><strong>Sentiment</strong>: rising frustration in a support conversation.</li>
+</ul>
+<p>A <strong>warm handoff</strong> passes context so the human does not start from zero: a summary of the issue, what has been tried, relevant account details, and the agent&#39;s best hypothesis. A cold handoff (&quot;please hold for an agent&quot;) that makes the customer repeat everything is one of the most common complaints about AI support (<a href="conversational-voice-agents.html">Conversational &amp; Voice Agents</a>).</p>
+<h2 id="plans-progress-and-transparency"><a class="anchor" href="#plans-progress-and-transparency" aria-hidden="true">#</a>Plans, Progress and Transparency</h2>
+<p><strong>Show the plan before executing.</strong> For multi-step tasks, presenting a plan first (&quot;I&#39;ll 1) add the column with a migration, 2) backfill in batches of 10k, 3) update the API, 4) run the tests&quot;) lets the human catch misunderstanding <em>before</em> any cost is incurred. It is the cheapest possible approval gate: one review covers many actions. Coding agents offer a <strong>plan mode</strong> in which the agent can read and investigate but not modify anything until the human approves the plan.</p>
+<p><strong>Stream progress.</strong> Long-running agents should show what they are doing as they do it: which file they are reading, which search they ran, which step of the plan they are on. Streaming serves three purposes: it reassures (the agent is working, not stuck), it enables early intervention (you see it heading the wrong way), and it builds an accurate mental model of the agent&#39;s competence.</p>
+<p><strong>Make reasoning legible, but don&#39;t drown people.</strong> A wall of raw tool output is not transparency. Summarize at the right altitude (&quot;Searched 12 files; found 3 call sites of <code>charge()</code>&quot;), with drill-down for those who want details.</p>
+<aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>A good progress stream</div><div class="callout-body">
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Plan: 1) find all callers of charge()  2) add idempotency key  3) update tests
+[1/3] Searching for callers... found 3 (billing/api.py, jobs/retry.py, admin/refund.py)
+[2/3] Editing billing/api.py (+12 −3)
+[2/3] Editing jobs/retry.py (+8 −2)
+[2/3] admin/refund.py calls a legacy path. Leaving it unchanged; flagged below.
+[3/3] Running tests... 214 passed, 0 failed
+Done. 1 item needs your decision: admin/refund.py uses legacy_charge().</code></pre></div>
+</div></aside>
+<h2 id="steering-mid-task"><a class="anchor" href="#steering-mid-task" aria-hidden="true">#</a>Steering Mid-Task</h2>
+<p><strong>Steering</strong> means changing the agent&#39;s direction while it is working, without starting over. Two mechanisms:</p>
+<ul>
+<li><strong>Interrupt and redirect</strong>: the human stops the current turn (&quot;stop, don&#39;t touch the migrations&quot;), and the agent resumes with the new instruction in context.</li>
+<li><strong>Queued messages</strong>: the human types a message while the agent works, and the harness injects it at the next safe point, typically between tool calls, so the agent incorporates it without losing work in progress.</li>
+</ul>
+<p>To make steering work, the harness must checkpoint between steps (so stopping is safe), and the agent must treat new human messages as <strong>higher priority</strong> than its existing plan. Steering is one of the strongest arguments for streaming progress: you can only steer what you can see.</p>
+<h2 id="undo-and-rollback"><a class="anchor" href="#undo-and-rollback" aria-hidden="true">#</a>Undo and Rollback</h2>
+<p>Reversibility changes the whole calculus of oversight: if an action can be cheaply undone, it rarely needs pre-approval. So <strong>make more things reversible</strong>:</p>
+<ul>
+<li><strong>Version control everything</strong>: agents working in git branches or worktrees can always be reset. Some coding agents also take automatic <strong>checkpoints</strong> of files before edits so you can rewind a session.</li>
+<li><strong>Sandboxes and staging</strong>: let the agent act freely in a copy of the environment, then promote results after review (<a href="guardrails-and-sandboxing.html">Guardrails &amp; Sandboxing</a>).</li>
+<li><strong>Dry runs</strong>: tools that support <code>dry_run=True</code> let the agent (and human) see what would happen.</li>
+<li><strong>Soft deletes and delayed execution</strong>: move to trash instead of deleting; queue emails with an &quot;undo send&quot; window.</li>
+<li><strong>Compensating actions</strong>: for operations that cannot be literally undone (a payment), define and test the reverse operation (a refund) in advance.</li>
+</ul>
+<p>Be honest in the UI about what can and cannot be undone. An &quot;undo&quot; button that silently fails to recall an already-sent email is worse than none.</p>
+<h2 id="background-agents-and-notifications"><a class="anchor" href="#background-agents-and-notifications" aria-hidden="true">#</a>Background Agents and Notifications</h2>
+<p>As of 2026, many agents run <strong>asynchronously</strong>: you assign a task (fix this issue, research this market) and come back later. Cloud coding agents that work in a remote sandbox and open a pull request are the canonical example. This changes HITL design:</p>
+<ul>
+<li><strong>The review surface replaces the live stream.</strong> The pull request (diff, description, test results) becomes the approval gate. The agent should produce artifacts designed for review.</li>
+<li><strong>Notifications must be meaningful.</strong> Notify on completion, on blocking questions and on failures, not on every step. Each notification should say what is needed and how urgent it is.</li>
+<li><strong>Blocking questions are expensive.</strong> An agent that stops to ask at minute 3 of a 2-hour task and waits all night has wasted the night. Prefer asking up front, proceeding on documented assumptions, and flagging them at review.</li>
+<li><strong>Permissions must be decided in advance</strong>, since no one is watching. Background agents generally run in sandboxes with constrained credentials, precisely because live approval isn&#39;t available.</li>
+</ul>
+<h2 id="permission-modes"><a class="anchor" href="#permission-modes" aria-hidden="true">#</a>Permission Modes</h2>
+<p>Products increasingly expose oversight as user-selectable <strong>permission modes</strong>. Coding agents illustrate the pattern well. As of 2026, Claude Code offers modes along these lines (names and details evolve, so check current docs):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Default / Manual</strong></td>
+<td>Reads run freely; prompts before most edits, shell commands and network requests, with &quot;don&#39;t ask again&quot; options</td>
+<td>Unfamiliar codebases, important repos</td>
+</tr>
+<tr>
+<td><strong>Accept edits</strong></td>
+<td>File edits auto-approved; other risky actions still prompt</td>
+<td>Iterating quickly while watching the diff</td>
+</tr>
+<tr>
+<td><strong>Plan</strong></td>
+<td>Explore and propose a plan without editing source files</td>
+<td>Large or risky changes; aligning before acting</td>
+</tr>
+<tr>
+<td><strong>Auto</strong></td>
+<td>No routine prompts; a background <strong>classifier</strong> checks each consequential action against what you asked for</td>
+<td>Long tasks where you trust the direction but want a safety net</td>
+</tr>
+<tr>
+<td><strong>Don&#39;t ask</strong></td>
+<td>Anything not pre-approved by rules is automatically <em>denied</em> instead of prompting</td>
+<td>Unattended runs with a strict allowlist</td>
+</tr>
+<tr>
+<td><strong>Bypass permissions</strong></td>
+<td>Skips prompts almost entirely</td>
+<td>Only inside isolated containers or VMs with nothing valuable to damage</td>
+</tr>
+</tbody></table>
+</div>
+<p>Two of these are worth dwelling on. <strong>Auto mode</strong> replaces the human approver for routine actions with a model-based reviewer, a sign of where the field is heading: oversight that scales because most of it is automated, with humans reserved for what the classifier cannot clear. <strong>Don&#39;t-ask mode</strong> shows that for unattended agents the safe default for an unanticipated action is <em>deny</em>, not <em>wait</em>.</p>
+<p>Underneath the modes sit finer-grained <strong>allow and deny rules</strong> (always allow <code>npm test</code>, never allow <code>rm -rf</code> or reading <code>.env</code>), often configured per project and shareable with a team. The general lesson: give users a few understandable presets plus precise rules, and make the current mode always visible.</p>
+<h2 id="trust-calibration-and-automation-bias"><a class="anchor" href="#trust-calibration-and-automation-bias" aria-hidden="true">#</a>Trust Calibration and Automation Bias</h2>
+<p>The goal of oversight is not maximum trust or minimum trust but <strong>calibrated trust</strong>: reliance that matches the agent&#39;s actual reliability for this kind of task (Lee and See, 2004). Two failure modes:</p>
+<ul>
+<li><strong>Overtrust (misuse)</strong>: the human relies on the agent beyond its competence. Classic <strong>automation bias</strong> is the tendency to accept automated recommendations without scrutiny, and to miss problems the automation did not flag (Parasuraman and Riley, 1997, described misuse, disuse and abuse of automation).</li>
+<li><strong>Undertrust (disuse)</strong>: the human ignores a reliable agent or redoes its work, wasting its value.</li>
+</ul>
+<p><strong>Approval fatigue</strong> is how overtrust develops in HITL systems. When 99 of 100 prompts are routine, people stop reading and approve reflexively, and the hundredth (the dangerous one) slips through. Countermeasures:</p>
+<ul>
+<li><strong>Gate less, but better.</strong> Every unnecessary prompt degrades the necessary ones. Use the risk × reversibility matrix ruthlessly.</li>
+<li><strong>Make dangerous prompts look different</strong>: highlight external recipients, production targets and irreversible operations.</li>
+<li><strong>Show evidence, not just conclusions</strong>: test results, sources, diffs, so humans verify rather than trust.</li>
+<li><strong>Surface uncertainty</strong>: an agent that says &quot;I&#39;m unsure about the timezone handling here&quot; directs scrutiny where it is needed.</li>
+<li><strong>Track the agent&#39;s record</strong>: per-task-type success rates help users (and policies) calibrate. Autonomy can be expanded as a track record accumulates.</li>
+</ul>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>A human in the loop is not automatically a safeguard</div><div class="callout-body"><p>A reviewer who approves 200 changes a day without reading them provides no safety, only liability. Design for the attention humans actually have: fewer, higher-signal decisions, with the information needed to decide well.</p>
+</div></aside>
+<h2 id="reviewing-agent-output-efficiently"><a class="anchor" href="#reviewing-agent-output-efficiently" aria-hidden="true">#</a>Reviewing Agent Output Efficiently</h2>
+<p>Agents can produce work faster than humans can review it, so <strong>review becomes the bottleneck</strong>. Design outputs for fast, reliable review:</p>
+<ul>
+<li><strong>Diffs, not finished files.</strong> Show exactly what changed. For documents, use tracked changes; for data, show before/after on affected rows.</li>
+<li><strong>Summaries with drill-down</strong>: a three-line summary of what was done and why, linked to details.</li>
+<li><strong>Citations for every claim</strong> in research or analysis, linked to the exact source passage, so the reviewer can spot-check rather than re-research (<a href="research-agents.html">Research Agents</a>).</li>
+<li><strong>Evidence of verification</strong>: &quot;tests: 214 passed&quot;, &quot;linked sources fetched and checked.&quot;</li>
+<li><strong>Flagged decisions and assumptions</strong>: list the judgment calls made so the reviewer can focus there.</li>
+<li><strong>Risk-ranked review</strong>: put the riskiest changes first; let trivial ones be skimmed.</li>
+</ul>
+<h2 id="capturing-feedback"><a class="anchor" href="#capturing-feedback" aria-hidden="true">#</a>Capturing Feedback</h2>
+<p>Every human interaction with an agent is a data point. Capture it:</p>
+<ul>
+<li><strong>Explicit signals</strong>: approve/decline rates per tool, thumbs up/down, free-text corrections.</li>
+<li><strong>Implicit signals</strong>: edits humans make to agent drafts before sending (the diff between draft and sent is gold), tasks abandoned, escalation rates, time to approve.</li>
+<li><strong>Close the loop</strong>: turn declined actions and corrected outputs into <strong>evaluation cases</strong> (<a href="evaluating-agents.html">Evaluating Agents</a>), update prompts and tool descriptions, and adjust the risk policy (if a gated action is approved 500 times in a row with no edits, maybe it can be ungated; if an ungated action keeps causing rollbacks, gate it).</li>
+<li><strong>Persist preferences</strong>: &quot;always CC legal on client emails&quot; should become memory or a rule, not a correction the human repeats daily (<a href="memory.html">Memory</a>).</li>
+</ul>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Set oversight <strong>per action</strong>, not per agent: in-the-loop for high-impact irreversible actions, on-the-loop for monitored reversible work, out-of-the-loop for safe reads.</li>
+<li>Use the <strong>risk × reversibility</strong> matrix to place approval gates; expose consequential operations as <strong>dedicated tools</strong> so they can be gated, and fail closed for unknown tools.</li>
+<li>Declines should carry <strong>feedback back to the agent</strong>; every approval should be <strong>audited</strong>.</li>
+<li>Production HITL needs <strong>interrupts, checkpoints and resume</strong>, with clear policies for timeouts and re-validation.</li>
+<li>Ask <strong>clarifying questions early</strong> and batched; <strong>escalate</strong> with a warm handoff when policy, the user or repeated failure demands it.</li>
+<li><strong>Plans, progress streams, steering and undo</strong> let humans stay in control without approving every step; making actions reversible reduces the need for gates.</li>
+<li>Aim for <strong>calibrated trust</strong>: fight approval fatigue and automation bias by gating less but better, and design outputs (diffs, citations, flagged assumptions) for fast, real review.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Classify actions.</strong> Place these on the risk × reversibility matrix and decide autonomous / notify / monitor / approve: reading a CRM record, updating a CRM field, posting in a public Slack channel, issuing a $20 refund, issuing a $2,000 refund, rotating an API key, creating a draft PR.</li>
+<li><strong>Approval with edits.</strong> Extend <code>ask_human</code> so the human can choose &quot;edit&quot;: they modify the JSON arguments, the edited call is executed, and the tool result tells the agent its arguments were changed and how.</li>
+<li><strong>Make it resumable.</strong> Change the loop so that instead of calling <code>input()</code>, it saves <code>messages</code> and the pending tool calls to a JSON file and exits. Write a <code>resume(decision)</code> function that loads the file, appends the right <code>tool_result</code> and continues. Test by approving in a separate process.</li>
+<li><strong>Fight approval fatigue.</strong> Log 50 approval decisions from a test run. Propose policy changes: which gates could be removed or turned into session-level permissions, and which ungated actions should become gated? Justify each with the data.</li>
+<li><strong>Design challenge.</strong> Design the HITL experience for a background agent that reconciles monthly invoices against payments and can email vendors about discrepancies. Specify: what it asks up front, what it does autonomously, what it gates, what it notifies on, what the review artifact looks like, and how feedback is captured.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="human-in-the-loop" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>Which action most clearly warrants a mandatory approval gate?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Running a search query</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reading a configuration file</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Editing a file on a git branch</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Sending an email to an external customer</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> External emails are high-impact and irreversible once sent, the top-right corner of the risk × reversibility matrix. File edits on a branch are easily reverted.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why should approval policies be functions of tool arguments, not just tool names?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It reduces token usage</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API requires argument-level policies</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Tool names are not available to the harness</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The same tool can be safe or risky depending on its arguments, such as an email to a colleague versus a customer</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Risk often lives in the arguments: recipient, amount, environment, path. Name-only policies either over-gate safe calls or under-gate dangerous ones.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>A user declines an agent&#39;s proposed action. What should the harness send back to the model?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A success result, so the agent continues smoothly</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The same tool_use block again</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An error tool_result explaining the action was declined, including the user&#39;s feedback, so the agent can adapt</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Nothing; just stop the agent</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A decline is information. Returning it as an error result with feedback lets the agent revise its approach instead of retrying the same action or failing opaquely.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>What is approval fatigue, and why is it dangerous?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Models refusing to act after being declined</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>API rate limits triggered by approval requests</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agents becoming slower after many approvals</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Humans approving reflexively after many routine prompts, so the rare dangerous request slips through</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Too many low-value prompts train humans to stop reading. Gating less but better, and making dangerous prompts distinctive, keeps attention where it matters.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>An agent waiting for approval resumes six hours later. What should it do before executing the approved action?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Start the task over from scratch</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask for approval again unconditionally</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Execute immediately; it was approved</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Re-validate that the world still matches what was approved (files, prices, state), since things may have changed while it waited</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Approvals are given against a snapshot. Long pauses require checking that preconditions still hold, or the approved action may now be wrong.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Why does making actions reversible reduce the need for approval gates?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Reversible actions can&#39;t be prompt-injected</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Reversible actions are always low-impact</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Undo removes the need for logging</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>If mistakes can be cheaply undone, monitoring plus undo gives safety without pre-approval friction</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reversibility lowers the cost of errors, so oversight can shift from in-the-loop (approve first) to on-the-loop (monitor and roll back).</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>For a background coding agent, what typically serves as the primary approval gate?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A phone call to the developer</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A pull request with diff, description and test results, reviewed before merge</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>There is no gate; background agents are fully autonomous</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A popup for every file edit</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With no human watching live, the review artifact becomes the gate. The agent acts freely in a sandbox, and humans approve the result.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://doi.org/10.1109/3468.844354" target="_blank" rel="noopener">A Model for Types and Levels of Human Interaction with Automation (Parasuraman, Sheridan &amp; Wickens, 2000)</a> — the classic framework for which stages of a task to automate, and how much.</li>
+<li><a href="https://doi.org/10.1518/hfes.46.1.50_30392" target="_blank" rel="noopener">Trust in Automation: Designing for Appropriate Reliance (Lee &amp; See, 2004)</a> — the foundational paper on calibrated trust.</li>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents (Anthropic)</a> — on checkpoints, human feedback and stopping conditions in agent design.</li>
+<li><a href="https://code.claude.com/docs/en/overview" target="_blank" rel="noopener">Claude Code documentation</a> — permission modes, allow/deny rules, plan mode and checkpoints in a production coding agent.</li>
+<li><a href="https://www.langchain.com/langgraph" target="_blank" rel="noopener">LangGraph</a> — a widely used framework whose interrupts and checkpointers implement durable human-in-the-loop (APIs evolve; check current docs).</li>
+<li><a href="https://modelcontextprotocol.io/specification/latest" target="_blank" rel="noopener">Model Context Protocol: elicitation</a> — the spec&#39;s standard mechanism for servers to request structured user input mid-task.</li>
+<li><a href="https://doi.org/10.1145/3290605.3300233" target="_blank" rel="noopener">Guidelines for Human-AI Interaction (Amershi et al., CHI 2019)</a> — 18 research-backed guidelines for AI UX, many of which apply directly to agents.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="human-in-the-loop">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-human-in-the-loop"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-human-in-the-loop" class="notes" data-slug="human-in-the-loop" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="multi-agent-systems.html"><small>← Previous</small><span>Multi-Agent Systems</span></a>
+    <a class="pager-next" href="coding-agents.html"><small>Next →</small><span>Coding Agents</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#levels-of-oversight">Levels of Oversight</a></li>
+<li class="toc-h2"><a href="#approval-gates-where-to-put-them">Approval Gates: Where to Put Them</a></li>
+<li class="toc-h3"><a href="#what-a-good-approval-request-looks-like">What a good approval request looks like</a></li>
+<li class="toc-h2"><a href="#an-approval-gate-in-the-tool-loop">An Approval Gate in the Tool Loop</a></li>
+<li class="toc-h2"><a href="#interrupts-checkpoints-and-resume">Interrupts, Checkpoints and Resume</a></li>
+<li class="toc-h2"><a href="#clarifying-questions-and-elicitation">Clarifying Questions and Elicitation</a></li>
+<li class="toc-h2"><a href="#escalation-and-handoff-to-humans">Escalation and Handoff to Humans</a></li>
+<li class="toc-h2"><a href="#plans-progress-and-transparency">Plans, Progress and Transparency</a></li>
+<li class="toc-h2"><a href="#steering-mid-task">Steering Mid-Task</a></li>
+<li class="toc-h2"><a href="#undo-and-rollback">Undo and Rollback</a></li>
+<li class="toc-h2"><a href="#background-agents-and-notifications">Background Agents and Notifications</a></li>
+<li class="toc-h2"><a href="#permission-modes">Permission Modes</a></li>
+<li class="toc-h2"><a href="#trust-calibration-and-automation-bias">Trust Calibration and Automation Bias</a></li>
+<li class="toc-h2"><a href="#reviewing-agent-output-efficiently">Reviewing Agent Output Efficiently</a></li>
+<li class="toc-h2"><a href="#capturing-feedback">Capturing Feedback</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tool Use &amp; Function Calling · Agent Academy</title>
+<meta name="description" content="How LLMs call external functions: JSON Schema tool definitions, the tool_use/tool_result cycle, parallel calls, errors, strict mode, server tools and the SDK tool runner.">
+<meta property="og:title" content="Tool Use &amp; Function Calling · Agent Academy">
+<meta property="og:description" content="How LLMs call external functions: JSON Schema tool definitions, the tool_use/tool_result cycle, parallel calls, errors, strict mode, server tools and the SDK tool runner.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="tool-use">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#building-blocks">Module 2: Core Building Blocks</a></nav>
+  <header class="lesson-header">
+    <h1>Tool Use &amp; Function Calling</h1>
+    <p class="lead">How LLMs call external functions: JSON Schema tool definitions, the tool_use/tool_result cycle, parallel calls, errors, strict mode, server tools and the SDK tool runner.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-beginner">Beginner</span>
+      <span>⏱ 40 min</span>
+      <span>✅ 7-question quiz</span>
+      <span>🧪 Interactive</span>
+      <span>Lesson 7 of 35</span>
+      <span class="lesson-status" data-status-for="tool-use"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain how a model &quot;calls&quot; a function it cannot execute itself, and how models are trained to do it</li><li>Write a JSON Schema tool definition and implement the full tool-use loop</li><li>Handle parallel tool calls, tool errors (is_error), tool_choice and strict mode correctly</li><li>Distinguish client tools, server tools and Anthropic-defined client tools</li><li>Map the same concepts onto other providers' function-calling APIs and avoid the most common bugs</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a></p>
+  </section>
+  <article class="prose">
+<p>A language model, by itself, can only do one thing: produce text. It can&#39;t check the weather, query a database, send an email or run code. And yet agents do all of those things every day. The bridge is <strong>tool use</strong> (also called <strong>function calling</strong>): you describe some functions to the model, the model replies with a structured request to call one, your code runs it, and you hand the result back. Repeat until the job is done.</p>
+<p>That simple handshake is the most important mechanism in this entire course. Everything an agent does in the world — browsing, coding, booking, researching — happens through it. If <a href="the-agent-loop.html">the agent loop</a> is the heartbeat of an agent, tool calls are its hands.</p>
+<p>In this lesson you&#39;ll learn exactly what happens in a tool call, byte by byte: how tools are defined with JSON Schema, how the request/response cycle works, how to handle multiple calls at once and errors gracefully, what &quot;strict&quot; mode guarantees, the different kinds of tools (including ones that run on the provider&#39;s servers), and the bugs that bite almost everyone the first time. You&#39;ll finish with a complete, runnable agent in Python.</p>
+<h2 id="the-core-idea-the-model-asks-your-code-acts"><a class="anchor" href="#the-core-idea-the-model-asks-your-code-acts" aria-hidden="true">#</a>The Core Idea: The Model Asks, Your Code Acts</h2>
+<p>Think of the model as a very capable manager who can&#39;t leave their office. They can&#39;t do anything physically, but they can write precise work orders: &quot;Call the weather service for Oslo and tell me what it says.&quot; You — the program around the model, usually called the <strong>harness</strong> — read the work order, do the work, and slide the result back under the door.</p>
+<p>Concretely:</p>
+<ol>
+<li>You send the model a conversation <strong>plus a list of tool definitions</strong> (name, description, parameter schema).</li>
+<li>If the model decides a tool would help, it stops generating prose and emits a <strong>structured tool call</strong>: the tool&#39;s name and a JSON object of arguments.</li>
+<li>Your code validates the arguments, <strong>executes the real function</strong>, and sends the output back as a <strong>tool result</strong>.</li>
+<li>The model reads the result and either calls more tools or writes its final answer.</li>
+</ol>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-user">User:</span> Should I bring a jacket to Oslo today?
+Model → tool call: get_weather({&quot;city&quot;: &quot;Oslo, Norway&quot;})
+Harness runs get_weather → {&quot;temp_c&quot;: -3, &quot;conditions&quot;: &quot;snow&quot;, &quot;wind_kph&quot;: 18}
+Model: Yes — it's -3 °C and snowing in Oslo, with a cold wind. Bring a warm,
+       waterproof jacket.</code></pre></div>
+<p>Two consequences of this design are worth internalizing early:</p>
+<ul>
+<li><strong>The model never executes anything.</strong> It only <em>proposes</em>. Your harness decides whether to run the call, can modify or refuse it, and controls credentials, sandboxes and approvals. That is where safety lives (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
+<li><strong>The model only knows what you tell it.</strong> It chooses tools based on their names, descriptions and schemas, and it knows the outcome only through the result you send back. Writing those well is a skill in its own right — the subject of <a href="designing-tools.html">designing tools</a>.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Function calling is a protocol, not magic: the model emits a structured request, the harness executes it and returns the result as a new message. Everything else — parallel calls, errors, server tools, tool runners — is a variation on that handshake.</p>
+</div></aside>
+<h2 id="how-models-learn-to-call-functions"><a class="anchor" href="#how-models-learn-to-call-functions" aria-hidden="true">#</a>How Models Learn to Call Functions</h2>
+<p>Early experiments made models call tools by prompting them to write something like <code>ACTION: search[query]</code> and then parsing it with regular expressions. It worked, sometimes. Modern function calling is far more reliable because it is <strong>trained in</strong>.</p>
+<p>Under the hood, the API renders your tool definitions into the model&#39;s context in a format the model was trained on (Anthropic&#39;s docs describe tool definitions as being placed into a special system prompt, which is why tools count toward your input tokens). When the model decides to use a tool, it emits the call in a learned, structured format, and the API parses that into a clean <code>tool_use</code> object for you. You never see the raw format.</p>
+<p>The model learns this through several kinds of training (the <a href="training-agents.html">training agents</a> lesson goes deeper):</p>
+<ul>
+<li><strong>Supervised fine-tuning on tool-use transcripts.</strong> Demonstrations of when to call which tool with which arguments, and how to use the results. Research such as <em>Toolformer</em> (2023) showed models can even bootstrap this by labeling where API calls would have helped, and <em>Gorilla</em> trained models to call real APIs from their documentation.</li>
+<li><strong>Reinforcement learning in environments.</strong> The model attempts multi-step tasks with real or simulated tools and is rewarded for actually succeeding. This is what teaches judgment: when <em>not</em> to call a tool, how to recover from an error, when to stop.</li>
+<li><strong>Constrained decoding (optionally).</strong> For &quot;strict&quot; tools, the provider restricts which tokens the model may generate so the arguments are guaranteed to match your schema. More on this below and in <a href="structured-outputs.html">structured outputs</a>.</li>
+</ul>
+<p>Benchmarks such as the Berkeley Function Calling Leaderboard and τ-bench measure how well models pick tools, fill arguments and complete multi-turn tool tasks; see <a href="benchmarks.html">benchmarks</a>.</p>
+<h2 id="defining-a-tool-with-json-schema"><a class="anchor" href="#defining-a-tool-with-json-schema" aria-hidden="true">#</a>Defining a Tool with JSON Schema</h2>
+<p>A tool definition has three parts: a <strong>name</strong>, a <strong>description</strong>, and an <strong>input schema</strong> written in <strong>JSON Schema</strong>, a standard vocabulary for describing the shape of JSON data.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;get_weather&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Get the current weather for a city. Use this when the user asks about current conditions or temperature somewhere. Returns temperature in Celsius, a short conditions string and wind speed. Does not provide forecasts.&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;input_schema&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;object&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;properties&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;city&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;string&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;City name, optionally with country, e.g. &#x27;Oslo, Norway&#x27;&quot;</span>
+      <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;include_wind&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;boolean&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Whether to include wind speed. Defaults to true.&quot;</span>
+      <span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;required&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;city&quot;</span><span class="hljs-punctuation">]</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>The JSON Schema features you&#39;ll use most:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>type</code></td>
+<td><code>object</code>, <code>string</code>, <code>integer</code>, <code>number</code>, <code>boolean</code>, <code>array</code>, <code>null</code></td>
+<td><code>&quot;type&quot;: &quot;integer&quot;</code></td>
+</tr>
+<tr>
+<td><code>properties</code></td>
+<td>The fields of an object, each with its own schema</td>
+<td><code>{&quot;city&quot;: {...}}</code></td>
+</tr>
+<tr>
+<td><code>required</code></td>
+<td>Which properties must be present</td>
+<td><code>[&quot;city&quot;]</code></td>
+</tr>
+<tr>
+<td><code>enum</code></td>
+<td>A fixed set of allowed values</td>
+<td><code>[&quot;celsius&quot;, &quot;fahrenheit&quot;]</code></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>Human-language explanation of a field — the model reads this</td>
+<td><code>&quot;ISO date, e.g. 2026-11-22&quot;</code></td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td>The schema for each element of an array</td>
+<td><code>{&quot;type&quot;: &quot;string&quot;}</code></td>
+</tr>
+<tr>
+<td><code>additionalProperties</code></td>
+<td>Whether unlisted fields are allowed</td>
+<td><code>false</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>The <strong>description</strong> fields do far more work than beginners expect. The model decides <em>whether</em> to call a tool almost entirely from its name and description, and fills arguments using the property descriptions. A vague description (&quot;Gets weather&quot;) produces vague behavior. Good descriptions say what the tool does, when to use it, what it returns, and what it doesn&#39;t do.</p>
+<h2 id="the-requestresponse-cycle"><a class="anchor" href="#the-requestresponse-cycle" aria-hidden="true">#</a>The Request/Response Cycle</h2>
+<p>Here is the full cycle between your application, the API and your tool code:</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+    participant App as Your app (harness)
+    participant API as Model API
+    participant Tool as Tool code
+    App-&gt;&gt;API: messages + tool definitions
+    API--&gt;&gt;App: assistant: tool_use (id, name, input), stop_reason &quot;tool_use&quot;
+    App-&gt;&gt;Tool: run get_weather(city=&quot;Oslo&quot;)
+    Tool--&gt;&gt;App: {&quot;temp_c&quot;: -3, ...}
+    App-&gt;&gt;API: history + user: tool_result (tool_use_id, content)
+    API--&gt;&gt;App: assistant: final text, stop_reason &quot;end_turn&quot;</pre></figure>
+<p>When the model wants a tool, the response&#39;s <code>stop_reason</code> is <code>&quot;tool_use&quot;</code> and its <code>content</code> contains one or more <code>tool_use</code> blocks, often after a short text block:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;assistant&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;stop_reason&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_use&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;text&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;text&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Let me check the weather in Oslo.&quot;</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_use&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_01A09q90qw90lq917835lq9&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;get_weather&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;city&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Oslo, Norway&quot;</span><span class="hljs-punctuation">}</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>You reply with a <strong>user</strong> message containing a <code>tool_result</code> block whose <code>tool_use_id</code> matches the call&#39;s <code>id</code>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;role&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_result&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;tool_use_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_01A09q90qw90lq917835lq9&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;{\&quot;temp_c\&quot;: -3, \&quot;conditions\&quot;: \&quot;snow\&quot;, \&quot;wind_kph\&quot;: 18}&quot;</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>Note the roles. The tool result goes in a <em>user</em> turn because, from the model&#39;s point of view, it is information arriving from the outside world. And the API is <strong>stateless</strong>: on every request you resend the full history, including the assistant&#39;s <code>tool_use</code> turn, so the model can match each result to the call that produced it.</p>
+<p>Try it yourself: step through the anatomy of a tool call, from definition to final answer, and see which side produces each block.</p>
+<div class="widget" data-widget="tool-call-anatomy"></div>
+
+<h2 id="a-complete-working-example"><a class="anchor" href="#a-complete-working-example" aria-hidden="true">#</a>A Complete Working Example</h2>
+<p>Let&#39;s build a small agent with two tools: a (fake) weather lookup and a safe calculator. This is a manual loop, so every part of the protocol is visible.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> ast
+<span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> operator
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY from the environment</span>
+MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
+
+TOOLS = [
+    {
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;get_weather&quot;</span>,
+        <span class="hljs-string">&quot;description&quot;</span>: (
+            <span class="hljs-string">&quot;Get current weather for a city. Use when the user asks about current &quot;</span>
+            <span class="hljs-string">&quot;conditions or temperature. Returns JSON with temp_c, conditions and &quot;</span>
+            <span class="hljs-string">&quot;wind_kph. Does not provide forecasts.&quot;</span>
+        ),
+        <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,  <span class="hljs-comment"># guarantee arguments match the schema</span>
+        <span class="hljs-string">&quot;input_schema&quot;</span>: {
+            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+            <span class="hljs-string">&quot;properties&quot;</span>: {
+                <span class="hljs-string">&quot;city&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;City, e.g. &#x27;Oslo, Norway&#x27;&quot;</span>},
+            },
+            <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;city&quot;</span>],
+            <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+        },
+    },
+    {
+        <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;calculate&quot;</span>,
+        <span class="hljs-string">&quot;description&quot;</span>: (
+            <span class="hljs-string">&quot;Evaluate an arithmetic expression exactly. Use for any arithmetic &quot;</span>
+            <span class="hljs-string">&quot;instead of computing in your head. Supports numbers, + - * / ** and &quot;</span>
+            <span class="hljs-string">&quot;parentheses. Returns the numeric result as a string.&quot;</span>
+        ),
+        <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,
+        <span class="hljs-string">&quot;input_schema&quot;</span>: {
+            <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>,
+            <span class="hljs-string">&quot;properties&quot;</span>: {
+                <span class="hljs-string">&quot;expression&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;e.g. &#x27;(21 - 4) * 9 / 5&#x27;&quot;</span>},
+            },
+            <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;expression&quot;</span>],
+            <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+        },
+    },
+]</code></pre></div>
+<p>Now the tool implementations. The calculator walks the parsed syntax tree instead of calling <code>eval</code>, because tool inputs are untrusted model output.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">FAKE_WEATHER = {
+    <span class="hljs-string">&quot;oslo&quot;</span>: {<span class="hljs-string">&quot;temp_c&quot;</span>: -<span class="hljs-number">3</span>, <span class="hljs-string">&quot;conditions&quot;</span>: <span class="hljs-string">&quot;snow&quot;</span>, <span class="hljs-string">&quot;wind_kph&quot;</span>: <span class="hljs-number">18</span>},
+    <span class="hljs-string">&quot;lisbon&quot;</span>: {<span class="hljs-string">&quot;temp_c&quot;</span>: <span class="hljs-number">17</span>, <span class="hljs-string">&quot;conditions&quot;</span>: <span class="hljs-string">&quot;sunny&quot;</span>, <span class="hljs-string">&quot;wind_kph&quot;</span>: <span class="hljs-number">9</span>},
+}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">get_weather</span>(<span class="hljs-params">city: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    key = city.split(<span class="hljs-string">&quot;,&quot;</span>)[<span class="hljs-number">0</span>].strip().lower()
+    <span class="hljs-keyword">if</span> key <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> FAKE_WEATHER:
+        known = <span class="hljs-string">&quot;, &quot;</span>.join(<span class="hljs-built_in">sorted</span>(FAKE_WEATHER))
+        <span class="hljs-keyword">raise</span> LookupError(<span class="hljs-string">f&quot;No data for &#x27;<span class="hljs-subst">{city}</span>&#x27;. Cities available: <span class="hljs-subst">{known}</span>.&quot;</span>)
+    <span class="hljs-keyword">return</span> json.dumps(FAKE_WEATHER[key])
+
+OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
+       ast.Div: operator.truediv, ast.Pow: operator.<span class="hljs-built_in">pow</span>, ast.USub: operator.neg}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">_eval</span>(<span class="hljs-params">node</span>):
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node, ast.Constant) <span class="hljs-keyword">and</span> <span class="hljs-built_in">isinstance</span>(node.value, (<span class="hljs-built_in">int</span>, <span class="hljs-built_in">float</span>)):
+        <span class="hljs-keyword">return</span> node.value
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node, ast.UnaryOp) <span class="hljs-keyword">and</span> <span class="hljs-built_in">type</span>(node.op) <span class="hljs-keyword">in</span> OPS:
+        <span class="hljs-keyword">return</span> OPS[<span class="hljs-built_in">type</span>(node.op)](_<span class="hljs-built_in">eval</span>(node.operand))
+    <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node, ast.BinOp) <span class="hljs-keyword">and</span> <span class="hljs-built_in">type</span>(node.op) <span class="hljs-keyword">in</span> OPS:
+        left, right = _<span class="hljs-built_in">eval</span>(node.left), _<span class="hljs-built_in">eval</span>(node.right)
+        <span class="hljs-keyword">if</span> <span class="hljs-built_in">isinstance</span>(node.op, ast.Pow) <span class="hljs-keyword">and</span> <span class="hljs-built_in">abs</span>(right) &gt; <span class="hljs-number">100</span>:
+            <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;Exponent too large (max 100).&quot;</span>)  <span class="hljs-comment"># avoid 9**9**9</span>
+        <span class="hljs-keyword">return</span> OPS[<span class="hljs-built_in">type</span>(node.op)](left, right)
+    <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">&quot;Only numbers, + - * / ** and parentheses are allowed.&quot;</span>)
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate</span>(<span class="hljs-params">expression: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(_<span class="hljs-built_in">eval</span>(ast.parse(expression, mode=<span class="hljs-string">&quot;eval&quot;</span>).body))
+
+HANDLERS = {<span class="hljs-string">&quot;get_weather&quot;</span>: get_weather, <span class="hljs-string">&quot;calculate&quot;</span>: calculate}</code></pre></div>
+<p>Finally, the loop. It runs every <code>tool_use</code> block in a response, sends <strong>all</strong> results back in <strong>one</strong> user message, reports failures with <code>is_error</code>, and handles every stop reason.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">run_tool</span>(<span class="hljs-params">block</span>) -&gt; <span class="hljs-built_in">dict</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Execute one tool_use block and wrap the outcome as a tool_result.&quot;&quot;&quot;</span>
+    <span class="hljs-keyword">if</span> block.name <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> HANDLERS:
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>,
+                <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Unknown tool &#x27;<span class="hljs-subst">{block.name}</span>&#x27;.&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+    <span class="hljs-keyword">try</span>:
+        output = HANDLERS[block.name](**block.<span class="hljs-built_in">input</span>)
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>, <span class="hljs-string">&quot;content&quot;</span>: output}
+    <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> exc:  <span class="hljs-comment"># report failures to the model instead of crashing</span>
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: block.<span class="hljs-built_in">id</span>,
+                <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Error: <span class="hljs-subst">{exc}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">ask</span>(<span class="hljs-params">question: <span class="hljs-built_in">str</span>, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">10</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: question}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_steps):
+        response = client.messages.create(
+            model=MODEL, max_tokens=<span class="hljs-number">16000</span>, tools=TOOLS, messages=messages,
+        )
+        <span class="hljs-comment"># Always append the full content (text, thinking and tool_use blocks).</span>
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: response.content})
+
+        <span class="hljs-keyword">if</span> response.stop_reason == <span class="hljs-string">&quot;tool_use&quot;</span>:
+            results = [run_tool(b) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>]
+            messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})  <span class="hljs-comment"># one message</span>
+        <span class="hljs-keyword">elif</span> response.stop_reason == <span class="hljs-string">&quot;end_turn&quot;</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+        <span class="hljs-keyword">elif</span> response.stop_reason == <span class="hljs-string">&quot;pause_turn&quot;</span>:
+            <span class="hljs-keyword">continue</span>  <span class="hljs-comment"># server-side tool paused; resend history to resume</span>
+        <span class="hljs-keyword">elif</span> response.stop_reason == <span class="hljs-string">&quot;max_tokens&quot;</span>:
+            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&quot;Output truncated; raise max_tokens.&quot;</span>)
+        <span class="hljs-keyword">elif</span> response.stop_reason == <span class="hljs-string">&quot;refusal&quot;</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;The model declined this request.&quot;</span>  <span class="hljs-comment"># never run its tool calls</span>
+    <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;No final answer after <span class="hljs-subst">{max_steps}</span> steps.&quot;</span>)
+
+<span class="hljs-built_in">print</span>(ask(<span class="hljs-string">&quot;Is it warmer in Lisbon or Oslo right now, and by how many °F?&quot;</span>))</code></pre></div>
+<p>A typical run:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Step 1  Model → get_weather({&quot;city&quot;: &quot;Lisbon, Portugal&quot;})
+              → get_weather({&quot;city&quot;: &quot;Oslo, Norway&quot;})        (parallel)
+        Harness → two tool_results in one user message
+Step 2  Model → calculate({&quot;expression&quot;: &quot;(17 - (-3)) * 9 / 5&quot;})
+        Harness → &quot;36.0&quot;
+Step 3  Model: Lisbon is warmer: 17 °C and sunny vs -3 °C and snowing in
+        Oslo, a difference of 20 °C, which is 36 °F.</code></pre></div>
+<p>Notice the model converted a temperature <em>difference</em> correctly (multiply by 9/5, no +32) and used the calculator rather than doing arithmetic in its head, because the description told it to.</p>
+<h2 id="parallel-tool-calls"><a class="anchor" href="#parallel-tool-calls" aria-hidden="true">#</a>Parallel Tool Calls</h2>
+<p>In step 1 above, the model asked for two weather lookups in a single response. This is <strong>parallel tool use</strong>: when calls are independent, a model may emit several <code>tool_use</code> blocks at once. It saves round trips — two lookups cost one model turn instead of two.</p>
+<p>The rules:</p>
+<ul>
+<li><strong>Run them all</strong> (concurrently if they&#39;re independent and safe, e.g., with <code>asyncio.gather</code> or a thread pool).</li>
+<li><strong>Return every result in a single user message</strong>, one <code>tool_result</code> per <code>tool_use_id</code>. Splitting results across multiple messages is a common bug that teaches the model, over the conversation, to stop making parallel calls.</li>
+<li><strong>Put the <code>tool_result</code> blocks first</strong> in that message&#39;s content. If you want to add text (say, a note from the user), put it after the results.</li>
+<li><strong>Every call needs a result</strong>, even if you decided not to run it. Return an <code>is_error</code> result such as &quot;Skipped: user declined this action.&quot;</li>
+</ul>
+<p>If parallel calls are unsafe in your harness (two tools that mutate the same resource), you can request at most one call per turn with <code>&quot;disable_parallel_tool_use&quot;: true</code> inside <code>tool_choice</code>. Usually it&#39;s better to keep parallelism and serialize only the unsafe tools in your executor.</p>
+<h2 id="controlling-tool-use-toolchoice-and-strict-mode"><a class="anchor" href="#controlling-tool-use-toolchoice-and-strict-mode" aria-hidden="true">#</a>Controlling Tool Use: tool_choice and Strict Mode</h2>
+<h3 id="toolchoice"><a class="anchor" href="#toolchoice" aria-hidden="true">#</a>tool_choice</h3>
+<p>The <code>tool_choice</code> parameter controls whether the model may use tools:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>{&quot;type&quot;: &quot;auto&quot;}</code></td>
+<td>The model decides (default)</td>
+</tr>
+<tr>
+<td><code>{&quot;type&quot;: &quot;none&quot;}</code></td>
+<td>The model may not call tools this turn (e.g., force a final summary)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Older APIs also offered <em>forcing</em> options — &quot;must call some tool&quot; (<code>any</code>) or &quot;must call this specific tool&quot;. As of 2026, the latest Claude models reject forced tool choice with an error; other providers still offer equivalents. The modern approach is to steer with instructions (&quot;Use the <code>get_weather</code> tool to answer&quot;) and, since <code>auto</code> never <em>guarantees</em> a call, check whether a <code>tool_use</code> block came back and re-prompt if it didn&#39;t. If you were forcing a tool only to get JSON out, use <a href="structured-outputs.html">structured outputs</a> instead.</p>
+<h3 id="strict-mode"><a class="anchor" href="#strict-mode" aria-hidden="true">#</a>Strict mode</h3>
+<p>By default, a model&#39;s tool arguments are almost always valid but not <em>guaranteed</em> to be: a field might be missing, or <code>&quot;passengers&quot;: &quot;two&quot;</code> might appear where an integer was expected. Setting <code>&quot;strict&quot;: true</code> on a tool turns on <strong>schema-constrained decoding</strong> for its arguments: the provider masks out any token that would violate the schema, so the input is guaranteed to parse and validate.</p>
+<p>Strict mode has requirements: every object must set <code>&quot;additionalProperties&quot;: false</code> and declare <code>required</code> fields, and some JSON Schema features (for example numeric bounds like <code>minimum</code>) aren&#39;t supported in the constrained grammar — the Python and TypeScript SDKs strip unsupported constraints from what they send and validate them client-side. A new schema also incurs a one-time compilation cost, after which it is cached. The <a href="structured-outputs.html">structured outputs</a> lesson explains how constrained decoding works.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Turn on <code>strict</code> for tools whose arguments feed directly into code that would break on bad input (bookings, database writes, payments). Even then, validate semantics yourself: a schema can guarantee a date is a string in date format, not that it&#39;s in the future.</p>
+</div></aside>
+<h2 id="handling-errors-with-iserror"><a class="anchor" href="#handling-errors-with-iserror" aria-hidden="true">#</a>Handling Errors with is_error</h2>
+<p>Tools fail: the city isn&#39;t found, the API times out, the user lacks permission. The worst thing a harness can do is crash the loop or return an empty string. The best thing is to tell the model what went wrong in words it can act on, with <code>&quot;is_error&quot;: true</code>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_result&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;tool_use_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;toolu_01A09q90qw90lq917835lq9&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;content&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;No data for &#x27;Olso&#x27;. Cities available: lisbon, oslo.&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;is_error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>Given that, a model will usually correct itself (&quot;Olso&quot; → &quot;Oslo&quot;) on the next step. Good error messages say what failed, why, and what would work instead; the <a href="designing-tools.html">designing tools</a> lesson covers writing them. Three distinctions to keep straight:</p>
+<ul>
+<li><strong>Tool errors</strong> (the function failed) → <code>is_error: true</code> result, loop continues.</li>
+<li><strong>Invalid input</strong> (schema or semantic validation failed) → also an <code>is_error</code> result explaining the problem; don&#39;t run the tool.</li>
+<li><strong>API errors</strong> (rate limits, network, authentication) → these happen <em>between</em> you and the API, not inside a tool. Retry with backoff in your client code (see <a href="reliability.html">reliability</a>); the model never sees them.</li>
+</ul>
+<h2 id="three-kinds-of-tools"><a class="anchor" href="#three-kinds-of-tools" aria-hidden="true">#</a>Three Kinds of Tools</h2>
+<p>So far, every tool has been one <em>you</em> defined and executed. There are actually three kinds, distinguished by <strong>who defines the schema</strong> and <strong>who executes the call</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Who defines it</th>
+<th>Who executes it</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Client tools</strong> (user-defined)</td>
+<td>You (JSON Schema)</td>
+<td>Your harness</td>
+<td><code>get_weather</code>, <code>search_orders</code>, <code>create_ticket</code></td>
+</tr>
+<tr>
+<td><strong>Server tools</strong></td>
+<td>The provider</td>
+<td>The provider&#39;s servers</td>
+<td>Web search, web fetch, code execution</td>
+</tr>
+<tr>
+<td><strong>Anthropic-defined client tools</strong></td>
+<td>Anthropic (schema built into the model)</td>
+<td>Your harness</td>
+<td>Bash, text editor, computer use, memory</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Server tools</strong> run inside the API call. You declare them and the provider handles execution and returns the results inline:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">response = client.messages.create(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,
+    tools=[
+        {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;web_search_20260209&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;web_search&quot;</span>},
+        {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;web_fetch_20260209&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;web_fetch&quot;</span>},
+        {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;code_execution_20260521&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;code_execution&quot;</span>},
+    ],
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;What changed in the latest Python release?&quot;</span>}],
+)</code></pre></div>
+<p>The response contains <code>server_tool_use</code> blocks and their result blocks (for example <code>web_search_tool_result</code>) alongside the text — you don&#39;t send results back for these. Because the provider runs its own sampling loop, a long server-tool turn can end with <code>stop_reason: &quot;pause_turn&quot;</code>; you resend the conversation (with that assistant turn appended) and the server resumes. The example loop above already handles this. Server tools and your own client tools can be mixed in one request.</p>
+<p><strong>Anthropic-defined client tools</strong> are a middle ground. Claude has been trained on their exact interfaces — a <code>bash</code> tool that takes a <code>command</code>, a text editor with <code>view</code>/<code>create</code>/<code>str_replace</code>/<code>insert</code> commands, a computer-use toolset with screenshot, click and type actions, and a memory tool that reads and writes files in a <code>/memories</code> directory. You declare them by <code>type</code> and <code>name</code> with no schema, and your harness executes the actions — in a sandbox you control:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">tools = [
+    {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;bash_20250124&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;bash&quot;</span>},
+    {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text_editor_20250728&quot;</span>, <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;str_replace_based_edit_tool&quot;</span>},
+]</code></pre></div>
+<p>Since the model&#39;s training is built around these specific interfaces, they tend to work better than a home-made equivalent with the same purpose. The flip side: commands and paths they produce are untrusted model output, so run them in an isolated environment with an allowlist, timeouts and path confinement. The <a href="coding-agents.html">coding agents</a> and <a href="computer-use-agents.html">computer-use agents</a> lessons go deeper.</p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Tool <code>type</code> strings carry a date (<code>web_search_20260209</code>) because tool interfaces are versioned. Check the current docs for the newest version; old versions keep working for a while after new ones ship.</p>
+</div></aside>
+<h2 id="the-sdk-tool-runner"><a class="anchor" href="#the-sdk-tool-runner" aria-hidden="true">#</a>The SDK Tool Runner</h2>
+<p>Writing the loop by hand is the best way to learn it. In practice, the SDKs provide a <strong>tool runner</strong> that runs the loop for you. In the Python SDK (beta as of 2026), you decorate ordinary typed functions with <code>@beta_tool</code>; the schema is generated from the signature and docstring:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
+
+client = anthropic.Anthropic()
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">get_weather</span>(<span class="hljs-params">city: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Get current weather for a city. Returns JSON with temp_c, conditions, wind_kph.
+
+    Args:
+        city: City name, optionally with country, e.g. &#x27;Oslo, Norway&#x27;.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;{&quot;temp_c&quot;: -3, &quot;conditions&quot;: &quot;snow&quot;, &quot;wind_kph&quot;: 18}&#x27;</span>
+
+<span class="hljs-meta">@beta_tool</span>
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate</span>(<span class="hljs-params">expression: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-string">&quot;&quot;&quot;Evaluate an arithmetic expression exactly. Use for any arithmetic.
+
+    Args:
+        expression: Arithmetic using numbers, + - * / ** and parentheses.
+    &quot;&quot;&quot;</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(_<span class="hljs-built_in">eval</span>(ast.parse(expression, mode=<span class="hljs-string">&quot;eval&quot;</span>).body))  <span class="hljs-comment"># from above</span>
+
+runner = client.beta.messages.tool_runner(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,
+    tools=[get_weather, calculate],
+    messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;How cold is Oslo in °F?&quot;</span>}],
+)
+<span class="hljs-keyword">for</span> message <span class="hljs-keyword">in</span> runner:   <span class="hljs-comment"># yields each assistant message as the loop runs</span>
+    <span class="hljs-built_in">print</span>(message.stop_reason)
+<span class="hljs-comment"># or: final = runner.until_done()</span></code></pre></div>
+<p>The runner calls the API, executes requested tools, sends results back and stops when the model stops calling tools. It isn&#39;t a black box: each iteration yields the assistant message before its tools run, so you can log, inspect or intercept calls (for example, to require human approval). Reach for the manual loop when you need control the runner doesn&#39;t expose or want to avoid a beta dependency. The <a href="sdk-hands-on.html">SDK hands-on</a> lesson covers the runner and agent SDKs in depth.</p>
+<h2 id="the-same-idea-across-providers"><a class="anchor" href="#the-same-idea-across-providers" aria-hidden="true">#</a>The Same Idea Across Providers</h2>
+<p>Every major model provider implements the same handshake with different field names. Learn the concept once and the rest is vocabulary:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Anthropic Messages API</th>
+<th>OpenAI (Chat Completions / Responses)</th>
+<th>Google Gemini API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Declare tools</td>
+<td><code>tools=[{name, description, input_schema}]</code></td>
+<td><code>tools=[{&quot;type&quot;: &quot;function&quot;, ...}]</code> with a <code>parameters</code> JSON Schema</td>
+<td><code>tools=[{function_declarations: [...]}]</code> with <code>parameters</code></td>
+</tr>
+<tr>
+<td>Model requests a call</td>
+<td><code>tool_use</code> content block (<code>id</code>, <code>name</code>, <code>input</code> object)</td>
+<td><code>tool_calls</code> on the message (arguments as a <strong>JSON string</strong>) / <code>function_call</code> items</td>
+<td><code>functionCall</code> part (<code>name</code>, <code>args</code>)</td>
+</tr>
+<tr>
+<td>Return a result</td>
+<td><code>tool_result</code> block in a user message, matched by <code>tool_use_id</code></td>
+<td><code>role: &quot;tool&quot;</code> message with <code>tool_call_id</code> / <code>function_call_output</code> item</td>
+<td><code>functionResponse</code> part</td>
+</tr>
+<tr>
+<td>Control</td>
+<td><code>tool_choice</code></td>
+<td><code>tool_choice</code>, <code>parallel_tool_calls</code></td>
+<td>function-calling config (mode)</td>
+</tr>
+<tr>
+<td>Schema guarantee</td>
+<td><code>strict: true</code></td>
+<td><code>strict: true</code></td>
+<td>schema-constrained modes</td>
+</tr>
+</tbody></table>
+</div>
+<p>Small differences matter in practice. For example, OpenAI returns arguments as a JSON-encoded string you must parse (and handle parse failures for, if not using strict mode), while Anthropic returns a parsed object. Gemini&#39;s Python SDK can optionally execute Python functions for you automatically. APIs evolve quickly, so check each provider&#39;s current docs before relying on details.</p>
+<p>Above the provider level, the <strong>Model Context Protocol (MCP)</strong> standardizes how tools are <em>served</em> to any compatible agent, so one tool server works with many hosts and models — see <a href="protocols-mcp-a2a.html">protocols: MCP and A2A</a>.</p>
+<h2 id="common-bugs-and-fixes"><a class="anchor" href="#common-bugs-and-fixes" aria-hidden="true">#</a>Common Bugs (and Fixes)</h2>
+<p>Nearly everyone hits some of these. Most produce a 400 error; a few silently degrade behavior.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bug</th>
+<th>Symptom</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Not appending the assistant&#39;s <code>tool_use</code> turn before sending results</td>
+<td>400: tool_result with no matching tool_use</td>
+<td>Append <code>response.content</code> in full, then the results</td>
+</tr>
+<tr>
+<td>Appending only the text blocks of the assistant turn</td>
+<td>Lost tool calls or thinking; errors or confused model</td>
+<td>Append the whole <code>content</code> list unchanged</td>
+</tr>
+<tr>
+<td>Mismatched or missing <code>tool_use_id</code></td>
+<td>400 error</td>
+<td>Echo each <code>block.id</code> exactly; return a result for every call</td>
+</tr>
+<tr>
+<td>Results for parallel calls in separate user messages</td>
+<td>Model stops parallelizing; sometimes errors</td>
+<td>One user message containing all results</td>
+</tr>
+<tr>
+<td>Text placed before <code>tool_result</code> blocks in the user message</td>
+<td>400 error</td>
+<td>Results first, then any text</td>
+</tr>
+<tr>
+<td>Raising exceptions out of the loop on tool failure</td>
+<td>Agent crashes on the first bad input</td>
+<td>Catch, return <code>is_error: true</code> with a helpful message</td>
+</tr>
+<tr>
+<td>Ignoring <code>max_tokens</code> with a pending tool call</td>
+<td>Truncated, partial arguments executed</td>
+<td>Check <code>stop_reason</code>; retry with a higher limit, don&#39;t run the call</td>
+</tr>
+<tr>
+<td>Running tool calls from a <code>refusal</code> turn</td>
+<td>Executing a cut-off or declined request</td>
+<td>Never execute tools when <code>stop_reason</code> is <code>&quot;refusal&quot;</code></td>
+</tr>
+<tr>
+<td>No step limit</td>
+<td>Runaway loops and cost</td>
+<td>Bound steps, tokens and time</td>
+</tr>
+<tr>
+<td>Trusting tool input blindly</td>
+<td>Path traversal, injection, unintended deletes</td>
+<td>Validate inputs; sandbox execution; gate side effects</td>
+</tr>
+<tr>
+<td>Dumping huge outputs into results</td>
+<td>Context bloat, higher cost, worse focus</td>
+<td>Truncate, paginate, summarize (see <a href="designing-tools.html">designing tools</a>)</td>
+</tr>
+<tr>
+<td>Changing the tool list mid-conversation</td>
+<td>Prompt cache invalidated, higher latency</td>
+<td>Keep tools stable; load extras with tool search</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Function calling is a handshake: the model emits a structured <code>tool_use</code> request; your harness executes it and returns a <code>tool_result</code>. The model never runs anything itself.</li>
+<li>Models call tools reliably because they&#39;re trained to, through fine-tuning on tool transcripts and reinforcement learning in tool environments.</li>
+<li>Tools are defined with a name, a description and a JSON Schema; descriptions drive both <em>whether</em> and <em>how</em> the model calls a tool.</li>
+<li>Run every call in a response and return all results in one user message, results first, each matched by <code>tool_use_id</code>.</li>
+<li>Report tool failures with <code>is_error: true</code> and an actionable message; keep API errors in your retry logic.</li>
+<li>Use <code>tool_choice</code> <code>auto</code>/<code>none</code> and steer with instructions; use <code>strict: true</code> when arguments must match the schema exactly.</li>
+<li>Distinguish client tools (you define and run), server tools (the provider runs) and Anthropic-defined client tools (trained-in schemas you run in your sandbox).</li>
+<li>The tool runner removes loop boilerplate; the concepts map directly onto other providers&#39; function-calling APIs.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Add a tool.</strong> Extend the example with a <code>convert_units(value, from_unit, to_unit)</code> tool using an <code>enum</code> for units. Ask &quot;How many miles is 42.195 km?&quot; and confirm the model chooses your tool over <code>calculate</code>. Then tweak the descriptions to make it choose the other one, and explain why it changed.</li>
+<li><strong>Break it on purpose.</strong> Modify the loop to send each parallel result in its own user message, and separately to omit the assistant turn. Record the exact errors, then fix them. Write a one-line rule for each.</li>
+<li><strong>Error recovery.</strong> Make <code>get_weather</code> fail randomly 30% of the time with a timeout error. Compare a run where failures return <code>is_error</code> with a helpful message against one where they return an empty string. Count steps and final-answer quality across ten runs each.</li>
+<li><strong>Human approval.</strong> Add a <code>send_email(to, subject, body)</code> tool. Before executing it, print the arguments and ask for <code>y/n</code> on the terminal; on <code>n</code>, return an <code>is_error</code> result saying the user declined. Observe how the model responds to a declined action.</li>
+<li><strong>Port it.</strong> Re-implement the weather-plus-calculator agent on another provider&#39;s function-calling API, using their current quick-start docs. List every structural difference you had to handle (argument encoding, result roles, IDs, parallel-call behavior).</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="tool-use" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>When a model &quot;calls&quot; get_weather, what actually happens?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API provider runs every tool you define on its own servers</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model emits a structured tool_use request; the harness executes the function and returns the result as a new message</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model sends an HTTP request to the weather service</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model generates a plausible weather report from its training data</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> For client tools, the model only proposes a call. Your harness executes it and sends back a tool_result. (Server tools like web search are the exception: the provider executes those.)</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>The model returns three tool_use blocks in one response. How should you send the results?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One tool_result block containing all three outputs concatenated</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only the result of the first call; the model will ask again for the others</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One user message containing three tool_result blocks, each with the matching tool_use_id</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Three separate user messages, one per result, in the order the calls finish</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> All results for a turn go back in a single user message, one tool_result per tool_use_id, with the results placed before any text.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Your database tool throws a timeout exception. What is the best way to handle it?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Let the exception end the agent loop so a human can investigate</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry silently forever until it succeeds</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Return an empty string so the model isn&#39;t confused</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Return a tool_result with is_error true and a message like &quot;Database timed out after 10s; try a narrower date range&quot;</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> An informative error result lets the model adapt — retry, narrow the query or try another approach. Crashing or returning nothing removes that option.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Why does the tool_result go in a message with role &quot;user&quot;?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>From the model&#39;s perspective it is new information arriving from outside, and the API alternates assistant and user turns</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Because tool results are written by the end user</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Because the user must approve every tool result</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It&#39;s an arbitrary convention with no meaning</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The conversation alternates between the model (assistant) and everything outside it (user). Tool output is external input, so it arrives in a user turn.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>What does &quot;strict&quot;: true on a tool guarantee?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That the arguments are semantically correct, e.g. a date is in the future</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That the model&#39;s arguments for that tool conform to its JSON Schema, via constrained decoding</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the tool&#39;s output is valid JSON</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That the tool will be called on every turn</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Strict mode constrains generation so arguments match the schema&#39;s structure and types. It says nothing about whether the values make sense; validate semantics yourself.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>Which of these is a server tool, executed by the provider rather than your harness?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The Anthropic-defined bash tool</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The text editor tool</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A get_weather function you wrote</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Web search</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Web search, web fetch and code execution run on the provider&#39;s infrastructure. Bash and the text editor are Anthropic-defined but client-executed: you run them in your own sandbox.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>A response comes back with stop_reason &quot;max_tokens&quot; and a tool_use block at the end. What should you do?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Send a tool_result with is_error true and continue</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Don&#39;t execute it; the arguments may be truncated, so retry with a higher max_tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Execute the tool call; the arguments are probably complete</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Switch tool_choice to none</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Hitting the token limit can cut a tool call&#39;s arguments off mid-generation. Running a possibly-partial call is risky; retry the turn with more room.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview" target="_blank" rel="noopener">Anthropic: Tool use overview</a> — the official reference for client, server and Anthropic-defined tools.</li>
+<li><a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank" rel="noopener">Anthropic: Advanced tool use</a> — tool search, programmatic tool calling and tool-use examples for larger tool sets.</li>
+<li><a href="https://platform.openai.com/docs/guides/function-calling" target="_blank" rel="noopener">OpenAI: Function calling guide</a> — the same handshake in OpenAI&#39;s APIs, including strict mode and parallel calls.</li>
+<li><a href="https://ai.google.dev/gemini-api/docs/function-calling" target="_blank" rel="noopener">Google: Gemini function calling</a> — function declarations, calling modes and automatic function calling.</li>
+<li><a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener">Schick et al., Toolformer: Language Models Can Teach Themselves to Use Tools</a> — influential early work on training models to decide when to call APIs.</li>
+<li><a href="https://arxiv.org/abs/2305.15334" target="_blank" rel="noopener">Patil et al., Gorilla: Large Language Model Connected with Massive APIs</a> — training models to call real APIs from documentation; origin of the Berkeley Function Calling Leaderboard.</li>
+<li><a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener">Yao et al., τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains</a> — evaluates multi-turn tool use with policies and simulated users.</li>
+<li><a href="https://json-schema.org/learn/getting-started-step-by-step" target="_blank" rel="noopener">JSON Schema: Getting started</a> — a gentle introduction to the schema language behind every tool definition.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="tool-use">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-tool-use"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-tool-use" class="notes" data-slug="tool-use" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="prompting-for-agents.html"><small>← Previous</small><span>Prompt Engineering for Agents</span></a>
+    <a class="pager-next" href="designing-tools.html"><small>Next →</small><span>Designing Great Tools (The Agent–Computer Interface)</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#the-core-idea-the-model-asks-your-code-acts">The Core Idea: The Model Asks, Your Code Acts</a></li>
+<li class="toc-h2"><a href="#how-models-learn-to-call-functions">How Models Learn to Call Functions</a></li>
+<li class="toc-h2"><a href="#defining-a-tool-with-json-schema">Defining a Tool with JSON Schema</a></li>
+<li class="toc-h2"><a href="#the-requestresponse-cycle">The Request/Response Cycle</a></li>
+<li class="toc-h2"><a href="#a-complete-working-example">A Complete Working Example</a></li>
+<li class="toc-h2"><a href="#parallel-tool-calls">Parallel Tool Calls</a></li>
+<li class="toc-h2"><a href="#controlling-tool-use-toolchoice-and-strict-mode">Controlling Tool Use: tool_choice and Strict Mode</a></li>
+<li class="toc-h3"><a href="#toolchoice">tool_choice</a></li>
+<li class="toc-h3"><a href="#strict-mode">Strict mode</a></li>
+<li class="toc-h2"><a href="#handling-errors-with-iserror">Handling Errors with is_error</a></li>
+<li class="toc-h2"><a href="#three-kinds-of-tools">Three Kinds of Tools</a></li>
+<li class="toc-h2"><a href="#the-sdk-tool-runner">The SDK Tool Runner</a></li>
+<li class="toc-h2"><a href="#the-same-idea-across-providers">The Same Idea Across Providers</a></li>
+<li class="toc-h2"><a href="#common-bugs-and-fixes">Common Bugs (and Fixes)</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/widgets.js"></script>
+</body>
+</html>

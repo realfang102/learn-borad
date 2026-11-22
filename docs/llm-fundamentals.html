@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLMs: The Engine Inside Every Agent · Agent Academy</title>
+<meta name="description" content="Tokens, next-token prediction, transformers, context windows, training, sampling, hallucination, reasoning models and model tiers: the parts of LLMs every agent builder needs to understand.">
+<meta property="og:title" content="LLMs: The Engine Inside Every Agent · Agent Academy">
+<meta property="og:description" content="Tokens, next-token prediction, transformers, context windows, training, sampling, hallucination, reasoning models and model tiers: the parts of LLMs every agent builder needs to understand.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module" open data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="llm-fundamentals">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#foundations">Module 1: Foundations</a></nav>
+  <header class="lesson-header">
+    <h1>LLMs: The Engine Inside Every Agent</h1>
+    <p class="lead">Tokens, next-token prediction, transformers, context windows, training, sampling, hallucination, reasoning models and model tiers: the parts of LLMs every agent builder needs to understand.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-beginner">Beginner</span>
+      <span>⏱ 28 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 3 of 35</span>
+      <span class="lesson-status" data-status-for="llm-fundamentals"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain tokens, next-token prediction and the context window, and why each matters for agents</li><li>Describe how pretraining, instruction tuning and RLHF/RLAIF turn a text predictor into an assistant</li><li>Explain why LLM outputs are non-deterministic and why models hallucinate</li><li>Describe reasoning models and test-time compute, and when extra thinking pays off</li><li>Make a basic Messages API call and read its tokens, stop reason and content blocks</li><li>Choose a model tier by weighing capability, cost and latency</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="what-is-an-agent.html">What Is an AI Agent?</a></p>
+  </section>
+  <article class="prose">
+<p>Every LLM agent, whether it fixes bugs, researches markets or answers customers, has the same thing at its center: a large language model deciding what to do next. The model is the agent&#39;s judgment. Its strengths become the agent&#39;s strengths, and its quirks become the agent&#39;s failure modes.</p>
+<p>You don&#39;t need to know how to train an LLM to build great agents. You do need an accurate mental model of what it is and how it behaves. Why does the same prompt give different answers? Why does the agent confidently cite a file that doesn&#39;t exist? Why does a long task get worse after an hour? Why does a tool result in the middle of a huge context get ignored? Every one of those questions has an answer in this lesson.</p>
+<p>We&#39;ll go from tokens up to reasoning models, then look at the API you&#39;ll actually call and the properties that matter most when an LLM is in a loop.</p>
+<h2 id="tokens-how-models-see-text"><a class="anchor" href="#tokens-how-models-see-text" aria-hidden="true">#</a>Tokens: How Models See Text</h2>
+<p>LLMs don&#39;t read characters or words. They read <strong>tokens</strong>: chunks of text from a fixed vocabulary, typically tens of thousands to a few hundred thousand entries. Most vocabularies are built with variants of <strong>byte-pair encoding (BPE)</strong>, which starts from bytes and repeatedly merges the most frequent adjacent pairs. Common words become single tokens, rare words split into pieces, and any byte sequence can be represented.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&quot;The agent called get_weather(city=&#x27;Oslo&#x27;)&quot;
+→ [&quot;The&quot;, &quot; agent&quot;, &quot; called&quot;, &quot; get&quot;, &quot;_weather&quot;, &quot;(&quot;, &quot;city&quot;, &quot;=&#x27;&quot;, &quot;Os&quot;, &quot;lo&quot;, &quot;&#x27;)&quot;]</code></pre></div>
+<p>(Exact splits depend on the tokenizer; this one is illustrative.)</p>
+<p>Why agent builders care:</p>
+<ul>
+<li><strong>Everything is billed and limited in tokens</strong>: input, output, tool definitions, tool results, thinking. In English prose a token averages roughly three-quarters of a word, but code, JSON, non-English text and long numbers usually take more tokens per word.</li>
+<li><strong>Tokenizers differ between models</strong>, even within one vendor. Anthropic notes, for example, that newer Claude tokenizers can count the same text as noticeably more tokens than older ones. Measure with the provider&#39;s token-counting endpoint rather than guessing.</li>
+<li><strong>Tokenization explains some odd weaknesses.</strong> Counting letters in a word, reversing strings or doing digit-level arithmetic is awkward when the model sees &quot;Oslo&quot; as &quot;Os&quot; + &quot;lo&quot;. For exact work, give the agent a tool (code execution) instead of trusting mental arithmetic.</li>
+</ul>
+<h2 id="next-token-prediction"><a class="anchor" href="#next-token-prediction" aria-hidden="true">#</a>Next-Token Prediction</h2>
+<p>At its core, an LLM is a function that takes a sequence of tokens and outputs a <strong>probability distribution over the next token</strong>. To generate text, you pick a token from that distribution, append it, and repeat. This is <strong>autoregressive generation</strong>.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Input:   &quot;The capital of France is&quot;
+Model →  &quot; Paris&quot; 0.92 | &quot; a&quot; 0.03 | &quot; the&quot; 0.02 | ...
+Pick &quot; Paris&quot;, append, predict again...</code></pre></div>
+<p>That this simple objective produces something that can write code, plan multi-step tasks and call tools sounds implausible until you consider what predicting the next token <em>well</em> across trillions of tokens of text requires. To predict the next line of a proof, a function body or a doctor&#39;s note, a model has to build internal representations of logic, syntax and the world. Prediction at scale forces a great deal of compression and abstraction.</p>
+<p>Two consequences matter for agents:</p>
+<ol>
+<li><strong>A tool call is just text the model predicts.</strong> When an agent &quot;decides&quot; to call <code>run_tests</code>, the model is generating tokens that form a structured tool-use block. The API parses them. The model never executes anything itself (see <a href="tool-use.html">tool use</a>).</li>
+<li><strong>The model produces output one token at a time with no backtracking.</strong> It can&#39;t edit what it already wrote in this turn. That&#39;s one reason thinking before answering, and loops that let the model see results and revise, help so much.</li>
+</ol>
+<h2 id="transformers-and-attention-intuitively"><a class="anchor" href="#transformers-and-attention-intuitively" aria-hidden="true">#</a>Transformers and Attention, Intuitively</h2>
+<p>Modern LLMs are <strong>transformers</strong>, the architecture introduced in <em>Attention Is All You Need</em> (Vaswani et al., 2017). The key mechanism is <strong>self-attention</strong>.</p>
+<p>Intuition: as the model processes each token, it asks, &quot;Which earlier tokens are relevant to understanding this one?&quot; In &quot;The agent read the file, then <em>it</em> summarized <em>it</em>&quot;, attention lets the first &quot;it&quot; connect to &quot;the agent&quot; and the second to &quot;the file.&quot; Each token&#39;s representation is updated by mixing in information from the tokens it attends to, weighted by learned relevance scores. Stack dozens of these layers, each with many attention &quot;heads&quot; that specialize in different relationships, and you get rich contextual understanding.</p>
+<p>What practitioners should take from this:</p>
+<ul>
+<li><strong>Attention lets any token look at any earlier token.</strong> That&#39;s what makes long contexts usable. A tool result from 50 steps ago is still reachable.</li>
+<li><strong>Reachable isn&#39;t the same as reliably used.</strong> Studies such as <em>Lost in the Middle</em> (Liu et al., 2023) found that models use information at the start and end of long contexts more reliably than information buried in the middle. Models have improved a lot since, but the advice stands: put critical instructions where they&#39;ll be seen and keep contexts lean.</li>
+<li><strong>Compute grows with context length.</strong> Longer inputs cost more and take longer to process, which is why <a href="context-engineering.html">context engineering</a> is a core agent skill.</li>
+</ul>
+<h2 id="the-context-window"><a class="anchor" href="#the-context-window" aria-hidden="true">#</a>The Context Window</h2>
+<p>The <strong>context window</strong> is the maximum number of tokens the model can consider at once: system prompt, tool definitions, the full conversation, tool results, and the response it&#39;s generating. As of 2026, frontier models offer windows from a few hundred thousand up to about a million tokens (current Claude models have 1M-token windows), with separate limits on output length.</p>
+<p>For agents, the context window is the <strong>entire working memory</strong>. The model has no memory between API calls. Each call, the harness sends the whole transcript again. So:</p>
+<ul>
+<li>Long agent runs grow the transcript at every step, raising cost and latency.</li>
+<li>When the transcript approaches the limit, something has to give: summarizing (compaction), clearing old tool results, or offloading state to files and memory stores (see <a href="memory.html">memory</a>).</li>
+<li>More context isn&#39;t free even when it fits. Irrelevant material dilutes attention, a problem practitioners call <strong>context rot</strong>.</li>
+</ul>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>An LLM is <strong>stateless</strong>. Everything an agent &quot;knows&quot; about its current task is whatever the harness put in the context window for this call. Agent engineering is largely the art of putting the right tokens in that window at each step.</p>
+</div></aside>
+<h2 id="from-text-predictor-to-assistant-how-llms-are-trained"><a class="anchor" href="#from-text-predictor-to-assistant-how-llms-are-trained" aria-hidden="true">#</a>From Text Predictor to Assistant: How LLMs Are Trained</h2>
+<p>A raw pretrained model is an excellent autocomplete, not an assistant. Ask it a question and it might continue with five more questions. Assistant behavior comes from several training stages.</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;Pretraining (trillions of tokens)&quot;] --&gt; B[&quot;Instruction tuning (SFT)&quot;]
+    B --&gt; C[&quot;Preference tuning (RLHF / RLAIF / CAI)&quot;]
+    C --&gt; D[&quot;RL on verifiable tasks (reasoning, tools, agents)&quot;]
+    D --&gt; E[&quot;Deployed model&quot;]</pre></figure>
+<ol>
+<li><strong>Pretraining.</strong> Next-token prediction over a vast corpus of web text, books, code and other data. This is where knowledge and general capability come from, and it&#39;s by far the most expensive stage. Its data stops at a date called the <strong>knowledge cutoff</strong>.</li>
+<li><strong>Supervised fine-tuning (SFT), or instruction tuning.</strong> Training on curated examples of instructions paired with good responses, including multi-turn chats and tool calls. The model learns the <em>format</em> and <em>role</em> of an assistant.</li>
+<li><strong>Preference tuning.</strong> Humans compare pairs of responses, a <strong>reward model</strong> learns their preferences, and the LLM is optimized with reinforcement learning to score well. This is <strong>RLHF</strong> (reinforcement learning from human feedback), popularized by OpenAI&#39;s InstructGPT work (2022). <strong>RLAIF</strong> replaces some human labels with AI-generated feedback. Anthropic&#39;s <strong>Constitutional AI</strong> (2022) has a model critique and revise outputs against a written set of principles, then uses AI preference labels for the RL stage. Methods like DPO optimize directly on preference pairs without a separate RL loop.</li>
+<li><strong>RL on verifiable tasks.</strong> Increasingly important since 2024: models are trained with RL on problems whose outcomes can be checked automatically, such as math answers, passing unit tests and completed agentic tasks in sandboxes. This is where much of the improvement in reasoning, tool use and long-horizon agent behavior now comes from (see <a href="training-agents.html">training agents</a>).</li>
+</ol>
+<p>The order matters for intuition. Knowledge comes mostly from pretraining. Behavior (following instructions, using tools well, knowing when to stop or ask) comes mostly from post-training. When a model is good at agentic work, it&#39;s because it was explicitly trained on agentic work.</p>
+<h2 id="sampling-and-non-determinism"><a class="anchor" href="#sampling-and-non-determinism" aria-hidden="true">#</a>Sampling and Non-Determinism</h2>
+<p>At each step the model outputs a probability distribution, and something has to choose a token from it. <strong>Sampling</strong> picks randomly in proportion to the probabilities, usually reshaped by settings such as <strong>temperature</strong> (sharpen or flatten the distribution) and <strong>top-p</strong> (only consider the most likely tokens). Always picking the single most likely token is <strong>greedy decoding</strong>.</p>
+<p>Consequences for agents:</p>
+<ul>
+<li><strong>The same input can produce different outputs.</strong> One run picks <code>grep</code>, another picks <code>find</code>, and from there the trajectories diverge. Agents are path-dependent, so small early differences can lead to very different outcomes.</li>
+<li><strong>Even &quot;deterministic&quot; settings aren&#39;t perfectly deterministic</strong> in practice. Floating-point arithmetic on parallel hardware and request batching can change results slightly.</li>
+<li><strong>Many current models no longer expose these knobs.</strong> Current Claude models reject <code>temperature</code>, <code>top_p</code> and <code>top_k</code>. Sampling is tuned by the provider, and you steer behavior through instructions, structured outputs and effort settings instead.</li>
+</ul>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Treat agent behavior as a <strong>distribution</strong>, not a single outcome. Evaluate by running each task several times and measuring success rates (see <a href="evaluating-agents.html">evaluating agents</a>). One good demo run proves very little.</p>
+</div></aside>
+<h2 id="hallucination"><a class="anchor" href="#hallucination" aria-hidden="true">#</a>Hallucination</h2>
+<p>A <strong>hallucination</strong> is fluent, confident output that&#39;s false: a nonexistent API method, an invented citation, a fabricated file path. It follows from the training objective. The model learned to produce <em>plausible</em> continuations, and plausible isn&#39;t the same as true. When the model lacks the information but the context strongly invites an answer, it may produce one anyway.</p>
+<p>Post-training has made models much better at saying &quot;I don&#39;t know,&quot; but hallucination isn&#39;t solved. In agents it shows up in particular ways:</p>
+<ul>
+<li>Calling tools with made-up arguments (an order ID that was never seen).</li>
+<li>Claiming an action succeeded without checking the tool result (&quot;I&#39;ve fixed the bug&quot; when the tests never ran).</li>
+<li>Assuming facts about the environment instead of observing them.</li>
+</ul>
+<p>The most powerful mitigation is <strong>grounding</strong>: make the agent look things up instead of recalling them, and verify instead of assuming. Tools that read files, search docs and run tests turn guesses into observations, which is a big part of why tool use emerged at all. Add instructions like &quot;never state that tests pass unless you ran them in this session,&quot; and use harness-side checks for critical claims (see <a href="reliability.html">reliability</a>).</p>
+<h2 id="in-context-learning"><a class="anchor" href="#in-context-learning" aria-hidden="true">#</a>In-Context Learning</h2>
+<p><strong>In-context learning</strong> is a model&#39;s ability to pick up a task from instructions and examples in the prompt, with no weight updates. GPT-3 (2020) made it famous with &quot;few-shot&quot; prompting. It&#39;s what makes agents possible without per-task training:</p>
+<ul>
+<li>The <strong>system prompt</strong> defines the role, rules and workflow.</li>
+<li><strong>Tool descriptions</strong> teach what each tool does and when to use it.</li>
+<li><strong>Tool results</strong> teach the agent about its environment as it goes.</li>
+<li><strong>Examples</strong> demonstrate formats and edge cases.</li>
+</ul>
+<p>In-context learning is powerful but limited: it lasts only as long as the context does, it competes with the model&#39;s trained habits, and long, contradictory prompts dilute it. See <a href="prompting-for-agents.html">prompting for agents</a> for how to write instructions that hold up over many steps.</p>
+<h2 id="reasoning-models-and-test-time-compute"><a class="anchor" href="#reasoning-models-and-test-time-compute" aria-hidden="true">#</a>Reasoning Models and Test-Time Compute</h2>
+<p>Chain-of-thought prompting (2022) showed that letting a model &quot;think out loud&quot; improves multi-step problem solving. <strong>Reasoning models</strong>, starting with OpenAI&#39;s o1 (September 2024) and followed by DeepSeek-R1 (January 2025), Claude&#39;s extended thinking and others, are <em>trained</em> with RL to produce long internal reasoning before answering: exploring approaches, checking work, and backtracking when something doesn&#39;t add up.</p>
+<p>This adds a new dimension: <strong>test-time compute</strong>. Beyond making models bigger, you can make them think longer on a hard problem. More thinking tokens generally means better answers on hard tasks, at the cost of latency and money.</p>
+<p>For agents, the most important variant is <strong>interleaved thinking</strong>: the model reasons <em>between</em> tool calls (&quot;the test failed with a KeyError, so the config isn&#39;t loaded; check the loader next&quot;) rather than only at the start. That&#39;s where much of the gain in agent reliability comes from (see <a href="the-agent-loop.html">the agent loop</a> and <a href="reasoning-and-planning.html">reasoning and planning</a>).</p>
+<p>On current Claude models, thinking is <strong>adaptive</strong>: the model decides how much to think at each step, and you control the overall depth with an <strong>effort</strong> setting (<code>low</code> through <code>max</code>). Lower effort means faster, cheaper, terser runs. Higher effort means more thorough reasoning for hard problems.</p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>Thinking isn&#39;t free and isn&#39;t always better. For simple lookups and classification, extra reasoning mostly adds latency. Reserve high effort for genuinely hard steps, such as debugging, planning and ambiguous judgment calls, and measure the difference on your own tasks.</p>
+</div></aside>
+<h2 id="multimodality"><a class="anchor" href="#multimodality" aria-hidden="true">#</a>Multimodality</h2>
+<p>Modern frontier models are <strong>multimodal</strong>: they accept images (and on some platforms audio or video) alongside text. For agents, vision unlocks reading screenshots, charts, scanned documents and UI mockups, and it&#39;s the basis of <a href="computer-use-agents.html">computer-use agents</a> that operate software by looking at the screen. Images are converted into tokens too, so they consume context and cost like everything else.</p>
+<h2 id="the-messages-api-roles-and-content-blocks"><a class="anchor" href="#the-messages-api-roles-and-content-blocks" aria-hidden="true">#</a>The Messages API: Roles and Content Blocks</h2>
+<p>Chat models are trained on conversations with <strong>roles</strong>. In the Anthropic Messages API:</p>
+<ul>
+<li><strong><code>system</code></strong>: top-level instructions (role, rules, context), passed separately from the conversation.</li>
+<li><strong><code>messages</code></strong>: an alternating list of <code>user</code> and <code>assistant</code> turns.</li>
+<li><strong>Content blocks</strong>: each message holds typed blocks: <code>text</code>, <code>image</code>, <code>tool_use</code> (the model requesting a tool), <code>tool_result</code> (your harness returning the output), and <code>thinking</code>.</li>
+</ul>
+<p>Here is a minimal call with the Anthropic Python SDK (<code>pip install anthropic</code>):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY from the environment</span>
+
+response = client.messages.create(
+    model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
+    max_tokens=<span class="hljs-number">16000</span>,                     <span class="hljs-comment"># cap on output tokens (thinking included)</span>
+    system=<span class="hljs-string">&quot;You are a concise senior engineer. Answer in at most three sentences.&quot;</span>,
+    thinking={<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;adaptive&quot;</span>},        <span class="hljs-comment"># the model decides how much to think</span>
+    output_config={<span class="hljs-string">&quot;effort&quot;</span>: <span class="hljs-string">&quot;medium&quot;</span>},   <span class="hljs-comment"># low | medium | high | xhigh | max</span>
+    messages=[
+        {<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Why do LLM agents need a maximum step limit?&quot;</span>}
+    ],
+)
+
+<span class="hljs-comment"># The response is a list of typed content blocks, not a single string.</span>
+<span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> response.content:
+    <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>:
+        <span class="hljs-built_in">print</span>(block.text)
+
+<span class="hljs-built_in">print</span>(response.stop_reason)                <span class="hljs-comment"># e.g. &quot;end_turn&quot;</span>
+<span class="hljs-built_in">print</span>(response.usage.input_tokens, response.usage.output_tokens)</code></pre></div>
+<p>Things to notice:</p>
+<ul>
+<li><strong>No sampling parameters.</strong> Current models reject <code>temperature</code>, <code>top_p</code> and <code>top_k</code>. Steer with instructions and effort.</li>
+<li><strong><code>stop_reason</code> tells you why generation stopped.</strong> <code>end_turn</code> means the model finished. <code>tool_use</code> means it wants a tool run. <code>max_tokens</code> means it hit your cap mid-answer. <code>refusal</code> means it declined for safety reasons. Agent loops branch on this field.</li>
+<li><strong><code>usage</code> reports tokens</strong>, which is how you track cost.</li>
+<li><strong>Content is a list of blocks.</strong> Always check <code>block.type</code>. A single response can contain thinking, text and several tool calls.</li>
+</ul>
+<p>The <a href="the-agent-loop.html">agent loop</a> lesson builds directly on this call.</p>
+<h2 id="model-tiers-cost-and-latency"><a class="anchor" href="#model-tiers-cost-and-latency" aria-hidden="true">#</a>Model Tiers, Cost and Latency</h2>
+<p>Providers offer <strong>tiers</strong> that trade capability against cost and speed:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Examples (as of late 2026)</th>
+<th>Typical use in agents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Most capable</td>
+<td><code>claude-fable-5-2</code></td>
+<td>The hardest long-horizon tasks, where evals show the default tier falls short</td>
+</tr>
+<tr>
+<td>Frontier default</td>
+<td><code>claude-opus-5-5</code></td>
+<td>Main agent loop for complex coding and knowledge work</td>
+</tr>
+<tr>
+<td>Balanced</td>
+<td><code>claude-sonnet-5-5</code></td>
+<td>High-volume agents, sub-agents, cost-sensitive loops</td>
+</tr>
+<tr>
+<td>Small and fast</td>
+<td><code>claude-haiku-5-5</code></td>
+<td>Routing, classification, extraction, summarizing tool output</td>
+</tr>
+<tr>
+<td>Open-weight</td>
+<td>Llama, Qwen, DeepSeek, Mistral families</td>
+<td>Self-hosting, data-residency needs, fine-tuning, offline use</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Pricing is per token</strong>, with output tokens costing several times more than input tokens. As an illustration, Anthropic&#39;s list prices as of late 2026 are $4 per million input tokens and $20 per million output tokens for Claude Opus 5.5, and $0.10 / $0.50 for Claude Haiku 5.5 on prompts up to 100K tokens. Check the pricing page for current numbers. <strong>Prompt caching</strong> makes repeated prefixes much cheaper, which matters enormously for agents that resend a growing transcript every step (see <a href="cost-and-latency.html">cost and latency</a>).</p>
+<p><strong>Latency</strong> has two parts: time to first token (grows with input length) and generation speed in tokens per second (output and thinking). An agent&#39;s wall-clock time is roughly the number of steps × (model latency + tool latency), which is why a 30-step agent can take minutes even when each call feels quick.</p>
+<p><strong>Open-weight models</strong> have improved rapidly and are a real option, especially for narrower agents, but as of 2026 the strongest long-horizon agentic performance generally still comes from frontier hosted models. Benchmark on your tasks, not leaderboards.</p>
+<h2 id="strengths-and-weaknesses-that-matter-for-agents"><a class="anchor" href="#strengths-and-weaknesses-that-matter-for-agents" aria-hidden="true">#</a>Strengths and Weaknesses That Matter for Agents</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Broad world and domain knowledge</td>
+<td>Knowledge frozen at the cutoff; unaware of recent changes unless told</td>
+</tr>
+<tr>
+<td>Flexible reasoning in natural language</td>
+<td>Hallucination: confident falsehoods when ungrounded</td>
+</tr>
+<tr>
+<td>Reads and writes code fluently</td>
+<td>Non-deterministic: same input, different trajectories</td>
+</tr>
+<tr>
+<td>Follows complex instructions in context</td>
+<td>Instructions can be diluted by long, noisy contexts</td>
+</tr>
+<tr>
+<td>Adapts to tool outputs and errors</td>
+<td>Stateless: no memory beyond the context window</td>
+</tr>
+<tr>
+<td>Generalizes to unseen tasks</td>
+<td>Weak at exact arithmetic and character-level operations without tools</td>
+</tr>
+<tr>
+<td>Can judge, critique and summarize</td>
+<td>Can be manipulated by instructions hidden in data (prompt injection)</td>
+</tr>
+</tbody></table>
+</div>
+<p>The last weakness deserves emphasis. An LLM can&#39;t reliably tell instructions from its developer apart from instructions embedded in a web page or email it reads. That&#39;s <strong>prompt injection</strong>, the central security problem for agents (see <a href="agent-security.html">agent security</a>).</p>
+<h3 id="why-tool-use-emerged"><a class="anchor" href="#why-tool-use-emerged" aria-hidden="true">#</a>Why tool use emerged</h3>
+<p>Look at the weaknesses column again: stale knowledge, hallucination, poor arithmetic, no persistent memory, no ability to affect the world. Nearly every one is fixed by the same move. <strong>Let the model call tools</strong> (search for fresh facts, run code for exact computation, read files to ground claims, write to memory for persistence, call APIs to act) and <strong>feed the results back into its context</strong>. LLMs are strong at deciding <em>what</em> to do and weak at doing some things <em>precisely</em>. Tools fill that gap, and a loop lets the model react to what the tools return. That&#39;s the agent.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Why LLMs became agents</div><div class="callout-body"><p>Tool use isn&#39;t a bolt-on feature. It&#39;s the natural complement to how LLMs work: the model supplies judgment, tools supply facts, precision and action, and the loop connects them.</p>
+</div></aside>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>LLMs process <strong>tokens</strong> and generate by <strong>predicting the next token</strong>, one at a time. Tool calls are structured text the model predicts and the harness executes.</li>
+<li><strong>Transformers</strong> use <strong>attention</strong> to relate every token to earlier ones, but very long contexts still dilute focus, so keep contexts lean.</li>
+<li>The <strong>context window</strong> is the agent&#39;s entire working memory. Models are <strong>stateless</strong> across calls.</li>
+<li>Capabilities come from <strong>pretraining</strong>. Assistant and agent behavior comes from <strong>post-training</strong>: SFT, RLHF/RLAIF/Constitutional AI, and RL on verifiable tasks.</li>
+<li><strong>Sampling</strong> makes outputs non-deterministic, so evaluate agents over many runs. Current Claude models don&#39;t accept sampling parameters.</li>
+<li><strong>Hallucination</strong> is a structural tendency. Grounding through tools and verification is the main defense.</li>
+<li><strong>Reasoning models</strong> trade test-time compute for accuracy. Interleaved thinking between tool calls is especially valuable for agents.</li>
+<li>Choose <strong>model tiers</strong> by task difficulty, volume and latency needs, and remember that cost scales with tokens across <em>every</em> step of the loop.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Count tokens.</strong> Use your provider&#39;s token-counting endpoint (or the <code>usage</code> field) to compare the token counts of the same content as English prose, minified JSON, pretty-printed JSON, and Python code. What does this suggest about how to format tool results?</li>
+<li><strong>Observe non-determinism.</strong> Send the same open-ended prompt (&quot;Suggest a name for a CLI tool that tidies Git branches&quot;) five times. Record how much the answers vary. Then make the request more specific and repeat. What changed?</li>
+<li><strong>Ground a hallucination.</strong> Ask a model, without tools, for the exact signature of a function in a small, obscure library. Then provide the library&#39;s source in the prompt and ask again. Describe the difference and relate it to why agents read before they write.</li>
+<li><strong>Effort experiment.</strong> Using the code above, ask a tricky multi-step logic puzzle at <code>effort</code> <code>&quot;low&quot;</code> and <code>&quot;high&quot;</code>. Compare correctness, <code>usage.output_tokens</code> and wall-clock time. When would you pay for the higher setting?</li>
+<li><strong>Stretch: cost model.</strong> An agent makes 25 calls per task. The transcript starts at 6,000 tokens and grows by 2,500 tokens per step, and each step outputs 400 tokens. Using the Opus 5.5 list prices above and assuming no caching, estimate the cost per task. Then estimate how prompt caching would change the input cost, and explain why.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="llm-fundamentals" data-total="7">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>An agent calls a function <code>run_tests</code>. What is the model itself actually doing?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Retrieving cached test results from training data</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Generating tokens that form a structured tool-use request, which the harness parses and executes</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Sending an HTTP request directly to the test server</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Executing the test suite inside the model&#39;s weights</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Models only produce tokens. A tool call is structured output that the API surfaces as a tool_use block; your harness runs the tool and returns the result as text.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why does an agent&#39;s cost per step tend to grow during a long task?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model is stateless, so the growing transcript is sent as input on every call</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Providers charge more for later turns of a conversation</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model&#39;s weights grow as it learns during the task</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Output tokens get more expensive over time</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Each call resends the system prompt, tools and the full transcript, which grows with every tool result. Prompt caching and context management exist largely to tame this.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Which training stage contributes most of an LLM&#39;s broad world knowledge?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Supervised instruction tuning</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>RLHF preference tuning</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The system prompt at inference time</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Pretraining on large text corpora</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Knowledge comes mostly from pretraining. Post-training (SFT, preference tuning, RL on verifiable tasks) mainly shapes behavior, format and skills like tool use.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>You run the same agent task five times and get three successes and two failures with different tool sequences. What is the most accurate interpretation?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The two failed runs used a different model</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API is malfunctioning</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Sampling makes trajectories vary, so success is best described as a rate measured across runs</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents are deterministic, so the environment must have changed</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Generation is stochastic and agents are path-dependent; small early differences compound. That&#39;s why agents are evaluated with repeated trials and success rates.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>What is the most effective general strategy against hallucination in agents?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Ask the model to be more confident</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ground the agent with tools that look things up and verify results, instead of relying on recall</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Set temperature to zero</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Use the largest available context window</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Hallucination comes from producing plausible text without the facts. Reading files, searching and running checks turn guesses into observations. (Current Claude models don&#39;t accept temperature anyway.)</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>What is &quot;interleaved thinking&quot; and why does it matter for agents?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Two models taking turns answering</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Splitting the context window into parallel threads</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Thinking only once at the start of a task</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model reasoning between tool calls, so it can interpret each result before choosing the next action</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reasoning between steps lets the agent react to surprising tool output, revise its plan and recover from errors, which is where much of the reliability gain comes from.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Why is tool use described as the natural complement to LLMs?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tools let models update their own weights</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tools remove the need for a context window</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Tools make models faster at generating tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tools supply fresh facts, exact computation, persistence and real-world actions, exactly where LLMs are weak</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMs bring judgment and language; their weaknesses (stale knowledge, hallucination, arithmetic, statelessness, no actuators) are covered by tools whose results flow back into context.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need (Vaswani et al., 2017)</a>: the transformer paper.</li>
+<li><a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener">Language Models are Few-Shot Learners (Brown et al., 2020)</a>: GPT-3 and the discovery of in-context learning at scale.</li>
+<li><a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (Wei et al., 2022)</a>: the start of explicit reasoning in outputs.</li>
+<li><a href="https://arxiv.org/abs/2203.02155" target="_blank" rel="noopener">Training language models to follow instructions with human feedback (Ouyang et al., 2022)</a>: InstructGPT and RLHF for assistants.</li>
+<li><a href="https://arxiv.org/abs/2212.08073" target="_blank" rel="noopener">Constitutional AI: Harmlessness from AI Feedback (Bai et al., 2022)</a>: Anthropic&#39;s principle-guided approach and RLAIF.</li>
+<li><a href="https://arxiv.org/abs/2501.12948" target="_blank" rel="noopener">DeepSeek-R1 (DeepSeek-AI, 2025)</a>: an open account of training reasoning with RL on verifiable rewards.</li>
+<li><a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener">Lost in the Middle (Liu et al., 2023)</a>: how position in a long context affects what models use.</li>
+<li><a href="https://arxiv.org/abs/1508.07909" target="_blank" rel="noopener">Neural Machine Translation of Rare Words with Subword Units (Sennrich et al., 2015)</a>: the paper that brought BPE tokenization to NLP.</li>
+<li><a href="https://platform.claude.com/docs/en/about-claude/models/overview" target="_blank" rel="noopener">Claude models overview</a> and <a href="https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking" target="_blank" rel="noopener">adaptive thinking docs</a>: current model tiers, context windows and thinking controls.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="llm-fundamentals">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-llm-fundamentals"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-llm-fundamentals" class="notes" data-slug="llm-fundamentals" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="history-of-agents.html"><small>← Previous</small><span>A Brief History of AI Agents</span></a>
+    <a class="pager-next" href="the-agent-loop.html"><small>Next →</small><span>The Agent Loop</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#tokens-how-models-see-text">Tokens: How Models See Text</a></li>
+<li class="toc-h2"><a href="#next-token-prediction">Next-Token Prediction</a></li>
+<li class="toc-h2"><a href="#transformers-and-attention-intuitively">Transformers and Attention, Intuitively</a></li>
+<li class="toc-h2"><a href="#the-context-window">The Context Window</a></li>
+<li class="toc-h2"><a href="#from-text-predictor-to-assistant-how-llms-are-trained">From Text Predictor to Assistant: How LLMs Are Trained</a></li>
+<li class="toc-h2"><a href="#sampling-and-non-determinism">Sampling and Non-Determinism</a></li>
+<li class="toc-h2"><a href="#hallucination">Hallucination</a></li>
+<li class="toc-h2"><a href="#in-context-learning">In-Context Learning</a></li>
+<li class="toc-h2"><a href="#reasoning-models-and-test-time-compute">Reasoning Models and Test-Time Compute</a></li>
+<li class="toc-h2"><a href="#multimodality">Multimodality</a></li>
+<li class="toc-h2"><a href="#the-messages-api-roles-and-content-blocks">The Messages API: Roles and Content Blocks</a></li>
+<li class="toc-h2"><a href="#model-tiers-cost-and-latency">Model Tiers, Cost and Latency</a></li>
+<li class="toc-h2"><a href="#strengths-and-weaknesses-that-matter-for-agents">Strengths and Weaknesses That Matter for Agents</a></li>
+<li class="toc-h3"><a href="#why-tool-use-emerged">Why tool use emerged</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>

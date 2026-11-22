@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deploying &amp; Operating Agents · Agent Academy</title>
+<meta name="description" content="Take an agent from laptop to production: deployment shapes, sandbox infrastructure, state, secrets, multi-tenancy, rate limits, versioning, canaries, eval-gated CI/CD, monitoring, incident response, managed platforms and compliance.">
+<meta property="og:title" content="Deploying &amp; Operating Agents · Agent Academy">
+<meta property="og:description" content="Take an agent from laptop to production: deployment shapes, sandbox infrastructure, state, secrets, multi-tenancy, rate limits, versioning, canaries, eval-gated CI/CD, monitoring, incident response, managed platforms and compliance.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="deployment">
+  <nav class="breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Deploying &amp; Operating Agents</h1>
+    <p class="lead">Take an agent from laptop to production: deployment shapes, sandbox infrastructure, state, secrets, multi-tenancy, rate limits, versioning, canaries, eval-gated CI/CD, monitoring, incident response, managed platforms and compliance.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 38 min</span>
+      <span>✅ 6-question quiz</span>
+      
+      <span>Lesson 29 of 35</span>
+      <span class="lesson-status" data-status-for="deployment"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Choose a deployment shape (sync, async queue, streaming, event-driven, scheduled, background) for a given agent</li><li>Design sandbox, state, secrets and multi-tenant isolation for tool execution</li><li>Version agents as config-as-code and release them safely with eval gates, canaries, shadows and rollbacks</li><li>Build monitoring, alerting and incident playbooks specific to agents</li><li>Evaluate managed agent platforms and compliance requirements against a production readiness checklist</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="evaluating-agents.html">Evaluating Agents</a>, <a href="observability.html">Observability &amp; Debugging</a>, <a href="reliability.html">Reliability &amp; Durable Execution</a></p>
+  </section>
+  <article class="prose">
+<p>The agent works on your laptop. It reads tickets, queries the order database, runs a little Python to check refund math, and drafts replies your support leads love. Now it needs to serve two thousand concurrent users across forty customer organizations. It has to execute model-written code without endangering anything, use credentials it must never see, survive a model upgrade, and page someone at 3 a.m. when it starts looping. None of that is in the prompt.</p>
+<p><strong>Deploying</strong> an agent means building the system around the loop: where it runs, how it&#39;s triggered, where its state lives, what it&#39;s allowed to touch, how new versions roll out, and how you find out it&#39;s broken. <strong>Operating</strong> it means keeping all of that healthy over time. This lesson covers both, ending with a production readiness checklist you can use for real launches.</p>
+<h2 id="deployment-shapes"><a class="anchor" href="#deployment-shapes" aria-hidden="true">#</a>Deployment Shapes</h2>
+<p>How an agent gets triggered and how its results get back to the caller shapes everything else in the design. Six common shapes:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Shape</th>
+<th>How it works</th>
+<th>Fits</th>
+<th>Watch out for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Synchronous request/response</strong></td>
+<td>HTTP call blocks until the agent finishes</td>
+<td>Short tasks (a few turns, seconds)</td>
+<td>Load balancer and client timeouts; tying up connections</td>
+</tr>
+<tr>
+<td><strong>Async job queue + workers</strong></td>
+<td>API enqueues a job and returns an ID; workers run the loop; the client polls or subscribes</td>
+<td>Anything over ~30 s; bursty load</td>
+<td>Job state machine, retries, dead-letter queue</td>
+</tr>
+<tr>
+<td><strong>Streaming (SSE / WebSockets)</strong></td>
+<td>Server pushes tokens and progress events as they happen</td>
+<td>Chat UIs, copilots</td>
+<td>Reconnects, resuming a stream, proxies that buffer</td>
+</tr>
+<tr>
+<td><strong>Event-driven / webhook</strong></td>
+<td>A system event (new ticket, failed build, inbound email) triggers a run</td>
+<td>Ops automation, triage</td>
+<td>Duplicate deliveries; ordering; verifying webhook signatures</td>
+</tr>
+<tr>
+<td><strong>Scheduled (cron)</strong></td>
+<td>Runs on a timetable</td>
+<td>Nightly reports, weekly audits</td>
+<td>Overlapping runs; silent failures nobody notices</td>
+</tr>
+<tr>
+<td><strong>Background agents that open PRs</strong></td>
+<td>Agent works in a sandbox for minutes to hours, then delivers a reviewable artifact (pull request, document, ticket update)</td>
+<td>Coding agents, data migrations</td>
+<td>Long-lived sandboxes; a human review gate</td>
+</tr>
+</tbody></table>
+</div>
+<p>In practice these combine. A common production pattern is <strong>async queue + streaming</strong>: the API enqueues the run and immediately returns a stream URL, a worker executes the checkpointed loop from <a href="reliability.html">reliability</a>, and progress events flow back over <strong>Server-Sent Events (SSE)</strong>. If the browser disconnects, it reconnects with the last event ID and resumes. If the worker dies, another worker resumes the run from its checkpoint.</p>
+<p>Webhook-triggered agents need two extra disciplines. First, <strong>verify signatures</strong>, since anyone can POST to a URL. Second, <strong>deduplicate by event ID</strong>, because most webhook senders deliver at least once. Background agents that open PRs are the most forgiving shape for risky work: their output is a <em>proposal</em> that a human reviews, which makes it a natural <a href="human-in-the-loop.html">human-in-the-loop</a> boundary. See <a href="coding-agents.html">coding agents</a>.</p>
+<p>Here&#39;s a minimal streaming endpoint for a short conversational agent. It uses FastAPI and the async Anthropic client, with POST plus a streamed response, the pattern most chat frontends use:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+
+<span class="hljs-keyword">import</span> anthropic
+<span class="hljs-keyword">from</span> fastapi <span class="hljs-keyword">import</span> FastAPI
+<span class="hljs-keyword">from</span> fastapi.responses <span class="hljs-keyword">import</span> StreamingResponse
+<span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
+
+app = FastAPI()
+client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from the environment / secret store, never code</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Turn</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
+    session_id: <span class="hljs-built_in">str</span>
+    message: <span class="hljs-built_in">str</span>
+
+<span class="hljs-meta">@app.post(<span class="hljs-params"><span class="hljs-string">&quot;/chat&quot;</span></span>)</span>
+<span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">chat</span>(<span class="hljs-params">turn: Turn</span>):
+    cfg = <span class="hljs-keyword">await</span> load_agent_config(turn.session_id)  <span class="hljs-comment"># version pinned when the session began</span>
+    history = <span class="hljs-keyword">await</span> load_history(turn.session_id)   <span class="hljs-comment"># external store: workers stay stateless</span>
+    history.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: turn.message})
+
+    <span class="hljs-keyword">async</span> <span class="hljs-keyword">def</span> <span class="hljs-title function_">sse</span>():
+        <span class="hljs-keyword">async</span> <span class="hljs-keyword">with</span> client.messages.stream(
+            model=cfg.model, max_tokens=<span class="hljs-number">16000</span>, system=cfg.system, messages=history,
+        ) <span class="hljs-keyword">as</span> stream:
+            <span class="hljs-keyword">async</span> <span class="hljs-keyword">for</span> text <span class="hljs-keyword">in</span> stream.text_stream:
+                <span class="hljs-keyword">yield</span> <span class="hljs-string">f&quot;data: <span class="hljs-subst">{json.dumps({<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;text&#x27;</span>, <span class="hljs-string">&#x27;text&#x27;</span>: text}</span>)}\n\n&quot;</span>
+            final = <span class="hljs-keyword">await</span> stream.get_final_message()
+        history.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>,
+                        <span class="hljs-string">&quot;content&quot;</span>: [b.model_dump(mode=<span class="hljs-string">&quot;json&quot;</span>, exclude_none=<span class="hljs-literal">True</span>) <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> final.content]})
+        <span class="hljs-keyword">await</span> save_history(turn.session_id, history)
+        <span class="hljs-keyword">yield</span> <span class="hljs-string">f&quot;data: <span class="hljs-subst">{json.dumps({<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;done&#x27;</span>, <span class="hljs-string">&#x27;stop_reason&#x27;</span>: final.stop_reason}</span>)}\n\n&quot;</span>
+
+    <span class="hljs-keyword">return</span> StreamingResponse(sse(), media_type=<span class="hljs-string">&quot;text/event-stream&quot;</span>)</code></pre></div>
+<p>For multi-step agents that call tools, move the loop into a worker and have this endpoint stream the worker&#39;s events, so a dropped connection doesn&#39;t kill the run.</p>
+<h2 id="a-reference-architecture"><a class="anchor" href="#a-reference-architecture" aria-hidden="true">#</a>A Reference Architecture</h2>
+<p>Most production agent platforms end up with roughly the same components:</p>
+<figure class="diagram"><pre class="mermaid">flowchart LR
+    C[&quot;Clients: web, Slack, webhooks&quot;] --&gt; GW[&quot;API gateway: auth, quotas&quot;]
+    GW --&gt; API[&quot;Agent API&quot;]
+    API --&gt; Q[(&quot;Job queue&quot;)]
+    API -.-&gt;|SSE events| C
+    Q --&gt; W[&quot;Agent workers: loop + checkpoints&quot;]
+    W --&gt; LG[&quot;LLM gateway: routing, retries, metering&quot;]
+    LG --&gt; M[&quot;Model API&quot;]
+    W --&gt; SB[&quot;Sandbox pool: microVMs&quot;]
+    SB --&gt; EP[&quot;Egress proxy: allowlist + credential injection&quot;]
+    W --&gt; EP
+    EP --&gt; EXT[&quot;External APIs&quot;]
+    SM[&quot;Secrets manager&quot;] --&gt; EP
+    W --&gt; DB[(&quot;State store: sessions, checkpoints&quot;)]
+    W --&gt; OBS[&quot;Traces, metrics, audit log&quot;]</pre></figure>
+<p>Two components are easy to overlook. An <strong>LLM gateway</strong> is an internal service that every model call passes through. It centralizes retries, fallbacks, per-tenant metering, spend caps and logging, so individual agents don&#39;t each reimplement them. An <strong>egress proxy</strong> is the single path to the outside world for both workers and sandboxes. It enforces a host allowlist and injects credentials, as described below.</p>
+<h2 id="sandboxing-tool-execution"><a class="anchor" href="#sandboxing-tool-execution" aria-hidden="true">#</a>Sandboxing Tool Execution</h2>
+<p>If your agent runs code it wrote, or code from a repository it cloned, treat that code as <strong>untrusted</strong>. Prompt injection, a malicious dependency, or plain model error can all produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox is what limits the damage. See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a> for the threat model. Isolation options, from weakest to strongest:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Technology</th>
+<th>Isolation mechanism</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Plain process</td>
+<td>Unix user, file permissions</td>
+<td>Shares everything with the host; not a sandbox</td>
+</tr>
+<tr>
+<td><strong>Containers</strong> (Docker, containerd)</td>
+<td>Linux namespaces + cgroups; <strong>shared host kernel</strong></td>
+<td>Fast and familiar, but a kernel exploit escapes it</td>
+</tr>
+<tr>
+<td><strong>gVisor</strong></td>
+<td>A user-space kernel intercepts the container&#39;s system calls</td>
+<td>Much smaller kernel attack surface; some syscall overhead and compatibility gaps</td>
+</tr>
+<tr>
+<td><strong>Firecracker microVMs</strong></td>
+<td>Hardware virtualization (KVM) with a minimal device model</td>
+<td>VM-grade isolation with fast boot and low overhead; built by AWS for Lambda and Fargate</td>
+</tr>
+<tr>
+<td>Full VMs</td>
+<td>Hypervisor with a full guest OS</td>
+<td>Strongest, but slowest and heaviest</td>
+</tr>
+</tbody></table>
+</div>
+<p>For multi-tenant execution of untrusted code, the industry norm as of 2026 is gVisor or microVMs, not plain containers. Hosted sandbox services let you skip running this infrastructure yourself. Examples include <strong>E2B</strong> (Firecracker-based sandboxes built for AI agents), <strong>Modal</strong> (serverless containers and sandboxes with gVisor isolation), and <strong>Daytona</strong> (fast-starting development environments for agent workloads). Features change quickly, so compare isolation model, cold-start time, maximum session length, persistence and pricing against your workload.</p>
+<p>Whatever you choose, configure it defensively:</p>
+<ul>
+<li><strong>Network egress denied by default.</strong> Allow specific hosts through the egress proxy only.</li>
+<li><strong>Resource limits</strong> on CPU, memory, disk, process count and wall-clock time.</li>
+<li><strong>Ephemeral by default.</strong> One sandbox per task or session, destroyed afterward, and <strong>never reused across tenants</strong>.</li>
+<li><strong>Warm pools</strong> of pre-booted sandboxes to hide cold-start latency for interactive agents.</li>
+<li><strong>No secrets inside.</strong> Covered next.</li>
+</ul>
+<h2 id="state-secrets-and-tenancy"><a class="anchor" href="#state-secrets-and-tenancy" aria-hidden="true">#</a>State, Secrets and Tenancy</h2>
+<h3 id="state-and-session-storage"><a class="anchor" href="#state-and-session-storage" aria-hidden="true">#</a>State and session storage</h3>
+<p>Keep workers <strong>stateless</strong> and put state in durable stores, so any worker can serve any session and a crash loses nothing:</p>
+<ul>
+<li><strong>Sessions / conversations</strong> go in a database (often Postgres with JSONB), stored append-only and keyed by session ID, with the pinned agent version.</li>
+<li><strong>Checkpoints</strong> for durable execution go in the same database or in your durable execution engine (Temporal, DBOS and similar; see <a href="reliability.html">reliability</a>).</li>
+<li><strong>Large artifacts</strong> (files, screenshots, tool outputs over a few KB) go in blob storage, with only a reference kept in history.</li>
+<li><strong>Long-term memory</strong> goes in a store namespaced per user and per tenant (see <a href="memory.html">memory</a>).</li>
+</ul>
+<p>Give every store a <strong>retention policy</strong>. Conversation logs are some of the most sensitive data your company holds.</p>
+<h3 id="secrets-management"><a class="anchor" href="#secrets-management" aria-hidden="true">#</a>Secrets management</h3>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Secrets never enter the model&#39;s context</div><div class="callout-body"><p>Anything in the context window can be echoed into a response, written into a log or trace, or exfiltrated by a prompt injection. An agent should be able to <em>use</em> a credential without ever <em>seeing</em> it.</p>
+</div></aside>
+<p>Three practices make that possible:</p>
+<ol>
+<li><strong>Keep credentials out of prompts, tool results and sandboxes.</strong> Tools receive credentials from the harness at execution time. The model sees only <code>lookup_order(order_id)</code>, never an API key.</li>
+<li><strong>Use scoped, short-lived credentials.</strong> Issue per-task tokens with the narrowest scope that works: read-only where possible, limited to one repository or one tenant, and expiring in minutes to hours. Examples include cloud workload identity and STS-style temporary credentials, GitHub App installation tokens (which expire after an hour), and OAuth tokens with minimal scopes. A leaked short-lived, narrowly scoped token is a contained incident. A leaked admin key is a disaster.</li>
+<li><strong>Inject credentials at an egress proxy.</strong> Code in the sandbox calls <code>https://api.github.com/...</code> with no credentials. The proxy checks the destination against an allowlist, attaches the right token from the secrets manager, and forwards the request. The secret never exists inside the sandbox, and the allowlist also blocks exfiltration to attacker-controlled hosts. Managed platforms increasingly provide this pattern built in. For example, Claude Managed Agents keeps credentials in <strong>vaults</strong> that are attached to sessions rather than baked into agent definitions.</li>
+</ol>
+<p>Store root secrets in a secrets manager (HashiCorp Vault, AWS Secrets Manager, Google Secret Manager), rotate them, and scan logs and outputs for anything that looks like a leaked key.</p>
+<h3 id="multi-tenancy-and-isolation"><a class="anchor" href="#multi-tenancy-and-isolation" aria-hidden="true">#</a>Multi-tenancy and isolation</h3>
+<p>When one deployment serves many customers, a cross-tenant leak is the worst possible bug. Design for isolation at every layer:</p>
+<ul>
+<li><strong>Propagate a tenant ID</strong> through every request, tool call, query, log line and trace. Enforce it in the data layer, for example with row-level security, rather than trusting the model or the tool code to filter correctly.</li>
+<li><strong>Scope tools per tenant.</strong> The <code>search_docs</code> tool for tenant A physically cannot query tenant B&#39;s index.</li>
+<li><strong>Namespace memory and vector stores</strong> per tenant, and test that retrieval can&#39;t cross the boundary.</li>
+<li><strong>Use fresh sandboxes per tenant</strong>, never pooled across tenants after use.</li>
+<li><strong>Prevent noisy neighbors</strong> with per-tenant concurrency limits, token quotas and spend caps, so one customer&#39;s runaway batch can&#39;t starve everyone else.</li>
+<li><strong>Separate API keys or workspaces</strong> per environment, and optionally per large tenant, for clean spend attribution and blast-radius control.</li>
+</ul>
+<h2 id="rate-limits-and-quotas"><a class="anchor" href="#rate-limits-and-quotas" aria-hidden="true">#</a>Rate Limits and Quotas</h2>
+<p>Model providers enforce rate limits per organization and model, typically as <strong>requests per minute (RPM)</strong>, <strong>input tokens per minute (ITPM)</strong> and <strong>output tokens per minute (OTPM)</strong>. Exceeding any of them returns a 429 with a <code>retry-after</code> header. On the Claude API, cache reads don&#39;t count toward input-token rate limits for most models, so good <a href="cost-and-latency.html">prompt caching</a> raises your effective throughput as well as cutting cost.</p>
+<p>Agents make rate limits harder to manage because one user action can trigger dozens of calls in a burst. Build your own controls in front of the provider&#39;s:</p>
+<ul>
+<li><strong>Admission control.</strong> Cap concurrent agent runs globally and per tenant, and queue the rest. A queue with backpressure beats a thundering herd of 429s.</li>
+<li><strong>Token-bucket quotas</strong> per user and per tenant, metered in tokens or dollars, not just requests.</li>
+<li><strong>Priority lanes.</strong> Interactive traffic gets reserved headroom, and batch or background work takes whatever is left (or goes through the Batch API).</li>
+<li><strong>Daily spend caps</strong> per tenant and per agent, enforced in the LLM gateway, with alerts at 50% and 80%.</li>
+<li><strong>Headroom monitoring.</strong> Track the <code>x-ratelimit-remaining-*</code> response headers and request limit increases <em>before</em> launch, not during it.</li>
+</ul>
+<h2 id="versioning-releases-and-rollbacks"><a class="anchor" href="#versioning-releases-and-rollbacks" aria-hidden="true">#</a>Versioning, Releases and Rollbacks</h2>
+<h3 id="what-a-version-is"><a class="anchor" href="#what-a-version-is" aria-hidden="true">#</a>What a version is</h3>
+<p>An agent&#39;s behavior depends on much more than its code. A <strong>version</strong> must capture everything that can change behavior: model ID and parameters (effort, <code>max_tokens</code>), system prompt, tool definitions <em>and</em> tool implementations, harness logic, retrieval configuration and budgets. Manage all of it as <strong>config-as-code</strong>, reviewed and versioned in git:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">yaml</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-yaml"><span class="hljs-comment"># agents/support-triage/v14.yaml: every field is part of the version</span>
+<span class="hljs-attr">agent:</span> <span class="hljs-string">support-triage</span>
+<span class="hljs-attr">version:</span> <span class="hljs-number">14</span>
+<span class="hljs-attr">model:</span> <span class="hljs-string">claude-sonnet-5-5</span>          <span class="hljs-comment"># explicit model ID; upgrades are deliberate changes</span>
+<span class="hljs-attr">effort:</span> <span class="hljs-string">medium</span>
+<span class="hljs-attr">max_tokens:</span> <span class="hljs-number">16000</span>
+<span class="hljs-attr">system_prompt:</span> <span class="hljs-string">prompts/support-triage/system.v9.md</span>
+<span class="hljs-attr">tools:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">lookup_order@3</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">search_kb@5</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-string">issue_refund@2</span>                <span class="hljs-comment"># unsafe: human approval above $100</span>
+<span class="hljs-attr">budgets:</span> {<span class="hljs-attr">max_steps:</span> <span class="hljs-number">30</span>, <span class="hljs-attr">max_usd:</span> <span class="hljs-number">1.50</span>, <span class="hljs-attr">max_seconds:</span> <span class="hljs-number">300</span>}
+<span class="hljs-attr">rollout:</span> {<span class="hljs-attr">strategy:</span> <span class="hljs-string">canary</span>, <span class="hljs-attr">stages:</span> [<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">25</span>, <span class="hljs-number">100</span>]}</code></pre></div>
+<p>Stamp the resolved version (or a hash of the config) on every trace, so any behavior you see in production traces back to an exact configuration.</p>
+<p><strong>Pin model IDs explicitly</strong> and treat a model upgrade as a migration: re-run evals, re-tune prompts, and check for API behavior changes. A new model can be better on average and still worse on <em>your</em> hardest cases.</p>
+<p><strong>Keep in-flight sessions on their original version.</strong> Changing the system prompt or tool list in the middle of a conversation invalidates its prompt cache, and on current Claude models it also invalidates the model&#39;s preserved earlier reasoning. Make new versions apply to <em>new</em> sessions, and let existing sessions finish on the version they started with.</p>
+<h3 id="shadow-canary-rollback"><a class="anchor" href="#shadow-canary-rollback" aria-hidden="true">#</a>Shadow, canary, rollback</h3>
+<ul>
+<li><strong>Shadow deployment.</strong> Run the new version on a copy of live traffic without showing its output to users, and compare outcomes, cost and latency against production. Shadow agents must use <strong>stubbed or read-only side-effecting tools</strong>, or you&#39;ll send every customer two emails. Shadow runs roughly double spend while active, so keep them short.</li>
+<li><strong>Canary release.</strong> Route a small share of <em>new</em> sessions (1%, then 5%, 25%, 100%) to the new version. At each stage, compare success rate, escalation rate, cost per task, p95 latency and guardrail triggers against the baseline, and roll back automatically on regression.</li>
+<li><strong>Rollback</strong> should be one command that points new sessions back at the previous config. That only works if old prompts and tool versions stay deployable, and if tool and schema changes stay backward-compatible for at least one release.</li>
+</ul>
+<h3 id="cicd-with-eval-gates"><a class="anchor" href="#cicd-with-eval-gates" aria-hidden="true">#</a>CI/CD with eval gates</h3>
+<p>Traditional tests check that code runs. Agents also need checks that <em>behavior</em> holds. Gate merges and deploys on your <a href="evaluating-agents.html">evaluation suite</a>:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">yaml</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-yaml"><span class="hljs-comment"># .github/workflows/agent-eval-gate.yml</span>
+<span class="hljs-attr">name:</span> <span class="hljs-string">agent-eval-gate</span>
+<span class="hljs-attr">on:</span> <span class="hljs-string">pull_request</span>
+<span class="hljs-attr">jobs:</span>
+  <span class="hljs-attr">eval:</span>
+    <span class="hljs-attr">runs-on:</span> <span class="hljs-string">ubuntu-latest</span>
+    <span class="hljs-attr">steps:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/checkout@v4</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">uses:</span> <span class="hljs-string">actions/setup-python@v5</span>
+        <span class="hljs-attr">with:</span> {<span class="hljs-attr">python-version:</span> <span class="hljs-string">&quot;3.12&quot;</span>}
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">pip</span> <span class="hljs-string">install</span> <span class="hljs-string">-r</span> <span class="hljs-string">requirements.txt</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">pytest</span> <span class="hljs-string">tests/harness</span>            <span class="hljs-comment"># recorded fixtures, no live API calls</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">python</span> <span class="hljs-string">-m</span> <span class="hljs-string">evals.run</span> <span class="hljs-string">--suite</span> <span class="hljs-string">regression</span> <span class="hljs-string">--agent</span> <span class="hljs-string">agents/support-triage/v14.yaml</span> <span class="hljs-string">--out</span> <span class="hljs-string">results.json</span>
+        <span class="hljs-attr">env:</span>
+          <span class="hljs-attr">ANTHROPIC_API_KEY:</span> <span class="hljs-string">${{</span> <span class="hljs-string">secrets.ANTHROPIC_EVAL_KEY</span> <span class="hljs-string">}}</span>   <span class="hljs-comment"># separate, spend-capped eval key</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">python</span> <span class="hljs-string">-m</span> <span class="hljs-string">evals.gate</span> <span class="hljs-string">results.json</span> <span class="hljs-string">--baseline</span> <span class="hljs-string">main</span> <span class="hljs-string">--min-success</span> <span class="hljs-number">0.92</span> <span class="hljs-string">--max-cost-per-task</span> <span class="hljs-number">1.50</span> <span class="hljs-string">--max-p95-seconds</span> <span class="hljs-number">120</span></code></pre></div>
+<p>(<code>evals.run</code> and <code>evals.gate</code> stand in for your own eval tooling.) Gate on <strong>quality, cost and latency together</strong>, compared against the main branch&#39;s baseline rather than fixed numbers alone. Include a safety suite (prompt-injection attempts, out-of-scope requests) as well. Agent evals are noisy, so use enough cases and repeated trials that the gate isn&#39;t a coin flip, and run the full, expensive suite nightly rather than on every commit.</p>
+<h2 id="monitoring-and-incident-response"><a class="anchor" href="#monitoring-and-incident-response" aria-hidden="true">#</a>Monitoring and Incident Response</h2>
+<h3 id="what-to-watch"><a class="anchor" href="#what-to-watch" aria-hidden="true">#</a>What to watch</h3>
+<p><a href="observability.html">Observability</a> gives you traces. Operations turns them into signals and alerts:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Why it matters</th>
+<th>Example alert</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Task success rate (from automatic checks or user feedback)</td>
+<td>The real product metric</td>
+<td>Drops 5 points below the 7-day baseline</td>
+</tr>
+<tr>
+<td>Escalation / handoff rate</td>
+<td>Proxy for quality on unlabeled traffic</td>
+<td>Doubles within an hour</td>
+</tr>
+<tr>
+<td>API errors by type (429, 529, 5xx)</td>
+<td>Capacity and provider health</td>
+<td>529 rate &gt; 5% for 10 min</td>
+</tr>
+<tr>
+<td>p50 / p95 task latency, TTFT</td>
+<td>User experience</td>
+<td>p95 over the SLO for 15 min</td>
+</tr>
+<tr>
+<td>Cost per task, spend per tenant</td>
+<td>Runaway loops, abuse, cache regressions</td>
+<td>Hourly spend over 2× forecast</td>
+</tr>
+<tr>
+<td>Cache hit rate</td>
+<td>Silent prompt-assembly regressions</td>
+<td>Falls below 70% after a deploy</td>
+</tr>
+<tr>
+<td>Steps per task, budget-exhaustion rate</td>
+<td>Looping or confusion</td>
+<td>p95 steps doubles</td>
+</tr>
+<tr>
+<td>Tool error rates</td>
+<td>Downstream outages, schema drift</td>
+<td>Any tool &gt; 10% errors</td>
+</tr>
+<tr>
+<td>Guardrail / injection-detector triggers</td>
+<td>Attacks or new failure modes</td>
+<td>Spike from one tenant</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="incident-playbooks"><a class="anchor" href="#incident-playbooks" aria-hidden="true">#</a>Incident playbooks</h3>
+<p>Agent incidents have recognizable shapes. Write the playbooks before you need them:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>First actions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Spend spike</td>
+<td>Check steps per task and cache hit rate; tighten budgets; find the tenant or agent version responsible; trip the per-tenant spend cap</td>
+</tr>
+<tr>
+<td>Provider overload (529 storm)</td>
+<td>Confirm on the provider status page; shed or queue background work; enable the fallback model for <em>new</em> tasks; tell users about degraded mode</td>
+</tr>
+<tr>
+<td>Quality regression after deploy</td>
+<td>Roll back to the previous version; pull failing traces into the eval set; investigate offline</td>
+</tr>
+<tr>
+<td>Tool outage</td>
+<td>Trip the tool&#39;s circuit breaker / feature flag; switch the agent to degraded mode (drafts only, read-only)</td>
+</tr>
+<tr>
+<td>Suspected prompt injection or data exposure</td>
+<td>Disable the affected tools or agent with a kill switch; preserve audit logs; follow the security incident process; review every action taken in the affected sessions</td>
+</tr>
+<tr>
+<td>Runaway or looping agents</td>
+<td>Kill the runs; lower the step budget; add the trace to the eval set</td>
+</tr>
+</tbody></table>
+</div>
+<p>Every agent needs <strong>kill switches</strong>: global, per agent, per tool and per tenant, flippable in seconds without a deploy. After each incident, hold a blameless postmortem and turn the failing traces into <strong>regression evals</strong>. That is how the incident stays fixed.</p>
+<h2 id="managed-platforms"><a class="anchor" href="#managed-platforms" aria-hidden="true">#</a>Managed Platforms</h2>
+<p>Building all of the above is a significant platform investment. Managed services handle parts of it. As of late 2026, the main options include:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>What it manages</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Claude Managed Agents</strong> (Anthropic)</td>
+<td>Runs the agent loop on Anthropic&#39;s infrastructure with a container per session. Agent configs are versioned objects that sessions pin to, and credentials live in vaults. Also offers scheduled deployments, webhooks, and an option to run tool execution in your own sandboxes</td>
+</tr>
+<tr>
+<td><strong>Amazon Bedrock AgentCore</strong> (AWS)</td>
+<td>Modular services for running agents built with any framework: runtime, memory, gateway for tools, identity, and observability</td>
+</tr>
+<tr>
+<td><strong>Vertex AI Agent Engine</strong> (Google Cloud)</td>
+<td>Managed runtime for agents built with Google&#39;s ADK, LangGraph and other frameworks, with sessions, memory and evaluation integrations</td>
+</tr>
+<tr>
+<td><strong>OpenAI AgentKit</strong> (OpenAI)</td>
+<td>Agent Builder (a visual workflow canvas), ChatKit for embedding agent UIs, a connector registry and evaluation tooling</td>
+</tr>
+</tbody></table>
+</div>
+<p>These products change fast, so check current documentation. The build-vs-buy trade-off comes down to a few questions. Do you need control over the loop, the sandbox, or data location? How portable do you need to be across model providers? Would you rather spend engineering time on the platform or on the product? Many teams start managed and pull pieces in-house as their requirements sharpen. Others keep the loop in their own code and buy only the sandbox. See <a href="agent-frameworks.html">agent frameworks</a>.</p>
+<h2 id="compliance"><a class="anchor" href="#compliance" aria-hidden="true">#</a>Compliance</h2>
+<p>Agents touch customer data, take actions, and make decisions, which brings them under the same rules as any other system that does those things, and a few new ones.</p>
+<ul>
+<li><strong>Data retention.</strong> Know how long your provider retains prompts and outputs, and what zero-data-retention (ZDR) arrangements are available. Requirements can vary by model. For example, as of 2026 Anthropic&#39;s Fable-tier models require 30-day retention, and organizations set to zero retention get errors when calling them, so check before you pick a model. Set retention on your <em>own</em> logs, traces and memory stores too, since those usually hold more than the provider does.</li>
+<li><strong>Data residency.</strong> Customers or regulators may require processing and storage in specific regions. Regional deployments through cloud platforms (Bedrock, Google Cloud, Azure) help, but residency also applies to your traces, vector stores and sandboxes.</li>
+<li><strong>Audit logs.</strong> Keep an immutable record for every run: who or what triggered it, the agent version, every tool call with arguments and results, every human approval, and what data was accessed. When someone asks why the agent issued a refund, the audit log is your answer.</li>
+<li><strong>PII handling.</strong> Redact sensitive fields in traces where you can, restrict who can read raw transcripts, and make deletion requests propagate to conversation stores, memory and backups.</li>
+<li><strong>Frameworks.</strong> Map your controls to the frameworks you&#39;re subject to (SOC 2, ISO 27001, HIPAA, GDPR, and AI-specific regulation such as the EU AI Act) early on. Retrofitting audit trails is painful.</li>
+</ul>
+<h2 id="production-readiness-checklist"><a class="anchor" href="#production-readiness-checklist" aria-hidden="true">#</a>Production Readiness Checklist</h2>
+<p>Use this as a launch review. Each item should have an owner and evidence.</p>
+<p><strong>Execution</strong></p>
+<ul>
+<li>Deployment shape matches task duration; long tasks run in workers, not request threads</li>
+<li>Checkpointing or durable execution in place; resume after a worker kill is tested</li>
+<li>Step, token, time and dollar budgets enforced per run</li>
+</ul>
+<p><strong>Safety and isolation</strong></p>
+<ul>
+<li>Untrusted code runs in gVisor- or microVM-class sandboxes, with egress denied by default</li>
+<li>No secrets in prompts, context, sandboxes or logs; short-lived scoped credentials; egress proxy injection</li>
+<li>Tenant ID enforced in the data layer; per-tenant sandboxes, memory and quotas</li>
+<li>Unsafe tools are idempotent and gated by approval where stakes are high</li>
+</ul>
+<p><strong>Release</strong></p>
+<ul>
+<li>Agent config versioned as code; model IDs pinned; version stamped on every trace</li>
+<li>CI eval gate on quality, cost and latency, plus a safety suite</li>
+<li>Canary rollout with automatic rollback; in-flight sessions keep their original version</li>
+<li>One-command rollback, rehearsed</li>
+</ul>
+<p><strong>Operations</strong></p>
+<ul>
+<li>Dashboards and alerts for success, errors, latency, cost, cache hit rate and steps per task</li>
+<li>Kill switches (global, per agent, per tool, per tenant) tested</li>
+<li>Incident playbooks written; on-call rotation knows them</li>
+<li>Provider rate limits sized for peak plus headroom; per-tenant spend caps set</li>
+</ul>
+<p><strong>Compliance</strong></p>
+<ul>
+<li>Retention and residency documented for provider, logs, traces and memory</li>
+<li>Immutable audit log of runs, tool calls and approvals</li>
+<li>PII redaction and deletion workflows verified</li>
+</ul>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
+<ul>
+<li>Match the deployment shape to task duration and trigger: synchronous only for short tasks, queues and workers for long ones, streaming for perceived speed, PR-style delivery for risky autonomous work.</li>
+<li>Treat model-written code as untrusted. Run it in gVisor or microVM sandboxes with default-deny egress, one per task, never shared across tenants.</li>
+<li>Secrets never enter the context window. Use scoped short-lived credentials, injected at an egress proxy.</li>
+<li>Enforce tenant isolation in infrastructure and data layers, not in prompts, and add per-tenant quotas and spend caps.</li>
+<li>An agent version is model + prompt + tools + harness + config. Version it as code, pin model IDs, and keep in-flight sessions on their original version.</li>
+<li>Ship through eval-gated CI, shadow runs with stubbed side effects, and canaries with automatic rollback.</li>
+<li>Monitor success, cost, latency, cache hit rate and steps per task. Keep kill switches and incident playbooks ready, and turn every incident into a regression eval.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
+<ol>
+<li><strong>Pick the shape.</strong> For each agent, choose a deployment shape and justify it: (a) an FAQ bot answering in under 5 seconds; (b) a nightly agent that reconciles invoices; (c) an agent that fixes failing CI builds; (d) a research agent that takes 10–20 minutes per report.</li>
+<li><strong>Secret audit.</strong> Take an agent you&#39;ve built and list every credential it uses. For each one, record where it lives, whether it ever enters the context or the sandbox, its scope and its lifetime. Redesign anything that fails the &quot;never in context, short-lived, least privilege&quot; test.</li>
+<li><strong>Config as code.</strong> Write a versioned YAML config for one of your agents and a loader that computes a stable hash of the resolved config (prompt file contents included). Stamp the hash on every trace, then change one word of the prompt and confirm the hash changes.</li>
+<li><strong>Eval gate.</strong> Build a CI job that runs 20 eval cases against the PR branch and against main, and fails if success drops by more than one case or mean cost per task rises by more than 15%. Run it twice on the same commit and discuss what the noise means for your thresholds.</li>
+<li><strong>Game day.</strong> With a teammate, simulate a &quot;spend spike from one tenant&quot; incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?), and recovery. Then write the postmortem and the regression eval.</li>
+</ol>
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="deployment" data-total="6">
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>An agent&#39;s tasks take 2–15 minutes and users watch progress in a web UI. Which deployment shape fits best?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A synchronous HTTP endpoint with a 20-minute timeout</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An async job queue with workers, streaming progress events to the client over SSE</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A cron job that runs every 15 minutes</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A batch API submission per user request</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long tasks belong in workers that survive disconnects and can resume from checkpoints, with progress streamed for perceived latency. Long synchronous requests break on timeouts and tie up connections.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why are plain Docker containers generally considered insufficient for running untrusted, model-written code from many tenants?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Containers can&#39;t limit CPU or memory</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Containers share the host kernel, so a kernel exploit can escape; gVisor or microVMs add a much stronger boundary</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Containers can&#39;t run Python</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Containers are too slow to start</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Namespaces and cgroups isolate resources but share one kernel. gVisor shrinks the kernel attack surface, and Firecracker-style microVMs add hardware virtualization.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>What&#39;s the main advantage of injecting credentials at an egress proxy instead of passing them into the sandbox?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It removes the need for credential rotation</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It lets the model choose which credential to use</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The secret never exists where model-influenced code can read or leak it, and the allowlist blocks exfiltration to unknown hosts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It makes API calls faster</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Code in the sandbox makes unauthenticated requests, and the proxy attaches credentials only for allowlisted destinations. Prompt-injected code has no key to steal.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>You deploy a new system prompt. Why should conversations already in progress keep the old version?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>New prompts only take effect after 24 hours</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Old conversations can&#39;t be stored with the new version</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API rejects system prompt changes mid-conversation</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Changing the prompt mid-conversation invalidates the prompt cache and, on current models, the model&#39;s preserved earlier reasoning, and it makes behavior hard to attribute to one version</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Apply new versions to new sessions. Sticky versions keep costs predictable, preserve the model&#39;s reasoning continuity, and keep traces attributable.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>When shadow-testing a new agent version on live traffic, what must you do with side-effecting tools?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Route them through the Batch API</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Run them twice to compare results</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Nothing; shadow runs are read-only by definition</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Stub them or make them read-only, or the shadow will take real actions such as sending duplicate emails</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A shadow processes real inputs. Unless its tools are stubbed, it will act on the world alongside production.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>A deploy makes cost per task jump 3× with no change in success rate. Which signal most likely localizes the cause fastest?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>User feedback scores</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Cache hit rate and steps per task, compared across agent versions</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Provider status page</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Number of tools defined</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A cost jump with unchanged quality usually means a cache-breaking change in prompt assembly or a looping/verbosity change. Both show up in cache hit rate and steps per task by version.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://firecracker-microvm.github.io/" target="_blank" rel="noopener">Firecracker</a>: the microVM technology behind AWS Lambda, with design docs on its isolation model.</li>
+<li><a href="https://gvisor.dev/" target="_blank" rel="noopener">gVisor</a>: the user-space application kernel for container sandboxing; its architecture guide explains the security model.</li>
+<li><a href="https://platform.claude.com/docs/en/managed-agents/overview" target="_blank" rel="noopener">Claude Managed Agents overview</a>: Anthropic&#39;s managed runtime, covering versioned agents, sessions, containers and vaults.</li>
+<li><a href="https://aws.amazon.com/bedrock/agentcore/" target="_blank" rel="noopener">Amazon Bedrock AgentCore</a>: AWS&#39;s managed services for running and operating agents.</li>
+<li><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview" target="_blank" rel="noopener">Vertex AI Agent Engine</a>: Google Cloud&#39;s managed agent runtime.</li>
+<li><a href="https://openai.com/index/introducing-agentkit/" target="_blank" rel="noopener">Introducing AgentKit (OpenAI)</a>: OpenAI&#39;s agent building and deployment toolkit.</li>
+<li><a href="https://sre.google/sre-book/table-of-contents/" target="_blank" rel="noopener">Google SRE Book</a>: SLOs, alerting, incident response and postmortems, all of which apply directly to agents.</li>
+<li><a href="https://12factor.net/" target="_blank" rel="noopener">The Twelve-Factor App</a>: the classic case for config in the environment, stateless processes and disposability.</li>
+<li><a href="https://platform.claude.com/docs/en/api/rate-limits" target="_blank" rel="noopener">Claude API rate limits</a>: how RPM, ITPM and OTPM limits work and which headers report them.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="deployment">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-deployment"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-deployment" class="notes" data-slug="deployment" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="cost-and-latency.html"><small>← Previous</small><span>Cost &amp; Latency Optimization</span></a>
+    <a class="pager-next" href="agent-security.html"><small>Next →</small><span>Agent Security &amp; Prompt Injection</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
+<li class="toc-h2"><a href="#deployment-shapes">Deployment Shapes</a></li>
+<li class="toc-h2"><a href="#a-reference-architecture">A Reference Architecture</a></li>
+<li class="toc-h2"><a href="#sandboxing-tool-execution">Sandboxing Tool Execution</a></li>
+<li class="toc-h2"><a href="#state-secrets-and-tenancy">State, Secrets and Tenancy</a></li>
+<li class="toc-h3"><a href="#state-and-session-storage">State and session storage</a></li>
+<li class="toc-h3"><a href="#secrets-management">Secrets management</a></li>
+<li class="toc-h3"><a href="#multi-tenancy-and-isolation">Multi-tenancy and isolation</a></li>
+<li class="toc-h2"><a href="#rate-limits-and-quotas">Rate Limits and Quotas</a></li>
+<li class="toc-h2"><a href="#versioning-releases-and-rollbacks">Versioning, Releases and Rollbacks</a></li>
+<li class="toc-h3"><a href="#what-a-version-is">What a version is</a></li>
+<li class="toc-h3"><a href="#shadow-canary-rollback">Shadow, canary, rollback</a></li>
+<li class="toc-h3"><a href="#cicd-with-eval-gates">CI/CD with eval gates</a></li>
+<li class="toc-h2"><a href="#monitoring-and-incident-response">Monitoring and Incident Response</a></li>
+<li class="toc-h3"><a href="#what-to-watch">What to watch</a></li>
+<li class="toc-h3"><a href="#incident-playbooks">Incident playbooks</a></li>
+<li class="toc-h2"><a href="#managed-platforms">Managed Platforms</a></li>
+<li class="toc-h2"><a href="#compliance">Compliance</a></li>
+<li class="toc-h2"><a href="#production-readiness-checklist">Production Readiness Checklist</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>
