@@ -13,17 +13,17 @@ prerequisites: [agent-security, guardrails-and-sandboxing, protocols-mcp-a2a]
 tags: [identity, oauth, authorization, mcp, payments, ap2, acp, x402, web-bot-auth, audit]
 ---
 
-Your assistant has spent the morning on your behalf. It read your calendar, moved two meetings, renewed a software subscription, and bought a replacement laptop charger. Now three people want answers. Your finance team asks who approved the $79 renewal. The merchant asks whether the charger order really came from you or from a bot using a stolen card. Your security team asks whether that assistant, which also reads email from strangers, holds the token that can empty your company's cloud account.
+Your assistant spent the morning on your behalf: it moved two meetings, renewed a subscription and bought a laptop charger. Now three people want answers. Your finance team asks who approved the $79 renewal. The merchant asks whether the charger order really came from you or from a bot using a stolen card. Your security team asks whether that assistant, which also reads email from strangers, holds the token that can empty your company's cloud account.
 
-None of these is a question about whether the model is clever. They are questions about **identity** (who is acting?), **authorization** (what are they allowed to do?), and **accountability** (can we prove what happened?). The web answers them for humans with logins, sessions, card security codes and the assumption that a person clicked "Buy". Agents break that assumption.
+These are questions about **identity** (who is acting?), **authorization** (what may they do?) and **accountability** (can we prove what happened?). The web answers them for humans with logins, sessions and the assumption that a person clicked "Buy". Agents break that assumption.
 
-This lesson builds on [Agent Security](agent-security.html), which framed agents as confused deputies that read everyone's text, and on [Guardrails, Permissions & Sandboxing](guardrails-and-sandboxing.html), which introduced credential-injecting proxies. Here we go deep on the identity layer: delegated OAuth and how MCP uses it, keeping secrets out of the model entirely, signed agent requests on the open web, audit trails that hold up in a dispute, and the new protocols that let agents pay for things.
+This lesson builds on [Agent Security](agent-security.html) and [Guardrails, Permissions & Sandboxing](guardrails-and-sandboxing.html) and goes deep on the identity layer: delegated OAuth and how MCP uses it, keeping secrets out of the model, signed agent requests on the web, audit trails that survive a dispute, and the new protocols that let agents pay.
 
 ## Why Agent Identity Matters
 
-When software acts for a person, at least four parties are involved: the **human principal** (the user whose authority is being used), the **agent** (a specific piece of software, at a specific version, in a specific session), the **operator** (the company that runs the agent), and the **relying party** (the API, website or merchant that has to decide whether to honor the request). The model itself is a component of the agent, not a party: it holds no rights of its own.
+When software acts for a person, at least four parties are involved: the **human principal** whose authority is used, the **agent** (specific software, version and session), the **operator** that runs it, and the **relying party** (the API, site or merchant deciding whether to honor the request). The model is a component of the agent and holds no rights of its own.
 
-Most early agent integrations collapsed these into one. The agent logged in *as* the user with the user's password, or carried an API key with the user's full rights. That works until something goes wrong, and then every question above becomes unanswerable.
+Early integrations collapsed these into one: the agent logged in *as* the user, or carried an API key with the user's full rights. That works until something goes wrong.
 
 | Property | Question it answers | What breaks without agent identity |
 |---|---|---|
@@ -34,35 +34,33 @@ Most early agent integrations collapsed these into one. The agent logged in *as*
 | **Classification** | Is this traffic a human, a known agent or an anonymous bot? | Sites must guess from IP addresses and user-agent strings, and either block helpful agents or admit scrapers |
 
 > [!KEY] On behalf of, never as
-> An agent should act **on behalf of** a user, with its own identity and a narrower grant, never **as** the user. Every design decision in this lesson follows from keeping those two identities separate and linked.
+> An agent should act **on behalf of** a user, with its own identity and a narrower grant, never **as** the user. Everything in this lesson follows from keeping the two identities separate but linked.
 
 ## Authentication vs. Authorization
-
-These two words are often blurred, and the blur causes real bugs.
 
 - **Authentication** (often shortened to *authn*) establishes *who* a party is: a user signing in with a passkey, a service presenting a client certificate, an agent signing a request with its private key.
 - **Authorization** (*authz*) decides *what that party may do*: read this calendar, charge up to $50 at this merchant, push to this repository.
 
-An agent needs both, for two different subjects. The *user* authenticates to grant authority. The *agent* authenticates to exercise it. A token that says "this is Alice" is authentication. A token that says "the travel agent may create calendar events for Alice until 15:00" is authorization.
+An agent needs both, for two subjects: the *user* authenticates to grant authority, and the *agent* authenticates to exercise it.
 
-The distinction that matters most for agents is **delegation versus impersonation**. With **impersonation**, the agent receives credentials indistinguishable from the user's own, so downstream systems cannot tell who acted. With **delegation**, the credential records both parties: the subject (Alice) *and* the actor (the agent), with a grant narrower than Alice's own rights. Delegation is what makes per-agent revocation, audit and least privilege possible.
+The distinction that matters most is **delegation versus impersonation**. With **impersonation**, the agent holds credentials indistinguishable from the user's, so nobody downstream can tell who acted. With **delegation**, the credential records both the subject (Alice) *and* the actor (the agent), with a grant narrower than Alice's own rights. That is what makes per-agent revocation, audit and least privilege possible.
 
-For the agent's own identity, the building blocks are the same as for any service: **workload identity** (a cryptographic identity issued to a running process, such as a cloud service account or a SPIFFE ID), OAuth client credentials, or a key pair whose public half is published somewhere a relying party can find it. What is new is that this identity must be bound to a *specific user's delegation* and often to a *single task*.
+The agent's own identity uses the same building blocks as any service: **workload identity** (a cryptographic identity issued to a running process, such as a cloud service account or a SPIFFE ID), OAuth client credentials, or a published key pair. What is new is binding it to *one user's delegation*, often for *one task*.
 
 ## Delegated Authorization with OAuth
 
-**OAuth 2.0** is the web's standard for delegated authorization: it lets a user grant an application limited access to their resources at another service without sharing a password. Its roles map neatly onto agents:
+**OAuth 2.0** is the web's standard for delegated authorization: a user grants an application limited access to their resources elsewhere without sharing a password. Its roles map onto agents:
 
 - **Resource owner**: the user.
 - **Client**: the agent host (the application running the agent loop).
 - **Authorization server (AS)**: issues tokens after the user consents.
 - **Resource server (RS)**: the API that accepts tokens.
 
-**OAuth 2.1**, still an IETF draft in 2026, consolidates a decade of security lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens that are sender-constrained or rotated on every use. Even where you implement 2.0, follow the **OAuth 2.0 Security Best Current Practice** (RFC 9700, January 2025).
+**OAuth 2.1**, still an IETF draft in 2026, consolidates a decade of lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens that are sender-constrained or rotated on each use. On 2.0, follow the **Security Best Current Practice** (RFC 9700, January 2025).
 
 ### Authorization code with PKCE
 
-The flow an agent host uses to obtain a user's consent is the **authorization code grant** with **PKCE** (Proof Key for Code Exchange, RFC 7636). The host generates a random secret, the *code verifier*, and sends only its SHA-256 hash, the *code challenge*, with the authorization request. When the host later redeems the authorization code, it must present the verifier. An attacker who intercepts the code (through a malicious app registered for the same redirect URI, a leaky log or a browser extension) cannot redeem it.
+An agent host obtains consent with the **authorization code grant** plus **PKCE** (Proof Key for Code Exchange, RFC 7636). The host generates a random *code verifier* and sends only its SHA-256 hash, the *code challenge*, with the authorization request. To redeem the code it must present the verifier, so an attacker who intercepts the code (via a malicious app on the same redirect URI, a leaky log or a browser extension) can't use it.
 
 ```mermaid
 sequenceDiagram
@@ -86,27 +84,27 @@ sequenceDiagram
   B-->>H: Result with secrets redacted
 ```
 
-Notice where the token lives: in the broker's vault, never in the model's context. We return to that pattern below.
+Notice where the token lives: in the broker's vault, never in the model's context.
 
 ### Scopes, audiences and lifetimes
 
-Three properties of a token determine how much damage it can do if misused or stolen:
+Three properties determine how much damage a misused or stolen token can do:
 
-- **Scope**: *which operations*. Request `calendar.events` rather than full account access, and `repo:read` for a single repository rather than write access to the whole organization. Ask for more only when needed (**incremental authorization**).
-- **Audience**: *which API*. An **audience-bound** token carries an `aud` claim naming the one resource server that should accept it. The client asks for it with the `resource` parameter (**Resource Indicators**, RFC 8707). A token minted for the calendar API is useless at the payments API, even if it leaks.
-- **Lifetime**: *for how long*. Short-lived access tokens (minutes) bound the window of misuse. Long-lived **refresh tokens** let the host mint new access tokens without bothering the user. They are the crown jewels, so keep them in a vault, rotate them on every use, and never place them anywhere a model can read.
+- **Scope**: *which operations*. Request `calendar.events`, not full account access; read on one repository, not write on the organization. Ask for more only when needed (**incremental authorization**).
+- **Audience**: *which API*. An **audience-bound** token carries an `aud` claim naming the one resource server that should accept it, requested with the `resource` parameter (**Resource Indicators**, RFC 8707). A leaked calendar token is useless at the payments API.
+- **Lifetime**: access tokens should live minutes. **Refresh tokens** mint new ones without bothering the user; they are the crown jewels, so vault them, rotate them on use, and keep them away from any model.
 
-A stronger option is a **sender-constrained** token, bound to a key the client holds, so a stolen copy is useless without that key. **DPoP** (RFC 9449) does this at the application layer, and mutual-TLS-bound tokens do it at the transport layer.
+Stronger still, a **sender-constrained** token is bound to a key the client holds, so a stolen copy is useless: **DPoP** (RFC 9449) does this at the application layer, mutual TLS at the transport layer.
 
 ### Refresh and revocation
 
-Revocation is where agent identity pays off. If the agent has its own OAuth client and its own grants, the user (or an administrator) can revoke *that agent's* refresh token without touching their own sessions or other agents. Design for it: show users a list of connected agents with their scopes and last use, make revocation one click, and make your broker fail closed when a refresh fails rather than falling back to some broader credential.
+If the agent has its own OAuth client and grants, the user or an administrator can revoke *that agent's* refresh token without touching their own sessions or other agents. Show users their connected agents with scopes and last use, make revocation one click, and make the broker fail closed when a refresh fails rather than falling back to a broader credential.
 
 ### Token exchange and on-behalf-of
 
-Agents often sit in the middle of a chain: the user authorizes the agent host, the host calls a tool service, the tool service calls a downstream API. Forwarding the user's token down the chain is dangerous (the MCP spec forbids exactly this "token passthrough"). Instead, each hop should obtain a *new* token for the next audience.
+Agents often sit mid-chain: user → agent host → tool service → downstream API. Forwarding the user's token down the chain is dangerous (MCP forbids this "token passthrough"); each hop should obtain a *new* token for the next audience.
 
-**OAuth 2.0 Token Exchange** (RFC 8693) standardizes this. A service presents a `subject_token` (representing the user) and optionally an `actor_token` (representing itself) to the authorization server, and asks for a token with a specific `audience` and narrower `scope`. The issued token can carry an **`act` (actor) claim**, which records who is acting for whom:
+**OAuth 2.0 Token Exchange** (RFC 8693) standardizes this. A service presents a `subject_token` (the user) and optionally an `actor_token` (itself), and asks for a token with a specific `audience` and narrower `scope`. The result can carry an **`act` (actor) claim** recording who acts for whom:
 
 ```json
 {
@@ -119,60 +117,44 @@ Agents often sit in the middle of a chain: the user authorizes the agent host, t
 }
 ```
 
-That `act` claim is the difference between delegation and impersonation, written into the token. Microsoft's identity platform offers a similar grant it calls the **on-behalf-of (OBO)** flow, and the term is widely used for the general pattern.
+That `act` claim is delegation, written into the token. Microsoft's identity platform calls a similar grant the **on-behalf-of (OBO)** flow, a name now widely used for the pattern.
 
 ### Consent screens that mean something
 
-A consent screen is the moment a human actually grants authority, so it deserves engineering care:
+Consent is the moment a human actually grants authority. Name the **agent**, not just the app ("Travel Assistant v3, run by Acme"); describe scopes by their **consequences** ("create, change and delete events"); show duration and how to revoke; and prefer small, task-specific grants over one large grant "just in case".
 
-- Name the **agent**, not only the app ("Travel Assistant v3, run by Acme, wants to…").
-- Describe scopes in plain language with **consequences** ("create, change and delete events on your calendars").
-- Show **duration** and how to revoke.
-- Prefer several small, task-specific grants over one large grant "just in case".
-
-Two further standards are worth knowing for agent consent. **Rich Authorization Requests** (RFC 9396) replace coarse scope strings with structured `authorization_details`, such as "one payment of at most €45 to this payee", so the grant can match a single action. **CIBA** (OpenID's Client-Initiated Backchannel Authentication) lets a client ask the authorization server to push an approval request to the user's phone, which suits an agent working in the background that needs a human "yes" for one step.
+Two standards fit agents well. **Rich Authorization Requests** (RFC 9396) replace scope strings with structured `authorization_details`, such as "one payment of at most €45 to this payee". **CIBA** (OpenID's Client-Initiated Backchannel Authentication) lets a client have the authorization server push an approval request to the user's phone, ideal for a background agent that needs one human "yes".
 
 ## How MCP Applies OAuth 2.1
 
-[Protocols: MCP & A2A](protocols-mcp-a2a.html#authorization) introduced MCP's authorization model: a remote MCP server is an OAuth resource server, it advertises its authorization server through Protected Resource Metadata (RFC 9728), the client uses authorization code plus PKCE, tokens are audience-bound, and token passthrough is forbidden. The current specification (revision 2026-07-28) adds several details that matter when you build or evaluate a client or server:
+[Protocols: MCP & A2A](protocols-mcp-a2a.html#authorization) introduced the model: a remote MCP server is an OAuth resource server discovered via Protected Resource Metadata (RFC 9728), clients use authorization code plus PKCE, tokens are audience-bound, and passthrough is forbidden. The current specification (revision 2026-07-28) adds details that matter when you build or evaluate a client or server:
 
-- **PKCE is checked, not assumed.** Clients must use the `S256` challenge method when technically capable, and must refuse to proceed if the authorization server's metadata lacks `code_challenge_methods_supported`, because without that field there is no evidence the server supports PKCE.
-- **Resource indicators are mandatory.** Clients send the MCP server's canonical URI as the `resource` parameter. Servers must validate that a token was issued for them, must reject anything else, and must not accept or transit any other token.
-- **Scopes are minimized and stepped up.** On a `401`, a server should name the needed scopes in the `WWW-Authenticate` header, and the client should request exactly those (falling back to the server's advertised `scopes_supported`). If a later operation needs more, the server answers `403` with `error="insufficient_scope"` and the required scopes. The client then runs a **step-up authorization**: it re-authorizes with the *union* of its previous scopes and the new ones, so it doesn't lose permissions it already had.
-- **Issuer validation.** Clients record the expected issuer before redirecting the user and compare the `iss` value in the authorization response against it (RFC 9207), which defeats "mix-up" attacks in which a malicious authorization server tricks a client into sending a code to the wrong place.
-- **Refresh tokens are never assumed.** Clients may request `offline_access`, but the authorization server decides whether to issue one.
+- **PKCE is verified.** Clients must use `S256` when technically capable, and must refuse to proceed if the authorization server's metadata lacks `code_challenge_methods_supported`.
+- **Resource indicators are mandatory.** Clients send the server's canonical URI as `resource`. Servers must reject tokens not issued for them and must not accept or transit any other token.
+- **Scopes are minimized, then stepped up.** On a `401`, the server should name the needed scopes in `WWW-Authenticate`, and the client requests exactly those. If a later operation needs more, the server answers `403` with `error="insufficient_scope"` and the required scopes, and the client runs **step-up authorization**: it re-authorizes for the *union* of old and new scopes, so it keeps what it had.
+- **Issuer validation.** Clients compare the `iss` in the authorization response with the issuer they recorded before redirecting (RFC 9207), defeating "mix-up" attacks that trick a client into sending a code to the wrong server.
+- **Refresh tokens are never assumed.** Clients may ask for `offline_access`; the authorization server decides.
 
-Two official **authorization extensions**, both opt-in and negotiated per request, cover cases the user-consent flow doesn't fit:
-
-- **OAuth Client Credentials**: machine-to-machine access with no human in the loop, for background services and CI pipelines. Here the agent authenticates as *itself*. That fits when it acts for an organization rather than for a particular user.
-- **Enterprise-Managed Authorization**: the organization's identity provider (IdP) decides which MCP servers each employee may use. The client exchanges the employee's SSO identity assertion at the IdP for an **Identity Assertion JWT Authorization Grant** (ID-JAG), using an RFC 8693 token exchange, then trades the ID-JAG for an access token at the MCP server's authorization server. Employees don't see per-server consent screens, and revoking access at the IdP takes effect everywhere.
+Two official, opt-in **authorization extensions** cover cases user consent doesn't fit. **OAuth Client Credentials** gives machine-to-machine access for background services and CI, with the agent authenticating as *itself*. **Enterprise-Managed Authorization** puts the organization's identity provider (IdP) in charge: the client exchanges the employee's SSO assertion at the IdP for an **Identity Assertion JWT Authorization Grant** (ID-JAG) via an RFC 8693 token exchange, then trades it for an access token at the MCP server's authorization server. No per-server consent screens, and revocation at the IdP applies everywhere.
 
 > [!NOTE]
 > MCP is versioned by date and its authorization rules have tightened with each revision. Check the current specification before implementing, and prefer an official SDK, which handles discovery, PKCE and step-up for you.
 
 ## Keep Secrets Out of the Model
 
-The single most important rule in this lesson: **never give a model a raw, long-lived secret.** Not in the system prompt, not in a tool result, not in an environment variable that a code-execution tool can print, not in memory.
+The most important rule in this lesson: **never give a model a raw, long-lived secret**, whether in the system prompt, a tool result, an environment variable a code tool can print, or memory. Anything in context can come back out (in a reply, a tool argument, an image URL), and prompt injection turns that into an attack ([the lethal trifecta](agent-security.html#the-lethal-trifecta-and-exfiltration)). Context is also copied widely: traces, eval datasets, logs, caches.
 
-The reasons stack up:
-
-- Anything in the context can come back out: in a reply, a tool argument, a markdown image URL or a log line. Prompt injection turns that from an accident into an attack ([the lethal trifecta](agent-security.html#the-lethal-trifecta-and-exfiltration)).
-- Context is copied widely: traces, evaluation datasets, provider logs, caches, memory stores.
-- A model cannot be trusted to use a secret only as intended, because it cannot reliably tell your instructions from an attacker's.
-
-The alternative is a **credential broker**: a component outside the model that holds tokens, decides whether a given tool call may use one, attaches it, and strips secrets from what comes back. The model sees tool names and arguments, never credentials. [Guardrails & Sandboxing](guardrails-and-sandboxing.html#credential-isolation-via-proxies) showed the network-level version, an egress proxy that injects headers for allowlisted hosts. The broker below is the application-level version, which can also understand *which tool* is being called and *for how much money*.
+Instead, use a **credential broker**: a component outside the model that holds tokens, decides whether a tool call may use one, attaches it, and strips secrets from results. [Guardrails & Sandboxing](guardrails-and-sandboxing.html#credential-isolation-via-proxies) showed the network-level version, an egress proxy. A broker works at the application level, so it also knows *which tool* is being called and *for how much money*.
 
 ### Per-tool and per-action scoping
 
-A broker lets you scope far more finely than a single OAuth grant:
-
-- **Per tool**: each tool declares the one scope and one audience it needs. `list_orders` gets an `orders:read` token for the orders API. It can never obtain a payments token, whatever the model asks.
-- **Per action**: arguments are checked against the grant. A purchase must be to an allowlisted merchant, under the per-purchase threshold, and within the session's remaining budget.
-- **Per call**: mint a fresh short-lived token for each call (via token exchange), so a token that leaks through a misbehaving API response expires in minutes.
+- **Per tool**: each tool declares one scope and one audience. `list_orders` gets an `orders:read` token for the orders API and can never obtain a payments token.
+- **Per action**: arguments are checked against the grant: allowlisted merchant, under the approval threshold, within the remaining budget.
+- **Per call**: a fresh short-lived token for each call (via token exchange), so one that leaks through an API response expires in minutes.
 
 ### A credential-broker tool executor
 
-Here is a compact, self-contained broker. A `Grant` records what the user approved. Each `ToolSpec` declares the scope and audience its API needs. The broker checks the grant, reserves spend before charging, adds an idempotency key so a retried purchase can't charge twice, mints a short-lived token per call, and redacts the token from results.
+A `Grant` records what the user approved; each `ToolSpec` declares the scope and audience its API needs. The broker checks the grant, reserves spend before charging, adds an idempotency key so a retry can't charge twice, mints a short-lived token per call, and redacts it from results.
 
 ```python
 import hashlib, json, time
@@ -248,7 +230,7 @@ class CredentialBroker:
         return {"content": result.replace(token, "[REDACTED]"), "is_error": False}
 ```
 
-Wiring it into a manual agent loop takes a few lines. The tool schemas the model sees contain no token, card number or key, only business arguments:
+Wiring it into a manual agent loop takes a few lines. The schemas the model sees contain only business arguments, never a token or card number:
 
 ```python
 import anthropic
@@ -281,38 +263,29 @@ def run_agent(broker: CredentialBroker, task: str, max_steps: int = 20) -> str:
     return "Stopped: step budget exhausted"
 ```
 
-What this design guarantees, even if the model is fully hijacked by an injected instruction:
-
-- It cannot read, print or exfiltrate a token, because no token ever enters its context.
-- It cannot call an API outside the granted scopes, or use a token at the wrong API, because each token is minted for one scope and one audience.
-- It cannot pay an unlisted merchant, exceed the cap, or skip approval above the threshold, because those checks run in plain code.
-- Retrying a purchase with the same arguments reuses the idempotency key, so a well-behaved payment API won't charge twice.
-
-What it doesn't guarantee: an injected agent can still waste the *remaining* budget on allowlisted merchants, or buy the wrong item within the limits. That's why limits should be tight and approvals informative. In production, keep `spent` in a shared store with atomic updates (two parallel workers must not both pass the cap), and back the cap up at the payment layer as well, as described under spend controls below.
+Even a fully hijacked model can't exfiltrate a token (none enters its context), use one outside its scope or audience, pay an unlisted merchant, exceed the cap or skip approval, because those checks run in plain code. What it *can* still do is waste the remaining budget on allowlisted merchants or buy the wrong item within limits, so keep limits tight and approvals informative. In production, keep `spent` in a shared store with atomic updates so parallel workers can't both pass the cap, and back the cap up at the payment layer.
 
 ## Human Approval for High-Value Actions
 
-Some actions should never be fully delegated: large payments, new payees, sharing data outside an organization, granting permissions. [Human-in-the-Loop](human-in-the-loop.html) covers approval UX in general. Identity adds three requirements:
+Some actions should never be fully delegated: large payments, new payees, sharing data externally, granting permissions. Beyond the general UX in [Human-in-the-Loop](human-in-the-loop.html), identity adds three requirements:
 
-1. **Approve the action, not the prose.** Render the approval from the structured arguments (merchant, item, amount, currency, recipient), not from the model's summary of them. A hijacked model can describe a $900 transfer as "the $9 renewal you asked for". This principle is sometimes called **what you see is what you sign**.
-2. **Use a trusted surface.** Approval should happen in a UI the agent cannot draw or click on: the operator's own app, the bank's app, an OS-level passkey prompt, or a CIBA push to the user's phone. An approval button rendered inside a page the agent controls proves nothing.
-3. **Make approval cryptographic when stakes are high.** A passkey or device-bound key signing a hash of the exact action produces evidence the user can't plausibly deny later, and that the operator can't forge. This is exactly what payment mandates (below) formalize.
+1. **Approve the action, not the prose.** Render approval from the structured arguments (merchant, amount, recipient), never the model's summary: a hijacked model can describe a $900 transfer as "the $9 renewal you asked for". This is **what you see is what you sign**.
+2. **Use a trusted surface** the agent can't draw or click on: the operator's or bank's app, an OS passkey prompt, a CIBA push.
+3. **Make high-stakes approval cryptographic.** A passkey signing a hash of the exact action is evidence the user can't plausibly deny and the operator can't forge, which is what payment mandates formalize.
 
-Approval thresholds should follow reversibility and blast radius: low-value purchases at known merchants within a pre-approved budget can be automatic; new merchants, unusual amounts or anything after the agent has read untrusted content should ask.
+Set thresholds by reversibility and blast radius: small purchases at known merchants within budget can be automatic; new merchants, unusual amounts, or anything after the agent read untrusted content should ask.
 
 ## Agent Identity on the Web
 
-When an agent browses or calls a public website, there's no OAuth relationship to lean on. Sites have traditionally classified traffic by **user-agent strings** (trivial to spoof) and **IP address ranges** (brittle, and shared by cloud tenants). The result is a bad equilibrium: helpful agents get blocked as bots, and scrapers pretend to be browsers.
+On the open web there's no OAuth relationship to lean on. Sites classify traffic by **user-agent strings** (trivial to spoof) and **IP ranges** (brittle and shared), so helpful agents get blocked while scrapers pose as browsers.
 
 ### Signed agent requests: Web Bot Auth
 
-**Web Bot Auth** lets an automated client prove *which operator* sent a request by signing it. It builds on **HTTP Message Signatures** (RFC 9421, published in 2024), a general standard for signing selected parts of an HTTP request. Cloudflare proposed the approach in May 2025. The IETF formed a **webbotauth** working group in October 2025, and its protocol document, *HTTP Message Signatures for Bots*, was still an Internet-Draft as of late 2026, so details may change.
+**Web Bot Auth** lets an automated client prove *which operator* sent a request by signing it with **HTTP Message Signatures** (RFC 9421, 2024). Cloudflare proposed it in May 2025. The IETF formed a **webbotauth** working group in October 2025, and its protocol document, *HTTP Message Signatures for Bots*, was still an Internet-Draft in late 2026, so details may change.
 
-The mechanism has three parts:
-
-- The operator generates a key pair (Ed25519 in the reference implementation) and publishes the public keys in a **key directory** at `/.well-known/http-message-signatures-directory` on its own domain.
-- Each request carries a `Signature-Agent` header pointing at that directory, and `Signature-Input` and `Signature` headers containing an RFC 9421 signature over at least the target authority, with a creation time, an expiry, a nonce and the tag `web-bot-auth`.
-- The site fetches and caches the operator's keys, verifies the signature, rejects replayed nonces, and applies its policy for that operator.
+- The operator publishes its public keys (Ed25519 in the reference implementation) in a **key directory** at `/.well-known/http-message-signatures-directory` on its own domain.
+- Each request carries a `Signature-Agent` header pointing there, plus `Signature-Input` and `Signature` headers: an RFC 9421 signature over at least the target authority, with creation and expiry times, a nonce and the tag `web-bot-auth`.
+- The site fetches and caches the keys, verifies the signature, rejects replayed nonces, and applies its policy for that operator.
 
 An abbreviated, illustrative request:
 
@@ -324,23 +297,21 @@ Signature-Input: sig1=("@authority" "signature-agent");created=1795430000;expire
 Signature: sig1=:<base64 signature>:
 ```
 
-Card networks have adopted this layer for commerce. Visa's **Trusted Agent Protocol** (October 2025, developed with Cloudflare) and Mastercard's Agent Pay build on Web Bot Auth so that merchants can recognize registered shopping agents and tell browsing from purchasing.
+Visa's **Trusted Agent Protocol** (October 2025, developed with Cloudflare) and Mastercard's Agent Pay build on Web Bot Auth so merchants can recognize registered shopping agents.
 
-Be precise about what a signature proves. It proves the request came from the holder of a key published by a particular operator, which gives you accountability and a stable identity for rate limits and allowlists. It does *not* prove which user the agent serves, that the user authorized this particular action, or that the agent is behaving well. Privacy is an open issue too: a stable signature lets sites track an agent across requests, and the working group is also discussing anonymous variants.
+Be precise about what a signature proves: the request came from the holder of a key a particular operator published. That gives accountability and a stable identity for rate limits and allowlists. It does *not* prove which user the agent serves, that the user authorized this action, or that the agent behaves well. Privacy is open too: a stable signature makes agents trackable, and the working group is also discussing anonymous variants.
 
 ### Verifiable credentials and "know your agent"
 
-Signatures answer "which operator?". Relying parties increasingly want richer claims: Is this agent registered with a payment network? Which company is accountable for it? Has its operator passed some vetting? The general tool for portable, signed claims is the **verifiable credential (VC)**: a tamper-evident statement by an issuer about a subject, which the holder can present to anyone who trusts the issuer. The W3C's Verifiable Credentials 2.0 family became a W3C Recommendation in 2025. Formats such as **SD-JWT** add **selective disclosure**, so a holder can reveal only the claims a verifier needs.
+Relying parties increasingly want richer claims than "which operator": Is this agent registered with a payment network? Who is accountable for it? The general tool is the **verifiable credential (VC)**: a tamper-evident statement by an issuer about a subject, presentable to anyone who trusts the issuer (the W3C's VC 2.0 family became a Recommendation in 2025). Formats such as **SD-JWT** add **selective disclosure**, revealing only the claims a verifier needs.
 
-Industry discussions borrow the banking term *know your customer* and call the agent version **know your agent (KYA)**. Concrete programs exist mainly at the payment networks: Mastercard's Agent Pay requires agents to be registered and verified before they can transact, and Visa has described a directory of verified agents. There is no single cross-industry KYA standard as of 2026, so treat the term as a direction rather than a specification.
+Borrowing from banking's *know your customer*, the industry talks about **know your agent (KYA)**. Concrete programs exist mainly at the networks: Mastercard's Agent Pay requires agents to be registered and verified, and Visa has described a directory of verified agents. There's no cross-industry KYA standard as of 2026; treat it as a direction, not a specification.
 
 ## Audit Logging and Non-Repudiation
 
-[Guardrails & Sandboxing](guardrails-and-sandboxing.html#auditing) covered tamper-evident audit logs. Identity raises the bar from "what happened?" to "who authorized it, and can they deny it?".
+[Guardrails & Sandboxing](guardrails-and-sandboxing.html#auditing) covered tamper-evident logs. Identity raises the bar from "what happened?" to "who authorized it, and can they deny it?". A delegated-action record should hold the principal, the agent identity and version, the grant or mandate ID and scopes, the canonicalized action, the policy decision, any approval with its time and method, the token's `jti` (its unique ID, never the token), and the provenance of untrusted content in context.
 
-A useful delegated-action record contains the human principal, the agent identity and version, the operator, the grant or mandate ID and its scopes, the exact canonicalized action, the policy decision and matching rule, any approval with its timestamp and method, the token's `jti` (unique token ID, never the token itself), and the provenance of untrusted content in context at the time.
-
-**Non-repudiation** means a party cannot credibly deny having performed an action. Know what each mechanism gives you:
+**Non-repudiation** means a party can't credibly deny an action. Know what each mechanism gives you:
 
 | Mechanism | Detects tampering? | Proves who acted? | Limits |
 |---|---|---|---|
@@ -349,13 +320,11 @@ A useful delegated-action record contains the human principal, the agent identit
 | Write-once storage, external anchoring | Yes | No | Proves when a record existed, not who authorized it |
 | Signature by the user's own key (passkey, wallet) | Yes | **Yes**, for that party | Only covers what the user actually saw and signed |
 
-Only the last row provides non-repudiation, and only for the person whose key signed. An operator's log, however well protected, is the operator's word. That is why payment protocols move the critical step, the user's approval of exactly what will be paid, into a signature made on a trusted surface with the user's key.
+Only the last row gives non-repudiation, and only for whoever's key signed. An operator's log, however well protected, is the operator's word, which is why payment protocols put the user's approval of exactly what will be paid into a signature made with the user's key.
 
 ## Agentic Payments
 
-Payments concentrate every problem above. Money moves fast and is hard to claw back. Card fraud rules assume a human was present at checkout. Liability rules assume someone can say "yes, I did that" or "no, I didn't". As the AP2 overview puts it, when an agent pays, it's unclear what proves the user granted authority for this purchase, whether the request reflects the user's true intent, and who is accountable when it goes wrong.
-
-Several efforts launched in 2025 and 2026 to answer these questions. They overlap and sometimes compete:
+Payments concentrate every problem above. Money is hard to claw back, card fraud rules assume a human at checkout, and liability assumes someone can say "yes, I did that". As AP2's overview frames it: what proves the user authorized this purchase, does the request reflect their true intent, and who is accountable when it goes wrong? Several overlapping, sometimes competing efforts launched in 2025 and 2026:
 
 | Effort | Backers | What it standardizes | Status (as of late 2026) |
 |---|---|---|---|
@@ -367,16 +336,15 @@ Several efforts launched in 2025 and 2026 to answer these questions. They overla
 
 ### AP2 and payment mandates
 
-Google announced **AP2** on September 16, 2025 as an open protocol designed to extend A2A and MCP, with dozens of payments and technology partners. Its core idea is the **mandate**: a cryptographically signed record of what a user authorized. Version 0.1 defined three: an *intent mandate* (the user's request and its constraints), a *cart mandate* (the exact items and price) and a *payment mandate* (a signal to the payment network that an agent was involved).
+Google announced **AP2** on September 16, 2025 as an open extension for A2A and MCP, with dozens of payments and technology partners. Its core idea is the **mandate**: a signed record of what a user authorized. Version 0.1 defined an *intent mandate* (the request and its constraints), a *cart mandate* (exact items and price) and a *payment mandate* (signaling agent involvement to the network).
 
-On April 28, 2026, Google published **AP2 v0.2** and donated the protocol to the **FIDO Alliance**, the standards body behind passkeys. Mastercard's related **Verifiable Intent** specification, built with Google, was contributed alongside it. Version 0.2 reorganizes the model around two mandate types, each of which can be *open* or *closed*:
+On April 28, 2026, Google published **AP2 v0.2** and donated the protocol to the **FIDO Alliance**, the standards body behind passkeys, alongside Mastercard's related **Verifiable Intent** specification. Version 0.2 has two mandate types, each *open* or *closed*:
 
-- A **Checkout Mandate** proves to the merchant that the agent may buy *this checkout*. The merchant first signs the checkout it offers (as a JWT), and the closed mandate is bound to that signed checkout by hash.
-- A **Payment Mandate** proves to the credential provider, network and processor that the agent may pay *for this checkout*. It's bound to the same checkout hash, so it can't be reused for a different purchase.
-- An **open** mandate carries the user's **constraints** instead of a specific checkout: allowed merchants, line items, an amount range, a total budget, how many times it may be used, a date window. It is signed by the user on a **Trusted Surface**, names the agent's public key (a `cnf` claim), and should expire as soon as the task allows.
-- A **closed** mandate describes one specific transaction. Verifiers always receive closed mandates.
+- A **Checkout Mandate** proves to the merchant that the agent may buy *this checkout*. The merchant signs the checkout it offers (as a JWT), and the closed mandate is bound to it by hash.
+- A **Payment Mandate** proves to the credential provider, network and processor that the agent may pay *for that checkout*, bound to the same hash so it can't fund a different purchase.
+- An **open** mandate carries the user's **constraints** instead: allowed merchants, line items, amount range, budget, number of uses, date window. The user signs it on a non-agentic **Trusted Surface**; it names the agent's public key (a `cnf` claim) and should expire as soon as the task allows. Verifiers always receive **closed** mandates, which describe one transaction.
 
-In the **human-present** mode, the user sees the exact checkout and signs closed mandates directly. In the **human-not-present** mode ("buy two tickets when they go on sale, under $300 total"), the user signs open mandates up front, and the agent later signs closed mandates with its own key. The verifier checks that the agent's key matches the one the user named and that the closed mandate satisfies the open mandate's constraints. Mandates are SD-JWT credentials, so the agent discloses only the constraints a given verifier needs.
+In **human-present** mode the user signs closed mandates for the exact checkout. In **human-not-present** mode ("two tickets under $300 when sales open"), the user signs open mandates up front and the agent later signs closed ones with its own key; verifiers check that key against the open mandate and the closed mandate against its constraints. Mandates are SD-JWT credentials, so each verifier sees only the constraints it needs.
 
 ```mermaid
 sequenceDiagram
@@ -404,30 +372,28 @@ sequenceDiagram
   M-->>SA: Signed checkout receipt
 ```
 
-Three design choices stand out, and they're worth copying even outside payments:
+Three design choices are worth copying even outside payments:
 
-- **The model is in the threat model.** The AP2 security considerations state that the protocol "assumes that preventing prompt injection attacks is infeasible" and treat every LLM and agent as a potential attacker. The Trusted Surface must be non-agentic, and all verification must run in deterministic code.
-- **Constraints bound the worst case.** If injected content steers the agent toward a bad product, the merchant's signature still guarantees the offer's integrity, and constraint checks still cap the financial damage.
-- **Double spend is explicit.** An agent must not present a new closed mandate under the same open mandate without first receiving a receipt rejecting the previous one, so one approval can't fund several purchases.
+- **The model is in the threat model.** AP2's security considerations state that it "assumes that preventing prompt injection attacks is infeasible" and treat every LLM and agent as a potential attacker; all verification runs in deterministic code.
+- **Constraints bound the worst case.** If injection steers the agent to a bad product, the merchant's signature protects the offer's integrity and constraint checks cap the damage.
+- **Double spend is explicit.** An agent may not present a new closed mandate under the same open mandate without a receipt rejecting the previous one.
 
 ### ACP and delegated payment tokens
 
-OpenAI and Stripe released the **Agentic Commerce Protocol** on September 29, 2025, alongside **Instant Checkout** in ChatGPT. ACP is Apache-2.0 licensed, maintained by both companies, and versioned by date. Its 2026-04-17 release added carts, product feeds, orders, authentication and MCP support. It has two main pieces:
+OpenAI and Stripe released the **Agentic Commerce Protocol** on September 29, 2025, alongside **Instant Checkout** in ChatGPT. It is Apache-2.0 licensed and versioned by date (the 2026-04-17 release added carts, product feeds, orders, authentication and MCP support). Two pieces matter here:
 
-- An **agentic checkout** API that merchants implement, so an agent can create and update a checkout session and complete it, while the merchant stays the **merchant of record** and keeps its own payment processing.
-- A **delegated payment** spec. The user's payment provider tokenizes a credential with an **allowance**: a one-time use, a `max_amount` in minor units, a currency, the specific `checkout_session_id` and `merchant_id`, and an `expires_at` time. The agent passes the token to the merchant and never handles the card number. Stripe's comparable primitive is the **Shared Payment Token**, a scoped, expiring reference to a stored payment method.
+- An **agentic checkout** API that merchants implement, so an agent can create, update and complete a checkout while the merchant stays **merchant of record**.
+- A **delegated payment** spec: the payment provider tokenizes the user's credential with an **allowance** (one-time use, a `max_amount` in minor units, currency, the specific `checkout_session_id` and `merchant_id`, and `expires_at`). The agent never handles the card number. Stripe's comparable primitive is the **Shared Payment Token**.
 
-The allowance is the same idea as the broker's per-action scoping, enforced by the payment provider instead of the agent: a token that can pay at most this much, to this merchant, for this checkout, before this time.
-
-Products built on these protocols are moving fast. In March 2026 OpenAI scaled back native Instant Checkout in ChatGPT and shifted purchases into merchants' own apps inside ChatGPT, citing a need for more flexibility. The ACP specification itself continued to evolve. Treat any specific product integration as provisional, and the delegation patterns as durable.
+The allowance is the broker's per-action scoping, enforced by the payment provider. Products move fast: in March 2026 OpenAI scaled back native Instant Checkout, shifting purchases into merchants' own apps inside ChatGPT, while the ACP spec kept evolving. Treat product integrations as provisional and the delegation patterns as durable.
 
 ### UCP: the commerce layer
 
-Google introduced the **Universal Commerce Protocol** in January 2026 at the National Retail Federation conference, co-developed with Shopify and endorsed by retailers and payment companies. UCP covers the shopping workflow itself: capability discovery, checkout, fulfillment, discounts and payment handlers. AP2 positions itself as the authorization layer that plugs into a commerce protocol such as UCP, and the AP2 specification says it is designed to be compatible with it. ACP and UCP overlap at the checkout layer, and as of 2026 it isn't clear whether they will converge.
+Google introduced the **Universal Commerce Protocol** in January 2026 at the National Retail Federation conference, co-developed with Shopify and endorsed by retailers and payment companies. UCP covers the shopping workflow (capabilities, checkout, fulfillment, discounts, payment handlers), and AP2 is designed as the authorization layer that plugs into it. ACP and UCP overlap at checkout; whether they converge is open.
 
 ### x402: payments inside HTTP
 
-HTTP reserved status code **402 Payment Required** in the 1990s and never defined how to use it. **x402**, launched by Coinbase in May 2025, gives it a protocol, aimed at machine-to-machine payments: an agent paying per API call, per article or per dataset, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025, and in 2026 the protocol moved to the x402 Foundation under the Linux Foundation.
+HTTP reserved status **402 Payment Required** in the 1990s but never defined it. **x402**, launched by Coinbase in May 2025, gives it a protocol for machine-to-machine payments: paying per API call or per article, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025, and in 2026 it moved under the Linux Foundation.
 
 In version 2, the exchange looks like this (abbreviated):
 
@@ -448,26 +414,20 @@ HTTP/1.1 200 OK
 PAYMENT-RESPONSE: <base64 JSON: settlement result, transaction reference>
 ```
 
-The server can verify and settle the payment itself, or delegate both to a **facilitator** service through `/verify` and `/settle` endpoints. Payments today are mostly in stablecoins such as USDC (an amount of `10000` is one cent, since USDC has six decimal places), and the spec defines schemes such as `exact` (a fixed price) and `upto` (authorize a maximum, settle actual usage).
+The server verifies and settles itself or through a **facilitator** (`/verify` and `/settle` endpoints). Payments are mostly in stablecoins such as USDC (`10000` is one cent, at six decimals), with schemes such as `exact` (fixed price) and `upto` (authorize a maximum, settle actual usage).
 
-For agent builders, x402 moves the spend decision into the agent's own runtime: the client decides whether to sign each payment. That makes a broker-style policy essential. Allowlist payees and networks, cap per-request and per-period spend, keep the wallet key outside the model and the sandbox, and never let content from the paid resource raise the agent's own limits.
+x402 puts the spend decision in the agent's own runtime, so a broker-style policy is essential: allowlist payees and networks, cap per-request and per-period spend, keep the wallet key outside the model and sandbox, and never let content from a paid resource change the limits.
 
 ### Card-network agent programs
 
-The card networks are adapting existing rails rather than replacing them:
-
-- **Mastercard Agent Pay** (announced April 29, 2025) introduced **Agentic Tokens**, built on Mastercard's tokenization, and requires agents to be registered and verified. Consumers define what an agent may buy on their behalf.
-- **Visa Intelligent Commerce** (announced April 30, 2025) gives agents tokenized credentials in place of card numbers, with consumer-set spending limits and conditions, through APIs and a partner program. Visa's Trusted Agent Protocol followed in October 2025.
-- Both networks, and others, use Web Bot Auth so merchants can recognize trusted agents in their traffic.
-
-The common pattern: a **network token** scoped to an agent, which the issuer can limit by amount, merchant and time and can revoke without reissuing the user's card, plus a signal on the transaction that an agent was involved.
+The networks are adapting existing rails. **Mastercard Agent Pay** (announced April 29, 2025) introduced **Agentic Tokens** and requires agents to be registered and verified; consumers define what an agent may buy. **Visa Intelligent Commerce** (announced April 30, 2025) gives agents tokenized credentials with consumer-set spending limits, followed by the Trusted Agent Protocol in October 2025. The common pattern is a **network token** scoped to an agent, limitable by amount, merchant and time and revocable without reissuing the user's card, plus a transaction signal that an agent was involved.
 
 > [!KEY] Verifiable delegation, enforced outside the agent
-> Every serious payment design makes the same two moves: it records *exactly what the user authorized* in a form the user signed, and it enforces the limits somewhere the agent can't reach (a mandate verifier, a scoped token, an issuer's controls). The agent proposes, and deterministic systems that hold the authority decide.
+> Every serious payment design records *exactly what the user authorized* in a form the user signed, and enforces limits somewhere the agent can't reach: a mandate verifier, a scoped token, an issuer's controls. The agent proposes; deterministic systems decide.
 
 ## Spend Controls, Fraud and Injection
 
-Layer the controls so that no single failure lets money escape.
+Layer controls so no single failure lets money escape.
 
 | Layer | Control | Catches |
 |---|---|---|
@@ -479,32 +439,30 @@ Layer the controls so that no single failure lets money escape.
 
 Payment-specific attacks to design against:
 
-- **Injected purchasing.** A product page, review or email tells the agent to buy something, add an item, or "use this faster checkout link" that leads to an attacker's merchant. Defense: payees come from an allowlist or a merchant-signed checkout, never from free text the agent read.
-- **Price and cart manipulation.** Content claims a discount or a different price. Defense: the price that matters is the one in the merchant-signed checkout, checked against the user's constraints.
-- **Splitting.** The agent is steered into many purchases just under the approval threshold. Defense: aggregate caps per merchant, per day and per grant, not only per transaction.
-- **Mandate or token replay.** A stolen authorization is reused for another purchase. Defense: bind every authorization to one checkout by hash or session ID, make it single-use, and give it a short expiry.
-- **Agent impersonation.** A fraudster's bot claims to be a trusted shopping agent. Defense: signed agent requests with keys published by the operator, plus network registration.
-- **Refund and dispute abuse.** A user falsely claims "my agent did that without permission". Defense: signed mandates and receipts that show what the user actually approved.
+- **Injected purchasing**: a page or email tells the agent to buy something or "use this faster checkout link". Payees must come from an allowlist or a merchant-signed checkout, never from text the agent read.
+- **Price manipulation**: content claims a discount. Only the price in the merchant-signed checkout counts, checked against the user's constraints.
+- **Splitting**: many purchases just under the approval threshold. Use aggregate caps per merchant, day and grant.
+- **Replay**: a stolen authorization reused elsewhere. Bind it to one checkout, make it single-use and short-lived.
+- **Agent impersonation**: a fraudster's bot claims to be a trusted agent. Require signed requests and network registration.
+- **Dispute abuse**: a user falsely says "my agent did that". Signed mandates and receipts show what was approved.
 
 > [!WARNING] The agent's own view is not evidence
 > Never let the model's description of a purchase serve as the approval record, the fraud signal or the dispute evidence. Use the structured, signed artifacts: the merchant's checkout, the user's mandate, the processor's receipt.
 
 ## Regulation and Liability
 
-Law and payment-network rules were written for human payers, and as of 2026 the agent cases are mostly unsettled. Two examples show the shape of the problem.
+Payment law and network rules were written for human payers, and as of 2026 the agent cases are mostly unsettled. In the United States, Regulation E (under the Electronic Fund Transfer Act) limits consumer liability for *unauthorized* transfers but excludes transfers by someone the consumer furnished the means of access to, until the consumer revokes that permission. Commentators disagree on whether handing credentials to an AI agent counts, and on how to treat an agent that had access but made a transaction the user didn't intend. In the European Union, **strong customer authentication** (two independent factors) is required for most payer-initiated electronic payments, pushing designs toward the user authenticating at delegation time.
 
-In the United States, consumer protection for electronic fund transfers (the Electronic Fund Transfer Act and its Regulation E) limits a consumer's liability for *unauthorized* transfers. It also excludes transfers made by someone to whom the consumer furnished the means of access, unless the consumer has told the institution that person is no longer authorized. Legal commentators disagree about whether giving an AI agent your credentials counts as furnishing access, and about how to treat an agent that has access but makes a transaction the user didn't intend. In the European Union, the payment services rules require **strong customer authentication** (two independent factors) for most electronic payments a payer initiates, which pushes agent designs toward the user authenticating at delegation time, or toward transactions that legitimately fall outside the payer-initiated model.
-
-Card networks set their own dispute and liability rules, and several have announced agent programs, but analysts generally note that no clear liability shift for agent transactions has been established. Practical guidance for builders: keep the evidence a dispute will need (what the user approved, on which surface, with which key, and what was actually charged), make delegation scopes and revocation visible to users, and get legal review before you ship autonomous purchasing. [Safety, Alignment & Governance](agent-safety-alignment.html) covers the wider regulatory picture.
+Card networks set their own dispute rules, and analysts generally note that no clear liability shift for agent transactions exists yet. So keep the evidence a dispute needs (what the user approved, where, with which key, and what was charged), make scopes and revocation visible, and get legal review before shipping autonomous purchasing. [Safety, Alignment & Governance](agent-safety-alignment.html) covers the wider regulatory picture.
 
 ## Key Takeaways
 
-- Agents need their **own identity**, linked to but distinct from the user's: act *on behalf of*, never *as*. That's what makes accountability, least privilege, per-agent revocation and audit possible.
+- Agents need their **own identity**, linked to the user's: act *on behalf of*, never *as*. That enables accountability, least privilege, per-agent revocation and audit.
 - **Authentication** proves who; **authorization** decides what. Prefer **delegation** (subject plus actor, as in RFC 8693's `act` claim) over impersonation.
-- Delegated OAuth for agents means **authorization code + PKCE**, **narrow scopes**, **audience-bound, short-lived** access tokens, vaulted and rotated refresh tokens, **token exchange** at every hop instead of passthrough, and consent screens that name the agent and the consequences.
-- **MCP** applies OAuth 2.1 strictly: verified PKCE support, mandatory resource indicators, audience validation, scope challenges with **step-up authorization**, and issuer validation, plus opt-in extensions for machine-to-machine and enterprise IdP-managed access.
+- Delegated OAuth for agents means **authorization code + PKCE**, **narrow scopes**, **audience-bound, short-lived** tokens, vaulted refresh tokens, and **token exchange** at every hop instead of passthrough.
+- **MCP** applies OAuth 2.1 strictly: verified PKCE, mandatory resource indicators, audience validation, **step-up authorization** and issuer checks, plus opt-in machine-to-machine and enterprise-IdP extensions.
 - **Never put raw secrets in the model's context.** A **credential broker** holds tokens, mints per-call scoped tokens, enforces per-tool and per-action policy (allowlists, spend caps, approvals) in code, and redacts results.
-- On the open web, **Web Bot Auth** (HTTP Message Signatures with published operator keys, still an IETF draft) identifies the operator, not the user's intent. Verifiable credentials and KYA programs aim to carry richer, verified claims.
+- **Web Bot Auth** (signed requests with published operator keys, still an IETF draft) identifies the operator, not the user's intent.
 - Hash chains detect tampering, but only **signatures by the user's own key** give non-repudiation, which is why payment protocols center on **signed mandates**.
 - Agent payment protocols (**AP2**, **ACP**, **UCP**, **x402**, card-network programs) are young and moving, but share one principle: verifiable delegation with limits enforced **outside the agent**, assuming the model can be injected.
 
