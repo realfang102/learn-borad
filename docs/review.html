@@ -501,8 +501,22 @@
 </ul>
 
   </article>
+<article class="review-lesson prose" data-slug="long-running-agents">
+    <h3><a href="long-running-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>33. Long-Running Agents</a></h3>
+    
+<ul>
+<li>When a task spans many context windows and sessions, the transcript is disposable and the <strong>workspace is the memory</strong>: code, tests, a task list, progress notes and git history.</li>
+<li>The characteristic failures are trying to one-shot the work, declaring victory early, false &quot;done&quot; on individual items, losing the thread after compaction, context anxiety, environment rot, drift and runaway cost.</li>
+<li>A two-phase harness addresses most of them. An <strong>initializer</strong> expands the spec into a failing task list, an <code>init.sh</code> and notes. <strong>Working sessions</strong> orient, check the baseline, do one item, verify, commit and update notes.</li>
+<li>Keep the <strong>task list structured and mostly frozen</strong> (JSON the harness can read and enforce) and the <strong>notes free-text but curated</strong>. Git provides checkpoints, episodic memory and the review surface.</li>
+<li>Compaction preserves continuity, while resets and fresh sessions give a clean slate at the cost of a handoff. Every harness component encodes an assumption about the model&#39;s limits, so re-test it when models change.</li>
+<li>Verify the way a user would (end-to-end, in a browser where relevant) and with an independent evaluator for subjective quality. Only the harness should mark items done, and the tests must be outside the agent&#39;s write scope.</li>
+<li>Budget at every level: <code>max_tokens</code> per response, an advisory task budget per session, attempt limits per item, and dollars, deadlines and stall detection per project. Put humans at the plan, at milestones and on escalations.</li>
+</ul>
+
+  </article>
 <article class="review-lesson prose" data-slug="cost-and-latency">
-    <h3><a href="cost-and-latency.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>33. Cost &amp; Latency Optimization</a></h3>
+    <h3><a href="cost-and-latency.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>34. Cost &amp; Latency Optimization</a></h3>
     
 <ul>
 <li>Output tokens cost about 5× input, thinking bills as output, and because every call re-sends the history, uncached agent cost grows roughly with the <strong>square</strong> of the turn count.</li>
@@ -516,7 +530,7 @@
 
   </article>
 <article class="review-lesson prose" data-slug="deployment">
-    <h3><a href="deployment.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>34. Deploying &amp; Operating Agents</a></h3>
+    <h3><a href="deployment.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>35. Deploying &amp; Operating Agents</a></h3>
     
 <ul>
 <li>Match the deployment shape to task duration and trigger: synchronous only for short tasks, queues and workers for long ones, streaming for perceived speed, PR-style delivery for risky autonomous work.</li>
@@ -533,7 +547,7 @@
 <section class="review-module" id="safety">
   <h2 class="review-mod-title"><span>🛡️</span> Module 7: Safety &amp; Security</h2>
   <article class="review-lesson prose" data-slug="agent-security">
-    <h3><a href="agent-security.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>35. Agent Security &amp; Prompt Injection</a></h3>
+    <h3><a href="agent-security.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>36. Agent Security &amp; Prompt Injection</a></h3>
     
 <ul>
 <li>Agents act with <strong>your privileges</strong> while reading <strong>everyone&#39;s text</strong>; every tool result, document, web page, email and MCP description is an untrusted input.</li>
@@ -548,7 +562,7 @@
 
   </article>
 <article class="review-lesson prose" data-slug="guardrails-and-sandboxing">
-    <h3><a href="guardrails-and-sandboxing.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>36. Guardrails, Permissions &amp; Sandboxing</a></h3>
+    <h3><a href="guardrails-and-sandboxing.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>37. Guardrails, Permissions &amp; Sandboxing</a></h3>
     
 <ul>
 <li><strong>Defense in depth</strong>: stack independent layers — model, input guardrails, output guardrails, action guardrails, sandbox, audit — so attacks must beat all of them.</li>
@@ -563,7 +577,7 @@
 
   </article>
 <article class="review-lesson prose" data-slug="agent-safety-alignment">
-    <h3><a href="agent-safety-alignment.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>37. Safety, Alignment &amp; Governance</a></h3>
+    <h3><a href="agent-safety-alignment.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>38. Safety, Alignment &amp; Governance</a></h3>
     
 <ul>
 <li>Sort risks by origin — <strong>misuse, accidents, misalignment, systemic</strong> — because each needs different levers; agents amplify all four because they act, take many steps and hold real credentials.</li>
@@ -581,7 +595,7 @@
 <section class="review-module" id="frontier">
   <h2 class="review-mod-title"><span>🔭</span> Module 8: Advanced &amp; Frontier</h2>
   <article class="review-lesson prose" data-slug="training-agents">
-    <h3><a href="training-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>38. Training Agentic Models</a></h3>
+    <h3><a href="training-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>39. Training Agentic Models</a></h3>
     
 <ul>
 <li>Agentic models are built in stages: pretraining → SFT → preference optimization → RL with verifiable rewards → multi-turn agentic RL, with distilled data flowing back into SFT.</li>
@@ -595,7 +609,7 @@
 
   </article>
 <article class="review-lesson prose" data-slug="self-improving-agents">
-    <h3><a href="self-improving-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>39. Self-Improving &amp; Open-Ended Agents</a></h3>
+    <h3><a href="self-improving-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>40. Self-Improving &amp; Open-Ended Agents</a></h3>
     
 <ul>
 <li>Self-improvement happens at many levels — within an episode, across episodes, in prompts/programs, in agent design, in the agent&#39;s own code, and in weights — with rising power, cost and risk.</li>
@@ -609,7 +623,7 @@
 
   </article>
 <article class="review-lesson prose" data-slug="future-of-agents">
-    <h3><a href="future-of-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>40. Open Problems &amp; The Road Ahead</a></h3>
+    <h3><a href="future-of-agents.html"><span class="side-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span>41. Open Problems &amp; The Road Ahead</a></h3>
     
 <ul>
 <li>METR&#39;s measurements show the length of tasks frontier agents complete at 50% reliability has been doubling roughly every seven months — a useful trend, but 50% isn&#39;t reliable, domains differ, and trends aren&#39;t guarantees.</li>

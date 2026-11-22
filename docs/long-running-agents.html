@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Long-Running Agents · Agent Academy</title>
+<meta name="description" content="Agents that work for hours or days across many context windows: failure modes, initializer and working-session harnesses, structured progress files, git as memory, compaction vs. resets, verification gates, cross-session budgets, human checkpoints and managed options.">
+<meta property="og:title" content="Long-Running Agents · Agent Academy">
+<meta property="og:description" content="Agents that work for hours or days across many context windows: failure modes, initializer and working-session harnesses, structured progress files, git as memory, compaction vs. resets, verification gates, cross-session budgets, human checkpoints and managed options.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="embodied-agents.html" data-slug="embodied-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Embodied Agents: Robots and the Physical World</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
+        <li><a href="open-models-and-local-agents.html" data-slug="open-models-and-local-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents on Open-Weight &amp; Local Models</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="long-running-agents.html" data-slug="long-running-agents" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Long-Running Agents</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="paths.html">🗺️ Learning paths</a>
+      <a href="lab.html">🧪 Interactive lab</a>
+      <a href="projects.html">🏗️ Hands-on projects</a>
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="papers.html">📚 Reading list</a>
+      <a href="review.html">🧠 Course review</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="long-running-agents">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#production">Module 6: Production Engineering</a></nav>
+  <header class="lesson-header">
+    <h1>Long-Running Agents</h1>
+    <p class="lead">Agents that work for hours or days across many context windows: failure modes, initializer and working-session harnesses, structured progress files, git as memory, compaction vs. resets, verification gates, cross-session budgets, human checkpoints and managed options.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 36 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 33 of 41</span>
+      <span class="lesson-status" data-status-for="long-running-agents"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain what breaks when a task spans many context windows, sessions and hours of wall-clock time</li><li>Design a two-phase harness with an initializer session and incremental working sessions</li><li>Write structured progress artifacts (a JSON task list plus free-text notes) and use git as checkpoint and memory</li><li>Choose between compaction, context resets and fresh sessions, and write a handoff that survives them</li><li>Put verification gates, layered budgets and human checkpoints around multi-session work</li><li>Measure long-horizon performance with progress curves, false-done rates and cold-start tests</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="context-engineering.html">Context Engineering</a>, <a href="memory.html">Memory Systems</a>, <a href="reliability.html">Reliability &amp; Durable Execution</a></p>
+  </section>
+  <article class="prose">
+<p>Suppose you hand an agent a 30-page spec for an internal invoicing app on Monday afternoon and ask it to build the whole thing. There are about two hundred user-visible features. Nobody, human or model, finishes that in one sitting, and no <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> holds the whole job. The first session writes a few thousand lines of code, fills its context in the middle of the PDF-export feature and stops. The second session starts with a blank memory, looks at a repository full of plausible-looking code, and reports that the app is &quot;complete and working.&quot; Half the buttons do nothing.</p>
+<p>The model could handle every individual step. What failed was the <strong>handoff between sessions</strong>. A long-running agent is like a series of engineers on shifts, each arriving with no memory of the last. The work succeeds when every shift can quickly find out what&#39;s done, what&#39;s broken and what&#39;s next, and when nobody may say &quot;done&quot; without proof.</p>
+<p>This lesson covers the failure modes of hours- and days-long work and the harness patterns that address them: an initializer phase, incremental working sessions, structured progress files, git as memory, verification gates, cross-session budgets and human checkpoints. It builds on <a href="context-engineering.html">context engineering</a>, <a href="memory.html">memory</a> and <a href="reliability.html">reliability</a> rather than repeating them.</p>
+<h2 id="what-changes-when-tasks-outlive-a-context-window"><a class="anchor" href="#what-changes-when-tasks-outlive-a-context-window" aria-hidden="true" tabindex="-1">#</a>What Changes When Tasks Outlive a Context Window</h2>
+<p>Some definitions first. A <strong>session</strong> is one run of the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> with one context: it starts from an initial prompt and ends when the model stops, a budget runs out or the process dies. A <strong>long-running task</strong> needs more than one session, either because it consumes more tokens than one context window can usefully hold or because it takes longer than one process, or one human&#39;s attention span, should be trusted to last.</p>
+<p>Those are two separate axes, and they cause different problems:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Minutes-long task</th>
+<th>Hours-long task</th>
+<th>Days-long task</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fits in one context?</td>
+<td>Usually</td>
+<td>Rarely, even with <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn></td>
+<td>Never</td>
+</tr>
+<tr>
+<td>Process lifetime</td>
+<td>One request or worker</td>
+<td>Must survive restarts and deploys</td>
+<td>Must survive outages and model upgrades</td>
+</tr>
+<tr>
+<td>Human attention</td>
+<td>Someone is watching</td>
+<td>Someone checks in occasionally</td>
+<td>Async review at milestones</td>
+</tr>
+<tr>
+<td>Cost of a wrong turn</td>
+<td>Cents, seconds</td>
+<td>Dollars, an hour of rework</td>
+<td>A day of compounding drift</td>
+</tr>
+<tr>
+<td>Where &quot;memory&quot; lives</td>
+<td>The transcript</td>
+<td>Transcript plus notes</td>
+<td>Almost entirely the workspace</td>
+</tr>
+</tbody></table>
+</div>
+<p>The last row matters most. In a short task the conversation history <em>is</em> the <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn>. In a multi-day task the transcript is compacted, reset or discarded at every session boundary, so anything that must persist has to live <strong>in the environment</strong>: code, tests, a task list, progress notes and git history.</p>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>For long-running work, the transcript is disposable and the workspace is the memory. Design the harness so that a fresh session with an empty context can open the workspace and, within a few tool calls, know exactly what is done, what is broken and what to do next.</p>
+</div></div>
+<h2 id="how-long-running-agents-fail"><a class="anchor" href="#how-long-running-agents-fail" aria-hidden="true" tabindex="-1">#</a>How Long-Running Agents Fail</h2>
+<p>Most of these have short-task cousins, but they compound over many sessions, and several appear only at context boundaries.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>What it looks like</th>
+<th>Root cause</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Trying to one-shot it</strong></td>
+<td>The agent starts five features at once, runs out of context, and leaves all five half-built and undocumented</td>
+<td>No unit of work smaller than &quot;the whole project&quot;</td>
+</tr>
+<tr>
+<td><strong>Declaring victory early</strong></td>
+<td>A later session sees lots of code and reports the project complete</td>
+<td>No external definition of &quot;done&quot;</td>
+</tr>
+<tr>
+<td><strong>False &quot;done&quot; on an item</strong></td>
+<td>A feature is marked finished after a unit test or <code>curl</code> check, but it fails in the real UI</td>
+<td>Verification weaker than the acceptance criterion</td>
+</tr>
+<tr>
+<td><strong>Losing the thread</strong></td>
+<td>After compaction the agent repeats an abandoned approach or forgets a constraint</td>
+<td>Lossy summaries drop details that matter later</td>
+</tr>
+<tr>
+<td><strong>Context anxiety</strong></td>
+<td>The agent rushes to wrap up as it nears what it <em>believes</em> is its context limit</td>
+<td>The model behaves as if its context were nearly used up</td>
+</tr>
+<tr>
+<td><strong>Environment rot</strong></td>
+<td>A session starts on a broken build left by the previous one and spends its budget on confusing errors</td>
+<td>Nobody checks the baseline before new work</td>
+</tr>
+<tr>
+<td><strong>Drift</strong></td>
+<td>Conventions shift, scope creeps, notes contradict the code</td>
+<td>Each session re-derives intent from partial evidence</td>
+</tr>
+<tr>
+<td><strong>Runaway cost</strong></td>
+<td>Sessions keep retrying an impossible item overnight</td>
+<td>No budget or stall detection across sessions</td>
+</tr>
+</tbody></table>
+</div>
+<p>The first three come from Anthropic&#39;s November 2025 post on harnesses for long-running agents: even a frontier model looping with compaction fell short of building a production-quality web app from a high-level prompt, because it tried to do too much at once, and because later sessions saw existing progress and declared the job done. <em>Context anxiety</em> comes from Anthropic&#39;s March 2026 follow-up, where some models began &quot;wrapping up work prematurely as they approach what they believe is their context limit.&quot; Early victory looks like this:</p>
+<div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">[session 7, fresh context]
+<span class="tr-thought">Thought:</span> Let me see what's here.
+<span class="tr-action">Action:</span> bash(&quot;ls src/ &amp;&amp; git log --oneline | head -5&quot;)
+<span class="tr-observation">Observation:</span> api/ components/ pages/ ...  5 commits, last: &quot;Add invoice PDF export&quot;
+<span class="tr-thought">Thought:</span> The project has invoices, clients, payments and PDF export implemented.
+        The application appears complete. I'll write a summary.
+Final: &quot;The invoicing app is fully implemented, with all core features working.&quot;</code></pre></div>
+<p>Session 7 had no list of what &quot;all&quot; meant and no requirement to check anything, so it took the shortest path to a plausible answer.</p>
+<h2 id="the-two-phase-harness-initializer-and-working-sessions"><a class="anchor" href="#the-two-phase-harness-initializer-and-working-sessions" aria-hidden="true" tabindex="-1">#</a>The Two-Phase Harness: Initializer and Working Sessions</h2>
+<p>The pattern Anthropic described splits the work into two kinds of session that share model, tools and <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> and differ only in their first instruction.</p>
+<p><strong>The initializer session</strong> runs once and turns a vague request into an environment later sessions can work in:</p>
+<ul>
+<li><strong>Expand the spec into a task list.</strong> Anthropic&#39;s example, a clone of the claude.ai web app, ended up with over 200 features, each with a description and concrete test steps, and <em>all initially marked failing</em>. Starting with everything failing matters: no session can conclude &quot;done&quot; while items remain red.</li>
+<li><strong>Write an <code>init.sh</code></strong> (or <code>make dev</code>) that starts the app, so no later session spends time working out how to run it.</li>
+<li><strong>Create a <dfn class="gt" tabindex="0" data-t="Structured note-taking" data-d="Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions." data-l="context-engineering" data-a="structured-note-taking">progress file</dfn></strong> for free-text notes.</li>
+<li><strong>Make an initial git commit</strong>, so there is a known-good baseline to diff and revert against.</li>
+</ul>
+<p><strong>Working sessions</strong> run repeatedly. Each one follows the same ritual:</p>
+<ol>
+<li><strong>Get its bearings.</strong> Confirm the working directory, read the progress notes and the recent <code>git log</code>, and read the task list.</li>
+<li><strong>Check the baseline.</strong> Run <code>init.sh</code> and a basic end-to-end smoke test <em>before</em> touching anything, so that a bug left by the previous session gets fixed first instead of being buried under new work.</li>
+<li><strong>Pick exactly one item</strong>, the highest-priority failing one.</li>
+<li><strong>Implement it</strong>, then <strong>verify it end to end</strong>.</li>
+<li><strong>Leave a clean state</strong>: commit with a descriptive message, mark the item passing only if it verified, and update the progress notes. Anthropic&#39;s bar for &quot;clean&quot; was code you&#39;d be comfortable merging to a main branch.</li>
+</ol>
+<figure class="diagram"><pre class="mermaid">flowchart TD
+    A[&quot;Spec from a human&quot;] --&gt; B[&quot;Initializer session&quot;]
+    B --&gt; C[&quot;Task list, init.sh, notes, first commit&quot;]
+    C --&gt; D[&quot;Human reviews the plan&quot;]
+    D --&gt; E[&quot;Working session (fresh context)&quot;]
+    E --&gt; F[&quot;Get bearings: notes, git log, smoke test&quot;]
+    F --&gt; G[&quot;Pick one failing item&quot;]
+    G --&gt; H[&quot;Implement&quot;]
+    H --&gt; V{&quot;Verification gates pass?&quot;}
+    V -- yes --&gt; K[&quot;Commit, mark passing, update notes&quot;]
+    V -- no --&gt; L[&quot;Park the code, record the attempt&quot;]
+    K --&gt; M{&quot;All passing, stalled or out of budget?&quot;}
+    L --&gt; M
+    M -- no --&gt; E
+    M -- yes --&gt; N[&quot;Final human review&quot;]</pre></figure>
+<h3 id="why-one-item-per-session"><a class="anchor" href="#why-one-item-per-session" aria-hidden="true" tabindex="-1">#</a>Why one item per session</h3>
+<p>&quot;One item&quot; sounds like a waste of a big context window, but it makes the system manageable:</p>
+<ul>
+<li><strong>Bounded blast radius.</strong> A bad session costs one item, and git gives an exact boundary to revert to.</li>
+<li><strong>A verifiable unit.</strong> &quot;Invoice totals render correctly&quot; can be checked. &quot;Made progress on invoicing&quot; can&#39;t.</li>
+<li><strong>Context headroom.</strong> One feature plus orientation usually fits comfortably, so the session rarely hits compaction.</li>
+<li><strong>Clean handoffs.</strong> Every session boundary falls at a committed, verified state, not halfway through an edit.</li>
+</ul>
+<p>As models improve, the right size for an item grows: it should be the largest piece of work the agent can <em>reliably</em> finish and verify in one session.</p>
+<h2 id="structured-progress-task-lists-and-notes"><a class="anchor" href="#structured-progress-task-lists-and-notes" aria-hidden="true" tabindex="-1">#</a>Structured Progress: Task Lists and Notes</h2>
+<p>Long-running harnesses usually keep two kinds of progress artifact, because they do different jobs.</p>
+<h3 id="the-task-list-structured-mostly-immutable"><a class="anchor" href="#the-task-list-structured-mostly-immutable" aria-hidden="true" tabindex="-1">#</a>The task list: structured, mostly immutable</h3>
+<p>The task list is the <strong>contract</strong> for what &quot;done&quot; means. Anthropic chose JSON over Markdown for it because the model was less likely to inappropriately rewrite or overwrite a JSON file, and the coding sessions were instructed to change only each feature&#39;s <code>passes</code> field. Removing or editing tests was explicitly forbidden, since that could hide missing or buggy functionality.</p>
+<p>JSON has a second advantage: <strong>the harness can read it</strong>. Code can pick the next item, count progress, detect edits to frozen fields and refuse to accept a &quot;passing&quot; flag that verification didn&#39;t back up. A realistic task list for the invoicing app:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;project&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;invoicing-app&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;spec&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;docs/spec.md&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;features&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;INV-012&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;category&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;invoices&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;priority&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;User creates an invoice with line items and sees the computed total&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;steps&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-string">&quot;Log in as demo@example.com&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-string">&quot;Click &#x27;New invoice&#x27;; add 3 x $40.00 and 1 x $15.50&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-string">&quot;Total shows $135.50 and the invoice is listed as Draft&quot;</span>
+      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;check&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pytest -q tests/e2e/test_inv_012.py&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;passes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;attempts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span>
+    <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;INV-013&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;category&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;invoices&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;priority&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Sending an invoice emails a PDF to the client and marks it Sent&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;steps&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+        <span class="hljs-string">&quot;Open a Draft invoice for client Acme&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-string">&quot;Click &#x27;Send&#x27;; confirm the dialog&quot;</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-string">&quot;Acme&#x27;s inbox (SMTP stub) has a PDF; the invoice status is Sent&quot;</span>
+      <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;check&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pytest -q tests/e2e/test_inv_013.py&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;passes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;attempts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">2</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>The <code>check</code> field links each item to an executable acceptance test that the initializer wrote and that working sessions may not edit. <code>attempts</code> lets the harness notice an item that keeps failing.</p>
+<h3 id="the-notes-free-text-curated"><a class="anchor" href="#the-notes-free-text-curated" aria-hidden="true" tabindex="-1">#</a>The notes: free text, curated</h3>
+<p>Some things don&#39;t fit a schema: why a decision was made, a gotcha that cost an hour, what the last session tried and where it got stuck. That goes in a free-text progress file:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-markdown"><span class="hljs-section"># progress.md (rewrite to stay under ~150 lines; history lives in git)</span>
+
+<span class="hljs-section">## Current state (after session 23)</span>
+<span class="hljs-bullet">-</span> 41/212 features passing. Smoke suite green at commit 9f3c2e1.
+<span class="hljs-bullet">-</span> Start everything with ./init.sh (API :8000, web :5173). Seed data: make seed.
+
+<span class="hljs-section">## Decisions (don&#x27;t revisit without a new reason)</span>
+<span class="hljs-bullet">-</span> Money is integer cents everywhere, never floats. (session 4)
+<span class="hljs-bullet">-</span> PDFs render server-side with WeasyPrint; client-side rendering dropped over font issues. (session 17)
+
+<span class="hljs-section">## Gotchas</span>
+<span class="hljs-bullet">-</span> E2E tests need <span class="hljs-code">`make seed`</span> first or login returns 401.
+<span class="hljs-bullet">-</span> A stale vite process sometimes holds :5173. Fix: pkill -f vite.
+
+<span class="hljs-section">## Last session (23): INV-013 send invoice by email. NOT DONE</span>
+<span class="hljs-bullet">-</span> Done: PDF attachment builds; the SMTP stub receives the message.
+<span class="hljs-bullet">-</span> Failing: step 3. Status stays Draft because the update runs in a background
+  job the request doesn&#x27;t wait for.
+<span class="hljs-bullet">-</span> Next: make the status update part of send<span class="hljs-emphasis">_invoice() itself. Tests are frozen.
+
+## Open questions for a human
+- Spec says &quot;net 30 by default&quot;; sample data uses net 14. Assumed net 30. (session 19)</span></code></pre></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th>Holds</th>
+<th>Who writes it</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Task list</td>
+<td>What &quot;done&quot; means, and which items are done</td>
+<td>Initializer; harness flips status</td>
+<td>JSON, frozen fields</td>
+</tr>
+<tr>
+<td>Progress notes</td>
+<td>Decisions, gotchas, last attempt, next step</td>
+<td>Each session (rewritten, not just appended)</td>
+<td>Markdown</td>
+</tr>
+<tr>
+<td>Git history</td>
+<td>What changed, when and why</td>
+<td>Each session, via commits</td>
+<td>Commit messages, diffs</td>
+</tr>
+<tr>
+<td>Project memory (CLAUDE.md, <dfn class="gt" tabindex="0" data-t="AGENTS.md" data-d="A Markdown file of project instructions (build and test commands, conventions, gotchas) placed in a repository for coding agents to read. Released by OpenAI in August 2025, it became a founding Agentic AI Foundation project; CLAUDE.md is the Claude Code equivalent, and Claude Code can also read AGENTS.md." data-l="coding-agents" data-a="agentsmd">AGENTS.md</dfn>)</td>
+<td>Durable conventions and commands</td>
+<td>Humans and agents, reviewed</td>
+<td>Markdown</td>
+</tr>
+<tr>
+<td>Test suite</td>
+<td>Executable definition of correct behavior</td>
+<td>Initializer and humans; frozen for workers</td>
+<td>Code</td>
+</tr>
+</tbody></table>
+</div>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Notes rot</div><div class="callout-body"><p>Notes that only grow become their own context problem: stale &quot;next steps&quot; contradict the code and pull later sessions backward. Ask each session to <strong>rewrite</strong> the current-state section, keep a size cap, date-stamp decisions, and let git hold the history. The <a href="memory.html">memory</a> lesson&#39;s failure modes (staleness, bloat, poisoning) all apply here, at higher stakes, because every future session trusts these notes.</p>
+</div></div>
+<h2 id="git-as-checkpoint-and-memory"><a class="anchor" href="#git-as-checkpoint-and-memory" aria-hidden="true" tabindex="-1">#</a>Git as Checkpoint and Memory</h2>
+<p>In <a href="reliability.html">reliability</a> you checkpointed the agent loop after every step so a crashed worker could resume. Long-running work also needs a coarser checkpoint at the <strong>task level</strong>, and version control already provides one:</p>
+<ul>
+<li><strong>Checkpoint.</strong> Every verified item is a commit. A bad session is discarded with <code>git reset --hard</code> or parked with <code>git stash</code> while the main line stays green.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Episodic memory" data-d="Memory of specific past events or interactions, such as &quot;last Tuesday the deploy failed because of X&quot;, often used for few-shot recall or reflection." data-l="memory" data-a="episodic-memory">Episodic memory</dfn>.</strong> <code>git log --oneline</code> is an accurate history, better than any model&#39;s recollection, and <code>git show</code> gives exact details. The last twenty commit messages often orient a fresh session better than a long summary.</li>
+<li><strong>Review surface.</strong> Humans review progress as diffs and pull requests (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</li>
+<li><strong>Parallelism.</strong> Branches or worktrees let sessions work on independent items, and merge conflicts surface real coupling.</li>
+</ul>
+<p>Make commit messages descriptive (<code>feat(INV-012): line-item totals in cents; e2e passing</code>), because future sessions read them. Forbid force-pushes and history rewrites, and have the harness enforce protected paths such as tests and the task list rather than merely requesting it in the prompt.</p>
+<h2 id="compaction-context-resets-and-fresh-sessions"><a class="anchor" href="#compaction-context-resets-and-fresh-sessions" aria-hidden="true" tabindex="-1">#</a>Compaction, Context Resets and Fresh Sessions</h2>
+<p>When a session&#39;s context fills, there are three ways to continue, and long-running harnesses often use all three at different scales.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>What happens</th>
+<th>Continuity</th>
+<th>Clean slate?</th>
+<th>Orchestration cost</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Compaction</strong></td>
+<td>The history is summarized in place and the same session continues</td>
+<td>High, within the summary&#39;s limits</td>
+<td>No</td>
+<td>Low; can be server-side</td>
+</tr>
+<tr>
+<td><strong>Context reset</strong></td>
+<td>The session ends and a new one starts from a structured handoff artifact</td>
+<td>Only what the handoff captures</td>
+<td>Yes</td>
+<td>Medium: you design the handoff</td>
+</tr>
+<tr>
+<td><strong>Fresh session per item</strong></td>
+<td>Each unit of work starts clean and orients from the workspace</td>
+<td>Whatever the workspace records</td>
+<td>Yes</td>
+<td>The harness shown in this lesson</td>
+</tr>
+</tbody></table>
+</div>
+<p>Anthropic&#39;s March 2026 post puts the trade-off plainly: &quot;While compaction preserves continuity, it doesn&#39;t give the agent a clean slate,&quot; whereas &quot;a reset provides a clean slate&quot; at the price of a handoff artifact plus extra orchestration, tokens and latency. Context anxiety in Claude Sonnet 4.5 made resets essential in that work. With Claude Opus 4.5 the behavior largely disappeared, and the harness switched to one continuous session with automatic compaction.</p>
+<p>The broader lesson: <strong>every harness component encodes an assumption about what the model can&#39;t do alone</strong>, and those assumptions expire. Re-test them with each new model and remove scaffolding that is no longer load-bearing.</p>
+<h3 id="server-side-compaction-briefly"><a class="anchor" href="#server-side-compaction-briefly" aria-hidden="true" tabindex="-1">#</a>Server-side compaction, briefly</h3>
+<p>The Claude API offers compaction as a beta (header <code>compact-2026-01-12</code>): opt in with a <code>compact_20260112</code> context-management edit, which by default triggers at 150,000 input tokens and returns a <code>compaction</code> block you must send back, so always append the full <code>response.content</code>. An on-demand variant lets the harness choose when to summarize, and Claude Managed Agents compacts automatically. Code is in <a href="context-engineering.html#compaction">context engineering</a>.</p>
+<p>Whatever the mechanism, <strong>write anything that must survive to durable storage before compaction, not after.</strong> A summary keeps what the summarizer thought mattered; the progress file keeps what you decided matters.</p>
+<h3 id="writing-a-handoff-that-works"><a class="anchor" href="#writing-a-handoff-that-works" aria-hidden="true" tabindex="-1">#</a>Writing a handoff that works</h3>
+<p>For a reset or the next fresh session, a good handoff answers five questions in the order a cold reader needs them: <strong>the goal</strong> (link the spec and task list), <strong>the state</strong> (last green commit, what passes, what&#39;s broken), <strong>what was just tried</strong> (including the exact error), <strong>one concrete next action</strong>, and <strong>what must not change</strong> (decisions, frozen files, open questions).</p>
+<h2 id="verification-gates-before-done"><a class="anchor" href="#verification-gates-before-done" aria-hidden="true" tabindex="-1">#</a>Verification Gates Before &quot;Done&quot;</h2>
+<p>One of the most effective changes in Anthropic&#39;s harness work was about testing, not memory. Claude often marked features complete after only unit tests or <code>curl</code> checks. Prompting it to test as a human user would, driving a real browser through the Puppeteer <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn>, improved results dramatically, though it couldn&#39;t see browser-native alert dialogs that way, and features depending on them stayed buggier.</p>
+<p>A practical gate ladder, from cheapest to strongest:</p>
+<ol>
+<li><strong>Build, typecheck and lint.</strong> These catch half-finished edits immediately.</li>
+<li><strong>Unit tests.</strong> Necessary but easy to satisfy without the feature actually working.</li>
+<li><strong>The item&#39;s end-to-end acceptance check</strong>, driving the real app through a browser (Playwright or Puppeteer) or real API calls, exactly as the task list&#39;s <code>steps</code> describe. See <a href="computer-use-agents.html">computer-use agents</a>.</li>
+<li><strong>A regression smoke suite</strong> over previously passing items, because long runs break old features as often as they fail to build new ones.</li>
+<li><strong>An independent evaluator</strong> for anything a test can&#39;t capture well (UX quality, design, writing). This is a separate agent with its own context and a skeptical prompt, grading against explicit criteria.</li>
+</ol>
+<p>Two refinements from Anthropic&#39;s 2026 work are worth copying. <strong>Agree on &quot;done&quot; before coding</strong>: in &quot;sprint contracts,&quot; the builder proposed what it would build and how success would be verified, and the evaluator reviewed that before any code was written. And <strong>evaluators need tuning too</strong>: out of the box, Claude sometimes identified real problems and then approved the work anyway, and the author found tuning a standalone skeptical evaluator more tractable than making a builder self-critical.</p>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>The agent must not grade itself on what it can edit</div><div class="callout-body"><p>If the agent can modify the tests, the task list or the verification script, then over enough sessions some session will &quot;fix&quot; a failure by weakening the check. The harness, not the agent, should run the gates and flip the <code>passes</code> flag, and it should reject any session that touched protected paths. See <a href="agent-safety-alignment.html">agent safety</a> on <dfn class="gt" tabindex="0" data-t="Reward hacking" data-d="An agent achieving high reward by exploiting flaws in the reward signal or tests, such as special-casing tests, instead of doing the intended task." data-l="agent-safety-alignment" data-a="reward-hacking">specification gaming</dfn>.</p>
+</div></div>
+<h2 id="a-minimal-multi-session-harness"><a class="anchor" href="#a-minimal-multi-session-harness" aria-hidden="true" tabindex="-1">#</a>A Minimal Multi-Session Harness</h2>
+<p>Here is a compact sketch of the outer loop. Each working session is a fresh <code>messages</code> list with a single <code>bash</code> tool. The harness picks the item, runs the gates itself, protects the task list and tests, commits or parks the result, and enforces budgets across sessions. <code>TaskMeter</code> is the cost meter from <a href="cost-and-latency.html">cost and latency</a>. The initializer session, the sandbox and retries (see <a href="reliability.html">reliability</a>) are left out for brevity.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+<span class="hljs-keyword">import</span> subprocess
+<span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
+
+<span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
+REPO = Path(<span class="hljs-string">&quot;workspace&quot;</span>)
+TASKS, NOTES = REPO / <span class="hljs-string">&quot;features.json&quot;</span>, REPO / <span class="hljs-string">&quot;progress.md&quot;</span>
+SYSTEM = (<span class="hljs-string">&quot;You are one shift in a multi-session build. Your memory is the repo: progress.md, &quot;</span>
+          <span class="hljs-string">&quot;git log and features.json. Work on ONE feature, verify it in the browser, keep &quot;</span>
+          <span class="hljs-string">&quot;the build green, and leave clear notes for the next session.&quot;</span>)
+BASH = {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;bash&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Run a shell command in the repo root; returns exit code and output tail.&quot;</span>,
+        <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>, <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;command&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}},
+                         <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;command&quot;</span>], <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>}}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">sh</span>(<span class="hljs-params">cmd: <span class="hljs-built_in">str</span> | <span class="hljs-built_in">list</span>[<span class="hljs-built_in">str</span>], timeout: <span class="hljs-built_in">int</span> = <span class="hljs-number">900</span></span>) -&gt; <span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">int</span>, <span class="hljs-built_in">str</span>]:
+    <span class="hljs-keyword">try</span>:
+        p = subprocess.run(cmd, shell=<span class="hljs-built_in">isinstance</span>(cmd, <span class="hljs-built_in">str</span>), cwd=REPO,
+                           capture_output=<span class="hljs-literal">True</span>, text=<span class="hljs-literal">True</span>, timeout=timeout)
+        <span class="hljs-keyword">return</span> p.returncode, (p.stdout + p.stderr)[-<span class="hljs-number">8000</span>:]
+    <span class="hljs-keyword">except</span> subprocess.TimeoutExpired:
+        <span class="hljs-keyword">return</span> <span class="hljs-number">124</span>, <span class="hljs-string">f&quot;timed out after <span class="hljs-subst">{timeout}</span>s&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_session</span>(<span class="hljs-params">feat: <span class="hljs-built_in">dict</span>, meter, max_turns: <span class="hljs-built_in">int</span> = <span class="hljs-number">200</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>:
+        <span class="hljs-string">f&quot;Read progress.md and the last 20 commits, run ./init.sh and the smoke tests, &quot;</span>
+        <span class="hljs-string">f&quot;then implement ONLY <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>: <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;description&#x27;</span>]}</span>\nAcceptance steps: &quot;</span>
+        <span class="hljs-string">f&quot;<span class="hljs-subst">{feat[<span class="hljs-string">&#x27;steps&#x27;</span>]}</span>\nDo not edit features.json or tests/. Update progress.md before stopping.&quot;</span>}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_turns):
+        <span class="hljs-keyword">with</span> client.beta.messages.stream(
+            model=MODEL, max_tokens=<span class="hljs-number">32000</span>, system=SYSTEM, tools=[BASH], messages=messages,
+            thinking={<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;adaptive&quot;</span>}, betas=[<span class="hljs-string">&quot;task-budgets-2026-03-13&quot;</span>],
+            output_config={<span class="hljs-string">&quot;effort&quot;</span>: <span class="hljs-string">&quot;high&quot;</span>, <span class="hljs-string">&quot;task_budget&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tokens&quot;</span>, <span class="hljs-string">&quot;total&quot;</span>: <span class="hljs-number">400_000</span>}},
+        ) <span class="hljs-keyword">as</span> stream:
+            resp = stream.get_final_message()
+        meter.record(MODEL, resp.usage)
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: resp.content})
+        <span class="hljs-keyword">if</span> resp.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:
+            <span class="hljs-keyword">return</span> resp.stop_reason          <span class="hljs-comment"># end_turn, max_tokens, refusal...</span>
+        results = []
+        <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> resp.content:
+            <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>:
+                code, out = sh(b.<span class="hljs-built_in">input</span>[<span class="hljs-string">&quot;command&quot;</span>])
+                results.append({<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: b.<span class="hljs-built_in">id</span>,
+                                <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;exit=<span class="hljs-subst">{code}</span>\n<span class="hljs-subst">{out}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: code != <span class="hljs-number">0</span>})
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;max_turns&quot;</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">gates_pass</span>(<span class="hljs-params">feat: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    protected = sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;status&quot;</span>, <span class="hljs-string">&quot;--porcelain&quot;</span>, <span class="hljs-string">&quot;--&quot;</span>, <span class="hljs-string">&quot;tests&quot;</span>, <span class="hljs-string">&quot;features.json&quot;</span>])[<span class="hljs-number">1</span>]
+    <span class="hljs-keyword">if</span> protected.strip():
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>                          <span class="hljs-comment"># the agent touched the yardstick</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">all</span>(sh(c)[<span class="hljs-number">0</span>] == <span class="hljs-number">0</span> <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> (<span class="hljs-string">&quot;./init.sh&quot;</span>, <span class="hljs-string">&quot;pytest -q tests/unit&quot;</span>,
+                                       feat[<span class="hljs-string">&quot;check&quot;</span>], <span class="hljs-string">&quot;pytest -q -m smoke tests/e2e&quot;</span>))
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>(<span class="hljs-params">meter, max_sessions: <span class="hljs-built_in">int</span> = <span class="hljs-number">80</span>, max_usd: <span class="hljs-built_in">float</span> = <span class="hljs-number">400.0</span>, max_stalls: <span class="hljs-built_in">int</span> = <span class="hljs-number">3</span></span>):
+    stalls = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">for</span> n <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_sessions):
+        snapshot = TASKS.read_text()
+        tasks = json.loads(snapshot)
+        todo = [f <span class="hljs-keyword">for</span> f <span class="hljs-keyword">in</span> tasks[<span class="hljs-string">&quot;features&quot;</span>] <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> f[<span class="hljs-string">&quot;passes&quot;</span>] <span class="hljs-keyword">and</span> f[<span class="hljs-string">&quot;attempts&quot;</span>] &lt; <span class="hljs-number">3</span>]
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> todo <span class="hljs-keyword">or</span> meter.usd &gt;= max_usd <span class="hljs-keyword">or</span> stalls &gt;= max_stalls:
+            <span class="hljs-keyword">break</span>                             <span class="hljs-comment"># done, out of money, or stuck: hand to a human</span>
+        feat = <span class="hljs-built_in">min</span>(todo, key=<span class="hljs-keyword">lambda</span> f: f[<span class="hljs-string">&quot;priority&quot;</span>])
+        stop = run_session(feat, meter)
+        ok = gates_pass(feat)                 <span class="hljs-comment"># the harness decides, not the agent&#x27;s claim</span>
+        TASKS.write_text(snapshot)            <span class="hljs-comment"># undo any edits the agent made to the list</span>
+        feat[<span class="hljs-string">&quot;attempts&quot;</span>] += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> ok:
+            feat[<span class="hljs-string">&quot;passes&quot;</span>], stalls = <span class="hljs-literal">True</span>, <span class="hljs-number">0</span>
+            TASKS.write_text(json.dumps(tasks, indent=<span class="hljs-number">2</span>))
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;add&quot;</span>, <span class="hljs-string">&quot;-A&quot;</span>])
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;commit&quot;</span>, <span class="hljs-string">&quot;-qm&quot;</span>, <span class="hljs-string">f&quot;feat(<span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>): <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;description&#x27;</span>][:<span class="hljs-number">60</span>]}</span>&quot;</span>])
+        <span class="hljs-keyword">else</span>:
+            notes = NOTES.read_text()         <span class="hljs-comment"># keep what was learned, park the code</span>
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;add&quot;</span>, <span class="hljs-string">&quot;-A&quot;</span>])
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;stash&quot;</span>, <span class="hljs-string">&quot;push&quot;</span>, <span class="hljs-string">&quot;-qm&quot;</span>, <span class="hljs-string">f&quot;failed <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span> session <span class="hljs-subst">{n}</span>&quot;</span>])
+            NOTES.write_text(notes + <span class="hljs-string">f&quot;\n- Session <span class="hljs-subst">{n}</span>: <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span> failed gates (<span class="hljs-subst">{stop}</span>); code stashed.\n&quot;</span>)
+            TASKS.write_text(json.dumps(tasks, indent=<span class="hljs-number">2</span>))
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;add&quot;</span>, <span class="hljs-string">&quot;-A&quot;</span>])
+            sh([<span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;commit&quot;</span>, <span class="hljs-string">&quot;-qm&quot;</span>, <span class="hljs-string">f&quot;chore: record failed attempt on <span class="hljs-subst">{feat[<span class="hljs-string">&#x27;id&#x27;</span>]}</span>&quot;</span>])
+            stalls += <span class="hljs-number">1</span></code></pre></div>
+<p>What this sketch gets right, and what it leaves for you:</p>
+<ul>
+<li><strong>The model never self-certifies.</strong> It can believe it&#39;s done, but only <code>gates_pass</code> flips <code>passes</code>, and edits to <code>tests/</code> or the task list fail the session outright.</li>
+<li><strong>Failure keeps the lessons and drops the code.</strong> The stash preserves the attempt for a human, the notes preserve what was learned, and the main line stays green for the next session.</li>
+<li><strong>Three budgets apply at three scales.</strong> <code>max_tokens</code> caps each response, the task budget paces each session, and dollars, sessions and stalls cap the whole project.</li>
+<li><strong>Left out:</strong> retries and a checkpointed inner loop (from <a href="reliability.html">reliability</a>), a sandbox (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>), <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn>, a stuck-baseline repair step, and a human review queue. Several of these are exercises below.</li>
+</ul>
+<h2 id="budgets-across-sessions"><a class="anchor" href="#budgets-across-sessions" aria-hidden="true" tabindex="-1">#</a>Budgets Across Sessions</h2>
+<p>A runaway short task wastes a few dollars; a runaway overnight task wastes far more. For scale, Anthropic&#39;s March 2026 post reports a solo agent run of 20 minutes costing $9, against 6 hours and $200 for the full planner, generator and evaluator harness on the same prompt: far better output at over 20 times the price. Budget deliberately, at every level:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Control</th>
+<th>Enforced by</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Response</td>
+<td><code>max_tokens</code></td>
+<td>API (hard)</td>
+<td>Stop a single runaway generation</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>Task budget, turn cap, wall-clock limit</td>
+<td>Model (advisory) plus harness</td>
+<td>Pace the work and wrap up gracefully</td>
+</tr>
+<tr>
+<td>Item</td>
+<td>Max attempts per item</td>
+<td>Harness</td>
+<td>Stop retrying the impossible</td>
+</tr>
+<tr>
+<td>Project</td>
+<td>Dollars, session count, deadline</td>
+<td>Harness or platform</td>
+<td>Bound total spend and time</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td>Stall counter (N sessions with no new passing item)</td>
+<td>Harness</td>
+<td>Detect &quot;busy but not progressing&quot;</td>
+</tr>
+</tbody></table>
+</div>
+<p><strong>Task budgets</strong> (beta, header <code>task-budgets-2026-03-13</code>) give the model an advisory token budget for a whole agentic loop via <code>output_config={&quot;task_budget&quot;: {&quot;type&quot;: &quot;tokens&quot;, &quot;total&quot;: N}}</code>. The server injects a running countdown the model uses to prioritize and finish gracefully; it counts thinking, tool calls, tool results and output across the loop&#39;s requests. From the docs:</p>
+<ul>
+<li>It is <strong>advisory, not a hard cap</strong>. Hard limits come from <code>max_tokens</code> and your harness.</li>
+<li>The minimum <code>total</code> is <strong>20,000 tokens</strong>, and a budget clearly too small for the work can cause <strong>refusal-like behavior</strong> (declining, scoping down aggressively, stopping early). Size it from measured usage.</li>
+<li>The value is part of the rendered prompt, so <strong>changing it mid-task invalidates the cache</strong>. Set it once per session.</li>
+<li>If <em>your</em> code compacts history, pass <code>remaining</code> so the countdown doesn&#39;t reset. Server-side compaction doesn&#39;t reset it.</li>
+<li>Anthropic&#39;s migration guidance recommends task budgets for <strong>unattended</strong> loops, not interactive sessions.</li>
+</ul>
+<p>A per-session task budget fits one-item-per-session naturally: it tells the model how much effort one item deserves, while the harness owns project totals. Measure <strong>cost per verified item</strong>, counting failed sessions, evaluator calls and regressions (see <a href="cost-and-latency.html">cost and latency</a>).</p>
+<h2 id="running-for-hours-async-execution-and-human-checkpoints"><a class="anchor" href="#running-for-hours-async-execution-and-human-checkpoints" aria-hidden="true" tabindex="-1">#</a>Running for Hours: Async Execution and Human Checkpoints</h2>
+<p>A multi-hour agent shouldn&#39;t run inside an HTTP request or a laptop terminal. Run it as a <strong>background job</strong> with a queue, leased workers and durable state. The outer session loop maps neatly onto a <a href="reliability.html#durable-execution-engines">durable execution</a> workflow: each working session is one activity, and if a worker dies mid-session, the retry starts from the last clean commit. Quotas, versioning and monitoring are covered in <a href="deployment.html">deployment</a>.</p>
+<p>Anthropic&#39;s April 2026 post on scaling Managed Agents makes the same point architecturally. It separates the <strong>session</strong> (&quot;the append-only log of everything that happened,&quot; stored outside both the context window and the harness), a disposable <strong>harness</strong> that calls the model, and the <strong>sandbox</strong> where tools run. Because the log is durable, &quot;nothing in the harness needs to survive a crash.&quot;</p>
+<p><strong>Human checkpoints</strong> go where human judgment is cheapest and most valuable:</p>
+<ul>
+<li><strong>After the initializer.</strong> A wrong task list costs minutes to fix on day 1 and days to discover on day 3.</li>
+<li><strong>At milestones.</strong> A pull request every N items or per category keeps review digestible.</li>
+<li><strong>On escalations.</strong> A stall, exhausted budget or item at its attempt limit should produce a clear request for help, not a silent stop.</li>
+<li><strong>Asynchronously by default.</strong> Proceed on documented assumptions recorded under &quot;Open questions&quot; rather than blocking overnight (see <a href="human-in-the-loop.html#background-agents-and-notifications">human-in-the-loop</a>).</li>
+</ul>
+<p>Humans steer mostly by <strong>editing artifacts</strong>: reprioritizing the task list, adding a decision to the notes or a rule to <code>CLAUDE.md</code>, commenting on a PR. These channels are durable, so the next session picks them up automatically.</p>
+<h2 id="managed-options"><a class="anchor" href="#managed-options" aria-hidden="true" tabindex="-1">#</a>Managed Options</h2>
+<p>As of late 2026, managed runtimes cover much of the plumbing. They change quickly, so check current docs.</p>
+<ul>
+<li><strong>Claude Managed Agents</strong> (beta) runs the loop on Anthropic&#39;s infrastructure with a container per session, versioned agent configs and automatic compaction. A session can carry a hard dollar <strong>session budget</strong>: at the cap it pauses with <code>stop_reason: budget_reached</code>, keeping history and sandbox, and raising the budget resumes it. <strong>Scheduled deployments</strong> start sessions on a cron schedule.</li>
+<li><strong>Outcomes</strong> make the verification gate a platform feature. You send a <code>user.define_outcome</code> event with a task and a <strong>rubric</strong>; a separate <strong>grader</strong> in its own context window scores each iteration and feeds back per-criterion gaps, and the agent revises until the result is <code>satisfied</code>, <code>max_iterations</code> is reached (default 3, maximum 20), or the outcome is interrupted or <code>failed</code>. Rubrics work best as independently gradable criteria (&quot;CSV has a numeric <code>price</code> column&quot;), not impressions.</li>
+<li><strong>The <dfn class="gt" tabindex="0" data-t="Claude Agent SDK" data-d="A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents." data-l="sdk-hands-on" data-a="claude-agent-sdk">Claude Agent SDK</dfn></strong> gives you Claude Code&#39;s harness as a library, with resumable and forkable sessions (see <a href="agent-frameworks.html">agent frameworks</a>).</li>
+<li><strong>Durable workflow engines</strong> (Temporal, DBOS, Inngest, LangGraph checkpointers) provide resumable outer loops for any model.</li>
+</ul>
+<p>A platform gives you the runtime, session log and budgets. The task list, the definition of done and the notes are specific to your task and remain your job.</p>
+<h2 id="evaluating-long-horizon-performance"><a class="anchor" href="#evaluating-long-horizon-performance" aria-hidden="true" tabindex="-1">#</a>Evaluating Long-Horizon Performance</h2>
+<p>How do you know whether a long-running agent is good, or getting better?</p>
+<p><strong>Public trends.</strong> METR&#39;s <strong><dfn class="gt" tabindex="0" data-t="Time horizon" data-d="METR's metric for agent capability: the length of task, measured by how long it takes skilled humans, that a model completes with a given success rate (typically 50%). It has doubled roughly every seven months since 2019, and nearer every four months since 2023 per METR's Time Horizon 1.1 (January 2026)." data-l="benchmarks" data-a="time-horizon">time horizon</dfn></strong> estimates the length of task, in skilled-human time, that a model completes with 50% reliability. It grew exponentially from 2019 to 2025, doubling roughly every seven months, and METR revised its task suite in January 2026 (Time Horizon 1.1). Read current figures on <a href="https://metr.org/time-horizons/" target="_blank" rel="noopener">METR&#39;s site</a>, and note what the metric isn&#39;t: it measures task difficulty in human time, not how long an agent runs or how well a multi-session harness works. Benchmarks such as Vending-Bench add <strong>variance over long runs</strong> as a finding: strong models sometimes derail badly over millions of tokens. See <a href="benchmarks.html">benchmarks</a>.</p>
+<p><strong>Your own metrics.</strong> For your harness on your tasks, track:</p>
+<ul>
+<li><strong>The progress curve</strong>: verified items over time and dollars. A curve that flattens while spending continues is a stall.</li>
+<li><strong>The false-done rate</strong>: items marked passing that fail an independent re-check (hidden tests, a human spot-check, a fresh evaluator). This catches self-grading.</li>
+<li><strong>The regression rate</strong>: passing items broken by later sessions.</li>
+<li><strong>Sessions and cost per verified item.</strong></li>
+<li><strong>A cold-start test</strong>: give a fresh session only the workspace, ask for status and next step, and compare against ground truth. This tests your handoff artifacts directly.</li>
+<li><strong>Human intervention rate</strong>: escalations and rejected PRs per 100 items.</li>
+</ul>
+<p>Long runs vary a lot, so evaluate more than once (<dfn class="gt" tabindex="0" data-t="pass^k" data-d="The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%." data-l="evaluating-agents" data-a="passk">pass^k</dfn> from <a href="evaluating-agents.html">evaluating agents</a> applies), and <strong>ablate</strong> harness components when you change models. Anthropic dropped context resets, then sprint decomposition, as newer models made each unnecessary, but kept the planner because without it the builder under-scoped the work.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
+<ul>
+<li>When a task spans many context windows and sessions, the transcript is disposable and the <strong>workspace is the memory</strong>: code, tests, a task list, progress notes and git history.</li>
+<li>The characteristic failures are trying to one-shot the work, declaring victory early, false &quot;done&quot; on individual items, losing the thread after compaction, context anxiety, environment rot, drift and runaway cost.</li>
+<li>A two-phase harness addresses most of them. An <strong>initializer</strong> expands the spec into a failing task list, an <code>init.sh</code> and notes. <strong>Working sessions</strong> orient, check the baseline, do one item, verify, commit and update notes.</li>
+<li>Keep the <strong>task list structured and mostly frozen</strong> (JSON the harness can read and enforce) and the <strong>notes free-text but curated</strong>. Git provides checkpoints, episodic memory and the review surface.</li>
+<li>Compaction preserves continuity, while resets and fresh sessions give a clean slate at the cost of a handoff. Every harness component encodes an assumption about the model&#39;s limits, so re-test it when models change.</li>
+<li>Verify the way a user would (end-to-end, in a browser where relevant) and with an independent evaluator for subjective quality. Only the harness should mark items done, and the tests must be outside the agent&#39;s write scope.</li>
+<li>Budget at every level: <code>max_tokens</code> per response, an advisory task budget per session, attempt limits per item, and dollars, deadlines and stall detection per project. Put humans at the plan, at milestones and on escalations.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
+<ol>
+<li><strong>Write the task list.</strong> Take a small project you know (a to-do app with auth, or a CLI that syncs two calendars) and write the initializer&#39;s output: 15–25 features in the JSON format above, each with concrete acceptance steps and a <code>check</code> command, plus the first version of <code>progress.md</code>. Which features were hardest to make verifiable?</li>
+<li><strong>Cold-start test.</strong> Using the <code>progress.md</code> example in this lesson, start a fresh model session with only that file and a <code>git log</code> excerpt you write, and ask: &quot;What is the state of this project and what exactly should you do first?&quot; Grade the answer. Then delete the &quot;Last session&quot; section and repeat. What did the model lose?</li>
+<li><strong>Baseline repair.</strong> Extend the harness so that if the smoke suite fails <em>before</em> a session starts, the next session works on a synthetic &quot;fix the regression&quot; item (with the failing output in its prompt) instead of a new feature, and so that two consecutive failed repairs escalate to a human.</li>
+<li><strong>Stall and budget policy.</strong> Your overnight run has a $300 cap and about 120 items. Design the budget table for it: the per-session task budget, max turns, max attempts per item, stall threshold and what happens at each limit. Explain how you would set each number from data rather than by guessing.</li>
+<li><strong>Independent evaluator.</strong> Add an evaluator session for items whose <code>category</code> is <code>&quot;ux&quot;</code>. It gets a fresh context, read-only access to the running app through a browser tool, and a rubric. It must return a structured verdict (<code>pass</code> or <code>fail</code>, with failed criteria). Only a <code>pass</code> from the evaluator <em>and</em> the automated gates may mark the item done. How do you stop the evaluator from simply approving everything?</li>
+</ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> A feature is verifiable when its last step is an observable state (&quot;the invoice is listed as Sent&quot;), not an activity (&quot;sending works&quot;). <strong>Sketch:</strong> Group by user journey, order by dependency via <code>priority</code>, and give each feature 2–4 steps ending in an assertion plus a <code>check</code> pointing at one e2e test. The hardest are cross-cutting features (&quot;errors are user-friendly&quot;): split them into concrete checks (&quot;on a 375px viewport the nav collapses to a menu button&quot;) or route them to an evaluator with a rubric. The first <code>progress.md</code> holds the run command, the initializer&#39;s stack decisions and assumptions about ambiguous spec points under &quot;Open questions.&quot;</p>
+</li>
+<li><p><strong>Hint:</strong> Write down the ground truth <em>before</em> running the test: 41/212 passing, smoke green at 9f3c2e1, first run <code>init.sh</code> and the smoke tests, then finish INV-013 by making the status update synchronous. <strong>Sketch:</strong> With the full file, a good answer names the item, the failing step and the fix, and checks the baseline first. Without &quot;Last session,&quot; the model re-derives the situation, may not rediscover the background-job cause, and may retry an approach already ruled out. Score on correct state, correct next action and respect for constraints (no editing the frozen test).</p>
+</li>
+<li><p><strong>Hint:</strong> Run the smoke suite in <code>main</code> before choosing an item, and represent the repair as an ordinary item so the rest of the loop is unchanged. <strong>Sketch:</strong></p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python">code, out = sh(<span class="hljs-string">&quot;pytest -q -m smoke tests/e2e&quot;</span>)
+<span class="hljs-keyword">if</span> code != <span class="hljs-number">0</span>:
+    feat = {<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;REPAIR&quot;</span>, <span class="hljs-string">&quot;priority&quot;</span>: <span class="hljs-number">0</span>, <span class="hljs-string">&quot;attempts&quot;</span>: repairs, <span class="hljs-string">&quot;passes&quot;</span>: <span class="hljs-literal">False</span>,
+            <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;The smoke suite is failing. Fix the regression without editing tests.&quot;</span>,
+            <span class="hljs-string">&quot;steps&quot;</span>: [out[-<span class="hljs-number">3000</span>:]], <span class="hljs-string">&quot;check&quot;</span>: <span class="hljs-string">&quot;pytest -q -m smoke tests/e2e&quot;</span>}
+    repairs += <span class="hljs-number">1</span>
+    <span class="hljs-keyword">if</span> repairs &gt; <span class="hljs-number">2</span>:
+        escalate(<span class="hljs-string">&quot;baseline broken after two repair sessions&quot;</span>, out)  <span class="hljs-comment"># your notifier</span>
+        <span class="hljs-keyword">return</span>
+<span class="hljs-keyword">else</span>:
+    repairs = <span class="hljs-number">0</span></code></pre></div>
+<p> Keep the synthetic item out of <code>features.json</code>. Commit a successful repair as <code>fix(regression): …</code> and note which commit broke the baseline (<code>git bisect</code> against the smoke suite finds it).</p>
+</li>
+<li><p><strong>Hint:</strong> Run 10–20 representative items without limits first, record tokens, turns, dollars and outcomes, then set each limit from a percentile. <strong>Sketch:</strong> Task budget near the p90 of tokens per <em>successful</em> item (advisory, so err generous; too small causes early stops); max turns near the p99. Max attempts per item: 2–3 if your data shows third attempts rarely succeed, then mark it <code>blocked</code> and escalate. Three sessions without a new passing item pauses the run and notifies a human. Dollar cap $300, with an alert at 50% spend if the progress curve is behind plan. At the cap, start no new sessions, let the current one finish, and post a summary. Re-derive the numbers when the model or harness changes.</p>
+</li>
+<li><p><strong>Hint:</strong> The evaluator&#39;s context and incentives should differ from the builder&#39;s: separate prompt, no access to the builder&#39;s reasoning, criteria scored one by one, calibration against known answers. <strong>Sketch:</strong> Run it as its own loop with a browser tool and structured output (<code>output_config={&quot;format&quot;: {&quot;type&quot;: &quot;json_schema&quot;, &quot;schema&quot;: ...}}</code>) returning <code>{&quot;verdict&quot;: &quot;pass&quot; | &quot;fail&quot;, &quot;failed_criteria&quot;: [...], &quot;evidence&quot;: [...]}</code>, and require evidence for every passed criterion. Calibrate on known-good and known-bad builds, track its false-pass rate, tell it that finding real defects is the job, and spot-check verdicts with a human early on. Feed failed criteria verbatim to the next builder session. On Claude Managed Agents, this is an outcome with a rubric.</p>
+</li>
+</ol>
+</details>
+
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="long-running-agents" data-total="7">
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>A fresh working session opens a repo with lots of code and reports the project complete, although many features don&#39;t work. Which harness change most directly prevents this?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have an initializer write a task list where every item starts out failing</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask the session to double-check its conclusion carefully before it replies</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Turn on server-side compaction so the session remembers what earlier ones did</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Give the session a larger context window so it can read the whole repository first</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Early victory happens because &quot;done&quot; has no external definition. A task list that starts all-failing, and only flips after verification, makes &quot;complete&quot; checkable. More context or compaction doesn&#39;t help a session that has no memory of the earlier ones, and self-checking reuses the same judgment that made the mistake.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Why did Anthropic store the feature list as JSON rather than Markdown?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Markdown checklists can&#39;t record test steps or a priority for each feature</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model was less likely to inappropriately rewrite or overwrite a JSON file</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The Messages API only accepts JSON files as attachments to an agent session</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>JSON files are smaller, so the list takes up fewer tokens in each session&#39;s context</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The post reports the model was less prone to inappropriately change a JSON file, and sessions were told to change only the passes field. A structured file also lets the harness parse it, enforce frozen fields and pick the next item.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Each working session in a long-running harness implements only one item. What is the main benefit?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It lets the harness run each feature on a cheaper model tier than the last</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It removes the need for progress notes, since the git log covers everything</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It minimizes the total number of tokens spent across the whole project</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Every session ends at a verified commit that is cheap to roll back</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> One item per session bounds the blast radius, gives a unit that can be verified, and puts every handoff at a clean commit. It usually adds orientation overhead rather than minimizing tokens, and notes still carry what git can&#39;t, such as why something failed.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Compared with compaction, what does a context reset with a handoff artifact give you?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Automatic protection against tampering, since the new session cannot edit tests</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A clean slate for the model, at the cost of designing a state handoff</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Lower cost, since the API bills reset sessions at a discounted input rate</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Full continuity, since the reset keeps every earlier message in compressed form</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Compaction summarizes in place and keeps continuity but not a clean slate. A reset starts fresh, which helped with context anxiety, at the cost of designing a handoff and extra orchestration, tokens and latency. Nothing about a reset protects the tests.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>A session builds a feature, its unit tests pass, and a curl request to the endpoint returns 200. What should the harness do before marking the item passing?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Run its end-to-end acceptance steps in the real UI, plus a smoke suite</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Mark it passing, since unit tests plus a live endpoint check is sufficient proof</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Mark it passing provisionally and leave the real check for the final human review</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Ask the same session to review its diff once more and confirm it is complete</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anthropic found agents often marked features done after unit tests or curl checks, and that browser-based end-to-end testing improved results dramatically. Self-review isn&#39;t independent, and deferring all checks to the end lets errors compound across sessions.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>You set output_config.task_budget to 400,000 tokens for each working session. Which statement is accurate?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model sees a countdown and paces itself, but it is advisory, not a hard cap</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Raising it mid-session is free, since budgets are excluded from the cached prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The budget is per request, so each tool-use turn starts again at 400,000</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API stops the session with an error once 400,000 tokens have been used</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Task budgets are a soft, model-visible budget for the whole agentic loop. max_tokens and the harness supply hard limits. The budget value is part of the rendered prompt, so changing it mid-task invalidates the cache.</div>
+</div>
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Your harness has run 5 sessions in a row without any new item passing, though each session reports progress. What&#39;s the best response?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Switch to compaction so later sessions can see what earlier ones attempted</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Let the agent edit the acceptance tests for the blocked item so work can continue</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Raise the per-session task budget, since the sessions are likely being cut off early</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Treat it as a stall: pause the run, keep the attempts, and escalate to a human</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A flat progress curve with continued spending is the signature of a stall, whatever the sessions say. A stall threshold should pause the run and escalate with the parked attempts and notes. Bigger budgets just spend more, and letting the agent edit tests is the specification-gaming failure.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener">Effective harnesses for long-running agents (Anthropic, Nov 2025)</a>: the initializer and coding-agent pattern, JSON feature lists, <code>init.sh</code>, progress files and browser-based verification.</li>
+<li><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener">Harness design for long-running application development (Anthropic, Mar 2026)</a>: planner, generator and evaluator agents, context anxiety, resets vs. compaction, sprint contracts, and simplifying the harness as models improve.</li>
+<li><a href="https://www.anthropic.com/engineering/managed-agents" target="_blank" rel="noopener">Scaling Managed Agents: Decoupling the brain from the hands (Anthropic, Apr 2026)</a>: the session as a durable event log outside the context window, and why the harness can be disposable.</li>
+<li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Effective context engineering for AI agents (Anthropic)</a>: compaction, structured note-taking and sub-agents for long-horizon work.</li>
+<li><a href="https://platform.claude.com/docs/en/build-with-claude/task-budgets" target="_blank" rel="noopener">Task budgets (Claude docs)</a>: how the countdown counts tokens, choosing a budget, <code>remaining</code> across compaction, and its advisory nature.</li>
+<li><a href="https://platform.claude.com/docs/en/build-with-claude/compaction" target="_blank" rel="noopener">Compaction (Claude docs)</a>: threshold and on-demand server-side compaction, and how to choose between them.</li>
+<li><a href="https://platform.claude.com/docs/en/managed-agents/define-outcomes" target="_blank" rel="noopener">Define outcomes (Claude Managed Agents docs)</a>: rubric-graded iterate, grade and revise loops with an independent grader.</li>
+<li><a href="https://arxiv.org/abs/2503.14499" target="_blank" rel="noopener">Measuring AI Ability to Complete Long Tasks (METR, 2025)</a> and <a href="https://metr.org/time-horizons/" target="_blank" rel="noopener">METR time horizons</a>: the time-horizon metric, its caveats and current estimates.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="long-running-agents">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-long-running-agents"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-long-running-agents" class="notes" data-slug="long-running-agents" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="reliability.html"><small>← Previous</small><span>Reliability &amp; Durable Execution</span></a>
+    <a class="pager-next" href="cost-and-latency.html"><small>Next →</small><span>Cost &amp; Latency Optimization</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
+<li class="toc-h2"><a href="#what-changes-when-tasks-outlive-a-context-window">What Changes When Tasks Outlive a Context Window</a></li>
+<li class="toc-h2"><a href="#how-long-running-agents-fail">How Long-Running Agents Fail</a></li>
+<li class="toc-h2"><a href="#the-two-phase-harness-initializer-and-working-sessions">The Two-Phase Harness: Initializer and Working Sessions</a></li>
+<li class="toc-h3"><a href="#why-one-item-per-session">Why one item per session</a></li>
+<li class="toc-h2"><a href="#structured-progress-task-lists-and-notes">Structured Progress: Task Lists and Notes</a></li>
+<li class="toc-h3"><a href="#the-task-list-structured-mostly-immutable">The task list: structured, mostly immutable</a></li>
+<li class="toc-h3"><a href="#the-notes-free-text-curated">The notes: free text, curated</a></li>
+<li class="toc-h2"><a href="#git-as-checkpoint-and-memory">Git as Checkpoint and Memory</a></li>
+<li class="toc-h2"><a href="#compaction-context-resets-and-fresh-sessions">Compaction, Context Resets and Fresh Sessions</a></li>
+<li class="toc-h3"><a href="#server-side-compaction-briefly">Server-side compaction, briefly</a></li>
+<li class="toc-h3"><a href="#writing-a-handoff-that-works">Writing a handoff that works</a></li>
+<li class="toc-h2"><a href="#verification-gates-before-done">Verification Gates Before &quot;Done&quot;</a></li>
+<li class="toc-h2"><a href="#a-minimal-multi-session-harness">A Minimal Multi-Session Harness</a></li>
+<li class="toc-h2"><a href="#budgets-across-sessions">Budgets Across Sessions</a></li>
+<li class="toc-h2"><a href="#running-for-hours-async-execution-and-human-checkpoints">Running for Hours: Async Execution and Human Checkpoints</a></li>
+<li class="toc-h2"><a href="#managed-options">Managed Options</a></li>
+<li class="toc-h2"><a href="#evaluating-long-horizon-performance">Evaluating Long-Horizon Performance</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>
