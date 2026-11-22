@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The AI brain inside every agent · Agents Made Simple</title><meta name="description" content="What a large language model really is, why it's so good with words, and why it still needs tools to get things right."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="chapter">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page chapter" data-slug="the-ai-brain">
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🌱 The Basics</a><div class="ch-hero-emoji">🧠</div><p class="eyebrow">Chapter 2 of 2</p><h1>The AI brain inside every agent</h1><p class="lead">What a large language model really is, why it's so good with words, and why it still needs tools to get things right.</p><p class="meta">⏱ 11 min read · 🎮 2 interactive demos</p>
+<nav class="mini-toc" aria-label="In this chapter"><a href="#a-super-powered-autocomplete">A super-powered autocomplete</a><a href="#tokens-how-a-model-sees-your-words">Tokens: how a model sees your words</a><a href="#why-it-sometimes-makes-things-up">Why it sometimes makes things up</a><a href="#it-can-think-step-by-step">It can think step by step</a><a href="#why-the-brain-needs-tools">Why the brain needs tools</a><a href="#practical-habits">Practical habits</a><a href="#quick-check">Quick check</a><a href="#what-s-next">What s next</a></nav></div>
+<article class="prose"><p>Type &quot;Happy birthday to…&quot; on your phone and it suggests &quot;you&quot;. That little autocomplete is guessing the next word from what you&#39;ve typed so far.</p>
+<p>Now imagine an autocomplete that has read a huge slice of everything people have written — books, articles, manuals, recipes, code, conversations — and has become <em>astonishingly</em> good at guessing what comes next. So good that it can finish not just a sentence, but an email, an essay, a plan, or a piece of reasoning.</p>
+<p>That&#39;s the brain inside every AI agent. It&#39;s called a <strong>large language model</strong>, or <strong>LLM</strong> for short: a computer program that has learned the patterns of language from enormous amounts of text, and uses them to write a sensible continuation of whatever you give it.</p>
+<div class="callout c-key" role="note"><div class="callout-title"><span aria-hidden="true">🔑</span>The big idea</div><p>A language model does one thing, over and over: <strong>it predicts the next little piece of text.</strong> Everything else — answering questions, writing, planning, choosing which tool to use — is built from that single skill, repeated very quickly.</p>
+</div>
+<h2 id="a-super-powered-autocomplete">A super-powered autocomplete</h2>
+<p>The best way to understand this is to <em>be</em> the model for a moment. Pick a sentence start below, then press <strong>🎲 Pick the next word</strong> a few times. Try sliding the temperature all the way down, then all the way up, and press <strong>Ask 5 times</strong> at each end.</p>
+<div data-widget="next-word"></div>
+
+<p>Did you notice? The model doesn&#39;t look up &quot;the answer&quot;. It gives every possible next word a score, then <strong>picks one</strong> — usually a likely one, but not always the same one. With the temperature low, it almost always picks the favorite. With the temperature high, it takes more chances. That&#39;s why asking the same question twice can give you two slightly different answers.</p>
+<p>Then it adds the chosen word to the text and does it all again for the next word. And the next. A full paragraph is just this tiny step repeated a few hundred times, very fast.</p>
+<div class="callout c-analogy" role="note"><div class="callout-title"><span aria-hidden="true">🧩</span>Think of it like this</div><p>Imagine someone who has spent years reading in a giant library, but has no phone and no window. Ask them anything and they&#39;ll answer fluently from memory — often brilliantly. But they can&#39;t check today&#39;s news, can&#39;t call anyone, and sometimes they&#39;ll <em>misremember</em> a detail while sounding completely sure. Keep this person in mind; we&#39;ll come back to them.</p>
+</div>
+<h3 id="how-does-it-get-so-good">How does it get so good?</h3>
+<p>A language model is built in two big stages:</p>
+<ol>
+<li><strong>Reading practice (pre-training).</strong> The model is shown a vast amount of text and plays the &quot;guess the next word&quot; game billions of times. Each time it guesses wrong, its internal settings are nudged slightly so it does a bit better next time. Over time it picks up grammar, facts, styles, and even patterns of reasoning — because predicting text well <em>requires</em> understanding a lot about the world.</li>
+<li><strong>Learning to be helpful (fine-tuning).</strong> A model that only predicts text would happily continue your question with more questions. So it gets a second round of training, with examples of good answers and feedback from people about which responses are helpful, honest and safe. This is what turns a raw text predictor into an assistant you can talk to.</li>
+</ol>
+<div class="detail">
+
+<p><strong>For the curious:</strong> inside, an LLM is a huge network of numbers called <strong>parameters</strong> (often billions of them), arranged in a design called a <strong>transformer</strong>. When it reads your text, every token &quot;looks at&quot; the other tokens to work out what matters — a mechanism called <strong>attention</strong>. The output is a probability for every possible next token, exactly like the bars in the widget above. The second training stage often uses <strong>reinforcement learning from human feedback (RLHF)</strong> or similar methods, where the model is rewarded for responses people (or carefully written guidelines) prefer. Nobody hand-writes the model&#39;s knowledge; it emerges from the training.</p>
+</div>
+
+<h2 id="tokens-how-a-model-sees-your-words">Tokens: how a model sees your words</h2>
+<p>Here&#39;s a small surprise: models don&#39;t actually read <em>words</em>. They read <strong>tokens</strong> — chunks of text that might be a whole short word, part of a longer word, a space plus a word, or a single punctuation mark or emoji.</p>
+<p>Type anything you like into the box below, or try the buttons. Watch how common words stay whole while long or unusual ones get chopped into pieces.</p>
+<div data-widget="tokenizer"></div>
+
+<p>A handy rule of thumb: in English, a token is roughly <strong>three-quarters of a word</strong>, so 100 words is about 130 tokens. Long, rare words and emojis use more tokens than you&#39;d expect.</p>
+<p>Why should you care? Because tokens are the model&#39;s unit of <em>everything</em>:</p>
+<ul>
+<li><strong>Reading limits.</strong> A model can only look at a certain number of tokens at once. This is its short-term memory, and you&#39;ll explore it in <a href="memory.html">Memory</a>.</li>
+<li><strong>Cost and speed.</strong> AI services usually charge, and take time, per token read and written.</li>
+<li><strong>Odd blind spots.</strong> Because &quot;strawberry&quot; might arrive as a couple of chunks rather than ten letters, models have historically stumbled on tasks like counting letters or reversing words — not because they&#39;re &quot;dumb&quot;, but because they never saw the individual letters.</li>
+</ul>
+<h2 id="why-it-sometimes-makes-things-up">Why it sometimes makes things up</h2>
+<p>Remember the person in the library with no window? Ask them for the title of a research paper on a niche topic, and they might give you a very convincing one — a believable title, real-sounding authors, a plausible year — that doesn&#39;t exist.</p>
+<p>AI researchers call this <strong>hallucination</strong>: when a model produces something that sounds right but is false. It happens because the model&#39;s job is to write the most <em>plausible</em> continuation, not to check facts. Most of the time plausible and true line up. When the model doesn&#39;t really know, plausible can win.</p>
+<p>Hallucinations are most likely with:</p>
+<ul>
+<li><strong>Specific details</strong> — exact numbers, quotes, dates, citations, web addresses.</li>
+<li><strong>Rare or niche topics</strong> the model saw little about during training.</li>
+<li><strong>Questions that assume something false</strong> (&quot;Why did Einstein win two Nobel Prizes?&quot; — he won one).</li>
+</ul>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>Confident is not the same as correct</div><p>A model&#39;s tone tells you nothing about its accuracy. It sounds just as sure when it&#39;s wrong. For anything that matters — a fact in a report, a medical or legal question, a number in a budget — check it, or ask the AI to show its source.</p>
+</div>
+<h3 id="the-calendar-problem-knowledge-cutoff">The calendar problem: knowledge cutoff</h3>
+<p>There&#39;s a second, related limit. A model learns from text collected up to a certain date, called its <strong>knowledge cutoff</strong>. After that, its knowledge is frozen. Ask about yesterday&#39;s news, today&#39;s weather or this week&#39;s prices, and a model on its own can only guess — or tell you it doesn&#39;t know.</p>
+<p>Modern models are much better than early ones at saying &quot;I&#39;m not sure&quot; and at admitting their cutoff. But the fix that really works isn&#39;t a better memory. It&#39;s giving the model a way to <strong>look things up</strong> — which is exactly where agents come in.</p>
+<div class="detail">
+
+<p><strong>Why can&#39;t they just fix hallucinations?</strong> Model makers have reduced them a lot, by training models to say &quot;I don&#39;t know&quot; more often and to stay closer to the information they&#39;re given. But because the core skill is <em>predicting likely text</em>, some risk remains. The most reliable fix is <strong>grounding</strong>: giving the model real documents or search results to work from, and asking it to quote or cite them. That way you can check the answer against its source. You&#39;ll see this in the <a href="example-research-agent.html">research agent</a> example.</p>
+</div>
+
+<h2 id="it-can-think-step-by-step">It can think step by step</h2>
+<p>If a language model just predicts one word at a time, how can it solve a tricky problem?</p>
+<p>Try this yourself: what&#39;s 17 × 24? Most people can&#39;t do it in a flash — but give yourself a scrap of paper and it&#39;s easy. 17 × 20 = 340, 17 × 4 = 68, total 408. Writing down the in-between steps makes the hard problem simple.</p>
+<p>Language models work the same way. When a model writes out its reasoning <em>before</em> giving an answer, each step it writes becomes part of the text it reads to predict the next step. In effect, its own notes become its scrap paper. That&#39;s why asking &quot;think it through step by step&quot; often improves answers on math, logic and planning.</p>
+<p>Many models today (as of 2026) do this automatically. They have a <strong>thinking</strong> or <strong>reasoning</strong> mode where they work through a problem privately — considering options, catching their own mistakes, trying again — before writing the final answer. It takes a bit longer and uses more tokens, but for hard problems the answers are noticeably better.</p>
+<div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>Use it in your own prompts</div><p>For anything tricky, ask the AI to slow down. Phrases like <em>&quot;Think through this step by step before answering&quot;</em> or <em>&quot;List the options and their pros and cons, then recommend one&quot;</em> give the model room to reason. You&#39;ll find more techniques in <a href="great-instructions.html">Great instructions</a>.</p>
+</div>
+<h2 id="why-the-brain-needs-tools">Why the brain needs tools</h2>
+<p>Let&#39;s put it all together. A language model is brilliant with language and surprisingly good at reasoning. But on its own, it has three big gaps:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>On its own, a model…</th>
+<th>So it might…</th>
+<th>The fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>has knowledge frozen at its cutoff</td>
+<td>give outdated information</td>
+<td>🔍 a <strong>web search</strong> tool</td>
+</tr>
+<tr>
+<td>predicts plausible text, not checked facts</td>
+<td>make up a detail</td>
+<td>📄 tools to <strong>read real documents</strong> and cite them</td>
+</tr>
+<tr>
+<td>can be shaky at exact arithmetic</td>
+<td>slip on a calculation</td>
+<td>🧮 a <strong>calculator</strong> or code tool</td>
+</tr>
+<tr>
+<td>can only produce text</td>
+<td>describe what to do, but not do it</td>
+<td>📧 📅 tools to <strong>send, book, save and click</strong></td>
+</tr>
+</tbody></table>
+</div>
+<p>That last row is the important one. A model by itself can&#39;t send your email, open your spreadsheet or book a table. It can only <em>write words</em>. But words can be instructions — &quot;search the web for Tokyo weather&quot; — and if a piece of software is listening, it can carry them out and hand the result back.</p>
+<p>That&#39;s the whole secret of agents: <strong>the brain decides, the tools do, and the results come back for the brain to read.</strong> You&#39;ll see this loop in action in the next chapter.</p>
+<div class="detail">
+
+<p><strong>Different models, different strengths:</strong> as of 2026 there are many capable LLMs — for example Anthropic&#39;s Claude, OpenAI&#39;s GPT models, Google&#39;s Gemini, and open-weight models such as Meta&#39;s Llama. Some are large and very capable; others are smaller, faster and cheaper. Agent builders often choose a strong model for planning and a faster one for simple, repetitive steps. The principles in this guide apply to all of them.</p>
+</div>
+
+<h2 id="practical-habits">Practical habits</h2>
+<p>Knowing how the brain works gives you a few simple habits that make any AI more useful:</p>
+<ul>
+<li><strong>Give it the facts.</strong> Paste in the document, email or data you&#39;re asking about, instead of relying on its memory.</li>
+<li><strong>Ask for sources.</strong> &quot;Where did that come from?&quot; or &quot;Quote the sentence that supports this&quot; makes hallucinations easy to spot.</li>
+<li><strong>Let it think.</strong> For hard questions, ask for step-by-step reasoning or turn on a thinking mode.</li>
+<li><strong>Check what matters.</strong> Numbers, names, dates and anything you&#39;ll act on deserve a quick double-check.</li>
+<li><strong>Prefer tools for live info.</strong> Use an assistant with web search (or an agent) for anything recent.</li>
+</ul>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I want to understand [topic]. Please:
+1. Explain it simply, as if I'm new to it.
+2. Mark anything you're unsure about with &quot;(not certain)&quot;.
+3. If this depends on recent events or facts after your knowledge cutoff, say so.
+4. Suggest 2 reliable kinds of sources where I could double-check the key facts.</pre></div>
+<p>If you&#39;re using AI to study, the <a href="example-study-tutor.html">study tutor</a> example shows how to turn this &quot;brain&quot; into a patient teacher that quizzes you instead of just giving answers.</p>
+<h2 id="quick-check">Quick check</h2>
+<div class="quiz" data-quiz="the-ai-brain">
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>At its core, what is a large language model doing when it writes an answer?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Following a long list of rules written by programmers</button><button type="button" class="quiz-opt" data-i="1">Searching the internet and copying the best page</button><button type="button" class="quiz-opt" data-i="2">Repeatedly predicting a likely next piece of text</button><button type="button" class="quiz-opt" data-i="3">Looking up the answer in a hidden database of facts</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> An LLM generates text one token at a time by predicting what&#39;s likely to come next. It doesn&#39;t consult a fact database or the web unless it&#39;s given a tool to do so — which is why it can sound right and still be wrong.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>You ask an AI (with no tools) for three research papers on a niche topic. It gives titles, authors and years. What&#39;s the wisest next step?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Check that each paper really exists before using it</button><button type="button" class="quiz-opt" data-i="1">Assume they&#39;re fake and ignore everything it said</button><button type="button" class="quiz-opt" data-i="2">Ask the same question again to see if it repeats them</button><button type="button" class="quiz-opt" data-i="3">Trust them — the AI sounded very confident</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Specific details like citations are where hallucinations are most common, and confidence tells you nothing. Asking again doesn&#39;t verify anything. The papers might be real — so check them, rather than trusting or dismissing them blindly.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">3</span>Why does asking a model to &quot;think step by step&quot; often improve its answers?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">The steps it writes become notes it can build on</button><button type="button" class="quiz-opt" data-i="1">It switches the model to a bigger, smarter version</button><button type="button" class="quiz-opt" data-i="2">It tells the model to ignore its training data</button><button type="button" class="quiz-opt" data-i="3">It makes the model search the web for each step</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Each reasoning step the model writes becomes part of the text it reads when predicting the next step — like using scrap paper for 17 × 24. No web search or different model is involved.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+<h2 id="what-s-next">What&#39;s next</h2>
+<p>You&#39;ve met the brain: brilliant with words, able to reason, but unable to look things up or act on its own. Next, we&#39;ll connect it to the world with <strong>the agent loop</strong> — the simple think → act → observe cycle that turns a talking model into one that gets things done.</p>
+</article>
+<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="the-ai-brain">Mark as done</button></section>
+<nav class="pager"><a href="what-is-an-agent.html"><small>← Previous</small>🤖 What is an AI agent?</a><a class="next" href="examples.html"><small>Next →</small>🎬 Agents in action</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+
+</body></html>

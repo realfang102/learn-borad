@@ -398,7 +398,8 @@ for (const doc of [cheatsheet, projects].filter(Boolean))
 for (const g of glossary) if (g.lesson && !allCurriculumSlugs.has(g.lesson)) warn(`glossary ${g.term}: unknown lesson ${g.lesson}`);
 
 // ---------- write output ----------
-fs.rmSync(OUT, { recursive: true, force: true });
+// Clear previous output but keep the beginner guide (docs/guide), which has its own build.
+if (fs.existsSync(OUT)) for (const f of fs.readdirSync(OUT)) if (f !== "guide") fs.rmSync(path.join(OUT, f), { recursive: true, force: true });
 fs.mkdirSync(path.join(OUT, "assets", "vendor"), { recursive: true });
 for (const f of fs.readdirSync(SRC_ASSETS)) fs.copyFileSync(path.join(SRC_ASSETS, f), path.join(OUT, "assets", f));
 fs.copyFileSync(
