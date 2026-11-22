@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The data analyst agent · Agents Made Simple</title><meta name="description" content="Watch an agent clean up a messy sales spreadsheet, calculate with code, build a chart — and catch a number that's too good to be true."><meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/guide.css"></head>
+<body data-page="example">
+<a class="skip" href="#main">Skip to content</a>
+<div class="scroll-bar" aria-hidden="true"></div>
+<header class="top">
+  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html" aria-current="page">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
+  <div class="top-actions">
+    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+  </div>
+</header>
+<main id="main" class="page example" data-slug="example-data-analyst">
+<div class="ex-hero reveal"><a class="crumb" href="examples.html">🎬 Agents in action</a><div class="ch-hero-emoji">📊</div><p class="eyebrow">Data · Beginner</p><h1>The data analyst agent</h1><p class="lead">Watch an agent clean up a messy sales spreadsheet, calculate with code, build a chart — and catch a number that's too good to be true.</p>
+<p class="concepts">Uses ideas from: <a class="chip" href="tools.html">🛠️ Tools: giving agents hands</a> <a class="chip" href="reliable-agents.html">🎯 Making agents reliable</a> <a class="chip" href="agents-at-work.html">💼 Getting more done at work</a> <a class="chip" href="the-agent-loop.html">🔁 The agent loop</a></p></div>
+<article class="prose wide"><p>Almost every job involves a spreadsheet someone doesn&#39;t have time to dig into. Sales exports, survey results, budgets, sign-up lists — the answers are in there, but so are duplicates, typos and half-empty columns. A <strong>data analyst agent</strong> takes the file, tidies it up, does the maths and tells you what matters, in plain words.</p>
+<p>In this example, Amara, who manages four cafés, uploads three months of sales and asks which café and product did best. The interesting part isn&#39;t the chart — it&#39;s everything the agent checks <em>before</em> it draws one.</p>
+<div class="sim" data-sim="data-analyst"></div>
+
+<div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>Spot the problems first</div><p>When the spreadsheet first appears, pause and look at the nine rows yourself. How many problems can you find? (There are at least five.) Then step on and compare your list with the agent&#39;s.</p>
+</div>
+<h2 id="how-it-works">How it works</h2>
+<div class="steps-strip">
+<div><strong>Look first</strong>Peek at the rows to understand what the data is.</div>
+<div><strong>Check quality</strong>Count duplicates, formats, blanks — across every row.</div>
+<div><strong>Clean carefully</strong>Fix what's certain; flag what isn't. Keep the original.</div>
+<div><strong>Calculate with code</strong>Add columns and totals with a program, not mental maths.</div>
+<div><strong>Question outliers</strong>Check surprising numbers against other evidence.</div>
+<div><strong>Show and tell</strong>A simple chart plus a few plain-language insights.</div>
+</div>
+
+<p>The most important habit is that the agent <strong>doesn&#39;t do arithmetic in its head</strong>. Language models are good with words but can slip on long calculations, so the agent writes small programs and runs them — the same way a person would use spreadsheet formulas instead of a calculator. The program counts all 1,248 rows exactly; the agent&#39;s job is deciding <em>what</em> to count and <em>what it means</em>.</p>
+<p>The second habit is <strong>suspicion of surprises</strong>. One entry claimed 940 cold brews sold in a single day — about twenty times a normal day. Taken at face value, it made Riverside the clear winner. The agent checked it against the till&#39;s transaction count (only 212 sales that day, across all products), concluded it was almost certainly a typo, and — crucially — didn&#39;t invent a &quot;corrected&quot; number. It left the row flagged and asked Amara.</p>
+<div class="detail">
+
+<p><strong>The real technology (as of 2026):</strong> most major AI assistants can analyze uploaded files by writing and running code in a safe, isolated environment (a <em>sandbox</em>). ChatGPT&#39;s data analysis feature (first launched as &quot;Code Interpreter&quot;), Claude&#39;s ability to run code on files you upload, and Google&#39;s Gemini all work this way, usually with the Python programming language and its data libraries. Spreadsheet apps have also added assistants: Microsoft Copilot in Excel (which can also use Python in Excel) and Gemini in Google Sheets.</p>
+<p>Because the calculations happen in real code, you can ask to see it — a big advantage for checking. The weak points are elsewhere: misunderstanding what a column means, picking the wrong way to read ambiguous dates, or quietly dropping rows. That&#39;s why a good agent reports <em>what it changed</em> during cleaning, not just the final answer.</p>
+</div>
+
+<h2 id="why-this-works">Why this works</h2>
+<ul>
+<li><strong>Cleaning first prevents wrong answers.</strong> The six duplicates would have inflated totals, and the café spelled seven different ways would have been split into several &quot;cafés&quot;.</li>
+<li><strong>Code makes the numbers trustworthy.</strong> Every total can be re-run and checked, like a formula.</li>
+<li><strong>Reasoning handles the ambiguity.</strong> Whether 03/07 means 3 July or 7 March is a judgment call; the agent used the file&#39;s own date range to decide, then verified.</li>
+<li><strong>Honest insights beat impressive ones.</strong> &quot;Neck and neck, and here&#39;s a number to double-check&quot; is more useful to a team than a confident but wrong winner.</li>
+</ul>
+<p>This pattern fits many everyday tasks: survey results for a class project, a team&#39;s expenses, website sign-ups, or exam scores. See <a href="agents-at-work.html">agents at work</a> for which tasks to hand over and which to keep, and <a href="reliable-agents.html">making agents reliable</a> for more checking habits.</p>
+<div class="callout c-warning" role="note"><div class="callout-title"><span aria-hidden="true">⚠️</span>What can go wrong</div>
+<ul>
+<li><strong>Silent &quot;fixes&quot;.</strong> An agent might delete outliers, fill blanks with guesses or merge things that shouldn&#39;t be merged. Ask it to list every change it made.</li>
+<li><strong>Misread columns.</strong> &quot;Units&quot; could mean items, boxes or kilograms. Tell the agent what columns mean when it isn&#39;t obvious.</li>
+<li><strong>Ambiguous dates and currencies.</strong> Day/month order and decimal commas differ between countries. Check a few converted rows yourself.</li>
+<li><strong>Private data.</strong> Sales, salaries and customer lists may be confidential. Only upload files to tools your school or employer has approved.</li>
+</ul>
+</div>
+<h2 id="try-it-yourself">Try it yourself</h2>
+<p>Attach a spreadsheet (CSV or Excel) to an AI assistant that can run code, and paste:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I've attached [describe the file, e.g. &quot;our team's expenses for this year&quot;]. Please:
+1. Describe what's in it and list any data problems (duplicates, inconsistent formats, blanks, odd values) before analysing anything.
+2. Clean it in a copy, and tell me every change you made. Don't guess missing values — flag them.
+3. Answer: [your question, e.g. &quot;which category grew the most, month by month?&quot;]. Use code for all calculations.
+4. Make one simple chart, and write 3 short insights in plain language.
+5. Point out any number that looks suspicious and how you checked it.</pre></div>
+<p>Then make it double-check its own work:</p>
+<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">Re-check your analysis: re-run the key totals a different way, confirm the numbers in your chart match the cleaned data, and tell me which of your 3 insights is least certain and why.</pre></div>
+<div class="quiz" data-quiz="example-data-analyst">
+<div class="quiz-q" data-correct="2"><p class="quiz-question"><span class="qn">1</span>Why did the agent check the data for problems before calculating anything?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Because charts can&#39;t be made from messy data</button><button type="button" class="quiz-opt" data-i="1">To make the analysis take longer</button><button type="button" class="quiz-opt" data-i="2">Duplicates and inconsistent names would have quietly distorted the totals</button><button type="button" class="quiz-opt" data-i="3">It wanted to rewrite Amara&#39;s original file</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Messy data gives confident-looking but wrong answers. Cleaning first — in a copy, with every change reported — is what makes the results trustworthy.</div></div>
+<div class="quiz-q" data-correct="0"><p class="quiz-question"><span class="qn">2</span>Why did the agent run small programs instead of adding up the numbers itself?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Code calculates exactly and can be re-run and checked</button><button type="button" class="quiz-opt" data-i="1">Programs make the chart prettier</button><button type="button" class="quiz-opt" data-i="2">Language models can&#39;t read numbers at all</button><button type="button" class="quiz-opt" data-i="3">The spreadsheet was locked</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> Language models can read numbers fine, but long arithmetic in their &quot;head&quot; is error-prone. Code gives exact, repeatable results — like using formulas instead of mental maths.</div></div>
+<div class="quiz-q" data-correct="1"><p class="quiz-question"><span class="qn">3</span>What did the agent do with the entry showing 940 cold brews in one day?</p>
+<div class="quiz-opts"><button type="button" class="quiz-opt" data-i="0">Replaced it with 94, the most likely value</button><button type="button" class="quiz-opt" data-i="1">Checked it, flagged it, left it out of the chart and asked Amara</button><button type="button" class="quiz-opt" data-i="2">Kept it, since data should never be questioned</button><button type="button" class="quiz-opt" data-i="3">Deleted the row from the file permanently</button></div>
+<div class="quiz-expl" hidden><strong class="verdict"></strong> The evidence pointed to a typo, but the agent couldn&#39;t know the real number — so it didn&#39;t invent one. It kept the row, flagged it, and let the human decide.</div></div>
+<div class="quiz-score" aria-live="polite"></div></div>
+</article>
+<nav class="pager"><a href="example-browser-agent.html"><small>← Previous example</small>🌐 The browser (computer-use) agent</a><a class="next" href="example-study-tutor.html"><small>Next example →</small>🎓 The personal study tutor</a></nav>
+</main>
+<footer class="foot"><div class="foot-in">
+  <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
+  <p><a href="chapters.html">All chapters</a> · <a href="examples.html">Agents in action</a> · <a href="playground.html">Playground</a> · <a href="prompts.html">Prompt library</a> · <a href="../index.html">Go deeper: Agent Academy →</a></p>
+  <p class="fine">Content current as of November 2026. Simulations are illustrative recreations of how real agents behave — no real accounts, emails or systems are touched. Your progress is saved only in this browser.</p>
+</div></footer>
+<script src="assets/site-data.js"></script>
+<script src="assets/guide.js"></script>
+<script src="assets/widgets.js"></script>
+<script src="sims/data-analyst.js"></script>
+</body></html>

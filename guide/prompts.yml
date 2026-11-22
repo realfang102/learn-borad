@@ -1,0 +1,647 @@
+# Prompt library for "Agents Made Simple".
+# Each prompt follows the recipe: goal & why, context, constraints, output format, what done looks like.
+# Categories (use exactly): Learning, Writing, Research, Productivity, Work & career, Everyday life, Working with agents
+
+# ---------------------------------------------------------------- Learning
+- title: "Turn my notes into flashcards"
+  emoji: "🃏"
+  category: "Learning"
+  when: "After a lecture or reading, when you want to review with active recall instead of rereading."
+  prompt: |
+    I'm studying [subject] for [exam or goal, e.g. my biology midterm on 12 May]. I want to review with active recall, not by rereading.
+    Here are my notes: [paste notes].
+
+    Please turn them into 20 flashcards.
+    - One idea per card. The question side should make me retrieve the answer, not just recognise it.
+    - Mix question types: definitions, "why" questions, and "what would happen if…" questions.
+    - Keep each answer under 25 words.
+    - Only use facts from my notes. If something in my notes looks wrong or unclear, list it separately at the end.
+
+    Format: a table with columns Question | Answer, so I can paste it into a flashcard app.
+
+- title: "Quiz me, one question at a time"
+  emoji: "🎯"
+  category: "Learning"
+  when: "When you want to test yourself on a topic and find your weak spots before an exam."
+  prompt: |
+    Act as my quizmaster for [topic]. My level: [beginner / intermediate / advanced]. My goal: [e.g. pass the driving theory test].
+
+    Rules:
+    - Ask me ONE question at a time and wait for my answer.
+    - Start easy and get harder when I get two in a row right; go easier if I get one wrong.
+    - After each answer, tell me if I'm right, explain briefly why, and correct any misunderstanding.
+    - Don't give me the answer before I've tried.
+
+    After 10 questions, stop and give me: my score, the 2–3 ideas I struggled with most, and what to review next.
+
+- title: "Be my Socratic tutor"
+  emoji: "🦉"
+  category: "Learning"
+  when: "When you want to truly understand something by working it out yourself, not just be told the answer."
+  prompt: |
+    I want to understand [concept or problem, e.g. why compound interest grows so fast]. Please tutor me using the Socratic method.
+
+    - Don't give me the answer. Ask me one guiding question at a time.
+    - Start by asking what I already know, so you can build on it.
+    - If I'm stuck twice in a row, give me a small hint, not the solution.
+    - If I say something wrong, ask a question that helps me notice the mistake myself.
+    - When I've got it, ask me to explain the whole idea back in my own words, and tell me if anything is missing.
+
+- title: "Explain it like I'm new to this"
+  emoji: "🧒"
+  category: "Learning"
+  when: "When a topic feels full of jargon and you need a clear, friendly first explanation."
+  prompt: |
+    Explain [topic, e.g. how inflation works] to me. I'm completely new to it, and I'm [who you are, e.g. a first-year nursing student / a manager with no finance background].
+
+    Please:
+    1. Start with an everyday analogy.
+    2. Then give a plain explanation in under 200 words. Define every technical term the first time you use it.
+    3. Give one real-life example.
+    4. List 3 common misconceptions and why they're wrong.
+    5. End with 3 quick questions I can answer to check I understood (answers at the very bottom).
+
+- title: "Build me a realistic study plan"
+  emoji: "🗓️"
+  category: "Learning"
+  when: "When you have an exam or deadline coming and need a plan you can actually stick to."
+  prompt: |
+    Help me make a study plan. My goal: [e.g. pass my statistics exam]. The exam is on [date]. Today is [date].
+    Topics to cover: [list topics, and mark the ones you find hardest].
+    Time I really have: [e.g. 1 hour on weekdays, 3 hours on Saturdays, nothing on Sundays].
+
+    Requirements:
+    - Use spaced repetition: revisit each topic at least 3 times, with growing gaps.
+    - Put the hardest topics earlier, and include practice tests in the last week.
+    - Leave one buffer day per week for catching up.
+    - Keep each session to a single, specific task (e.g. "Do 10 practice problems on probability", not "Study probability").
+
+    Format: a table by date with columns Day | Session task | Minutes. Then 3 tips for staying on track.
+
+- title: "Check my understanding with the Feynman technique"
+  emoji: "🧑‍🏫"
+  category: "Learning"
+  when: "When you think you understand something and want to find the gaps."
+  prompt: |
+    I'm going to explain [topic] in my own words, as if teaching a 12-year-old. Please act as a curious student and a strict but kind teacher.
+
+    My explanation: [write your explanation here].
+
+    Then:
+    1. Point out anything that's wrong, vague, or skipped.
+    2. Ask me 2 "but why?" questions that poke at the weakest part of my explanation.
+    3. Tell me which part I explained well.
+    Don't rewrite the whole thing for me — help me fix it myself.
+
+- title: "Learn a new skill in 30 days"
+  emoji: "🌱"
+  category: "Learning"
+  when: "When you want to pick up a new skill (a language, Excel, drawing) and don't know where to start."
+  prompt: |
+    I want to learn [skill] so that I can [specific goal, e.g. hold a 5-minute conversation in Spanish on holiday]. I can spend [minutes] a day for 30 days. My starting point: [what you can do now].
+
+    Design a 30-day plan:
+    - Focus on the 20% of the skill that gives 80% of the results for my goal.
+    - Each day: one small practice task with a clear "done" signal.
+    - Every 7 days: a mini-challenge to test my progress.
+    - Suggest free or low-cost resources by type (e.g. "a beginner podcast"), and don't invent specific titles if you're not sure they exist.
+
+    Format: weeks as headings, days as a numbered list.
+
+# ---------------------------------------------------------------- Writing
+- title: "Draft an email that gets a reply"
+  emoji: "✉️"
+  category: "Writing"
+  when: "When you need to write an important email and want it clear, short and polite."
+  prompt: |
+    Help me write an email to [who, and your relationship, e.g. my landlord, who I've never met].
+    Goal: [what you want them to do, e.g. fix the heating by Friday].
+    Background: [key facts, dates, what's happened so far].
+    Tone: [e.g. friendly but firm].
+
+    Constraints:
+    - Under 150 words.
+    - Put the request in the first two sentences.
+    - Make it easy to say yes: suggest a specific next step or time.
+    - No exaggeration and no guilt-tripping.
+
+    Give me a subject line and the email. Then give me one shorter alternative version.
+
+- title: "Edit my writing without losing my voice"
+  emoji: "✏️"
+  category: "Writing"
+  when: "When you have a draft and want it clearer and tighter, but still sounding like you."
+  prompt: |
+    Please edit this text. It's a [type, e.g. cover letter / blog post / report section] for [audience].
+    My draft: [paste text].
+
+    - Keep my voice and my main points. Don't add new claims or facts.
+    - Fix grammar, cut unnecessary words, and break up long sentences.
+    - Flag (don't fix) anything that sounds unclear or unsupported.
+
+    Output:
+    1. The edited version.
+    2. A short list of the 5 most important changes and why you made them, so I can learn from them.
+
+- title: "Change the tone of a message"
+  emoji: "🎚️"
+  category: "Writing"
+  when: "When a message sounds too blunt, too stiff, or too casual for the situation."
+  prompt: |
+    Rewrite this message so it sounds [target tone, e.g. warmer and less defensive / more professional / more confident].
+    Who will read it: [e.g. my manager / a customer who's upset / a group chat of parents].
+    Original: [paste message].
+
+    Keep the same meaning and length (within 20%). Give me 3 versions, from slightly adjusted to fully rewritten, and one sentence on how each one will likely come across.
+
+- title: "Turn a messy brain-dump into a clear draft"
+  emoji: "🧠"
+  category: "Writing"
+  when: "When you have lots of ideas in no particular order and need a first draft."
+  prompt: |
+    I need to write a [type, e.g. proposal / speech / newsletter] for [audience]. Goal: [what it should achieve].
+    Here's my brain-dump of ideas, in no order: [paste notes].
+
+    Please:
+    1. First, suggest an outline (headings + one line each) and wait for my OK.
+    2. After I approve the outline, write the full draft at about [word count] words.
+    Use only my ideas. If something important seems missing, ask me rather than making it up.
+
+- title: "Give me honest feedback on my writing"
+  emoji: "🧐"
+  category: "Writing"
+  when: "Before you send or submit something important and want a tough but fair second opinion."
+  prompt: |
+    Act as a demanding but kind reviewer. Here's my [essay / application / report] for [audience and purpose]: [paste text].
+
+    Give feedback in this order:
+    1. In one sentence: what the main point seems to be. (If it's not what I intended, that's my biggest problem.)
+    2. The 3 most important problems, most serious first, each with a concrete suggestion.
+    3. One thing that works well and should stay.
+    4. A score from 1–10 on clarity and on persuasiveness, with one reason each.
+    Don't rewrite it for me.
+
+- title: "Write a difficult message"
+  emoji: "🕊️"
+  category: "Writing"
+  when: "When you need to say no, apologise, or give bad news and want to get it right."
+  prompt: |
+    I need to [say no / apologise / deliver bad news] to [who]. The situation: [what happened and what you need to say].
+    What I want to keep: [e.g. a good relationship with this client].
+
+    Write a message that is honest, kind, and clear. Avoid over-apologising and vague excuses. If there's a next step or alternative I can offer, include it.
+    Under 120 words. Then list 2 phrases I should avoid and why.
+
+# ---------------------------------------------------------------- Research
+- title: "Write a deep-research brief"
+  emoji: "🔭"
+  category: "Research"
+  when: "Before starting a deep-research run, so the agent searches for exactly what you need."
+  prompt: |
+    Please research this question for me: [your question].
+    Why I'm asking: [the decision or task this is for, e.g. choosing which electric car to lease].
+    What I already know: [anything you've already found or ruled out].
+
+    Requirements:
+    - Use recent, reputable sources and prefer primary ones (official sites, studies, original data).
+    - Cite every claim with a link. If sources disagree, show both sides.
+    - Mark anything uncertain or older than [e.g. 2 years].
+    - Don't include anything you couldn't find a source for.
+
+    Output: a 1-paragraph answer first, then key findings as bullets, then a table comparing [options or factors], then a list of sources.
+
+- title: "Compare my options side by side"
+  emoji: "⚖️"
+  category: "Research"
+  when: "When you're choosing between a few options (tools, courses, phones, providers) and feel overwhelmed."
+  prompt: |
+    Help me compare [option A], [option B] and [option C] for [what you'll use it for].
+    What matters most to me, in order: [e.g. price, ease of use, privacy].
+    My budget / limits: [e.g. under 30 a month, must work on Mac].
+
+    Make a comparison table with one row per factor and one column per option. Say "unknown" instead of guessing, and note which facts I should double-check on the official website because they change often.
+    Then give a recommendation for my situation in 3 sentences, and tell me what would change your recommendation.
+
+- title: "Check if this source is trustworthy"
+  emoji: "🕵️"
+  category: "Research"
+  when: "When you find an article, statistic or viral claim and aren't sure whether to believe it."
+  prompt: |
+    I found this claim: [paste the claim or text], from [where you found it, with link if you have one].
+
+    Help me evaluate it:
+    1. Who is behind the source, and what might their motive be?
+    2. Is there evidence, and is it original or second-hand?
+    3. Can you find other reputable sources that confirm or contradict it? Link them.
+    4. Any red flags (missing date, emotional language, numbers without a source)?
+    Finish with a verdict: likely true / unclear / likely misleading — and how confident you are.
+
+- title: "Summarise a long document for me"
+  emoji: "📄"
+  category: "Research"
+  when: "When you have a long report, article or PDF and need the key points quickly."
+  prompt: |
+    Summarise the attached document: [attach or paste it]. I'm reading it because [your purpose, e.g. I need to decide whether this policy affects my team].
+
+    Give me:
+    1. The main point in 2 sentences.
+    2. The 5 most important details for my purpose, each with the page or section number.
+    3. Anything surprising or that I might easily miss.
+    4. Questions the document leaves unanswered.
+    Only use what's in the document. Quote exact wording for any numbers or deadlines.
+
+- title: "Get up to speed on a new topic fast"
+  emoji: "🚀"
+  category: "Research"
+  when: "When you need to sound informed about a topic for a meeting, class or project — quickly."
+  prompt: |
+    I need to get up to speed on [topic] in about [time, e.g. 30 minutes] because [reason, e.g. I have a meeting with a supplier in this industry tomorrow].
+
+    Please give me:
+    1. A plain-language overview (under 200 words).
+    2. The 10 key terms I'll hear, each defined in one line.
+    3. The 3 big debates or open questions right now (as of today), with sources.
+    4. 5 smart questions I could ask an expert.
+    Point out anything that may have changed recently, and link sources for facts I might repeat.
+
+- title: "Find the strongest arguments on both sides"
+  emoji: "🤺"
+  category: "Research"
+  when: "When you're forming an opinion or preparing for a debate and want to avoid one-sided thinking."
+  prompt: |
+    Give me the strongest case for and against [position, e.g. a four-day work week for our 20-person company].
+
+    - 4 arguments for and 4 against, each with the best evidence you can find (with sources).
+    - Steelman each side: write it the way its smartest supporter would.
+    - Then list which facts the disagreement really hinges on.
+    Don't tell me what to think — but do tell me where the evidence is weak on either side.
+
+# ---------------------------------------------------------------- Productivity
+- title: "Triage my inbox"
+  emoji: "📥"
+  category: "Productivity"
+  when: "When your inbox is overflowing and you need to know what to deal with first."
+  prompt: |
+    Help me triage these emails. My role: [e.g. office manager]. My priorities this week: [e.g. the budget deadline on Thursday].
+    Emails: [paste subject lines and short snippets, or connect your email if your assistant can].
+
+    Sort them into:
+    - 🔴 Reply today (with one line on why)
+    - 🟡 This week
+    - 🔵 Just read / FYI
+    - ⚪ Can archive
+    For each 🔴 email, draft a 2–3 sentence reply for me to review. Don't send anything.
+
+- title: "Turn meeting notes into action items"
+  emoji: "✅"
+  category: "Productivity"
+  when: "Right after a meeting, to make sure everyone knows who's doing what."
+  prompt: |
+    Here are notes or a transcript from our meeting about [topic]: [paste].
+    Attendees: [names and roles].
+
+    Please produce:
+    1. A 3-sentence summary of what was decided.
+    2. An action-item table: Task | Owner | Deadline. If the owner or deadline wasn't said, write "not agreed" — don't guess.
+    3. Open questions that still need an answer.
+    4. A short, friendly follow-up email I can send to attendees.
+
+- title: "Plan my week"
+  emoji: "📅"
+  category: "Productivity"
+  when: "On Sunday evening or Monday morning, to turn a long to-do list into a realistic week."
+  prompt: |
+    Help me plan my week. Here's everything on my plate: [list tasks, with deadlines if any].
+    My fixed commitments: [meetings, classes, family time].
+    My energy: [e.g. I focus best in the morning; Wednesday afternoons are always busy].
+
+    - Pick my top 3 priorities for the week and explain why.
+    - Schedule deep-focus work in my best hours, and keep at least 20% of time free for surprises.
+    - Tell me what to drop, delegate or postpone if it doesn't fit — be honest.
+    Format: a day-by-day plan with time blocks, then the "not this week" list.
+
+- title: "Break a big project into small steps"
+  emoji: "🧩"
+  category: "Productivity"
+  when: "When a project feels too big to start."
+  prompt: |
+    I need to [project, e.g. organise a team offsite for 25 people] by [deadline]. It feels overwhelming.
+
+    Break it into steps:
+    - Group steps into 3–5 phases.
+    - Each step should take under 2 hours and start with a verb.
+    - Mark steps that depend on others, and the ones I could hand to someone else.
+    - Tell me the very first step I can do in the next 15 minutes.
+    Format: a checklist I can copy into my to-do app.
+
+- title: "Write a clear checklist for a recurring task"
+  emoji: "📋"
+  category: "Productivity"
+  when: "When you do the same task often (month-end, onboarding, travel packing) and keep forgetting steps."
+  prompt: |
+    I regularly [task, e.g. close the books at the end of each month / prepare for a client visit]. Here's roughly how I do it: [describe steps, in any order].
+
+    Turn this into a reliable checklist:
+    - In the right order, grouped into stages.
+    - Each item is one clear action with a "done" condition.
+    - Add any common steps I might be forgetting, marked "(suggested)".
+    - Note which steps are easy to get wrong and how to double-check them.
+
+- title: "Prepare me for a meeting"
+  emoji: "🗂️"
+  category: "Productivity"
+  when: "Before an important meeting, so you walk in with a clear goal and questions."
+  prompt: |
+    I have a meeting with [who] about [topic] on [date]. My goal for the meeting: [what a good outcome looks like].
+    Background: [relevant emails, notes or documents].
+
+    Give me:
+    1. A one-paragraph briefing on where things stand.
+    2. A suggested agenda (3–4 items, with minutes for each).
+    3. 5 questions I should ask, and 3 tough questions they might ask me, with short suggested answers.
+    4. The one thing I must not leave without.
+
+# ---------------------------------------------------------------- Work & career
+- title: "Write my weekly status report"
+  emoji: "📊"
+  category: "Work & career"
+  when: "At the end of the week, when you need to update your manager or team quickly."
+  prompt: |
+    Turn my notes into a weekly status report for [audience, e.g. my manager and the project sponsor].
+    My notes: [paste what you worked on, progress, problems].
+
+    Format:
+    - Overall status: 🟢 on track / 🟡 at risk / 🔴 off track, with one sentence why.
+    - Done this week (3–5 bullets, results not activities).
+    - Next week (3 bullets).
+    - Risks or blockers, and what help I need.
+    Under 200 words. Plain language, no jargon. Don't make progress sound better than my notes say.
+
+- title: "Clean up a messy spreadsheet"
+  emoji: "🧹"
+  category: "Work & career"
+  when: "When you have a spreadsheet with duplicates, inconsistent formats or blank cells."
+  prompt: |
+    I have a spreadsheet of [what it contains, e.g. 800 customer contacts] that's messy. I've attached it [or pasted a sample of 20 rows].
+    I'll use it for [purpose, e.g. a mailing list import].
+
+    Please:
+    1. First, list the problems you find (duplicates, inconsistent dates, typos in categories, empty cells) with counts. Don't change anything yet.
+    2. Propose cleaning rules and wait for my OK.
+    3. After I approve, apply them and give me the cleaned file plus a log of every change.
+    Never delete rows without listing them first.
+
+- title: "Practise a job interview"
+  emoji: "🎤"
+  category: "Work & career"
+  when: "In the days before a job interview, to rehearse answers and get feedback."
+  prompt: |
+    Act as an interviewer for a [job title] role at [type of company]. Here is the job description: [paste it]. My background: [short summary or paste CV].
+
+    - Ask me one question at a time, mixing behavioural ("Tell me about a time…") and role-specific questions.
+    - After each answer, give feedback: what was strong, what was missing, and how to use the STAR structure (Situation, Task, Action, Result) better.
+    - Include one tough or unexpected question.
+    After 6 questions, summarise my 2 biggest strengths and the 2 things to practise most.
+
+- title: "Get up to speed in a new job"
+  emoji: "🧭"
+  category: "Work & career"
+  when: "In your first weeks at a new job, to learn faster and ask the right questions."
+  prompt: |
+    I just started as a [job title] at a [type and size of organisation]. My manager expects me to [key responsibility] within [time frame].
+    What I've learned so far: [notes, org chart, documents].
+
+    Help me make a 30-60-90 day plan:
+    - What to learn, who to meet, and what early wins to aim for in each period.
+    - 10 good questions to ask my manager and colleagues in the first two weeks.
+    - A glossary of terms I've seen and don't fully understand: [list terms].
+    Keep it practical and realistic for someone who's still learning the ropes.
+
+- title: "Improve my CV for a specific job"
+  emoji: "📃"
+  category: "Work & career"
+  when: "When applying for a job and you want your CV to match what the employer is looking for."
+  prompt: |
+    Here's the job ad: [paste]. Here's my CV: [paste].
+
+    Please:
+    1. List the 5 most important requirements in the ad, and how well my CV shows each one (strong / weak / missing).
+    2. Suggest rewrites for up to 6 bullet points so they show results with numbers where I have them.
+    3. Tell me which experiences to move up or cut.
+    Don't invent experience, numbers or skills I haven't listed. If a number would help, ask me for it.
+
+- title: "Prepare for a tough conversation at work"
+  emoji: "🗣️"
+  category: "Work & career"
+  when: "Before asking for a raise, giving critical feedback, or pushing back on a decision."
+  prompt: |
+    I need to [have the conversation, e.g. ask my manager for a raise / tell a colleague their deadlines are slipping].
+    Context: [relationship, history, facts].
+    What I want to happen: [outcome].
+
+    Help me prepare:
+    1. A short opening (2–3 sentences) I can actually say out loud.
+    2. My 3 key points, backed by facts.
+    3. The 3 most likely reactions and how I could respond calmly to each.
+    4. What I'm willing to accept as a compromise.
+    Then role-play the other person so I can practise. Push back realistically.
+
+- title: "Explain a work topic to a non-expert"
+  emoji: "🌉"
+  category: "Work & career"
+  when: "When you need to explain something technical to a client, boss or another team."
+  prompt: |
+    I need to explain [topic, e.g. why the website launch is delayed by two weeks] to [audience, e.g. our sales team, who aren't technical].
+    The facts: [paste details].
+
+    Write an explanation that:
+    - Starts with what it means for them, not with the technical details.
+    - Uses one everyday analogy.
+    - Is under 150 words, with no jargon.
+    - Ends with what they need to do (or that they don't need to do anything).
+    Then give me 3 questions they're likely to ask, with short answers.
+
+# ---------------------------------------------------------------- Everyday life
+- title: "Plan a trip that fits my style"
+  emoji: "🧳"
+  category: "Everyday life"
+  when: "When you're planning a holiday and want an itinerary that suits your budget and pace."
+  prompt: |
+    Help me plan a [number]-day trip to [destination] in [month]. Travellers: [who, e.g. two adults and a 7-year-old].
+    Budget: [amount, and what it includes]. Style: [e.g. relaxed, love food markets, hate long drives].
+    Must-dos: [anything fixed]. Avoid: [anything you dislike].
+
+    - Give a day-by-day plan with a morning, afternoon and evening idea, grouped by area to limit travel.
+    - Include one rainy-day backup per day.
+    - Estimate costs, and mark opening hours, prices and bookings I should double-check, since they change.
+    Format: one short section per day, then a packing checklist.
+
+- title: "Make a simple monthly budget"
+  emoji: "💰"
+  category: "Everyday life"
+  when: "When you want to understand where your money goes and set a realistic budget."
+  prompt: |
+    Help me build a simple monthly budget. My take-home income: [amount]. My fixed costs: [rent, bills, subscriptions].
+    Roughly what I spend on other things: [groceries, transport, eating out, etc.]. My goal: [e.g. save 200 a month for a holiday].
+
+    - Put it in a table: Category | Current | Suggested | Notes.
+    - Suggest 3 realistic changes that get me to my goal, starting with the least painful.
+    - Point out any spending that looks unusually high compared with the rest.
+    I don't want investment or tax advice — just a clear, practical plan.
+
+- title: "Help me make a decision"
+  emoji: "🤔"
+  category: "Everyday life"
+  when: "When you're stuck between choices (a move, a job offer, a big purchase) and going round in circles."
+  prompt: |
+    I'm trying to decide between [option A] and [option B]. Background: [your situation].
+    What matters to me: [values and priorities].
+    My worries: [what's holding you back].
+
+    Help me think it through — don't decide for me:
+    1. Ask me up to 3 clarifying questions first.
+    2. Then make a weighted pros-and-cons table based on what matters to me.
+    3. Ask: "Which option would you regret not choosing in 5 years?"
+    4. Suggest a small, cheap way I could test one option before committing.
+
+- title: "Plan meals for the week"
+  emoji: "🥗"
+  category: "Everyday life"
+  when: "When you want to eat better, waste less food and spend less time deciding what's for dinner."
+  prompt: |
+    Plan [number] dinners for this week for [who, e.g. 2 adults and a picky 9-year-old].
+    Dietary needs: [allergies, vegetarian, etc.]. Time per meal: [e.g. under 30 minutes on weekdays].
+    Budget: [amount]. Already in my fridge: [ingredients to use up].
+
+    - Reuse ingredients across meals to reduce waste.
+    - Mark which meals can be cooked ahead or frozen.
+    - Give me one combined shopping list, grouped by supermarket section.
+    Format: a table (Day | Meal | Time | Notes), then the shopping list.
+
+- title: "Understand a confusing letter or contract"
+  emoji: "📜"
+  category: "Everyday life"
+  when: "When you get an official letter, bill or contract full of jargon and don't know what it means for you."
+  prompt: |
+    Please explain this [letter / contract / bill] in plain language: [paste text — remove account numbers and personal details first].
+
+    Tell me:
+    1. What it's about, in 2 sentences.
+    2. What I need to do, and by when.
+    3. Any costs, penalties or commitments, quoted exactly.
+    4. Anything unusual that I should ask about.
+    Remind me which points I should confirm with a qualified professional or the sender, since you're not giving legal or financial advice.
+
+- title: "Plan a celebration"
+  emoji: "🎉"
+  category: "Everyday life"
+  when: "When you're organising a birthday, party or family gathering and want it to feel easy."
+  prompt: |
+    Help me plan [event, e.g. my mum's 60th birthday lunch] for about [number] people on [date].
+    Budget: [amount]. Venue: [home / restaurant / undecided]. The guest of honour loves [interests].
+
+    Give me:
+    - 3 theme or format ideas, each in one sentence.
+    - A countdown checklist (4 weeks, 2 weeks, 1 week, the day before, on the day).
+    - A simple timeline for the day itself.
+    - 2 small personal touches that would make it memorable.
+
+# ---------------------------------------------------------------- Working with agents
+- title: "Delegate a multi-step task to an agent"
+  emoji: "🤝"
+  category: "Working with agents"
+  when: "When you're handing an agent a task with several steps and want it done right the first time."
+  prompt: |
+    Task: [what you want done, e.g. research 5 venues for our team dinner and draft an invitation].
+    Why: [the purpose, so you can make good judgment calls, e.g. we want people to mix across teams].
+    Context: [constraints, preferences, files or links to use].
+
+    How to work:
+    - Start by restating the goal and listing your planned steps.
+    - Use only the sources and tools I've mentioned unless you ask first.
+    - If you hit a dead end, try one alternative, then tell me what happened.
+
+    Done means: [concrete finish line, e.g. a table of 5 venues with price, capacity and link, plus a draft invitation under 100 words]. Tell me anything you weren't sure about.
+
+- title: "Plan first, then ask before risky actions"
+  emoji: "🛑"
+  category: "Working with agents"
+  when: "When an agent will take actions in the real world (emails, files, purchases, code) and you want to stay in control."
+  prompt: |
+    I'd like your help with: [task].
+
+    Before you do anything:
+    1. Write a step-by-step plan and wait for my approval.
+    2. In the plan, mark every step that sends something, deletes something, spends money, or can't easily be undone.
+
+    While working:
+    - Ask me before each marked step, showing exactly what you're about to do.
+    - Never delete or overwrite files — make copies instead.
+    - If something unexpected happens, stop and tell me rather than improvising.
+
+    At the end, give me a short log of every action you took.
+
+- title: "Review an agent's work"
+  emoji: "🔍"
+  category: "Working with agents"
+  when: "After an agent finishes a report, analysis or piece of work, before you rely on it."
+  prompt: |
+    Please review the work you just produced (or this work: [paste]) as a sceptical expert would.
+
+    1. List every factual claim, number and citation. For each one, say whether you verified it against a source and how.
+    2. Point out any step where you made an assumption or guessed.
+    3. Check the maths and recalculate any totals or percentages.
+    4. Name the 3 weakest parts and how to make them stronger.
+    Be honest — I'd rather know about problems now than find them later.
+
+- title: "Ask the agent to interview me first"
+  emoji: "🎙️"
+  category: "Working with agents"
+  when: "When you're not sure how to describe what you want, and you'd like the agent to draw it out of you."
+  prompt: |
+    I want help with [rough idea, e.g. a plan to get fit / a website for my bakery], but I haven't worked out the details.
+
+    Before you produce anything, interview me:
+    - Ask one question at a time, up to 8 questions.
+    - Focus on my goal, constraints, preferences, and what a great result would look like.
+    - After the questions, summarise what you understood in 5 bullets and ask me to confirm.
+    Only then create [the deliverable].
+
+- title: "Set up a reusable instruction for an agent"
+  emoji: "⚙️"
+  category: "Working with agents"
+  when: "When you keep giving an assistant the same background and want to write it once (custom instructions, project instructions or a skill)."
+  prompt: |
+    Help me write standing instructions for an AI assistant that will help me with [recurring work, e.g. writing weekly newsletters for our gardening club].
+
+    Ask me about: my role, the audience, the tone I like, things to always do, things to never do, and the usual format of the output.
+    Then write the instructions:
+    - Under 250 words, in plain bullet points.
+    - Include one short example of a good output.
+    - Include a rule to ask me when information is missing instead of making it up.
+
+- title: "Have an agent check its own work before handing it over"
+  emoji: "🪞"
+  category: "Working with agents"
+  when: "When accuracy matters and you want the agent to catch its own mistakes before you see the result."
+  prompt: |
+    Task: [what you want, e.g. summarise these 3 reports into a one-page comparison].
+
+    When you've finished a draft, don't give it to me yet. First:
+    1. Re-read my request and check that every part is answered.
+    2. Verify every number and quote against the original material.
+    3. Remove anything you can't support.
+    Then give me the final version, followed by a short "What I checked" list and anything you're still unsure about.
+
+- title: "Split a big job between a team of agents"
+  emoji: "👥"
+  category: "Working with agents"
+  when: "When you're using an agent that can run helpers in parallel and the job naturally splits into parts."
+  prompt: |
+    Goal: [big task, e.g. compare 6 project-management tools for a 15-person non-profit].
+
+    Please plan this as a team effort:
+    1. Split the work into independent parts, one per helper (e.g. one tool each), with clear instructions for each.
+    2. Give every helper the same output format: [e.g. price, key features, limits, links to sources].
+    3. When they're done, combine the results, check for contradictions, and resolve or flag them.
+    Show me the split before you start, and tell me roughly how much longer or more expensive this will be than doing it alone.

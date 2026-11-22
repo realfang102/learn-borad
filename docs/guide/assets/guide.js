@@ -223,7 +223,7 @@
       }
       case "agents:progress": { var cd = p.state.cards && p.state.cards[op.name]; if (cd) { $(".ap i", cd).style.width = (op.pct || 0) + "%"; if (op.status) $(".as", cd).textContent = op.status; } break; }
       case "agents:done": { var cdd = p.state.cards && p.state.cards[op.name]; if (cdd) { cdd.classList.add("done"); $(".ap i", cdd).style.width = "100%"; $(".tag", cdd).textContent = "✓ done"; $(".tag", cdd).className = "tag green"; if (op.result) $(".as", cdd).textContent = op.result; } len = (op.result || "").length; break; }
-      case "sources:add": op.items.forEach(function (s, i) { self.add(p, '<div class="st">' + esc(s.title) + '</div><div class="sm">' + esc(s.meta || "") + "</div>" + (s.score != null ? '<div class="score"><i style="width:' + Math.round(s.score * 100) + '%"></i></div>' : ""), "src"); }); len = 30 * op.items.length; break;
+      case "sources:add": op.items.forEach(function (s, i) { self.add(p, '<div class="st">' + esc(s.title) + '</div><div class="sm">' + esc(s.meta || "") + "</div>" + (s.score != null ? '<div class="score" title="relevance ' + s.score + '"><i style="width:' + Math.round(s.score * 100) + '%"></i></div><div class="sm">relevance ' + Math.round(s.score * 100) + '%</div>' : ""), "src"); }); len = 30 * op.items.length; break;
       case "sources:pick": { var all = $$(".src", p.body); (op.i instanceof Array ? op.i : [op.i]).forEach(function (i) { if (all[i]) all[i].classList.add("picked"); }); break; }
       case "checklist:set": p.body.innerHTML = '<ul class="checklist">' + op.items.map(function (x) { return "<li>" + md(x) + "</li>"; }).join("") + "</ul>"; len = op.items.join(" ").length; break;
       case "checklist:mark": { var li = $$(".checklist li", p.body)[op.i]; if (li) { li.className = op.state || "done"; if (op.text) li.innerHTML = md(op.text); } break; }
@@ -251,7 +251,7 @@
       case "info:set": { var dl = p.state.dl || (p.state.dl = this.add(p, "", "kv")); var cur2 = p.state.kv || (p.state.kv = {}); for (var key in op.pairs) cur2[key] = op.pairs[key]; dl.outerHTML; dl.innerHTML = Object.keys(cur2).map(function (k2) { return "<dt>" + esc(k2) + "</dt><dd>" + esc(cur2[k2]) + "</dd>"; }).join(""); break; }
       case "notes:add": this.add(p, md(op.text)); len = op.text.length; break;
       default:
-        if (o === "clear") p.body.innerHTML = ""; else console.warn("sim: unknown op", T + ":" + o);
+        if (o === "clear") { p.body.innerHTML = ""; p.state = {}; p.body.classList.remove("doc"); } else console.warn("sim: unknown op", T + ":" + o);
     }
     return len;
   };

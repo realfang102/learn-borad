@@ -3,9 +3,9 @@ window.SIMS["browser-agent"] = {
   title: "A browser agent books a train ticket",
   intro: "Leo needs to get to a client meeting on Friday morning. He asks his <strong>browser agent</strong> to book the train on <strong>RailGo</strong> (a fictional booking site) — clicking and typing on the website just like a person would. Press <strong>▶ Play</strong>.",
   panes: [
+    { id: "web", type: "browser", title: "Agent's browser", span: true },
     { id: "chat", type: "chat", title: "Chat with the agent" },
     { id: "think", type: "thoughts", title: "Agent's thinking" },
-    { id: "web", type: "browser", title: "Agent's browser", span: true },
     { id: "tasks", type: "checklist", title: "Agent's to-do list" }
   ],
   steps: [

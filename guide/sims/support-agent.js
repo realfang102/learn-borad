@@ -5,8 +5,8 @@ window.SIMS["support-agent"] = {
   panes: [
     { id: "chat", type: "chat", title: "Customer chat" },
     { id: "think", type: "thoughts", title: "Agent's thinking" },
-    { id: "tools", type: "tools", title: "Tools the agent calls" },
     { id: "order", type: "info", title: "Order details" },
+    { id: "tools", type: "tools", title: "Tools the agent calls", span: true },
     { id: "checks", type: "checklist", title: "Before any refund" }
   ],
   steps: [
