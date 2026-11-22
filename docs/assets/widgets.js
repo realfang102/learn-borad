@@ -401,7 +401,7 @@
   var MODELS = {
     "claude-opus-5-5": { name: "Claude Opus 5.5", in: 4, out: 20, read: 0.2 },
     "claude-sonnet-5-5": { name: "Claude Sonnet 5.5", in: 2, out: 10, read: 0.1 },
-    "claude-haiku-5-5": { name: "Claude Haiku 5.5", in: 0.1, out: 0.5, read: 0.01, note: "≤100K-token prompts; cache-read price estimated at 10% of input" },
+    "claude-haiku-5-5": { name: "Claude Haiku 5.5", in: 0.1, out: 0.5, read: 0.01, note: "prompts ≤100K tokens" },
     "claude-fable-5-2": { name: "Claude Fable 5.2", in: 8, out: 40, read: 0.2 }
   };
   W["cost-calculator"] = function (el) {
