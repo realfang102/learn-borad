@@ -632,30 +632,30 @@ Card networks set their own dispute and liability rules, and several have announ
 
 ```quiz
 Q: A shopping agent's spend cap is written in its system prompt ("never spend more than $100"). Why is that insufficient?
-- [ ] The model can't do arithmetic on currency amounts reliably enough
-- [x] An injected instruction can override a prompt; a cap must live in code or the credential
-- [ ] Payment APIs ignore limits unless they come in a signed mandate
-- [ ] System prompts are dropped from context when conversations get long
+- [ ] The model can't do reliable arithmetic on currency amounts across many purchases
+- [x] Injected text can override a prompt, so the cap must be enforced in code
+- [ ] Payment APIs ignore any spending limit that doesn't arrive in a signed mandate
+- [ ] System prompts are silently dropped from context once a conversation grows long
 E: A prompt is a probabilistic request to a model that may be hijacked. A cap enforced by the broker, or by the payment token's allowance or issuer controls, holds no matter what the model was persuaded to do. Arithmetic errors and context limits are real, but the core problem is that the control lives where the attacker's text can reach it.
 
 Q: What does PKCE protect against in the authorization code flow?
-- [ ] An access token being replayed at a different API than intended
-- [ ] The user approving broader scopes than the agent actually needs
-- [x] A stolen authorization code being redeemed by someone without the verifier
-- [ ] A refresh token being read from the agent host's storage by malware
+- [ ] An access token being replayed at a different API than the one intended
+- [ ] The user approving broader scopes than the agent really needs for the task
+- [x] A stolen authorization code being redeemed without the verifier
+- [ ] A refresh token being read from the agent host's storage by local malware
 E: The client sends a hash of a secret verifier with the authorization request and must present the verifier to redeem the code, so an intercepted code is useless. Replay at another API is addressed by audience binding, over-broad consent by scope design, and refresh-token theft by vaulting, rotation and sender-constraining.
 
 Q: An MCP server answers a tool call with 403 and `error="insufficient_scope", scope="files:write"`. The client already holds a `files:read` token. What should it do?
-- [ ] Retry the call with the same token, since 403 errors are often transient
+- [ ] Retry the call with the same token, since 403 responses are usually transient
 - [ ] Forward the user's upstream API token, which already includes write access
-- [ ] Request a new token for files:write only, replacing the read token
-- [x] Re-authorize for files:read plus files:write, then retry a limited number of times
+- [ ] Request a new token for files:write only, replacing the read token entirely
+- [x] Re-authorize for files:read plus files:write, then retry a few times
 E: The MCP spec describes step-up authorization: the client requests the union of its previous scopes and the challenged ones, so it keeps the permissions it already had, then retries a bounded number of times. Forwarding an upstream token is forbidden token passthrough, and requesting only the new scope would break operations that need read.
 
 Q: In RFC 8693 token exchange, what is the purpose of the `act` claim in the issued token?
-- [ ] It lists the actions the token may perform, replacing the scope claim
-- [x] It records which party is acting for the subject: delegation, not impersonation
-- [ ] It names the API audience that must accept the exchanged token
+- [ ] It lists the actions the token may perform, replacing the older scope claim
+- [x] It records who acts for the subject: delegation, not impersonation
+- [ ] It names the API audience that must accept the newly exchanged token
 - [ ] It marks the token as single-use so it can't be exchanged a second time
 E: `sub` identifies the user and `act` identifies the actor (for example, the agent), so downstream services and audit logs can tell "the agent did this for Alice" apart from "Alice did this". Permissions stay in `scope` and the audience in `aud`.
 
@@ -669,7 +669,7 @@ E: The signature ties the request to the holder of a key listed in the operator'
 Q: In AP2 v0.2's human-not-present mode, why can a merchant trust a closed Checkout Mandate signed by the agent's key rather than the user's?
 - [ ] The merchant's own LLM reviews the order and confirms it looks reasonable
 - [ ] Agent keys are issued by card networks, which accept liability for misuse
-- [x] A user-signed open mandate names that agent key and the constraints it must meet
+- [x] A user-signed open mandate names that agent key and its constraints
 - [ ] The agent's provider signs every closed mandate on behalf of all its users
 E: The user signs the open mandate on a trusted surface, and it includes the agent's public key (`cnf`), the constraints and an expiry. The verifier checks that the closed mandate was signed by that key and satisfies those constraints, all in deterministic code. AP2 requires verification to be non-agentic, and trusting an agent provider is a separate, optional trust model rather than the reason.
 

@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Identity, Authorization &amp; Payments · Agent Academy</title>
+<meta name="description" content="How agents prove who they are and what they may do: delegated OAuth, MCP authorization, credential brokers, signed agent requests, audit trails, and the emerging protocols for agent payments.">
+<meta property="og:title" content="Agent Identity, Authorization &amp; Payments · Agent Academy">
+<meta property="og:description" content="How agents prove who they are and what they may do: delegated OAuth, MCP authorization, credential brokers, signed agent requests, audit trails, and the emerging protocols for agent payments.">
+<meta name="theme-color" content="#7c5cff">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<script>(function(){try{var t=localStorage.getItem('aa-theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();</script>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-page="lesson" data-mermaid="1">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="read-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+  <nav class="top-nav" aria-label="Main">
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  </nav>
+  <div class="header-actions">
+    <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
+    <a class="progress-pill" href="progress.html" title="Your progress"><span class="pp-ring"></span><span class="pp-text">0%</span></a>
+    <button class="icon-btn theme-btn" type="button" aria-label="Toggle dark mode"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<div class="mobile-nav" hidden>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+</div>
+<div class="layout-lesson">
+<aside class="sidebar" aria-label="Course navigation">
+  <div class="sidebar-inner">
+    <a class="sidebar-home" href="curriculum.html">← Full curriculum</a>
+    <details class="side-module"  data-module="foundations">
+      <summary><span class="side-mod-icon">🧭</span><span class="side-mod-title"><small>Module 1</small>Foundations</span><span class="side-mod-count" data-module-count="foundations"></span></summary>
+      <ol>
+        <li><a href="what-is-an-agent.html" data-slug="what-is-an-agent"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>What Is an AI Agent?</span></a></li>
+        <li><a href="history-of-agents.html" data-slug="history-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>A Brief History of AI Agents</span></a></li>
+        <li><a href="llm-fundamentals.html" data-slug="llm-fundamentals"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>LLMs: The Engine Inside Every Agent</span></a></li>
+        <li><a href="the-agent-loop.html" data-slug="the-agent-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Loop</span></a></li>
+        <li><a href="when-to-use-agents.html" data-slug="when-to-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents vs. Workflows: When (Not) to Build an Agent</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building-blocks">
+      <summary><span class="side-mod-icon">🧱</span><span class="side-mod-title"><small>Module 2</small>Core Building Blocks</span><span class="side-mod-count" data-module-count="building-blocks"></span></summary>
+      <ol>
+        <li><a href="prompting-for-agents.html" data-slug="prompting-for-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Prompt Engineering for Agents</span></a></li>
+        <li><a href="tool-use.html" data-slug="tool-use"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Tool Use &amp; Function Calling</span></a></li>
+        <li><a href="designing-tools.html" data-slug="designing-tools"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Designing Great Tools (The Agent–Computer Interface)</span></a></li>
+        <li><a href="structured-outputs.html" data-slug="structured-outputs"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Structured Outputs &amp; Control Flow</span></a></li>
+        <li><a href="reasoning-and-planning.html" data-slug="reasoning-and-planning"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reasoning &amp; Planning</span></a></li>
+        <li><a href="memory.html" data-slug="memory"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Memory Systems</span></a></li>
+        <li><a href="rag-and-retrieval.html" data-slug="rag-and-retrieval"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Retrieval &amp; Agentic RAG</span></a></li>
+        <li><a href="context-engineering.html" data-slug="context-engineering"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Context Engineering</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="architectures">
+      <summary><span class="side-mod-icon">🏗️</span><span class="side-mod-title"><small>Module 3</small>Architectures &amp; Patterns</span><span class="side-mod-count" data-module-count="architectures"></span></summary>
+      <ol>
+        <li><a href="workflow-patterns.html" data-slug="workflow-patterns"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Workflow Patterns</span></a></li>
+        <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
+        <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
+        <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="agent-types">
+      <summary><span class="side-mod-icon">🌍</span><span class="side-mod-title"><small>Module 4</small>Agents in the Wild</span><span class="side-mod-count" data-module-count="agent-types"></span></summary>
+      <ol>
+        <li><a href="coding-agents.html" data-slug="coding-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Coding Agents</span></a></li>
+        <li><a href="computer-use-agents.html" data-slug="computer-use-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Computer-Use &amp; Browser Agents</span></a></li>
+        <li><a href="research-agents.html" data-slug="research-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deep Research Agents</span></a></li>
+        <li><a href="conversational-voice-agents.html" data-slug="conversational-voice-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Customer-Facing &amp; Voice Agents</span></a></li>
+        <li><a href="embodied-agents.html" data-slug="embodied-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Embodied Agents: Robots and the Physical World</span></a></li>
+        <li><a href="agent-use-cases.html" data-slug="agent-use-cases"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>The Agent Landscape: Use Cases by Domain</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="building">
+      <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
+      <ol>
+        <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
+        <li><a href="open-models-and-local-agents.html" data-slug="open-models-and-local-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agents on Open-Weight &amp; Local Models</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="production">
+      <summary><span class="side-mod-icon">🚀</span><span class="side-mod-title"><small>Module 6</small>Production Engineering</span><span class="side-mod-count" data-module-count="production"></span></summary>
+      <ol>
+        <li><a href="evaluating-agents.html" data-slug="evaluating-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Evaluating Agents</span></a></li>
+        <li><a href="benchmarks.html" data-slug="benchmarks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Benchmarks</span></a></li>
+        <li><a href="observability.html" data-slug="observability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Observability &amp; Debugging</span></a></li>
+        <li><a href="reliability.html" data-slug="reliability"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Reliability &amp; Durable Execution</span></a></li>
+        <li><a href="long-running-agents.html" data-slug="long-running-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Long-Running Agents</span></a></li>
+        <li><a href="cost-and-latency.html" data-slug="cost-and-latency"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Cost &amp; Latency Optimization</span></a></li>
+        <li><a href="deployment.html" data-slug="deployment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Deploying &amp; Operating Agents</span></a></li>
+      </ol>
+    </details>
+<details class="side-module" open data-module="safety">
+      <summary><span class="side-mod-icon">🛡️</span><span class="side-mod-title"><small>Module 7</small>Safety &amp; Security</span><span class="side-mod-count" data-module-count="safety"></span></summary>
+      <ol>
+        <li><a href="agent-security.html" data-slug="agent-security"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Security &amp; Prompt Injection</span></a></li>
+        <li><a href="guardrails-and-sandboxing.html" data-slug="guardrails-and-sandboxing"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Guardrails, Permissions &amp; Sandboxing</span></a></li>
+        <li><a href="agent-identity-and-payments.html" data-slug="agent-identity-and-payments" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Agent Identity, Authorization &amp; Payments</span></a></li>
+        <li><a href="agent-safety-alignment.html" data-slug="agent-safety-alignment"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Safety, Alignment &amp; Governance</span></a></li>
+      </ol>
+    </details>
+<details class="side-module"  data-module="frontier">
+      <summary><span class="side-mod-icon">🔭</span><span class="side-mod-title"><small>Module 8</small>Advanced &amp; Frontier</span><span class="side-mod-count" data-module-count="frontier"></span></summary>
+      <ol>
+        <li><a href="training-agents.html" data-slug="training-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Training Agentic Models</span></a></li>
+        <li><a href="self-improving-agents.html" data-slug="self-improving-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Self-Improving &amp; Open-Ended Agents</span></a></li>
+        <li><a href="future-of-agents.html" data-slug="future-of-agents"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Open Problems &amp; The Road Ahead</span></a></li>
+      </ol>
+    </details>
+    <div class="side-extra">
+      <a href="paths.html">🗺️ Learning paths</a>
+      <a href="lab.html">🧪 Interactive lab</a>
+      <a href="projects.html">🏗️ Hands-on projects</a>
+      <a href="cheatsheet.html">📋 Cheat sheet</a>
+      <a href="glossary.html">📖 Glossary</a>
+      <a href="papers.html">📚 Reading list</a>
+      <a href="review.html">🧠 Course review</a>
+      <a href="flashcards.html">🃏 Flashcards</a>
+      <a href="exam.html">🎓 Practice exam</a>
+    </div>
+  </div>
+</aside>
+<main id="main" class="lesson" data-slug="agent-identity-and-payments">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="curriculum.html">Curriculum</a><span>›</span><a href="curriculum.html#safety">Module 7: Safety &amp; Security</a></nav>
+  <header class="lesson-header">
+    <h1>Agent Identity, Authorization &amp; Payments</h1>
+    <p class="lead">How agents prove who they are and what they may do: delegated OAuth, MCP authorization, credential brokers, signed agent requests, audit trails, and the emerging protocols for agent payments.</p>
+    <div class="lesson-meta">
+      <span class="badge badge-advanced">Advanced</span>
+      <span>⏱ 45 min</span>
+      <span>✅ 7-question quiz</span>
+      
+      <span>Lesson 38 of 42</span>
+      <span class="lesson-status" data-status-for="agent-identity-and-payments"></span>
+    </div>
+  </header>
+  <section class="objectives">
+    <h2 class="objectives-title">What you'll learn</h2><ul><li>Explain why agents need their own identity, distinct from both the user and anonymous bots</li><li>Distinguish authentication from authorization, and delegation from impersonation</li><li>Design delegated OAuth for an agent with PKCE, narrow scopes, audience-bound short-lived tokens and token exchange, and explain how MCP applies OAuth 2.1</li><li>Build a credential broker that keeps secrets out of the model's context and enforces scopes, merchant allowlists and spend caps</li><li>Compare the agent payment protocols (AP2, ACP, UCP, x402, card-network programs) and the controls that bound payment fraud and prompt injection</li></ul>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="agent-security.html">Agent Security &amp; Prompt Injection</a>, <a href="guardrails-and-sandboxing.html">Guardrails, Permissions &amp; Sandboxing</a>, <a href="protocols-mcp-a2a.html">Protocols: MCP, A2A &amp; Interoperability</a></p>
+  </section>
+  <article class="prose">
+<p>Your assistant has spent the morning on your behalf. It read your calendar, moved two meetings, renewed a software subscription, and bought a replacement laptop charger. Now three people want answers. Your finance team asks who approved the $79 renewal. The merchant asks whether the charger order really came from you or from a bot using a stolen card. Your security team asks whether that assistant, which also reads email from strangers, holds the token that can empty your company&#39;s cloud account.</p>
+<p>None of these is a question about whether the model is clever. They are questions about <strong>identity</strong> (who is acting?), <strong>authorization</strong> (what are they allowed to do?), and <strong>accountability</strong> (can we prove what happened?). The web answers them for humans with logins, sessions, card security codes and the assumption that a person clicked &quot;Buy&quot;. Agents break that assumption.</p>
+<p>This lesson builds on <a href="agent-security.html">Agent Security</a>, which framed agents as confused deputies that read everyone&#39;s text, and on <a href="guardrails-and-sandboxing.html">Guardrails, Permissions &amp; Sandboxing</a>, which introduced credential-injecting proxies. Here we go deep on the identity layer: delegated OAuth and how <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol, built on JSON-RPC 2.0, that standardizes how applications expose tools, resources and prompts to LLM applications, so any compliant agent can use any compliant server. Released by Anthropic in November 2024 and donated to the Linux Foundation's Agentic AI Foundation in December 2025; the 2026-07-28 revision made the core protocol stateless." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> uses it, keeping secrets out of the model entirely, signed agent requests on the open web, audit trails that hold up in a dispute, and the new protocols that let agents pay for things.</p>
+<h2 id="why-agent-identity-matters"><a class="anchor" href="#why-agent-identity-matters" aria-hidden="true" tabindex="-1">#</a>Why Agent Identity Matters</h2>
+<p>When software acts for a person, at least four parties are involved: the <strong>human principal</strong> (the user whose authority is being used), the <strong>agent</strong> (a specific piece of software, at a specific version, in a specific session), the <strong>operator</strong> (the company that runs the agent), and the <strong>relying party</strong> (the API, website or merchant that has to decide whether to honor the request). The model itself is a component of the agent, not a party: it holds no rights of its own.</p>
+<p>Most early agent integrations collapsed these into one. The agent logged in <em>as</em> the user with the user&#39;s password, or carried an API key with the user&#39;s full rights. That works until something goes wrong, and then every question above becomes unanswerable.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Question it answers</th>
+<th>What breaks without agent identity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Accountability</strong></td>
+<td>Who did this, and on whose behalf?</td>
+<td>Logs show &quot;alice&quot; did it, whether Alice clicked or her agent acted on an injected instruction</td>
+</tr>
+<tr>
+<td><strong><dfn class="gt" tabindex="0" data-t="Least privilege" data-d="Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise." data-l="agent-security" data-a="least-privilege">Least privilege</dfn></strong></td>
+<td>What is the minimum this actor needs?</td>
+<td>The agent inherits everything the user can do</td>
+</tr>
+<tr>
+<td><strong>Revocation</strong></td>
+<td>Can we stop this actor without stopping others?</td>
+<td>Disabling a misbehaving agent means resetting the user&#39;s password</td>
+</tr>
+<tr>
+<td><strong>Audit</strong></td>
+<td>Can we reconstruct and prove what happened?</td>
+<td>No record separates human actions from delegated ones</td>
+</tr>
+<tr>
+<td><strong>Classification</strong></td>
+<td>Is this traffic a human, a known agent or an anonymous bot?</td>
+<td>Sites must guess from IP addresses and user-agent strings, and either block helpful agents or admit scrapers</td>
+</tr>
+</tbody></table>
+</div>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>On behalf of, never as</div><div class="callout-body"><p>An agent should act <strong>on behalf of</strong> a user, with its own identity and a narrower grant, never <strong>as</strong> the user. Every design decision in this lesson follows from keeping those two identities separate and linked.</p>
+</div></div>
+<h2 id="authentication-vs-authorization"><a class="anchor" href="#authentication-vs-authorization" aria-hidden="true" tabindex="-1">#</a>Authentication vs. Authorization</h2>
+<p>These two words are often blurred, and the blur causes real bugs.</p>
+<ul>
+<li><strong>Authentication</strong> (often shortened to <em>authn</em>) establishes <em>who</em> a party is: a user signing in with a passkey, a service presenting a client certificate, an agent signing a request with its private key.</li>
+<li><strong>Authorization</strong> (<em>authz</em>) decides <em>what that party may do</em>: read this calendar, charge up to $50 at this merchant, push to this repository.</li>
+</ul>
+<p>An agent needs both, for two different subjects. The <em>user</em> authenticates to grant authority. The <em>agent</em> authenticates to exercise it. A token that says &quot;this is Alice&quot; is authentication. A token that says &quot;the travel agent may create calendar events for Alice until 15:00&quot; is authorization.</p>
+<p>The distinction that matters most for agents is <strong>delegation versus impersonation</strong>. With <strong>impersonation</strong>, the agent receives credentials indistinguishable from the user&#39;s own, so downstream systems cannot tell who acted. With <strong>delegation</strong>, the credential records both parties: the subject (Alice) <em>and</em> the actor (the agent), with a grant narrower than Alice&#39;s own rights. Delegation is what makes per-agent revocation, audit and least privilege possible.</p>
+<p>For the agent&#39;s own identity, the building blocks are the same as for any service: <strong>workload identity</strong> (a cryptographic identity issued to a running process, such as a cloud service account or a SPIFFE ID), OAuth client credentials, or a key pair whose public half is published somewhere a relying party can find it. What is new is that this identity must be bound to a <em>specific user&#39;s delegation</em> and often to a <em>single task</em>.</p>
+<h2 id="delegated-authorization-with-oauth"><a class="anchor" href="#delegated-authorization-with-oauth" aria-hidden="true" tabindex="-1">#</a>Delegated Authorization with OAuth</h2>
+<p><strong>OAuth 2.0</strong> is the web&#39;s standard for delegated authorization: it lets a user grant an application limited access to their resources at another service without sharing a password. Its roles map neatly onto agents:</p>
+<ul>
+<li><strong>Resource owner</strong>: the user.</li>
+<li><strong>Client</strong>: the agent host (the application running the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>).</li>
+<li><strong>Authorization server (AS)</strong>: issues tokens after the user consents.</li>
+<li><strong>Resource server (RS)</strong>: the API that accepts tokens.</li>
+</ul>
+<p><strong>OAuth 2.1</strong>, still an IETF draft in 2026, consolidates a decade of security lessons: PKCE for every authorization-code client, no implicit flow, exact redirect URI matching, and refresh tokens that are sender-constrained or rotated on every use. Even where you implement 2.0, follow the <strong>OAuth 2.0 Security Best Current Practice</strong> (RFC 9700, January 2025).</p>
+<h3 id="authorization-code-with-pkce"><a class="anchor" href="#authorization-code-with-pkce" aria-hidden="true" tabindex="-1">#</a>Authorization code with PKCE</h3>
+<p>The flow an agent host uses to obtain a user&#39;s consent is the <strong>authorization code grant</strong> with <strong>PKCE</strong> (Proof Key for Code Exchange, RFC 7636). The host generates a random secret, the <em>code verifier</em>, and sends only its SHA-256 hash, the <em>code challenge</em>, with the authorization request. When the host later redeems the authorization code, it must present the verifier. An attacker who intercepts the code (through a malicious app registered for the same redirect URI, a leaky log or a browser extension) cannot redeem it.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant U as User
+  participant H as Agent host
+  participant AS as Authorization server
+  participant B as Credential broker
+  participant API as Calendar API
+  U-&gt;&gt;H: &quot;Move my 3pm meeting to Friday&quot;
+  H-&gt;&gt;H: Create PKCE verifier and S256 challenge
+  H-&gt;&gt;U: Open consent page (scope, resource, challenge)
+  U-&gt;&gt;AS: Sign in and approve calendar.events
+  AS--&gt;&gt;H: Redirect with authorization code
+  H-&gt;&gt;AS: Code + PKCE verifier
+  AS--&gt;&gt;H: Access token (aud=Calendar API, 10 min) + refresh token
+  H-&gt;&gt;B: Store tokens in vault (model never sees them)
+  Note over H: Model emits tool call move_event(...)
+  H-&gt;&gt;B: Execute move_event
+  B-&gt;&gt;API: PATCH event with Bearer token
+  API--&gt;&gt;B: 200 OK (aud, scope and expiry checked)
+  B--&gt;&gt;H: Result with secrets redacted</pre></figure>
+<p>Notice where the token lives: in the broker&#39;s vault, never in the model&#39;s context. We return to that pattern below.</p>
+<h3 id="scopes-audiences-and-lifetimes"><a class="anchor" href="#scopes-audiences-and-lifetimes" aria-hidden="true" tabindex="-1">#</a>Scopes, audiences and lifetimes</h3>
+<p>Three properties of a token determine how much damage it can do if misused or stolen:</p>
+<ul>
+<li><strong>Scope</strong>: <em>which operations</em>. Request <code>calendar.events</code> rather than full account access, and <code>repo:read</code> for a single repository rather than write access to the whole organization. Ask for more only when needed (<strong>incremental authorization</strong>).</li>
+<li><strong>Audience</strong>: <em>which API</em>. An <strong>audience-bound</strong> token carries an <code>aud</code> claim naming the one resource server that should accept it. The client asks for it with the <code>resource</code> parameter (<strong>Resource Indicators</strong>, RFC 8707). A token minted for the calendar API is useless at the payments API, even if it leaks.</li>
+<li><strong>Lifetime</strong>: <em>for how long</em>. Short-lived access tokens (minutes) bound the window of misuse. Long-lived <strong>refresh tokens</strong> let the host mint new access tokens without bothering the user. They are the crown jewels, so keep them in a vault, rotate them on every use, and never place them anywhere a model can read.</li>
+</ul>
+<p>A stronger option is a <strong>sender-constrained</strong> token, bound to a key the client holds, so a stolen copy is useless without that key. <strong>DPoP</strong> (RFC 9449) does this at the application layer, and mutual-TLS-bound tokens do it at the transport layer.</p>
+<h3 id="refresh-and-revocation"><a class="anchor" href="#refresh-and-revocation" aria-hidden="true" tabindex="-1">#</a>Refresh and revocation</h3>
+<p>Revocation is where agent identity pays off. If the agent has its own OAuth client and its own grants, the user (or an administrator) can revoke <em>that agent&#39;s</em> refresh token without touching their own sessions or other agents. Design for it: show users a list of connected agents with their scopes and last use, make revocation one click, and make your broker fail closed when a refresh fails rather than falling back to some broader credential.</p>
+<h3 id="token-exchange-and-on-behalf-of"><a class="anchor" href="#token-exchange-and-on-behalf-of" aria-hidden="true" tabindex="-1">#</a>Token exchange and on-behalf-of</h3>
+<p>Agents often sit in the middle of a chain: the user authorizes the agent host, the host calls a tool service, the tool service calls a downstream API. Forwarding the user&#39;s token down the chain is dangerous (the MCP spec forbids exactly this &quot;token passthrough&quot;). Instead, each hop should obtain a <em>new</em> token for the next audience.</p>
+<p><strong>OAuth 2.0 Token Exchange</strong> (RFC 8693) standardizes this. A service presents a <code>subject_token</code> (representing the user) and optionally an <code>actor_token</code> (representing itself) to the authorization server, and asks for a token with a specific <code>audience</code> and narrower <code>scope</code>. The issued token can carry an <strong><code>act</code> (actor) claim</strong>, which records who is acting for whom:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;iss&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://auth.example.com&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;sub&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;user-42&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;aud&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;https://calendar.example.com&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;scope&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;calendar.events&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;exp&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1795430400</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;act&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;sub&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;agent:travel-assistant@v3&quot;</span> <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code></pre></div>
+<p>That <code>act</code> claim is the difference between delegation and impersonation, written into the token. Microsoft&#39;s identity platform offers a similar grant it calls the <strong>on-behalf-of (OBO)</strong> flow, and the term is widely used for the general pattern.</p>
+<h3 id="consent-screens-that-mean-something"><a class="anchor" href="#consent-screens-that-mean-something" aria-hidden="true" tabindex="-1">#</a>Consent screens that mean something</h3>
+<p>A consent screen is the moment a human actually grants authority, so it deserves engineering care:</p>
+<ul>
+<li>Name the <strong>agent</strong>, not only the app (&quot;Travel Assistant v3, run by Acme, wants to…&quot;).</li>
+<li>Describe scopes in plain language with <strong>consequences</strong> (&quot;create, change and delete events on your calendars&quot;).</li>
+<li>Show <strong>duration</strong> and how to revoke.</li>
+<li>Prefer several small, task-specific grants over one large grant &quot;just in case&quot;.</li>
+</ul>
+<p>Two further standards are worth knowing for agent consent. <strong>Rich Authorization Requests</strong> (RFC 9396) replace coarse scope strings with structured <code>authorization_details</code>, such as &quot;one payment of at most €45 to this payee&quot;, so the grant can match a single action. <strong>CIBA</strong> (OpenID&#39;s Client-Initiated Backchannel Authentication) lets a client ask the authorization server to push an approval request to the user&#39;s phone, which suits an agent working in the background that needs a human &quot;yes&quot; for one step.</p>
+<h2 id="how-mcp-applies-oauth-21"><a class="anchor" href="#how-mcp-applies-oauth-21" aria-hidden="true" tabindex="-1">#</a>How MCP Applies OAuth 2.1</h2>
+<p><a href="protocols-mcp-a2a.html#authorization">Protocols: MCP &amp; A2A</a> introduced MCP&#39;s authorization model: a remote <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> is an OAuth resource server, it advertises its authorization server through Protected Resource Metadata (RFC 9728), the client uses authorization code plus PKCE, tokens are audience-bound, and token passthrough is forbidden. The current specification (revision 2026-07-28) adds several details that matter when you build or evaluate a client or server:</p>
+<ul>
+<li><strong>PKCE is checked, not assumed.</strong> Clients must use the <code>S256</code> challenge method when technically capable, and must refuse to proceed if the authorization server&#39;s metadata lacks <code>code_challenge_methods_supported</code>, because without that field there is no evidence the server supports PKCE.</li>
+<li><strong>Resource indicators are mandatory.</strong> Clients send the MCP server&#39;s canonical URI as the <code>resource</code> parameter. Servers must validate that a token was issued for them, must reject anything else, and must not accept or transit any other token.</li>
+<li><strong>Scopes are minimized and stepped up.</strong> On a <code>401</code>, a server should name the needed scopes in the <code>WWW-Authenticate</code> header, and the client should request exactly those (falling back to the server&#39;s advertised <code>scopes_supported</code>). If a later operation needs more, the server answers <code>403</code> with <code>error=&quot;insufficient_scope&quot;</code> and the required scopes. The client then runs a <strong>step-up authorization</strong>: it re-authorizes with the <em>union</em> of its previous scopes and the new ones, so it doesn&#39;t lose permissions it already had.</li>
+<li><strong>Issuer validation.</strong> Clients record the expected issuer before redirecting the user and compare the <code>iss</code> value in the authorization response against it (RFC 9207), which defeats &quot;mix-up&quot; attacks in which a malicious authorization server tricks a client into sending a code to the wrong place.</li>
+<li><strong>Refresh tokens are never assumed.</strong> Clients may request <code>offline_access</code>, but the authorization server decides whether to issue one.</li>
+</ul>
+<p>Two official <strong>authorization extensions</strong>, both opt-in and negotiated per request, cover cases the user-consent flow doesn&#39;t fit:</p>
+<ul>
+<li><strong>OAuth Client Credentials</strong>: machine-to-machine access with no human in the loop, for background services and CI pipelines. Here the agent authenticates as <em>itself</em>. That fits when it acts for an organization rather than for a particular user.</li>
+<li><strong>Enterprise-Managed Authorization</strong>: the organization&#39;s identity provider (IdP) decides which MCP servers each employee may use. The client exchanges the employee&#39;s SSO identity assertion at the IdP for an <strong>Identity Assertion JWT Authorization Grant</strong> (ID-JAG), using an RFC 8693 token exchange, then trades the ID-JAG for an access token at the MCP server&#39;s authorization server. Employees don&#39;t see per-server consent screens, and revoking access at the IdP takes effect everywhere.</li>
+</ul>
+<div class="callout callout-note" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>MCP is versioned by date and its authorization rules have tightened with each revision. Check the current specification before implementing, and prefer an official SDK, which handles discovery, PKCE and step-up for you.</p>
+</div></div>
+<h2 id="keep-secrets-out-of-the-model"><a class="anchor" href="#keep-secrets-out-of-the-model" aria-hidden="true" tabindex="-1">#</a>Keep Secrets Out of the Model</h2>
+<p>The single most important rule in this lesson: <strong>never give a model a raw, long-lived secret.</strong> Not in the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, not in a tool result, not in an environment variable that a code-execution tool can print, not in memory.</p>
+<p>The reasons stack up:</p>
+<ul>
+<li>Anything in the context can come back out: in a reply, a tool argument, a markdown image URL or a log line. <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">Prompt injection</dfn> turns that from an accident into an attack (<a href="agent-security.html#the-lethal-trifecta-and-exfiltration">the lethal trifecta</a>).</li>
+<li>Context is copied widely: traces, evaluation datasets, provider logs, caches, memory stores.</li>
+<li>A model cannot be trusted to use a secret only as intended, because it cannot reliably tell your instructions from an attacker&#39;s.</li>
+</ul>
+<p>The alternative is a <strong>credential broker</strong>: a component outside the model that holds tokens, decides whether a given tool call may use one, attaches it, and strips secrets from what comes back. The model sees tool names and arguments, never credentials. <a href="guardrails-and-sandboxing.html#credential-isolation-via-proxies">Guardrails &amp; Sandboxing</a> showed the network-level version, an egress proxy that injects headers for allowlisted hosts. The broker below is the application-level version, which can also understand <em>which tool</em> is being called and <em>for how much money</em>.</p>
+<h3 id="per-tool-and-per-action-scoping"><a class="anchor" href="#per-tool-and-per-action-scoping" aria-hidden="true" tabindex="-1">#</a>Per-tool and per-action scoping</h3>
+<p>A broker lets you scope far more finely than a single OAuth grant:</p>
+<ul>
+<li><strong>Per tool</strong>: each tool declares the one scope and one audience it needs. <code>list_orders</code> gets an <code>orders:read</code> token for the orders API. It can never obtain a payments token, whatever the model asks.</li>
+<li><strong>Per action</strong>: arguments are checked against the grant. A purchase must be to an allowlisted merchant, under the per-purchase threshold, and within the session&#39;s remaining budget.</li>
+<li><strong>Per call</strong>: mint a fresh short-lived token for each call (via token exchange), so a token that leaks through a misbehaving API response expires in minutes.</li>
+</ul>
+<h3 id="a-credential-broker-tool-executor"><a class="anchor" href="#a-credential-broker-tool-executor" aria-hidden="true" tabindex="-1">#</a>A credential-broker tool executor</h3>
+<p>Here is a compact, self-contained broker. A <code>Grant</code> records what the user approved. Each <code>ToolSpec</code> declares the scope and audience its API needs. The broker checks the grant, reserves spend before charging, adds an <dfn class="gt" tabindex="0" data-t="Idempotency" data-d="The property that repeating an operation has the same effect as doing it once. Idempotent tools make retries after timeouts safe." data-l="reliability" data-a="idempotency">idempotency</dfn> key so a retried purchase can&#39;t charge twice, mints a short-lived token per call, and redacts the token from results.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> hashlib, json, time
+<span class="hljs-keyword">from</span> dataclasses <span class="hljs-keyword">import</span> dataclass
+<span class="hljs-keyword">from</span> decimal <span class="hljs-keyword">import</span> Decimal
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Any</span>, <span class="hljs-type">Callable</span>
+
+<span class="hljs-meta">@dataclass</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">Grant</span>:                          <span class="hljs-comment"># what the user approved on the consent screen</span>
+    grant_id: <span class="hljs-built_in">str</span>
+    user_id: <span class="hljs-built_in">str</span>
+    agent_id: <span class="hljs-built_in">str</span>
+    scopes: <span class="hljs-built_in">frozenset</span>[<span class="hljs-built_in">str</span>]
+    merchants: <span class="hljs-built_in">frozenset</span>[<span class="hljs-built_in">str</span>]         <span class="hljs-comment"># payee allowlist</span>
+    session_cap: Decimal              <span class="hljs-comment"># total spend allowed under this grant</span>
+    approve_above: Decimal            <span class="hljs-comment"># purchases above this need a fresh human approval</span>
+    expires_at: <span class="hljs-built_in">float</span>
+    spent: Decimal = Decimal(<span class="hljs-string">&quot;0&quot;</span>)
+
+<span class="hljs-meta">@dataclass(<span class="hljs-params">frozen=<span class="hljs-literal">True</span></span>)</span>
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">ToolSpec</span>:
+    call: <span class="hljs-type">Callable</span>[..., <span class="hljs-built_in">dict</span>]         <span class="hljs-comment"># the real API call; the broker passes token= to it</span>
+    scope: <span class="hljs-built_in">str</span>                        <span class="hljs-comment"># the one scope this tool needs</span>
+    audience: <span class="hljs-built_in">str</span>                     <span class="hljs-comment"># the API the token must be bound to</span>
+    spends: <span class="hljs-built_in">bool</span> = <span class="hljs-literal">False</span>
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">CredentialBroker</span>:
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, grant: Grant, tools: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, ToolSpec],
+                 mint_token: <span class="hljs-type">Callable</span>[..., <span class="hljs-built_in">str</span>], approve: <span class="hljs-type">Callable</span>[[Grant, <span class="hljs-built_in">dict</span>], <span class="hljs-built_in">bool</span>],
+                 audit: <span class="hljs-type">Callable</span>[[<span class="hljs-built_in">dict</span>], <span class="hljs-literal">None</span>]</span>):
+        <span class="hljs-variable language_">self</span>.grant, <span class="hljs-variable language_">self</span>.tools = grant, tools
+        <span class="hljs-variable language_">self</span>.mint_token, <span class="hljs-variable language_">self</span>.approve, <span class="hljs-variable language_">self</span>.audit = mint_token, approve, audit
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">check</span>(<span class="hljs-params">self, name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]</span>) -&gt; <span class="hljs-built_in">str</span> | <span class="hljs-literal">None</span>:
+        g, spec = <span class="hljs-variable language_">self</span>.grant, <span class="hljs-variable language_">self</span>.tools.get(name)
+        <span class="hljs-keyword">if</span> spec <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;unknown tool <span class="hljs-subst">{name}</span>&quot;</span>
+        <span class="hljs-keyword">if</span> time.time() &gt; g.expires_at:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;grant expired; the user must re-authorize&quot;</span>
+        <span class="hljs-keyword">if</span> spec.scope <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> g.scopes:
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;scope <span class="hljs-subst">{spec.scope}</span> was not granted&quot;</span>
+        <span class="hljs-keyword">if</span> spec.spends:
+            amount = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>)))
+            <span class="hljs-keyword">if</span> args.get(<span class="hljs-string">&quot;merchant&quot;</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> g.merchants:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;merchant is not on the allowlist&quot;</span>
+            <span class="hljs-keyword">if</span> amount &lt;= <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> g.spent + amount &gt; g.session_cap:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;amount <span class="hljs-subst">{amount}</span> breaks the cap (<span class="hljs-subst">{g.spent}</span> of <span class="hljs-subst">{g.session_cap}</span> used)&quot;</span>
+            <span class="hljs-keyword">if</span> amount &gt; g.approve_above <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-variable language_">self</span>.approve(g, args):
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;the user declined this purchase&quot;</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span>
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">run</span>(<span class="hljs-params">self, name: <span class="hljs-built_in">str</span>, args: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]</span>) -&gt; <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>]:
+        reason, g = <span class="hljs-variable language_">self</span>.check(name, args), <span class="hljs-variable language_">self</span>.grant
+        <span class="hljs-variable language_">self</span>.audit({<span class="hljs-string">&quot;ts&quot;</span>: time.time(), <span class="hljs-string">&quot;grant&quot;</span>: g.grant_id, <span class="hljs-string">&quot;user&quot;</span>: g.user_id,
+                    <span class="hljs-string">&quot;agent&quot;</span>: g.agent_id, <span class="hljs-string">&quot;tool&quot;</span>: name, <span class="hljs-string">&quot;args&quot;</span>: args,
+                    <span class="hljs-string">&quot;decision&quot;</span>: reason <span class="hljs-keyword">or</span> <span class="hljs-string">&quot;allow&quot;</span>})
+        <span class="hljs-keyword">if</span> reason:
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;Blocked by policy: <span class="hljs-subst">{reason}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+        spec = <span class="hljs-variable language_">self</span>.tools[name]
+        extra: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">str</span>, <span class="hljs-type">Any</span>] = {}
+        <span class="hljs-keyword">if</span> spec.spends:
+            g.spent += Decimal(<span class="hljs-built_in">str</span>(args[<span class="hljs-string">&quot;amount&quot;</span>]))   <span class="hljs-comment"># reserve first; never release on unknown outcome</span>
+            key = json.dumps([g.grant_id, name, args], sort_keys=<span class="hljs-literal">True</span>)
+            extra[<span class="hljs-string">&quot;idempotency_key&quot;</span>] = hashlib.sha256(key.encode()).hexdigest()[:<span class="hljs-number">32</span>]
+        <span class="hljs-comment"># Short-lived, down-scoped, audience-bound token minted per call (e.g. RFC 8693 exchange).</span>
+        token = <span class="hljs-variable language_">self</span>.mint_token(subject=g.user_id, actor=g.agent_id,
+                                audience=spec.audience, scope=spec.scope, ttl_s=<span class="hljs-number">300</span>)
+        <span class="hljs-keyword">try</span>:
+            result = json.dumps(spec.call(**args, token=token, **extra))
+        <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                        <span class="hljs-comment"># message omitted: it might echo the token</span>
+            <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(e).__name__}</span>: outcome unknown, do not retry blindly&quot;</span>,
+                    <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}
+        <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: result.replace(token, <span class="hljs-string">&quot;[REDACTED]&quot;</span>), <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">False</span>}</code></pre></div>
+<p>Wiring it into a manual agent loop takes a few lines. The tool schemas the model sees contain no token, card number or key, only business arguments:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+
+client = anthropic.Anthropic()
+TOOLS = [
+    {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;list_orders&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;List the user&#x27;s recent orders.&quot;</span>,
+     <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>, <span class="hljs-string">&quot;properties&quot;</span>: {}}},
+    {<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;buy&quot;</span>, <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;Buy one item from an approved merchant. Amount in USD, e.g. &#x27;19.99&#x27;.&quot;</span>,
+     <span class="hljs-string">&quot;strict&quot;</span>: <span class="hljs-literal">True</span>,
+     <span class="hljs-string">&quot;input_schema&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;object&quot;</span>, <span class="hljs-string">&quot;additionalProperties&quot;</span>: <span class="hljs-literal">False</span>,
+                      <span class="hljs-string">&quot;required&quot;</span>: [<span class="hljs-string">&quot;merchant&quot;</span>, <span class="hljs-string">&quot;item&quot;</span>, <span class="hljs-string">&quot;amount&quot;</span>],
+                      <span class="hljs-string">&quot;properties&quot;</span>: {<span class="hljs-string">&quot;merchant&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}, <span class="hljs-string">&quot;item&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>},
+                                     <span class="hljs-string">&quot;amount&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;string&quot;</span>}}}},
+]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">run_agent</span>(<span class="hljs-params">broker: CredentialBroker, task: <span class="hljs-built_in">str</span>, max_steps: <span class="hljs-built_in">int</span> = <span class="hljs-number">20</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: task}]
+    <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(max_steps):
+        response = client.messages.create(model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>, max_tokens=<span class="hljs-number">16000</span>,
+                                          tools=TOOLS, messages=messages)
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;assistant&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: response.content})
+        <span class="hljs-keyword">if</span> response.stop_reason == <span class="hljs-string">&quot;pause_turn&quot;</span>:
+            <span class="hljs-keyword">continue</span>
+        <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:       <span class="hljs-comment"># end_turn, max_tokens or refusal</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>.join(b.text <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>)
+        results = [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;tool_result&quot;</span>, <span class="hljs-string">&quot;tool_use_id&quot;</span>: b.<span class="hljs-built_in">id</span>, **broker.run(b.name, b.<span class="hljs-built_in">input</span>)}
+                   <span class="hljs-keyword">for</span> b <span class="hljs-keyword">in</span> response.content <span class="hljs-keyword">if</span> b.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;tool_use&quot;</span>]
+        messages.append({<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: results})
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Stopped: step budget exhausted&quot;</span></code></pre></div>
+<p>What this design guarantees, even if the model is fully hijacked by an injected instruction:</p>
+<ul>
+<li>It cannot read, print or exfiltrate a token, because no token ever enters its context.</li>
+<li>It cannot call an API outside the granted scopes, or use a token at the wrong API, because each token is minted for one scope and one audience.</li>
+<li>It cannot pay an unlisted merchant, exceed the cap, or skip approval above the threshold, because those checks run in plain code.</li>
+<li>Retrying a purchase with the same arguments reuses the idempotency key, so a well-behaved payment API won&#39;t charge twice.</li>
+</ul>
+<p>What it doesn&#39;t guarantee: an injected agent can still waste the <em>remaining</em> budget on allowlisted merchants, or buy the wrong item within the limits. That&#39;s why limits should be tight and approvals informative. In production, keep <code>spent</code> in a shared store with atomic updates (two parallel workers must not both pass the cap), and back the cap up at the payment layer as well, as described under spend controls below.</p>
+<h2 id="human-approval-for-high-value-actions"><a class="anchor" href="#human-approval-for-high-value-actions" aria-hidden="true" tabindex="-1">#</a>Human Approval for High-Value Actions</h2>
+<p>Some actions should never be fully delegated: large payments, new payees, sharing data outside an organization, granting permissions. <a href="human-in-the-loop.html">Human-in-the-Loop</a> covers approval UX in general. Identity adds three requirements:</p>
+<ol>
+<li><strong>Approve the action, not the prose.</strong> Render the approval from the structured arguments (merchant, item, amount, currency, recipient), not from the model&#39;s summary of them. A hijacked model can describe a $900 transfer as &quot;the $9 renewal you asked for&quot;. This principle is sometimes called <strong>what you see is what you sign</strong>.</li>
+<li><strong>Use a trusted surface.</strong> Approval should happen in a UI the agent cannot draw or click on: the operator&#39;s own app, the bank&#39;s app, an OS-level passkey prompt, or a CIBA push to the user&#39;s phone. An approval button rendered inside a page the agent controls proves nothing.</li>
+<li><strong>Make approval cryptographic when stakes are high.</strong> A passkey or device-bound key signing a hash of the exact action produces evidence the user can&#39;t plausibly deny later, and that the operator can&#39;t forge. This is exactly what payment mandates (below) formalize.</li>
+</ol>
+<p>Approval thresholds should follow reversibility and blast radius: low-value purchases at known merchants within a pre-approved budget can be automatic; new merchants, unusual amounts or anything after the agent has read untrusted content should ask.</p>
+<h2 id="agent-identity-on-the-web"><a class="anchor" href="#agent-identity-on-the-web" aria-hidden="true" tabindex="-1">#</a>Agent Identity on the Web</h2>
+<p>When an agent browses or calls a public website, there&#39;s no OAuth relationship to lean on. Sites have traditionally classified traffic by <strong>user-agent strings</strong> (trivial to spoof) and <strong>IP address ranges</strong> (brittle, and shared by cloud tenants). The result is a bad equilibrium: helpful agents get blocked as bots, and scrapers pretend to be browsers.</p>
+<h3 id="signed-agent-requests-web-bot-auth"><a class="anchor" href="#signed-agent-requests-web-bot-auth" aria-hidden="true" tabindex="-1">#</a>Signed agent requests: Web Bot Auth</h3>
+<p><strong>Web Bot Auth</strong> lets an automated client prove <em>which operator</em> sent a request by signing it. It builds on <strong>HTTP Message Signatures</strong> (RFC 9421, published in 2024), a general standard for signing selected parts of an HTTP request. Cloudflare proposed the approach in May 2025. The IETF formed a <strong>webbotauth</strong> working group in October 2025, and its protocol document, <em>HTTP Message Signatures for Bots</em>, was still an Internet-Draft as of late 2026, so details may change.</p>
+<p>The mechanism has three parts:</p>
+<ul>
+<li>The operator generates a key pair (Ed25519 in the reference implementation) and publishes the public keys in a <strong>key directory</strong> at <code>/.well-known/http-message-signatures-directory</code> on its own domain.</li>
+<li>Each request carries a <code>Signature-Agent</code> header pointing at that directory, and <code>Signature-Input</code> and <code>Signature</code> headers containing an RFC 9421 signature over at least the target authority, with a creation time, an expiry, a nonce and the tag <code>web-bot-auth</code>.</li>
+<li>The site fetches and caches the operator&#39;s keys, verifies the signature, rejects replayed nonces, and applies its policy for that operator.</li>
+</ul>
+<p>An abbreviated, illustrative request:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">GET /products/usb-c-charger HTTP/1.1
+Host: shop.example
+Signature-Agent: sig1=&quot;https://agent.example.com&quot;
+Signature-Input: sig1=(&quot;@authority&quot; &quot;signature-agent&quot;);created=1795430000;expires=1795430300;keyid=&quot;&lt;JWK thumbprint&gt;&quot;;alg=&quot;ed25519&quot;;nonce=&quot;&lt;random&gt;&quot;;tag=&quot;web-bot-auth&quot;
+Signature: sig1=:&lt;base64 signature&gt;:</code></pre></div>
+<p>Card networks have adopted this layer for commerce. Visa&#39;s <strong>Trusted Agent Protocol</strong> (October 2025, developed with Cloudflare) and Mastercard&#39;s Agent Pay build on Web Bot Auth so that merchants can recognize registered shopping agents and tell browsing from purchasing.</p>
+<p>Be precise about what a signature proves. It proves the request came from the holder of a key published by a particular operator, which gives you accountability and a stable identity for rate limits and allowlists. It does <em>not</em> prove which user the agent serves, that the user authorized this particular action, or that the agent is behaving well. Privacy is an open issue too: a stable signature lets sites track an agent across requests, and the working group is also discussing anonymous variants.</p>
+<h3 id="verifiable-credentials-and-know-your-agent"><a class="anchor" href="#verifiable-credentials-and-know-your-agent" aria-hidden="true" tabindex="-1">#</a>Verifiable credentials and &quot;know your agent&quot;</h3>
+<p>Signatures answer &quot;which operator?&quot;. Relying parties increasingly want richer claims: Is this agent registered with a payment network? Which company is accountable for it? Has its operator passed some vetting? The general tool for portable, signed claims is the <strong>verifiable credential (VC)</strong>: a tamper-evident statement by an issuer about a subject, which the holder can present to anyone who trusts the issuer. The W3C&#39;s Verifiable Credentials 2.0 family became a W3C Recommendation in 2025. Formats such as <strong>SD-JWT</strong> add <strong>selective disclosure</strong>, so a holder can reveal only the claims a verifier needs.</p>
+<p>Industry discussions borrow the banking term <em>know your customer</em> and call the agent version <strong>know your agent (KYA)</strong>. Concrete programs exist mainly at the payment networks: Mastercard&#39;s Agent Pay requires agents to be registered and verified before they can transact, and Visa has described a directory of verified agents. There is no single cross-industry KYA standard as of 2026, so treat the term as a direction rather than a specification.</p>
+<h2 id="audit-logging-and-non-repudiation"><a class="anchor" href="#audit-logging-and-non-repudiation" aria-hidden="true" tabindex="-1">#</a>Audit Logging and Non-Repudiation</h2>
+<p><a href="guardrails-and-sandboxing.html#auditing">Guardrails &amp; Sandboxing</a> covered tamper-evident audit logs. Identity raises the bar from &quot;what happened?&quot; to &quot;who authorized it, and can they deny it?&quot;.</p>
+<p>A useful delegated-action record contains the human principal, the agent identity and version, the operator, the grant or mandate ID and its scopes, the exact canonicalized action, the policy decision and matching rule, any approval with its timestamp and method, the token&#39;s <code>jti</code> (unique token ID, never the token itself), and the provenance of untrusted content in context at the time.</p>
+<p><strong>Non-repudiation</strong> means a party cannot credibly deny having performed an action. Know what each mechanism gives you:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Detects tampering?</th>
+<th>Proves who acted?</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hash-chained log</td>
+<td>Yes, for edits in the middle</td>
+<td>No</td>
+<td>Whoever can write the log can rewrite the whole chain</td>
+</tr>
+<tr>
+<td>HMAC on each entry</td>
+<td>Yes, to key holders</td>
+<td>No</td>
+<td>Anyone with the shared key, including the operator, could have produced it</td>
+</tr>
+<tr>
+<td>Write-once storage, external anchoring</td>
+<td>Yes</td>
+<td>No</td>
+<td>Proves when a record existed, not who authorized it</td>
+</tr>
+<tr>
+<td>Signature by the user&#39;s own key (passkey, wallet)</td>
+<td>Yes</td>
+<td><strong>Yes</strong>, for that party</td>
+<td>Only covers what the user actually saw and signed</td>
+</tr>
+</tbody></table>
+</div>
+<p>Only the last row provides non-repudiation, and only for the person whose key signed. An operator&#39;s log, however well protected, is the operator&#39;s word. That is why payment protocols move the critical step, the user&#39;s approval of exactly what will be paid, into a signature made on a trusted surface with the user&#39;s key.</p>
+<h2 id="agentic-payments"><a class="anchor" href="#agentic-payments" aria-hidden="true" tabindex="-1">#</a>Agentic Payments</h2>
+<p>Payments concentrate every problem above. Money moves fast and is hard to claw back. Card fraud rules assume a human was present at checkout. Liability rules assume someone can say &quot;yes, I did that&quot; or &quot;no, I didn&#39;t&quot;. As the AP2 overview puts it, when an agent pays, it&#39;s unclear what proves the user granted authority for this purchase, whether the request reflects the user&#39;s true intent, and who is accountable when it goes wrong.</p>
+<p>Several efforts launched in 2025 and 2026 to answer these questions. They overlap and sometimes compete:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Effort</th>
+<th>Backers</th>
+<th>What it standardizes</th>
+<th>Status (as of late 2026)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AP2</strong> (Agent Payments Protocol)</td>
+<td>Google; moved to the FIDO Alliance</td>
+<td>Signed mandates proving what the user authorized</td>
+<td>v0.2 (April 2026), pre-1.0</td>
+</tr>
+<tr>
+<td><strong>ACP</strong> (Agentic Commerce Protocol)</td>
+<td>OpenAI and Stripe</td>
+<td>Checkout API between agent and merchant, plus delegated payment tokens</td>
+<td>Beta, date-versioned spec</td>
+</tr>
+<tr>
+<td><strong>UCP</strong> (Universal Commerce Protocol)</td>
+<td>Google with Shopify and retailers</td>
+<td>The broader shopping workflow (checkout, fulfillment, discounts)</td>
+<td>Launched January 2026</td>
+</tr>
+<tr>
+<td><strong>x402</strong></td>
+<td>Coinbase; now the x402 Foundation</td>
+<td>Payments inside HTTP using status 402</td>
+<td>Open standard, v2</td>
+</tr>
+<tr>
+<td><strong>Card-network programs</strong></td>
+<td>Visa, Mastercard and others</td>
+<td>Agent-specific tokens, agent registration, signed agent traffic</td>
+<td>Commercial programs</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="ap2-and-payment-mandates"><a class="anchor" href="#ap2-and-payment-mandates" aria-hidden="true" tabindex="-1">#</a>AP2 and payment mandates</h3>
+<p>Google announced <strong>AP2</strong> on September 16, 2025 as an open protocol designed to extend <dfn class="gt" tabindex="0" data-t="Agent2Agent protocol" data-d="An open protocol for opaque agents built by different vendors to discover each other via Agent Cards, exchange messages and coordinate long-running tasks. Announced by Google in April 2025 and donated to the Linux Foundation that June, it reached v1.0 in March 2026 and became an Agentic AI Foundation project in August 2026." data-l="protocols-mcp-a2a" data-a="agent2agent-protocol">A2A</dfn> and MCP, with dozens of payments and technology partners. Its core idea is the <strong>mandate</strong>: a cryptographically signed record of what a user authorized. Version 0.1 defined three: an <em>intent mandate</em> (the user&#39;s request and its constraints), a <em>cart mandate</em> (the exact items and price) and a <em>payment mandate</em> (a signal to the payment network that an agent was involved).</p>
+<p>On April 28, 2026, Google published <strong>AP2 v0.2</strong> and donated the protocol to the <strong>FIDO Alliance</strong>, the standards body behind passkeys. Mastercard&#39;s related <strong>Verifiable Intent</strong> specification, built with Google, was contributed alongside it. Version 0.2 reorganizes the model around two mandate types, each of which can be <em>open</em> or <em>closed</em>:</p>
+<ul>
+<li>A <strong>Checkout Mandate</strong> proves to the merchant that the agent may buy <em>this checkout</em>. The merchant first signs the checkout it offers (as a JWT), and the closed mandate is bound to that signed checkout by hash.</li>
+<li>A <strong>Payment Mandate</strong> proves to the credential provider, network and processor that the agent may pay <em>for this checkout</em>. It&#39;s bound to the same checkout hash, so it can&#39;t be reused for a different purchase.</li>
+<li>An <strong>open</strong> mandate carries the user&#39;s <strong>constraints</strong> instead of a specific checkout: allowed merchants, line items, an amount range, a total budget, how many times it may be used, a date window. It is signed by the user on a <strong>Trusted Surface</strong>, names the agent&#39;s public key (a <code>cnf</code> claim), and should expire as soon as the task allows.</li>
+<li>A <strong>closed</strong> mandate describes one specific transaction. Verifiers always receive closed mandates.</li>
+</ul>
+<p>In the <strong>human-present</strong> mode, the user sees the exact checkout and signs closed mandates directly. In the <strong>human-not-present</strong> mode (&quot;buy two tickets when they go on sale, under $300 total&quot;), the user signs open mandates up front, and the agent later signs closed mandates with its own key. The verifier checks that the agent&#39;s key matches the one the user named and that the closed mandate satisfies the open mandate&#39;s constraints. Mandates are SD-JWT credentials, so the agent discloses only the constraints a given verifier needs.</p>
+<figure class="diagram"><pre class="mermaid">sequenceDiagram
+  participant U as User
+  participant TS as Trusted surface
+  participant SA as Shopping agent
+  participant M as Merchant
+  participant CP as Credential provider
+  participant PP as Processor and network
+  U-&gt;&gt;SA: &quot;Two tickets under $300 when sales open&quot;
+  SA-&gt;&gt;TS: Draft open mandates (constraints, agent key)
+  TS-&gt;&gt;U: Show constraints, ask for passkey
+  U-&gt;&gt;TS: Approve with biometric
+  TS--&gt;&gt;SA: User-signed open mandates
+  Note over SA: Later, tickets go on sale
+  SA-&gt;&gt;M: Build checkout
+  M--&gt;&gt;SA: Merchant-signed checkout JWT
+  SA-&gt;&gt;SA: Sign closed mandates with agent key
+  SA-&gt;&gt;CP: Open + closed payment mandate
+  CP-&gt;&gt;CP: Verify signatures and constraints
+  CP--&gt;&gt;SA: Payment credential scoped to this checkout
+  SA-&gt;&gt;M: Closed checkout mandate + credential
+  M-&gt;&gt;PP: Authorize payment
+  PP--&gt;&gt;M: Approved
+  M--&gt;&gt;SA: Signed checkout receipt</pre></figure>
+<p>Three design choices stand out, and they&#39;re worth copying even outside payments:</p>
+<ul>
+<li><strong>The model is in the threat model.</strong> The AP2 security considerations state that the protocol &quot;assumes that preventing prompt injection attacks is infeasible&quot; and treat every LLM and agent as a potential attacker. The Trusted Surface must be non-agentic, and all verification must run in deterministic code.</li>
+<li><strong>Constraints bound the worst case.</strong> If injected content steers the agent toward a bad product, the merchant&#39;s signature still guarantees the offer&#39;s integrity, and constraint checks still cap the financial damage.</li>
+<li><strong>Double spend is explicit.</strong> An agent must not present a new closed mandate under the same open mandate without first receiving a receipt rejecting the previous one, so one approval can&#39;t fund several purchases.</li>
+</ul>
+<h3 id="acp-and-delegated-payment-tokens"><a class="anchor" href="#acp-and-delegated-payment-tokens" aria-hidden="true" tabindex="-1">#</a>ACP and delegated payment tokens</h3>
+<p>OpenAI and Stripe released the <strong>Agentic Commerce Protocol</strong> on September 29, 2025, alongside <strong>Instant Checkout</strong> in ChatGPT. ACP is Apache-2.0 licensed, maintained by both companies, and versioned by date. Its 2026-04-17 release added carts, product feeds, orders, authentication and MCP support. It has two main pieces:</p>
+<ul>
+<li>An <strong>agentic checkout</strong> API that merchants implement, so an agent can create and update a checkout session and complete it, while the merchant stays the <strong>merchant of record</strong> and keeps its own payment processing.</li>
+<li>A <strong>delegated payment</strong> spec. The user&#39;s payment provider tokenizes a credential with an <strong>allowance</strong>: a one-time use, a <code>max_amount</code> in minor units, a currency, the specific <code>checkout_session_id</code> and <code>merchant_id</code>, and an <code>expires_at</code> time. The agent passes the token to the merchant and never handles the card number. Stripe&#39;s comparable primitive is the <strong>Shared Payment Token</strong>, a scoped, expiring reference to a stored payment method.</li>
+</ul>
+<p>The allowance is the same idea as the broker&#39;s per-action scoping, enforced by the payment provider instead of the agent: a token that can pay at most this much, to this merchant, for this checkout, before this time.</p>
+<p>Products built on these protocols are moving fast. In March 2026 OpenAI scaled back native Instant Checkout in ChatGPT and shifted purchases into merchants&#39; own apps inside ChatGPT, citing a need for more flexibility. The ACP specification itself continued to evolve. Treat any specific product integration as provisional, and the delegation patterns as durable.</p>
+<h3 id="ucp-the-commerce-layer"><a class="anchor" href="#ucp-the-commerce-layer" aria-hidden="true" tabindex="-1">#</a>UCP: the commerce layer</h3>
+<p>Google introduced the <strong>Universal Commerce Protocol</strong> in January 2026 at the National Retail Federation conference, co-developed with Shopify and endorsed by retailers and payment companies. UCP covers the shopping workflow itself: capability discovery, checkout, fulfillment, discounts and payment handlers. AP2 positions itself as the authorization layer that plugs into a commerce protocol such as UCP, and the AP2 specification says it is designed to be compatible with it. ACP and UCP overlap at the checkout layer, and as of 2026 it isn&#39;t clear whether they will converge.</p>
+<h3 id="x402-payments-inside-http"><a class="anchor" href="#x402-payments-inside-http" aria-hidden="true" tabindex="-1">#</a>x402: payments inside HTTP</h3>
+<p>HTTP reserved status code <strong>402 Payment Required</strong> in the 1990s and never defined how to use it. <strong>x402</strong>, launched by Coinbase in May 2025, gives it a protocol, aimed at machine-to-machine payments: an agent paying per API call, per article or per dataset, with no account or checkout page. Coinbase and Cloudflare announced an x402 Foundation in September 2025, and in 2026 the protocol moved to the x402 Foundation under the Linux Foundation.</p>
+<p>In version 2, the exchange looks like this (abbreviated):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-text">GET /premium-data HTTP/1.1
+Host: api.example.com
+
+HTTP/1.1 402 Payment Required
+PAYMENT-REQUIRED: &lt;base64 JSON: x402Version 2, accepts: [{scheme: &quot;exact&quot;,
+  network: &quot;eip155:8453&quot;, amount: &quot;10000&quot;, asset: &lt;USDC contract&gt;, payTo: &lt;address&gt;,
+  maxTimeoutSeconds: 60}]&gt;
+
+GET /premium-data HTTP/1.1
+Host: api.example.com
+PAYMENT-SIGNATURE: &lt;base64 JSON: signed authorization to transfer exactly 10000 units to payTo&gt;
+
+HTTP/1.1 200 OK
+PAYMENT-RESPONSE: &lt;base64 JSON: settlement result, transaction reference&gt;</code></pre></div>
+<p>The server can verify and settle the payment itself, or delegate both to a <strong>facilitator</strong> service through <code>/verify</code> and <code>/settle</code> endpoints. Payments today are mostly in stablecoins such as USDC (an amount of <code>10000</code> is one cent, since USDC has six decimal places), and the spec defines schemes such as <code>exact</code> (a fixed price) and <code>upto</code> (authorize a maximum, settle actual usage).</p>
+<p>For agent builders, x402 moves the spend decision into the agent&#39;s own runtime: the client decides whether to sign each payment. That makes a broker-style policy essential. Allowlist payees and networks, cap per-request and per-period spend, keep the wallet key outside the model and the sandbox, and never let content from the paid resource raise the agent&#39;s own limits.</p>
+<h3 id="card-network-agent-programs"><a class="anchor" href="#card-network-agent-programs" aria-hidden="true" tabindex="-1">#</a>Card-network agent programs</h3>
+<p>The card networks are adapting existing rails rather than replacing them:</p>
+<ul>
+<li><strong>Mastercard Agent Pay</strong> (announced April 29, 2025) introduced <strong>Agentic Tokens</strong>, built on Mastercard&#39;s tokenization, and requires agents to be registered and verified. Consumers define what an agent may buy on their behalf.</li>
+<li><strong>Visa Intelligent Commerce</strong> (announced April 30, 2025) gives agents tokenized credentials in place of card numbers, with consumer-set spending limits and conditions, through APIs and a partner program. Visa&#39;s Trusted Agent Protocol followed in October 2025.</li>
+<li>Both networks, and others, use Web Bot Auth so merchants can recognize trusted agents in their traffic.</li>
+</ul>
+<p>The common pattern: a <strong>network token</strong> scoped to an agent, which the issuer can limit by amount, merchant and time and can revoke without reissuing the user&#39;s card, plus a signal on the transaction that an agent was involved.</p>
+<div class="callout callout-key" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Verifiable delegation, enforced outside the agent</div><div class="callout-body"><p>Every serious payment design makes the same two moves: it records <em>exactly what the user authorized</em> in a form the user signed, and it enforces the limits somewhere the agent can&#39;t reach (a mandate verifier, a scoped token, an issuer&#39;s controls). The agent proposes, and deterministic systems that hold the authority decide.</p>
+</div></div>
+<h2 id="spend-controls-fraud-and-injection"><a class="anchor" href="#spend-controls-fraud-and-injection" aria-hidden="true" tabindex="-1">#</a>Spend Controls, Fraud and Injection</h2>
+<p>Layer the controls so that no single failure lets money escape.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Control</th>
+<th>Catches</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><dfn class="gt" tabindex="0" data-t="Harness" data-d="The code around a model that turns it into an agent: the loop, tool execution, context management, permissions, retries and stopping logic. The same model can perform very differently in different harnesses." data-l="the-agent-loop" data-a="harness">Agent harness</dfn></td>
+<td>Broker caps, merchant allowlist, approval thresholds, idempotency keys</td>
+<td>Hijacked or looping agents, duplicate charges</td>
+</tr>
+<tr>
+<td>Delegation artifact</td>
+<td>Mandate constraints, token allowance (amount, merchant, expiry, one-time use)</td>
+<td>An agent exceeding what the user signed</td>
+</tr>
+<tr>
+<td>Payment credential</td>
+<td>Virtual card or network token limits, merchant-category restrictions</td>
+<td>A compromised agent platform</td>
+</tr>
+<tr>
+<td>Issuer and network</td>
+<td>Fraud scoring, agent-transaction signals, step-up challenges such as 3-D Secure</td>
+<td>Stolen credentials, anomalous patterns</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Velocity alerts, new-merchant alerts, reconciliation against approvals</td>
+<td>Slow leaks and abuse that stays under every individual cap</td>
+</tr>
+</tbody></table>
+</div>
+<p>Payment-specific attacks to design against:</p>
+<ul>
+<li><strong>Injected purchasing.</strong> A product page, review or email tells the agent to buy something, add an item, or &quot;use this faster checkout link&quot; that leads to an attacker&#39;s merchant. Defense: payees come from an allowlist or a merchant-signed checkout, never from free text the agent read.</li>
+<li><strong>Price and cart manipulation.</strong> Content claims a discount or a different price. Defense: the price that matters is the one in the merchant-signed checkout, checked against the user&#39;s constraints.</li>
+<li><strong>Splitting.</strong> The agent is steered into many purchases just under the approval threshold. Defense: aggregate caps per merchant, per day and per grant, not only per transaction.</li>
+<li><strong>Mandate or token replay.</strong> A stolen authorization is reused for another purchase. Defense: bind every authorization to one checkout by hash or session ID, make it single-use, and give it a short expiry.</li>
+<li><strong>Agent impersonation.</strong> A fraudster&#39;s bot claims to be a trusted shopping agent. Defense: signed agent requests with keys published by the operator, plus network registration.</li>
+<li><strong>Refund and dispute abuse.</strong> A user falsely claims &quot;my agent did that without permission&quot;. Defense: signed mandates and receipts that show what the user actually approved.</li>
+</ul>
+<div class="callout callout-warning" role="note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>The agent&#39;s own view is not evidence</div><div class="callout-body"><p>Never let the model&#39;s description of a purchase serve as the approval record, the fraud signal or the dispute evidence. Use the structured, signed artifacts: the merchant&#39;s checkout, the user&#39;s mandate, the processor&#39;s receipt.</p>
+</div></div>
+<h2 id="regulation-and-liability"><a class="anchor" href="#regulation-and-liability" aria-hidden="true" tabindex="-1">#</a>Regulation and Liability</h2>
+<p>Law and payment-network rules were written for human payers, and as of 2026 the agent cases are mostly unsettled. Two examples show the shape of the problem.</p>
+<p>In the United States, consumer protection for electronic fund transfers (the Electronic Fund Transfer Act and its Regulation E) limits a consumer&#39;s liability for <em>unauthorized</em> transfers. It also excludes transfers made by someone to whom the consumer furnished the means of access, unless the consumer has told the institution that person is no longer authorized. Legal commentators disagree about whether giving an AI agent your credentials counts as furnishing access, and about how to treat an agent that has access but makes a transaction the user didn&#39;t intend. In the European Union, the payment services rules require <strong>strong customer authentication</strong> (two independent factors) for most electronic payments a payer initiates, which pushes agent designs toward the user authenticating at delegation time, or toward transactions that legitimately fall outside the payer-initiated model.</p>
+<p>Card networks set their own dispute and liability rules, and several have announced agent programs, but analysts generally note that no clear liability shift for agent transactions has been established. Practical guidance for builders: keep the evidence a dispute will need (what the user approved, on which surface, with which key, and what was actually charged), make delegation scopes and revocation visible to users, and get legal review before you ship autonomous purchasing. <a href="agent-safety-alignment.html">Safety, Alignment &amp; Governance</a> covers the wider regulatory picture.</p>
+<h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true" tabindex="-1">#</a>Key Takeaways</h2>
+<ul>
+<li>Agents need their <strong>own identity</strong>, linked to but distinct from the user&#39;s: act <em>on behalf of</em>, never <em>as</em>. That&#39;s what makes accountability, least privilege, per-agent revocation and audit possible.</li>
+<li><strong>Authentication</strong> proves who; <strong>authorization</strong> decides what. Prefer <strong>delegation</strong> (subject plus actor, as in RFC 8693&#39;s <code>act</code> claim) over impersonation.</li>
+<li>Delegated OAuth for agents means <strong>authorization code + PKCE</strong>, <strong>narrow scopes</strong>, <strong>audience-bound, short-lived</strong> access tokens, vaulted and rotated refresh tokens, <strong>token exchange</strong> at every hop instead of passthrough, and consent screens that name the agent and the consequences.</li>
+<li><strong>MCP</strong> applies OAuth 2.1 strictly: verified PKCE support, mandatory resource indicators, audience validation, scope challenges with <strong>step-up authorization</strong>, and issuer validation, plus opt-in extensions for machine-to-machine and enterprise IdP-managed access.</li>
+<li><strong>Never put raw secrets in the model&#39;s context.</strong> A <strong>credential broker</strong> holds tokens, mints per-call scoped tokens, enforces per-tool and per-action policy (allowlists, spend caps, approvals) in code, and redacts results.</li>
+<li>On the open web, <strong>Web Bot Auth</strong> (HTTP Message Signatures with published operator keys, still an IETF draft) identifies the operator, not the user&#39;s intent. Verifiable credentials and KYA programs aim to carry richer, verified claims.</li>
+<li>Hash chains detect tampering, but only <strong>signatures by the user&#39;s own key</strong> give non-repudiation, which is why payment protocols center on <strong>signed mandates</strong>.</li>
+<li>Agent payment protocols (<strong>AP2</strong>, <strong>ACP</strong>, <strong>UCP</strong>, <strong>x402</strong>, card-network programs) are young and moving, but share one principle: verifiable delegation with limits enforced <strong>outside the agent</strong>, assuming the model can be injected.</li>
+</ul>
+<h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true" tabindex="-1">#</a>Exercises</h2>
+<ol>
+<li><strong>Scope a real assistant (easy).</strong> For an assistant with Gmail, Google Calendar and a company expense tool, list every tool it needs, the narrowest scope and audience for each, and which calls should require human approval. Which single scope, if over-granted, would do the most damage under prompt injection?</li>
+<li><strong>Harden the broker (medium).</strong> Extend <code>CredentialBroker</code> with (a) a per-merchant daily cap, (b) a velocity limit of at most three purchases per ten minutes, and (c) a <code>tainted</code> flag that the harness sets after any tool returns untrusted content, which forces human approval for every purchase from then on. Write tests that show each rule firing.</li>
+<li><strong>Implement PKCE and a resource-bound authorization request (medium).</strong> Using only the Python standard library, generate a code verifier and S256 challenge, build an authorization URL with <code>scope</code>, <code>resource</code>, <code>state</code> and <code>code_challenge</code>, and write the check the token endpoint performs when the verifier arrives. Explain what an attacker who steals the authorization code can and can&#39;t do.</li>
+<li><strong>An x402 spending policy (medium–hard).</strong> Write a function <code>should_pay(payment_required, policy, ledger)</code> that decides whether an agent may sign a payment for a 402 response. It should check scheme, network, asset, payee allowlist, a per-request maximum and a rolling daily budget. Where must the wallet key live, and what must never influence the policy?</li>
+<li><strong>Design a human-not-present purchase (hard).</strong> A user says: &quot;Buy two tickets for the Saturday show, under $300 in total, from the official box office or its authorized reseller, before Friday.&quot; Specify the open mandate constraints, what the merchant and the credential provider each verify, how double spending is prevented, what evidence would settle a dispute, and one attack that still works within your constraints.</li>
+</ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Separate read from write, and ask which write can send data to an outsider or move money. Reading the inbox is low-privilege but brings in untrusted content.</p>
+<p> <strong>Sketch:</strong> A reasonable plan:</p>
+<ul>
+<li><code>search_mail</code> and <code>read_message</code>: <code>gmail.readonly</code>, audience the Gmail API, allowed, but their output is untrusted.</li>
+<li><code>create_draft</code>: <code>gmail.compose</code>, allowed (a draft sends nothing).</li>
+<li><code>send_mail</code>: <code>gmail.send</code>, ask, with the exact recipients and body shown.</li>
+<li><code>list_events</code>: <code>calendar.events.readonly</code>, allowed.</li>
+<li><code>create_event</code> and <code>move_event</code>: <code>calendar.events</code>, allowed for the user&#39;s own calendar, ask when external attendees will be notified.</li>
+<li><code>submit_expense</code>: an expense-API scope limited to the user&#39;s own reports, ask above a threshold.</li>
+</ul>
+<p> The most dangerous over-grant is full mail access (<code>https://mail.google.com/</code>), which includes sending and permanent deletion. Combined with untrusted inbound mail, it completes the <dfn class="gt" tabindex="0" data-t="Lethal trifecta" data-d="Simon Willison's term for the dangerous combination of access to private data, exposure to untrusted content, and the ability to communicate externally. An agent with all three can be tricked into exfiltrating data." data-l="agent-security" data-a="lethal-trifecta">lethal trifecta</dfn>. Note that Google treats several mail scopes as restricted, which adds verification requirements for apps that request them.</p>
+</li>
+<li><p><strong>Hint:</strong> Keep the new state in the broker (a deque of purchase timestamps and a dict of per-merchant daily totals) and make every rule a branch in <code>check</code>, so <code>run</code> audits it automatically. The taint flag belongs to the harness, which knows which tools return untrusted content.</p>
+<p> <strong>Sketch:</strong> Tests: three purchases succeed, and the fourth within ten minutes is blocked; with a $50 daily cap at merchant A, $30 + $25 is blocked at the second call while $30 at merchant B passes; after <code>broker.tainted = True</code>, even a $2 purchase calls <code>approve</code>. In production, keep counters in a shared store with atomic increments so parallel workers can&#39;t race past a cap.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> collections, datetime, time
+<span class="hljs-keyword">from</span> decimal <span class="hljs-keyword">import</span> Decimal
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">HardenedBroker</span>(<span class="hljs-title class_ inherited__">CredentialBroker</span>):
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, *args, merchant_daily_cap: Decimal, **kw</span>):
+        <span class="hljs-built_in">super</span>().__init__(*args, **kw)
+        <span class="hljs-variable language_">self</span>.merchant_daily_cap, <span class="hljs-variable language_">self</span>.tainted = merchant_daily_cap, <span class="hljs-literal">False</span>
+        <span class="hljs-variable language_">self</span>.recent: collections.deque[<span class="hljs-built_in">float</span>] = collections.deque()
+        <span class="hljs-variable language_">self</span>.daily: <span class="hljs-built_in">dict</span>[<span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">str</span>, <span class="hljs-built_in">str</span>], Decimal] = collections.defaultdict(Decimal)
+
+    <span class="hljs-keyword">def</span> <span class="hljs-title function_">check</span>(<span class="hljs-params">self, name, args</span>):
+        spec = <span class="hljs-variable language_">self</span>.tools.get(name)
+        <span class="hljs-keyword">if</span> spec <span class="hljs-keyword">and</span> spec.spends:
+            now, day = time.time(), datetime.date.today().isoformat()
+            <span class="hljs-keyword">while</span> <span class="hljs-variable language_">self</span>.recent <span class="hljs-keyword">and</span> <span class="hljs-variable language_">self</span>.recent[<span class="hljs-number">0</span>] &lt; now - <span class="hljs-number">600</span>:
+                <span class="hljs-variable language_">self</span>.recent.popleft()
+            amount, key = Decimal(<span class="hljs-built_in">str</span>(args.get(<span class="hljs-string">&quot;amount&quot;</span>, <span class="hljs-string">&quot;0&quot;</span>))), (args.get(<span class="hljs-string">&quot;merchant&quot;</span>), day)
+            <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(<span class="hljs-variable language_">self</span>.recent) &gt;= <span class="hljs-number">3</span>:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;velocity limit: at most 3 purchases per 10 minutes&quot;</span>
+            <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.daily[key] + amount &gt; <span class="hljs-variable language_">self</span>.merchant_daily_cap:
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;daily cap for this merchant reached&quot;</span>
+            <span class="hljs-keyword">if</span> <span class="hljs-variable language_">self</span>.tainted <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> <span class="hljs-variable language_">self</span>.approve(<span class="hljs-variable language_">self</span>.grant, args):
+                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;untrusted content in context; the user declined&quot;</span>
+        reason = <span class="hljs-built_in">super</span>().check(name, args)
+        <span class="hljs-keyword">if</span> reason <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">and</span> spec <span class="hljs-keyword">and</span> spec.spends:   <span class="hljs-comment"># record only purchases that will run</span>
+            <span class="hljs-variable language_">self</span>.recent.append(time.time())
+            <span class="hljs-variable language_">self</span>.daily[(args.get(<span class="hljs-string">&quot;merchant&quot;</span>), datetime.date.today().isoformat())] += Decimal(<span class="hljs-built_in">str</span>(args[<span class="hljs-string">&quot;amount&quot;</span>]))
+        <span class="hljs-keyword">return</span> reason</code></pre></div>
+<p> One subtlety: when <code>tainted</code> is set and the amount is also above <code>approve_above</code>, this version asks twice. Merge the two approval conditions if that matters for your UX.</p>
+</li>
+<li><p><strong>Hint:</strong> The verifier is 43 to 128 characters of URL-safe randomness, and the challenge is the unpadded base64url encoding of its SHA-256 digest. The token endpoint recomputes the challenge from the verifier and compares the two in constant time.</p>
+<p> <strong>Sketch:</strong> An attacker holding only the code can&#39;t redeem it, because they don&#39;t have the verifier. They also can&#39;t swap in their own code (injection), because the legitimate client&#39;s verifier won&#39;t match the challenge bound to the attacker&#39;s code. PKCE doesn&#39;t protect a token after it&#39;s issued, which is what audience binding, short lifetimes and sender-constraining are for.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> base64, hashlib, hmac, secrets
+<span class="hljs-keyword">from</span> urllib.parse <span class="hljs-keyword">import</span> urlencode
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">b64url</span>(<span class="hljs-params">raw: <span class="hljs-built_in">bytes</span></span>) -&gt; <span class="hljs-built_in">str</span>:
+    <span class="hljs-keyword">return</span> base64.urlsafe_b64encode(raw).rstrip(<span class="hljs-string">b&quot;=&quot;</span>).decode()
+
+verifier = b64url(secrets.token_bytes(<span class="hljs-number">32</span>))                    <span class="hljs-comment"># 43 characters</span>
+challenge = b64url(hashlib.sha256(verifier.encode()).digest())
+url = <span class="hljs-string">&quot;https://auth.example.com/authorize?&quot;</span> + urlencode({
+    <span class="hljs-string">&quot;response_type&quot;</span>: <span class="hljs-string">&quot;code&quot;</span>, <span class="hljs-string">&quot;client_id&quot;</span>: <span class="hljs-string">&quot;https://agent.example.com/client.json&quot;</span>,
+    <span class="hljs-string">&quot;redirect_uri&quot;</span>: <span class="hljs-string">&quot;http://127.0.0.1:8765/callback&quot;</span>, <span class="hljs-string">&quot;scope&quot;</span>: <span class="hljs-string">&quot;calendar.events&quot;</span>,
+    <span class="hljs-string">&quot;resource&quot;</span>: <span class="hljs-string">&quot;https://calendar.example.com&quot;</span>, <span class="hljs-string">&quot;state&quot;</span>: secrets.token_urlsafe(<span class="hljs-number">16</span>),
+    <span class="hljs-string">&quot;code_challenge&quot;</span>: challenge, <span class="hljs-string">&quot;code_challenge_method&quot;</span>: <span class="hljs-string">&quot;S256&quot;</span>})
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">token_endpoint_check</span>(<span class="hljs-params">stored_challenge: <span class="hljs-built_in">str</span>, presented_verifier: <span class="hljs-built_in">str</span></span>) -&gt; <span class="hljs-built_in">bool</span>:
+    recomputed = b64url(hashlib.sha256(presented_verifier.encode()).digest())
+    <span class="hljs-keyword">return</span> hmac.compare_digest(recomputed, stored_challenge)</code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Decode the <code>PAYMENT-REQUIRED</code> header, iterate over <code>accepts</code>, and choose the first option your policy allows. Amounts are strings in the asset&#39;s smallest unit, so convert using the asset&#39;s decimals and never use floats.</p>
+<p> <strong>Sketch:</strong> The wallet key lives in a signer service outside the model and the sandbox, and that service applies the same policy again before signing (defense in depth). The resource&#39;s description, error text and any content returned by paid endpoints must never change the policy or the budget. A page saying &quot;your limit has been raised&quot; is just untrusted text. Log every signed payment with the resource URL, payee and amount for reconciliation.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> time
+<span class="hljs-keyword">from</span> decimal <span class="hljs-keyword">import</span> Decimal
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">should_pay</span>(<span class="hljs-params">payment_required: <span class="hljs-built_in">dict</span>, policy: <span class="hljs-built_in">dict</span>, ledger: <span class="hljs-built_in">list</span>[<span class="hljs-built_in">tuple</span>[<span class="hljs-built_in">float</span>, Decimal]]</span>) -&gt; <span class="hljs-built_in">dict</span> | <span class="hljs-literal">None</span>:
+    day_ago = time.time() - <span class="hljs-number">86_400</span>
+    spent_today = <span class="hljs-built_in">sum</span>(amount <span class="hljs-keyword">for</span> ts, amount <span class="hljs-keyword">in</span> ledger <span class="hljs-keyword">if</span> ts &gt; day_ago)
+    <span class="hljs-keyword">for</span> option <span class="hljs-keyword">in</span> payment_required.get(<span class="hljs-string">&quot;accepts&quot;</span>, []):
+        asset = policy[<span class="hljs-string">&quot;assets&quot;</span>].get((option.get(<span class="hljs-string">&quot;network&quot;</span>), option.get(<span class="hljs-string">&quot;asset&quot;</span>)))
+        <span class="hljs-keyword">if</span> asset <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">or</span> option.get(<span class="hljs-string">&quot;scheme&quot;</span>) != <span class="hljs-string">&quot;exact&quot;</span>:
+            <span class="hljs-keyword">continue</span>                                   <span class="hljs-comment"># unknown network, asset or scheme</span>
+        <span class="hljs-keyword">if</span> option.get(<span class="hljs-string">&quot;payTo&quot;</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> policy[<span class="hljs-string">&quot;payees&quot;</span>]:
+            <span class="hljs-keyword">continue</span>
+        amount = Decimal(option[<span class="hljs-string">&quot;amount&quot;</span>]).scaleb(-asset[<span class="hljs-string">&quot;decimals&quot;</span>])  <span class="hljs-comment"># atomic units -&gt; dollars</span>
+        <span class="hljs-keyword">if</span> amount &lt;= policy[<span class="hljs-string">&quot;max_per_request&quot;</span>] <span class="hljs-keyword">and</span> spent_today + amount &lt;= policy[<span class="hljs-string">&quot;daily_budget&quot;</span>]:
+            <span class="hljs-keyword">return</span> option                              <span class="hljs-comment"># caller signs this option and records it</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">None</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Work through the AP2 v0.2 concepts in turn: open Checkout and Payment Mandates with constraints, the agent&#39;s key in <code>cnf</code>, a short <code>exp</code>, a merchant-signed checkout, and closed mandates bound by hash. Then ask what the constraints <em>can&#39;t</em> express.</p>
+<p> <strong>Sketch:</strong></p>
+<ul>
+<li><strong>Open Checkout Mandate:</strong> allowed merchants (the box office and the named reseller), line items (two tickets for the Saturday show), the agent&#39;s public key, expiry Friday 23:59.</li>
+<li><strong>Open Payment Mandate:</strong> allowed payees (the same two merchants), an amount range with a maximum of $300, single use (or a budget of $300 with one recurrence), an allowed payment instrument, a reference to the open Checkout Mandate, and the same expiry.</li>
+<li><strong>Merchant verifies:</strong> the agent&#39;s signature on the closed Checkout Mandate, that the key matches the user-signed open mandate, that its <code>checkout_hash</code> matches the merchant&#39;s own latest signed checkout, and that the line-item and merchant constraints are satisfied.</li>
+<li><strong>Credential provider verifies:</strong> the user&#39;s signature on the open Payment Mandate, the agent&#39;s signature on the closed one, the binding between them (<code>sd_hash</code>), the amount and payee against the constraints, and that the mandate hasn&#39;t expired or already been used. Only then does it release a credential scoped to this transaction.</li>
+<li><strong>Double spend:</strong> the agent can&#39;t present another closed mandate under the same open mandate without a rejection receipt for the previous one, and the credential provider tracks usage and may reject overlapping mandates.</li>
+<li><strong>Dispute evidence:</strong> the user-signed open mandates, the agent-signed closed mandates, the merchant-signed checkout, and the checkout and payment receipts.</li>
+<li><strong>Residual attack:</strong> injected content (a fake &quot;official seat map&quot;) steers the agent toward the worst seats or an inflated-fee listing that still fits under $300 at an allowed merchant. Constraints bound the loss but can&#39;t express &quot;best value&quot;. Mitigations: tighter constraints (section, maximum price per ticket), or a human-present confirmation if the price exceeds the user&#39;s typical range.</li>
+</ul>
+</li>
+</ol>
+</details>
+
+<h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
+<div class="quiz" data-quiz="agent-identity-and-payments" data-total="7">
+
+<div class="quiz-q" data-correct="3">
+  <div class="quiz-question"><span class="quiz-num">1</span><div>A shopping agent&#39;s spend cap is written in its system prompt (&quot;never spend more than $100&quot;). Why is that insufficient?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model can&#39;t do reliable arithmetic on currency amounts across many purchases</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>System prompts are silently dropped from context once a conversation grows long</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Payment APIs ignore any spending limit that doesn&#39;t arrive in a signed mandate</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Injected text can override a prompt, so the cap must be enforced in code</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt is a probabilistic request to a model that may be hijacked. A cap enforced by the broker, or by the payment token&#39;s allowance or issuer controls, holds no matter what the model was persuaded to do. Arithmetic errors and context limits are real, but the core problem is that the control lives where the attacker&#39;s text can reach it.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">2</span><div>What does PKCE protect against in the authorization code flow?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A stolen authorization code being redeemed without the verifier</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An access token being replayed at a different API than the one intended</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A refresh token being read from the agent host&#39;s storage by local malware</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The user approving broader scopes than the agent really needs for the task</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The client sends a hash of a secret verifier with the authorization request and must present the verifier to redeem the code, so an intercepted code is useless. Replay at another API is addressed by audience binding, over-broad consent by scope design, and refresh-token theft by vaulting, rotation and sender-constraining.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>An MCP server answers a tool call with 403 and <code>error=&quot;insufficient_scope&quot;, scope=&quot;files:write&quot;</code>. The client already holds a <code>files:read</code> token. What should it do?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Forward the user&#39;s upstream API token, which already includes write access</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry the call with the same token, since 403 responses are usually transient</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Re-authorize for files:read plus files:write, then retry a few times</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Request a new token for files:write only, replacing the read token entirely</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The MCP spec describes step-up authorization: the client requests the union of its previous scopes and the challenged ones, so it keeps the permissions it already had, then retries a bounded number of times. Forwarding an upstream token is forbidden token passthrough, and requesting only the new scope would break operations that need read.</div>
+</div>
+
+<div class="quiz-q" data-correct="1">
+  <div class="quiz-question"><span class="quiz-num">4</span><div>In RFC 8693 token exchange, what is the purpose of the <code>act</code> claim in the issued token?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It lists the actions the token may perform, replacing the older scope claim</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It records who acts for the subject: delegation, not impersonation</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It names the API audience that must accept the newly exchanged token</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It marks the token as single-use so it can&#39;t be exchanged a second time</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> <code>sub</code> identifies the user and <code>act</code> identifies the actor (for example, the agent), so downstream services and audit logs can tell &quot;the agent did this for Alice&quot; apart from &quot;Alice did this&quot;. Permissions stay in <code>scope</code> and the audience in <code>aud</code>.</div>
+</div>
+
+<div class="quiz-q" data-correct="0">
+  <div class="quiz-question"><span class="quiz-num">5</span><div>A website verifies a valid Web Bot Auth signature on a shopping agent&#39;s request. What has it learned?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The request was signed with a key that a named operator published</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The user behind the agent approved the purchase being attempted</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent&#39;s model passed a prompt-injection robustness evaluation</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The traffic comes from a residential IP address, not from a data center</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The signature ties the request to the holder of a key listed in the operator&#39;s published directory, which gives accountability and a stable identity for policy. It says nothing about the user&#39;s authorization (that&#39;s what mandates and tokens are for), the agent&#39;s robustness, or network location.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">6</span><div>In AP2 v0.2&#39;s human-not-present mode, why can a merchant trust a closed Checkout Mandate signed by the agent&#39;s key rather than the user&#39;s?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The merchant&#39;s own LLM reviews the order and confirms it looks reasonable</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent&#39;s provider signs every closed mandate on behalf of all its users</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A user-signed open mandate names that agent key and its constraints</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agent keys are issued by card networks, which accept liability for misuse</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The user signs the open mandate on a trusted surface, and it includes the agent&#39;s public key (<code>cnf</code>), the constraints and an expiry. The verifier checks that the closed mandate was signed by that key and satisfies those constraints, all in deterministic code. AP2 requires verification to be non-agentic, and trusting an agent provider is a separate, optional trust model rather than the reason.</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">7</span><div>Your agent platform keeps a hash-chained, append-only log of every purchase. A customer disputes a charge, saying they never approved it. What can the log alone not establish?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The order in which the agent&#39;s tool calls happened during the session</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Which tool the agent called, with what arguments and policy decision</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the customer personally authorized it, rather than the platform</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Whether entries were edited after being written, in the middle of the chain</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A hash chain is evidence controlled by whoever writes the log, so it shows tampering and sequence but not who authorized the action. Non-repudiation needs a signature made with a key only the customer holds, such as a passkey signature on a mandate, which is why payment protocols put the user&#39;s approval into a signed artifact.</div>
+</div>
+<div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
+</div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true" tabindex="-1">#</a>Further Reading</h2>
+<ul>
+<li><a href="https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization" target="_blank" rel="noopener">MCP Authorization specification (2026-07-28)</a> — the normative rules for PKCE, resource indicators, scope challenges and step-up authorization.</li>
+<li><a href="https://modelcontextprotocol.io/extensions/auth/enterprise-managed-authorization" target="_blank" rel="noopener">MCP Enterprise-Managed Authorization</a> — how ID-JAG and token exchange put an enterprise IdP in charge of agent access.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc8693" target="_blank" rel="noopener">RFC 8693: OAuth 2.0 Token Exchange</a> — subject and actor tokens, and the <code>act</code> claim for delegation.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9700" target="_blank" rel="noopener">RFC 9700: Best Current Practice for OAuth 2.0 Security</a> — the consolidated threat model and mitigations every OAuth client should follow.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9421" target="_blank" rel="noopener">RFC 9421: HTTP Message Signatures</a> — the signing standard underneath Web Bot Auth.</li>
+<li><a href="https://datatracker.ietf.org/group/webbotauth/about/" target="_blank" rel="noopener">IETF Web Bot Auth working group</a> — charter, current drafts and the status of signed agent traffic.</li>
+<li><a href="https://github.com/google-agentic-commerce/AP2" target="_blank" rel="noopener">Agent Payments Protocol (AP2) repository</a> — the v0.2 specification (checkout and payment mandates, security considerations) and samples.</li>
+<li><a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol" target="_blank" rel="noopener">Agentic Commerce Protocol repository</a> — checkout and delegated-payment specs, versioned by date.</li>
+<li><a href="https://github.com/x402-foundation/x402" target="_blank" rel="noopener">x402 repository</a> — the HTTP 402 payment flow, schemes and reference SDKs.</li>
+</ul>
+
+  </article>
+  <section class="complete-box">
+    <div><h3>Finished this lesson?</h3><p>Mark it complete to track your progress. Your progress is saved in this browser.</p></div>
+    <button type="button" class="btn btn-primary complete-btn" data-slug="agent-identity-and-payments">Mark as complete</button>
+  </section>
+  <section class="notes-box">
+    <label for="notes-agent-identity-and-payments"><strong>📝 Your notes</strong> <small>(saved automatically in your browser)</small></label>
+    <textarea id="notes-agent-identity-and-payments" class="notes" data-slug="agent-identity-and-payments" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
+  </section>
+  <nav class="pager">
+    <a class="pager-prev" href="guardrails-and-sandboxing.html"><small>← Previous</small><span>Guardrails, Permissions &amp; Sandboxing</span></a>
+    <a class="pager-next" href="agent-safety-alignment.html"><small>Next →</small><span>Safety, Alignment &amp; Governance</span></a>
+  </nav>
+</main>
+<aside class="toc" aria-label="On this page"><div class="toc-inner"><p class="toc-title">On this page</p><ul>
+<li class="toc-h2"><a href="#why-agent-identity-matters">Why Agent Identity Matters</a></li>
+<li class="toc-h2"><a href="#authentication-vs-authorization">Authentication vs. Authorization</a></li>
+<li class="toc-h2"><a href="#delegated-authorization-with-oauth">Delegated Authorization with OAuth</a></li>
+<li class="toc-h3"><a href="#authorization-code-with-pkce">Authorization code with PKCE</a></li>
+<li class="toc-h3"><a href="#scopes-audiences-and-lifetimes">Scopes, audiences and lifetimes</a></li>
+<li class="toc-h3"><a href="#refresh-and-revocation">Refresh and revocation</a></li>
+<li class="toc-h3"><a href="#token-exchange-and-on-behalf-of">Token exchange and on-behalf-of</a></li>
+<li class="toc-h3"><a href="#consent-screens-that-mean-something">Consent screens that mean something</a></li>
+<li class="toc-h2"><a href="#how-mcp-applies-oauth-21">How MCP Applies OAuth 2.1</a></li>
+<li class="toc-h2"><a href="#keep-secrets-out-of-the-model">Keep Secrets Out of the Model</a></li>
+<li class="toc-h3"><a href="#per-tool-and-per-action-scoping">Per-tool and per-action scoping</a></li>
+<li class="toc-h3"><a href="#a-credential-broker-tool-executor">A credential-broker tool executor</a></li>
+<li class="toc-h2"><a href="#human-approval-for-high-value-actions">Human Approval for High-Value Actions</a></li>
+<li class="toc-h2"><a href="#agent-identity-on-the-web">Agent Identity on the Web</a></li>
+<li class="toc-h3"><a href="#signed-agent-requests-web-bot-auth">Signed agent requests: Web Bot Auth</a></li>
+<li class="toc-h3"><a href="#verifiable-credentials-and-know-your-agent">Verifiable credentials and &quot;know your agent&quot;</a></li>
+<li class="toc-h2"><a href="#audit-logging-and-non-repudiation">Audit Logging and Non-Repudiation</a></li>
+<li class="toc-h2"><a href="#agentic-payments">Agentic Payments</a></li>
+<li class="toc-h3"><a href="#ap2-and-payment-mandates">AP2 and payment mandates</a></li>
+<li class="toc-h3"><a href="#acp-and-delegated-payment-tokens">ACP and delegated payment tokens</a></li>
+<li class="toc-h3"><a href="#ucp-the-commerce-layer">UCP: the commerce layer</a></li>
+<li class="toc-h3"><a href="#x402-payments-inside-http">x402: payments inside HTTP</a></li>
+<li class="toc-h3"><a href="#card-network-agent-programs">Card-network agent programs</a></li>
+<li class="toc-h2"><a href="#spend-controls-fraud-and-injection">Spend Controls, Fraud and Injection</a></li>
+<li class="toc-h2"><a href="#regulation-and-liability">Regulation and Liability</a></li>
+<li class="toc-h2"><a href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h2"><a href="#exercises">Exercises</a></li>
+<li class="toc-h2"><a href="#check-your-understanding">Check Your Understanding</a></li>
+<li class="toc-h2"><a href="#further-reading">Further Reading</a></li>
+</ul></div></aside>
+</div>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
+      <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
+    <div class="footer-cols">
+      <div><p class="footer-h">Learn</p><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
+      <div><p class="footer-h">Practice</p><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><p class="footer-h">Reference</p><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
+    </div>
+  </div>
+  <p class="footer-note">Content current as of November 2026. The field moves fast — principles age slower than product names. Progress is stored only in your browser.</p>
+</footer>
+<div class="search-modal" hidden role="dialog" aria-modal="true" aria-label="Search">
+  <div class="search-panel">
+    <div class="search-input-row"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><input type="search" placeholder="Search lessons, glossary, papers…" aria-label="Search" autocomplete="off"><kbd>Esc</kbd></div>
+    <div class="search-results" role="listbox"></div>
+    <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Esc</kbd> close</span></div>
+  </div>
+</div>
+<script src="assets/course-data.js"></script>
+<script src="assets/app.js"></script>
+
+</body>
+</html>
