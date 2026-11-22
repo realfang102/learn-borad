@@ -1,7 +1,7 @@
 ---
 title: "Single-Agent Architectures"
 description: "The design space of single agents: ReAct, MRKL, Self-Ask, Plan-and-Execute, ReWOO, LLMCompiler, Reflexion, LATS, cognitive architectures, state-machine graphs, routers and blackboards, and why one agent with good tools is the default."
-duration: 45
+duration: 35
 level: advanced
 objectives:
   - Trace how ReAct, Self-Ask, Plan-and-Execute, ReWOO, LLMCompiler, Reflexion and LATS each structure reasoning and action

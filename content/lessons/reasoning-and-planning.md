@@ -276,7 +276,7 @@ sequenceDiagram
     participant M as Reflection memory
     A->>E: Attempt 1
     E-->>R: Fail (2 of 5 tests)
-    R->>M: "Missed the empty-list case; check edge cases first"
+    R->>M: "Missed the empty-list case, check edge cases first"
     M-->>A: Reflections injected into prompt
     A->>E: Attempt 2
     E-->>A: Pass

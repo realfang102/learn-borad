@@ -65,6 +65,7 @@
         <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
         <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
         <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
       </ol>
     </details>
 <details class="side-module"  data-module="agent-types">
@@ -81,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
 <details class="side-module" open data-module="production">
@@ -128,7 +130,7 @@
       <span>⏱ 38 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 29 of 35</span>
+      <span>Lesson 31 of 37</span>
       <span class="lesson-status" data-status-for="deployment"></span>
     </div>
   </header>
@@ -137,10 +139,10 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="evaluating-agents.html">Evaluating Agents</a>, <a href="observability.html">Observability &amp; Debugging</a>, <a href="reliability.html">Reliability &amp; Durable Execution</a></p>
   </section>
   <article class="prose">
-<p>The agent works on your laptop. It reads tickets, queries the order database, runs a little Python to check refund math, and drafts replies your support leads love. Now it needs to serve two thousand concurrent users across forty customer organizations. It has to execute model-written code without endangering anything, use credentials it must never see, survive a model upgrade, and page someone at 3 a.m. when it starts looping. None of that is in the prompt.</p>
+<p>The agent works on your laptop: it reads tickets, queries the order database, runs a little Python to check refund math, and drafts replies your support leads love. Now it must serve two thousand concurrent users across forty customer organizations, execute model-written code safely, use credentials it must never see, survive a model upgrade, and page someone at 3 a.m. when it loops. None of that is in the prompt.</p>
 <p><strong>Deploying</strong> an agent means building the system around the loop: where it runs, how it&#39;s triggered, where its state lives, what it&#39;s allowed to touch, how new versions roll out, and how you find out it&#39;s broken. <strong>Operating</strong> it means keeping all of that healthy over time. This lesson covers both, ending with a production readiness checklist you can use for real launches.</p>
 <h2 id="deployment-shapes"><a class="anchor" href="#deployment-shapes" aria-hidden="true">#</a>Deployment Shapes</h2>
-<p>How an agent gets triggered and how its results get back to the caller shapes everything else in the design. Six common shapes:</p>
+<p>How an agent is triggered and how results return shapes everything else. Six common shapes:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -189,7 +191,7 @@
 </tbody></table>
 </div>
 <p>In practice these combine. A common production pattern is <strong>async queue + streaming</strong>: the API enqueues the run and immediately returns a stream URL, a worker executes the checkpointed loop from <a href="reliability.html">reliability</a>, and progress events flow back over <strong>Server-Sent Events (SSE)</strong>. If the browser disconnects, it reconnects with the last event ID and resumes. If the worker dies, another worker resumes the run from its checkpoint.</p>
-<p>Webhook-triggered agents need two extra disciplines. First, <strong>verify signatures</strong>, since anyone can POST to a URL. Second, <strong>deduplicate by event ID</strong>, because most webhook senders deliver at least once. Background agents that open PRs are the most forgiving shape for risky work: their output is a <em>proposal</em> that a human reviews, which makes it a natural <a href="human-in-the-loop.html">human-in-the-loop</a> boundary. See <a href="coding-agents.html">coding agents</a>.</p>
+<p>Webhook-triggered agents must <strong>verify signatures</strong> and <strong>deduplicate by event ID</strong>, since most senders deliver at least once. Background agents that open PRs are the most forgiving shape for risky work: their output is a <em>proposal</em> a human reviews, a natural <a href="human-in-the-loop.html">human-in-the-loop</a> boundary (see <a href="coding-agents.html">coding agents</a>).</p>
 <p>Here&#39;s a minimal streaming endpoint for a short conversational agent. It uses FastAPI and the async Anthropic client, with POST plus a streamed response, the pattern most chat frontends use:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
 
@@ -224,7 +226,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
         <span class="hljs-keyword">yield</span> <span class="hljs-string">f&quot;data: <span class="hljs-subst">{json.dumps({<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;done&#x27;</span>, <span class="hljs-string">&#x27;stop_reason&#x27;</span>: final.stop_reason}</span>)}\n\n&quot;</span>
 
     <span class="hljs-keyword">return</span> StreamingResponse(sse(), media_type=<span class="hljs-string">&quot;text/event-stream&quot;</span>)</code></pre></div>
-<p>For multi-step agents that call tools, move the loop into a worker and have this endpoint stream the worker&#39;s events, so a dropped connection doesn&#39;t kill the run.</p>
+<p>For multi-step tool-using agents, run the loop in a worker and stream its events, so a dropped connection doesn&#39;t kill the run.</p>
 <h2 id="a-reference-architecture"><a class="anchor" href="#a-reference-architecture" aria-hidden="true">#</a>A Reference Architecture</h2>
 <p>Most production agent platforms end up with roughly the same components:</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
@@ -242,9 +244,9 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
     SM[&quot;Secrets manager&quot;] --&gt; EP
     W --&gt; DB[(&quot;State store: sessions, checkpoints&quot;)]
     W --&gt; OBS[&quot;Traces, metrics, audit log&quot;]</pre></figure>
-<p>Two components are easy to overlook. An <strong>LLM gateway</strong> is an internal service that every model call passes through. It centralizes retries, fallbacks, per-tenant metering, spend caps and logging, so individual agents don&#39;t each reimplement them. An <strong>egress proxy</strong> is the single path to the outside world for both workers and sandboxes. It enforces a host allowlist and injects credentials, as described below.</p>
+<p>Two components are easy to overlook. An <strong>LLM gateway</strong> is an internal service every model call passes through, centralizing retries, fallbacks, per-tenant metering, spend caps and logging. An <strong>egress proxy</strong> is the only path to the outside world for workers and sandboxes. It enforces a host allowlist and injects credentials (see below).</p>
 <h2 id="sandboxing-tool-execution"><a class="anchor" href="#sandboxing-tool-execution" aria-hidden="true">#</a>Sandboxing Tool Execution</h2>
-<p>If your agent runs code it wrote, or code from a repository it cloned, treat that code as <strong>untrusted</strong>. Prompt injection, a malicious dependency, or plain model error can all produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox is what limits the damage. See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a> for the threat model. Isolation options, from weakest to strongest:</p>
+<p>Treat code your agent wrote or cloned as <strong>untrusted</strong>: prompt injection, a malicious dependency or plain model error can produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox limits the damage (threat model: <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>). From weakest to strongest:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -280,7 +282,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </tr>
 </tbody></table>
 </div>
-<p>For multi-tenant execution of untrusted code, the industry norm as of 2026 is gVisor or microVMs, not plain containers. Hosted sandbox services let you skip running this infrastructure yourself. Examples include <strong>E2B</strong> (Firecracker-based sandboxes built for AI agents), <strong>Modal</strong> (serverless containers and sandboxes with gVisor isolation), and <strong>Daytona</strong> (fast-starting development environments for agent workloads). Features change quickly, so compare isolation model, cold-start time, maximum session length, persistence and pricing against your workload.</p>
+<p>For multi-tenant untrusted code, the norm as of 2026 is gVisor or microVMs, not plain containers. Hosted sandbox services spare you running this yourself: <strong>E2B</strong> (Firecracker-based sandboxes built for AI agents), <strong>Modal</strong> (serverless containers and sandboxes with gVisor isolation) and <strong>Daytona</strong> (fast-starting development environments for agent workloads). Compare isolation model, cold-start time, maximum session length, persistence and pricing against your workload.</p>
 <p>Whatever you choose, configure it defensively:</p>
 <ul>
 <li><strong>Network egress denied by default.</strong> Allow specific hosts through the egress proxy only.</li>
@@ -298,19 +300,19 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <li><strong>Large artifacts</strong> (files, screenshots, tool outputs over a few KB) go in blob storage, with only a reference kept in history.</li>
 <li><strong>Long-term memory</strong> goes in a store namespaced per user and per tenant (see <a href="memory.html">memory</a>).</li>
 </ul>
-<p>Give every store a <strong>retention policy</strong>. Conversation logs are some of the most sensitive data your company holds.</p>
+<p>Give every store a <strong>retention policy</strong>: conversation logs are among the most sensitive data you hold.</p>
 <h3 id="secrets-management"><a class="anchor" href="#secrets-management" aria-hidden="true">#</a>Secrets management</h3>
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Secrets never enter the model&#39;s context</div><div class="callout-body"><p>Anything in the context window can be echoed into a response, written into a log or trace, or exfiltrated by a prompt injection. An agent should be able to <em>use</em> a credential without ever <em>seeing</em> it.</p>
 </div></aside>
 <p>Three practices make that possible:</p>
 <ol>
 <li><strong>Keep credentials out of prompts, tool results and sandboxes.</strong> Tools receive credentials from the harness at execution time. The model sees only <code>lookup_order(order_id)</code>, never an API key.</li>
-<li><strong>Use scoped, short-lived credentials.</strong> Issue per-task tokens with the narrowest scope that works: read-only where possible, limited to one repository or one tenant, and expiring in minutes to hours. Examples include cloud workload identity and STS-style temporary credentials, GitHub App installation tokens (which expire after an hour), and OAuth tokens with minimal scopes. A leaked short-lived, narrowly scoped token is a contained incident. A leaked admin key is a disaster.</li>
-<li><strong>Inject credentials at an egress proxy.</strong> Code in the sandbox calls <code>https://api.github.com/...</code> with no credentials. The proxy checks the destination against an allowlist, attaches the right token from the secrets manager, and forwards the request. The secret never exists inside the sandbox, and the allowlist also blocks exfiltration to attacker-controlled hosts. Managed platforms increasingly provide this pattern built in. For example, Claude Managed Agents keeps credentials in <strong>vaults</strong> that are attached to sessions rather than baked into agent definitions.</li>
+<li><strong>Use scoped, short-lived credentials.</strong> Issue per-task tokens with the narrowest scope that works (read-only where possible, one repository or tenant) that expire in minutes to hours: cloud workload identity and STS-style temporary credentials, GitHub App installation tokens (one-hour lifetime), minimal-scope OAuth tokens. A leaked short-lived scoped token is a contained incident; a leaked admin key is a disaster.</li>
+<li><strong>Inject credentials at an egress proxy.</strong> Sandbox code calls <code>https://api.github.com/...</code> with no credentials. The proxy checks the destination against an allowlist, attaches the right token from the secrets manager, and forwards the request. The secret never exists in the sandbox, and the allowlist blocks exfiltration to attacker hosts. Managed platforms increasingly build this in. Claude Managed Agents, for example, keeps credentials in <strong>vaults</strong> attached to sessions, not in agent definitions.</li>
 </ol>
 <p>Store root secrets in a secrets manager (HashiCorp Vault, AWS Secrets Manager, Google Secret Manager), rotate them, and scan logs and outputs for anything that looks like a leaked key.</p>
 <h3 id="multi-tenancy-and-isolation"><a class="anchor" href="#multi-tenancy-and-isolation" aria-hidden="true">#</a>Multi-tenancy and isolation</h3>
-<p>When one deployment serves many customers, a cross-tenant leak is the worst possible bug. Design for isolation at every layer:</p>
+<p>When one deployment serves many customers, a cross-tenant leak is the worst possible bug. Isolate at every layer:</p>
 <ul>
 <li><strong>Propagate a tenant ID</strong> through every request, tool call, query, log line and trace. Enforce it in the data layer, for example with row-level security, rather than trusting the model or the tool code to filter correctly.</li>
 <li><strong>Scope tools per tenant.</strong> The <code>search_docs</code> tool for tenant A physically cannot query tenant B&#39;s index.</li>
@@ -321,13 +323,13 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </ul>
 <h2 id="rate-limits-and-quotas"><a class="anchor" href="#rate-limits-and-quotas" aria-hidden="true">#</a>Rate Limits and Quotas</h2>
 <p>Model providers enforce rate limits per organization and model, typically as <strong>requests per minute (RPM)</strong>, <strong>input tokens per minute (ITPM)</strong> and <strong>output tokens per minute (OTPM)</strong>. Exceeding any of them returns a 429 with a <code>retry-after</code> header. On the Claude API, cache reads don&#39;t count toward input-token rate limits for most models, so good <a href="cost-and-latency.html">prompt caching</a> raises your effective throughput as well as cutting cost.</p>
-<p>Agents make rate limits harder to manage because one user action can trigger dozens of calls in a burst. Build your own controls in front of the provider&#39;s:</p>
+<p>One user action can trigger dozens of calls in a burst, so build your own controls in front of the provider&#39;s:</p>
 <ul>
-<li><strong>Admission control.</strong> Cap concurrent agent runs globally and per tenant, and queue the rest. A queue with backpressure beats a thundering herd of 429s.</li>
-<li><strong>Token-bucket quotas</strong> per user and per tenant, metered in tokens or dollars, not just requests.</li>
-<li><strong>Priority lanes.</strong> Interactive traffic gets reserved headroom, and batch or background work takes whatever is left (or goes through the Batch API).</li>
-<li><strong>Daily spend caps</strong> per tenant and per agent, enforced in the LLM gateway, with alerts at 50% and 80%.</li>
-<li><strong>Headroom monitoring.</strong> Track the <code>x-ratelimit-remaining-*</code> response headers and request limit increases <em>before</em> launch, not during it.</li>
+<li><strong>Admission control.</strong> Cap concurrent runs globally and per tenant, and queue the rest. Backpressure beats a thundering herd of 429s.</li>
+<li><strong>Token-bucket quotas</strong> per user and tenant, metered in tokens or dollars, not just requests.</li>
+<li><strong>Priority lanes.</strong> Reserve headroom for interactive traffic; background work takes the rest (or uses the Batch API).</li>
+<li><strong>Daily spend caps</strong> per tenant and agent, enforced in the LLM gateway, with alerts at 50% and 80%.</li>
+<li><strong>Headroom monitoring.</strong> Watch the <code>x-ratelimit-remaining-*</code> headers, and request limit increases <em>before</em> launch.</li>
 </ul>
 <h2 id="versioning-releases-and-rollbacks"><a class="anchor" href="#versioning-releases-and-rollbacks" aria-hidden="true">#</a>Versioning, Releases and Rollbacks</h2>
 <h3 id="what-a-version-is"><a class="anchor" href="#what-a-version-is" aria-hidden="true">#</a>What a version is</h3>
@@ -346,11 +348,11 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <span class="hljs-attr">budgets:</span> {<span class="hljs-attr">max_steps:</span> <span class="hljs-number">30</span>, <span class="hljs-attr">max_usd:</span> <span class="hljs-number">1.50</span>, <span class="hljs-attr">max_seconds:</span> <span class="hljs-number">300</span>}
 <span class="hljs-attr">rollout:</span> {<span class="hljs-attr">strategy:</span> <span class="hljs-string">canary</span>, <span class="hljs-attr">stages:</span> [<span class="hljs-number">1</span>, <span class="hljs-number">5</span>, <span class="hljs-number">25</span>, <span class="hljs-number">100</span>]}</code></pre></div>
 <p>Stamp the resolved version (or a hash of the config) on every trace, so any behavior you see in production traces back to an exact configuration.</p>
-<p><strong>Pin model IDs explicitly</strong> and treat a model upgrade as a migration: re-run evals, re-tune prompts, and check for API behavior changes. A new model can be better on average and still worse on <em>your</em> hardest cases.</p>
+<p><strong>Pin model IDs explicitly</strong> and treat a model upgrade as a migration: re-run evals, re-tune prompts, check API behavior changes. A model that&#39;s better on average can still be worse on <em>your</em> hardest cases.</p>
 <p><strong>Keep in-flight sessions on their original version.</strong> Changing the system prompt or tool list in the middle of a conversation invalidates its prompt cache, and on current Claude models it also invalidates the model&#39;s preserved earlier reasoning. Make new versions apply to <em>new</em> sessions, and let existing sessions finish on the version they started with.</p>
 <h3 id="shadow-canary-rollback"><a class="anchor" href="#shadow-canary-rollback" aria-hidden="true">#</a>Shadow, canary, rollback</h3>
 <ul>
-<li><strong>Shadow deployment.</strong> Run the new version on a copy of live traffic without showing its output to users, and compare outcomes, cost and latency against production. Shadow agents must use <strong>stubbed or read-only side-effecting tools</strong>, or you&#39;ll send every customer two emails. Shadow runs roughly double spend while active, so keep them short.</li>
+<li><strong>Shadow deployment.</strong> Run the new version on a copy of live traffic, hidden from users, and compare outcomes, cost and latency with production. Shadow agents need <strong>stubbed or read-only side-effecting tools</strong>, or every customer gets two emails. Shadows roughly double spend, so keep them short.</li>
 <li><strong>Canary release.</strong> Route a small share of <em>new</em> sessions (1%, then 5%, 25%, 100%) to the new version. At each stage, compare success rate, escalation rate, cost per task, p95 latency and guardrail triggers against the baseline, and roll back automatically on regression.</li>
 <li><strong>Rollback</strong> should be one command that points new sessions back at the previous config. That only works if old prompts and tool versions stay deployable, and if tool and schema changes stay backward-compatible for at least one release.</li>
 </ul>
@@ -372,7 +374,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
         <span class="hljs-attr">env:</span>
           <span class="hljs-attr">ANTHROPIC_API_KEY:</span> <span class="hljs-string">${{</span> <span class="hljs-string">secrets.ANTHROPIC_EVAL_KEY</span> <span class="hljs-string">}}</span>   <span class="hljs-comment"># separate, spend-capped eval key</span>
       <span class="hljs-bullet">-</span> <span class="hljs-attr">run:</span> <span class="hljs-string">python</span> <span class="hljs-string">-m</span> <span class="hljs-string">evals.gate</span> <span class="hljs-string">results.json</span> <span class="hljs-string">--baseline</span> <span class="hljs-string">main</span> <span class="hljs-string">--min-success</span> <span class="hljs-number">0.92</span> <span class="hljs-string">--max-cost-per-task</span> <span class="hljs-number">1.50</span> <span class="hljs-string">--max-p95-seconds</span> <span class="hljs-number">120</span></code></pre></div>
-<p>(<code>evals.run</code> and <code>evals.gate</code> stand in for your own eval tooling.) Gate on <strong>quality, cost and latency together</strong>, compared against the main branch&#39;s baseline rather than fixed numbers alone. Include a safety suite (prompt-injection attempts, out-of-scope requests) as well. Agent evals are noisy, so use enough cases and repeated trials that the gate isn&#39;t a coin flip, and run the full, expensive suite nightly rather than on every commit.</p>
+<p>(<code>evals.run</code> and <code>evals.gate</code> stand in for your own tooling.) Gate on <strong>quality, cost and latency together</strong>, against the main branch&#39;s baseline, and include a safety suite (prompt-injection attempts, out-of-scope requests). Agent evals are noisy, so use enough cases and repeats that the gate isn&#39;t a coin flip, and run the full, expensive suite nightly rather than per commit.</p>
 <h2 id="monitoring-and-incident-response"><a class="anchor" href="#monitoring-and-incident-response" aria-hidden="true">#</a>Monitoring and Incident Response</h2>
 <h3 id="what-to-watch"><a class="anchor" href="#what-to-watch" aria-hidden="true">#</a>What to watch</h3>
 <p><a href="observability.html">Observability</a> gives you traces. Operations turns them into signals and alerts:</p>
@@ -380,53 +382,43 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <thead>
 <tr>
 <th>Signal</th>
-<th>Why it matters</th>
 <th>Example alert</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Task success rate (from automatic checks or user feedback)</td>
-<td>The real product metric</td>
 <td>Drops 5 points below the 7-day baseline</td>
 </tr>
 <tr>
 <td>Escalation / handoff rate</td>
-<td>Proxy for quality on unlabeled traffic</td>
 <td>Doubles within an hour</td>
 </tr>
 <tr>
 <td>API errors by type (429, 529, 5xx)</td>
-<td>Capacity and provider health</td>
 <td>529 rate &gt; 5% for 10 min</td>
 </tr>
 <tr>
 <td>p50 / p95 task latency, TTFT</td>
-<td>User experience</td>
 <td>p95 over the SLO for 15 min</td>
 </tr>
 <tr>
 <td>Cost per task, spend per tenant</td>
-<td>Runaway loops, abuse, cache regressions</td>
 <td>Hourly spend over 2× forecast</td>
 </tr>
 <tr>
 <td>Cache hit rate</td>
-<td>Silent prompt-assembly regressions</td>
 <td>Falls below 70% after a deploy</td>
 </tr>
 <tr>
 <td>Steps per task, budget-exhaustion rate</td>
-<td>Looping or confusion</td>
 <td>p95 steps doubles</td>
 </tr>
 <tr>
 <td>Tool error rates</td>
-<td>Downstream outages, schema drift</td>
 <td>Any tool &gt; 10% errors</td>
 </tr>
 <tr>
 <td>Guardrail / injection-detector triggers</td>
-<td>Attacks or new failure modes</td>
 <td>Spike from one tenant</td>
 </tr>
 </tbody></table>
@@ -466,7 +458,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </tr>
 </tbody></table>
 </div>
-<p>Every agent needs <strong>kill switches</strong>: global, per agent, per tool and per tenant, flippable in seconds without a deploy. After each incident, hold a blameless postmortem and turn the failing traces into <strong>regression evals</strong>. That is how the incident stays fixed.</p>
+<p>Every agent needs <strong>kill switches</strong> (global, per agent, per tool, per tenant) that flip in seconds without a deploy. After each incident, hold a blameless postmortem and turn the failing traces into <strong>regression evals</strong> so the fix stays fixed.</p>
 <h2 id="managed-platforms"><a class="anchor" href="#managed-platforms" aria-hidden="true">#</a>Managed Platforms</h2>
 <p>Building all of the above is a significant platform investment. Managed services handle parts of it. As of late 2026, the main options include:</p>
 <div class="table-wrap"><table>
@@ -494,14 +486,14 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </tr>
 </tbody></table>
 </div>
-<p>These products change fast, so check current documentation. The build-vs-buy trade-off comes down to a few questions. Do you need control over the loop, the sandbox, or data location? How portable do you need to be across model providers? Would you rather spend engineering time on the platform or on the product? Many teams start managed and pull pieces in-house as their requirements sharpen. Others keep the loop in their own code and buy only the sandbox. See <a href="agent-frameworks.html">agent frameworks</a>.</p>
+<p>These products change fast, so check current docs. Build-vs-buy turns on how much control you need over the loop, sandbox and data location, how portable you must be across model providers, and where you&#39;d rather spend engineering time. Many teams start managed and pull pieces in-house later, or keep the loop in their own code and buy only the sandbox (see <a href="agent-frameworks.html">agent frameworks</a>).</p>
 <h2 id="compliance"><a class="anchor" href="#compliance" aria-hidden="true">#</a>Compliance</h2>
-<p>Agents touch customer data, take actions, and make decisions, which brings them under the same rules as any other system that does those things, and a few new ones.</p>
+<p>Agents touch customer data, take actions and make decisions, so the usual rules apply, plus a few new ones.</p>
 <ul>
 <li><strong>Data retention.</strong> Know how long your provider retains prompts and outputs, and what zero-data-retention (ZDR) arrangements are available. Requirements can vary by model. For example, as of 2026 Anthropic&#39;s Fable-tier models require 30-day retention, and organizations set to zero retention get errors when calling them, so check before you pick a model. Set retention on your <em>own</em> logs, traces and memory stores too, since those usually hold more than the provider does.</li>
-<li><strong>Data residency.</strong> Customers or regulators may require processing and storage in specific regions. Regional deployments through cloud platforms (Bedrock, Google Cloud, Azure) help, but residency also applies to your traces, vector stores and sandboxes.</li>
-<li><strong>Audit logs.</strong> Keep an immutable record for every run: who or what triggered it, the agent version, every tool call with arguments and results, every human approval, and what data was accessed. When someone asks why the agent issued a refund, the audit log is your answer.</li>
-<li><strong>PII handling.</strong> Redact sensitive fields in traces where you can, restrict who can read raw transcripts, and make deletion requests propagate to conversation stores, memory and backups.</li>
+<li><strong>Data residency.</strong> Customers or regulators may require specific regions. Regional cloud deployments (Bedrock, Google Cloud, Azure) help, but residency also covers your traces, vector stores and sandboxes.</li>
+<li><strong>Audit logs.</strong> Keep an immutable record per run: trigger, agent version, every tool call with arguments and results, every human approval, data accessed. When someone asks why the agent issued a refund, this is your answer.</li>
+<li><strong>PII handling.</strong> Redact sensitive fields in traces, restrict access to raw transcripts, and propagate deletion requests to conversation stores, memory and backups.</li>
 <li><strong>Frameworks.</strong> Map your controls to the frameworks you&#39;re subject to (SOC 2, ISO 27001, HIPAA, GDPR, and AI-specific regulation such as the EU AI Act) early on. Retrofitting audit trails is painful.</li>
 </ul>
 <h2 id="production-readiness-checklist"><a class="anchor" href="#production-readiness-checklist" aria-hidden="true">#</a>Production Readiness Checklist</h2>
@@ -553,9 +545,9 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <ol>
 <li><strong>Pick the shape.</strong> For each agent, choose a deployment shape and justify it: (a) an FAQ bot answering in under 5 seconds; (b) a nightly agent that reconciles invoices; (c) an agent that fixes failing CI builds; (d) a research agent that takes 10–20 minutes per report.</li>
 <li><strong>Secret audit.</strong> Take an agent you&#39;ve built and list every credential it uses. For each one, record where it lives, whether it ever enters the context or the sandbox, its scope and its lifetime. Redesign anything that fails the &quot;never in context, short-lived, least privilege&quot; test.</li>
-<li><strong>Config as code.</strong> Write a versioned YAML config for one of your agents and a loader that computes a stable hash of the resolved config (prompt file contents included). Stamp the hash on every trace, then change one word of the prompt and confirm the hash changes.</li>
+<li><strong>Config as code.</strong> Write a versioned YAML config for an agent and a loader that hashes the resolved config, prompt file contents included. Stamp the hash on every trace and confirm that a one-word prompt change alters it.</li>
 <li><strong>Eval gate.</strong> Build a CI job that runs 20 eval cases against the PR branch and against main, and fails if success drops by more than one case or mean cost per task rises by more than 15%. Run it twice on the same commit and discuss what the noise means for your thresholds.</li>
-<li><strong>Game day.</strong> With a teammate, simulate a &quot;spend spike from one tenant&quot; incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?), and recovery. Then write the postmortem and the regression eval.</li>
+<li><strong>Game day.</strong> Simulate a &quot;spend spike from one tenant&quot; incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?) and recovery, then write the postmortem and regression eval.</li>
 </ol>
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="deployment" data-total="6">
@@ -579,7 +571,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Containers can&#39;t run Python</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Containers are too slow to start</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Namespaces and cgroups isolate resources but share one kernel. gVisor shrinks the kernel attack surface, and Firecracker-style microVMs add hardware virtualization.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Namespaces and cgroups share one kernel. gVisor shrinks the kernel attack surface; microVMs add hardware virtualization.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
@@ -601,7 +593,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API rejects system prompt changes mid-conversation</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Changing the prompt mid-conversation invalidates the prompt cache and, on current models, the model&#39;s preserved earlier reasoning, and it makes behavior hard to attribute to one version</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Apply new versions to new sessions. Sticky versions keep costs predictable, preserve the model&#39;s reasoning continuity, and keep traces attributable.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Apply new versions to new sessions to keep costs predictable, reasoning continuous and traces attributable.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
@@ -635,7 +627,6 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <li><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview" target="_blank" rel="noopener">Vertex AI Agent Engine</a>: Google Cloud&#39;s managed agent runtime.</li>
 <li><a href="https://openai.com/index/introducing-agentkit/" target="_blank" rel="noopener">Introducing AgentKit (OpenAI)</a>: OpenAI&#39;s agent building and deployment toolkit.</li>
 <li><a href="https://sre.google/sre-book/table-of-contents/" target="_blank" rel="noopener">Google SRE Book</a>: SLOs, alerting, incident response and postmortems, all of which apply directly to agents.</li>
-<li><a href="https://12factor.net/" target="_blank" rel="noopener">The Twelve-Factor App</a>: the classic case for config in the environment, stateless processes and disposability.</li>
 <li><a href="https://platform.claude.com/docs/en/api/rate-limits" target="_blank" rel="noopener">Claude API rate limits</a>: how RPM, ITPM and OTPM limits work and which headers report them.</li>
 </ul>
 

@@ -65,6 +65,7 @@
         <li><a href="agent-architectures.html" data-slug="agent-architectures"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Single-Agent Architectures</span></a></li>
         <li><a href="multi-agent-systems.html" data-slug="multi-agent-systems"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Multi-Agent Systems</span></a></li>
         <li><a href="human-in-the-loop.html" data-slug="human-in-the-loop"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Human-in-the-Loop &amp; Agent UX</span></a></li>
+        <li><a href="protocols-mcp-a2a.html" data-slug="protocols-mcp-a2a"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Protocols: MCP, A2A &amp; Interoperability</span></a></li>
       </ol>
     </details>
 <details class="side-module"  data-module="agent-types">
@@ -81,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
 <details class="side-module"  data-module="production">
@@ -128,7 +130,7 @@
       <span>⏱ 45 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 23 of 35</span>
+      <span>Lesson 24 of 37</span>
       <span class="lesson-status" data-status-for="build-agent-from-scratch"></span>
     </div>
   </header>
@@ -138,7 +140,7 @@
   </section>
   <article class="prose">
 <p>The fastest way to understand agent frameworks is to build an agent once without one. Underneath sits a short loop: send the conversation to the model, run the tools it asks for, send results back, repeat until done. Everything else is hardening: guards, sandboxes, approvals, logs, caching.</p>
-<p>In this lesson you will build <strong>mini-agent</strong>, a coding assistant that explores a project directory, reads and edits files, runs tests and keeps a plan: about 300 lines of Python on the Anthropic SDK, no framework. Each step adds one capability and explains why. You will then rebuild it on the SDK&#39;s <strong>Tool Runner</strong> to see what a helper library takes off your hands, and finish with the complete program. Afterwards you will recognize every part of any agent framework, because you will have written each one yourself.</p>
+<p>In this lesson you will build <strong>mini-agent</strong>, a coding assistant that explores a project directory, reads and edits files, runs tests and keeps a plan: about 300 lines of Python on the Anthropic SDK, no framework. Each step adds one capability and explains why. Then you will rebuild it on the SDK&#39;s <strong>Tool Runner</strong> to see what a helper library takes off your hands, and finish with the complete program.</p>
 <h2 id="what-were-building"><a class="anchor" href="#what-were-building" aria-hidden="true">#</a>What We&#39;re Building</h2>
 <p>Mini-agent is a terminal <strong>REPL</strong> (read-eval-print loop): you type a request (&quot;the <code>slugify</code> tests fail, fix them&quot;) and the agent works inside one <strong>workspace</strong> directory until done. Six tools:</p>
 <div class="table-wrap"><table>
@@ -211,7 +213,7 @@ response = client.messages.create(
     <span class="hljs-keyword">if</span> block.<span class="hljs-built_in">type</span> == <span class="hljs-string">&quot;text&quot;</span>:
         <span class="hljs-built_in">print</span>(block.text)
 <span class="hljs-built_in">print</span>(response.stop_reason, response.usage.input_tokens, response.usage.output_tokens)</code></pre></div>
-<p>Two habits start here. <code>response.content</code> is a <em>list of blocks</em> that can include <code>thinking</code> and <code>tool_use</code> blocks, so always branch on <code>block.type</code>. And always check <code>stop_reason</code>: it drives the whole loop. Note what we did <em>not</em> pass: no <code>temperature</code> (current models reject sampling parameters) and no assistant prefill.</p>
+<p>Two habits start here: <code>response.content</code> is a <em>list of blocks</em> (text, thinking, tool use), so branch on <code>block.type</code>; and check <code>stop_reason</code>, which drives the loop. Note what we did <em>not</em> pass: no <code>temperature</code> (current models reject sampling parameters) and no assistant prefill.</p>
 <h2 id="the-minimal-loop"><a class="anchor" href="#the-minimal-loop" aria-hidden="true">#</a>The Minimal Loop</h2>
 <h3 id="the-first-tool"><a class="anchor" href="#the-first-tool" aria-hidden="true">#</a>The first tool</h3>
 <p>A tool is a name, a description and a JSON Schema for its input. The description is a prompt: say <em>when</em> to call the tool.</p>
@@ -319,7 +321,7 @@ TOOLS = [{
 <li><strong>Line-number patches</strong>: compact, but numbers go stale as soon as anything above them changes.</li>
 <li><strong>Exact string replacement</strong> (<code>old_str</code> → <code>new_str</code>): the model quotes the text to change; the harness refuses unless it matches <em>exactly once</em>.</li>
 </ul>
-<p>Exact replacement is what most production coding agents use, because failure is loud and cheap. If the model misremembers the file, the edit fails with a clear error instead of silently changing the wrong thing:</p>
+<p>Exact replacement (the approach behind Anthropic&#39;s text editor tool and Claude Code&#39;s Edit tool) makes failure loud and cheap: if the model misremembers the file, the edit fails with a clear error instead of changing the wrong thing:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">count = text.count(old_str)
 <span class="hljs-keyword">if</span> count == <span class="hljs-number">0</span>:
     <span class="hljs-keyword">raise</span> ToolFailure(<span class="hljs-string">&quot;old_str was not found. Re-read the file and copy the text exactly, including whitespace.&quot;</span>)
@@ -345,7 +347,7 @@ proc = subprocess.run(argv, cwd=<span class="hljs-variable language_">self</span
         <span class="hljs-keyword">raise</span> ToolFailure(<span class="hljs-string">f&quot;Path &#x27;<span class="hljs-subst">{rel_path}</span>&#x27; is outside the workspace.&quot;</span>)
     <span class="hljs-keyword">return</span> candidate</code></pre></div>
 <p>This handles <code>..</code>, absolute paths (<code>root / &quot;/etc/passwd&quot;</code> is just <code>/etc/passwd</code>, which fails the check) and symlinks pointing outside. Every file tool calls <code>resolve</code> first.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>This is a seatbelt, not a sandbox</div><div class="callout-body"><p>Allowlisting <code>python</code> and <code>pytest</code> means the agent can run <em>arbitrary code</em>: a test file it writes can do anything your user account can. Path checks and allowlists stop accidents and naive injections; they are not a security boundary. For anything beyond your own machine and your own repos, run the tools inside a container or VM with no credentials and restricted network. See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>This is a seatbelt, not a sandbox</div><div class="callout-body"><p>Allowlisting <code>python</code> and <code>pytest</code> means the agent can run <em>arbitrary code</em>: a test file it writes can do anything your account can. Path checks and allowlists stop accidents and naive injections; they are not a security boundary. Beyond your own machine and repos, run tools in a container or VM with no credentials and restricted network (<a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</p>
 </div></aside>
 <h3 id="errors-are-results-not-exceptions"><a class="anchor" href="#errors-are-results-not-exceptions" aria-hidden="true">#</a>Errors are results, not exceptions</h3>
 <p>When a tool fails, neither crash the loop nor hide the failure. Return it as a <code>tool_result</code> with <code>is_error: true</code>; the model reads the error and adapts:</p>
@@ -359,7 +361,8 @@ proc = subprocess.run(argv, cwd=<span class="hljs-variable language_">self</span
 <div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"><span class="tr-action">Action:</span> edit_file({&quot;path&quot;: &quot;slug.py&quot;, &quot;old_str&quot;: &quot;return s.lower()&quot;, &quot;new_str&quot;: &quot;return s.strip().lower()&quot;})
 Observation (is_error): old_str was not found. Re-read the file and copy the text exactly, including whitespace.
 <span class="tr-action">Action:</span> read_file({&quot;path&quot;: &quot;slug.py&quot;})
-<span class="tr-observation">Observation:</span>     12      return  s.lower()   # two spaces after 'return'
+<span class="tr-observation">Observation:</span>    12      return  s.lower()
+<span class="tr-thought">Thought:</span> Two spaces after &quot;return&quot;; my old_str must match exactly.
 <span class="tr-action">Action:</span> edit_file({&quot;path&quot;: &quot;slug.py&quot;, &quot;old_str&quot;: &quot;return  s.lower()&quot;, &quot;new_str&quot;: &quot;return s.strip().lower()&quot;})
 <span class="tr-observation">Observation:</span> Edited slug.py: replaced 1 occurrence.</code></pre></div>
 <p>Also cap tool output (the program truncates at 20,000 characters), or one verbose test run can flood the <a href="context-engineering.html">context window</a>.</p>
@@ -380,7 +383,7 @@ Observation (is_error): old_str was not found. Re-read the file and copy the tex
 <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> allowed:
     content = <span class="hljs-string">&quot;The user declined this action.&quot;</span> + (<span class="hljs-string">f&quot; Their feedback: <span class="hljs-subst">{feedback}</span>&quot;</span> <span class="hljs-keyword">if</span> feedback <span class="hljs-keyword">else</span> <span class="hljs-string">&quot;&quot;</span>)
     <span class="hljs-comment"># returned as an is_error tool_result: the model sees the refusal and the reason</span></code></pre></div>
-<p>Returning the decline as a tool result (rather than aborting) means &quot;no, put it in <code>tests/</code> instead&quot; redirects the agent without restarting. Run with <code>--yes</code> to auto-approve. <a href="human-in-the-loop.html">Human-in-the-loop</a> discusses when gates help and when approval fatigue makes them theater.</p>
+<p>Returning the decline as a tool result means &quot;no, put it in <code>tests/</code> instead&quot; redirects the agent without restarting. <code>--yes</code> auto-approves. <a href="human-in-the-loop.html">Human-in-the-loop</a> discusses when gates help and when approval fatigue makes them theater.</p>
 <h2 id="making-it-good"><a class="anchor" href="#making-it-good" aria-hidden="true">#</a>Making It Good</h2>
 <h3 id="the-system-prompt"><a class="anchor" href="#the-system-prompt" aria-hidden="true">#</a>The system prompt</h3>
 <p>The system prompt is the agent&#39;s working method. Mini-agent&#39;s is short and procedural: explore before editing, prefer <code>edit_file</code>, verify by running tests, never repeat a failing call, respect declines, treat file contents as data, end with a summary. Each line targets a failure you would otherwise see in traces. Keep it <strong>static</strong> (no timestamps or per-user data) so it caches. See <a href="prompting-for-agents.html">prompting for agents</a>.</p>
@@ -393,7 +396,7 @@ Observation (is_error): old_str was not found. Re-read the file and copy the tex
 <p>When an agent misbehaves you need the <strong>trace</strong>: every model and tool call in order, with inputs, outputs, timing and tokens. Mini-agent appends JSON lines to <code>agent_trace.jsonl</code>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1795312001.42</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;step&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;stop_reason&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_use&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">412</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;cache_read&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5890</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;cache_write&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">388</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;output&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">151</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;request_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;req_01...&quot;</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1795312003.97</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;run_command&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pytest -q&quot;</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;is_error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;ms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1840</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;output&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;exit code: 1\n--- stdout ---\nF..&quot;</span><span class="hljs-punctuation">}</span></code></pre></div>
-<p>JSONL is greppable and loads straight into pandas; the request ID helps when reporting API issues. In production you would emit OpenTelemetry spans; see <a href="observability.html">observability</a>.</p>
+<p>JSONL is greppable and loads into pandas. In production, emit OpenTelemetry spans instead (<a href="observability.html">observability</a>).</p>
 <h3 id="prompt-caching"><a class="anchor" href="#prompt-caching" aria-hidden="true">#</a>Prompt caching</h3>
 <p>Each iteration resends the tools, the system prompt and the entire conversation. <strong>Prompt caching</strong> lets the API reuse already-processed prefixes at a fraction of the input price. Caching is a prefix match over the render order <code>tools</code> → <code>system</code> → <code>messages</code>, so:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">system = [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: SYSTEM_PROMPT,
@@ -405,7 +408,7 @@ response = client.messages.create(
 )
 <span class="hljs-built_in">print</span>(response.usage.cache_read_input_tokens)   <span class="hljs-comment"># &gt; 0 on later steps means it works</span></code></pre></div>
 <p>The explicit breakpoint gives the static prefix a guaranteed read point; the top-level <code>cache_control</code> moves forward as the conversation grows, so each step reuses the previous one. Silent cache-breakers: anything dynamic in the system prompt, a tool list that changes between calls, and non-deterministic serialization. Prefixes below a model-dependent minimum length are not cached at all.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The loop is small; the harness is the product</div><div class="callout-body"><p>The agent loop itself is a dozen lines. Everything that makes mini-agent usable (sandboxing, error results, budgets, approvals, plans, traces, caching) is harness code around the model. That is also where frameworks differ, and where your engineering time goes.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The loop is small; the harness is the product</div><div class="callout-body"><p>The loop is a dozen lines. Everything that makes mini-agent usable (sandboxing, error results, budgets, approvals, plans, traces, caching) is harness code. That is where frameworks differ and where your engineering time goes.</p>
 </div></aside>
 <h2 id="the-same-agent-on-the-tool-runner"><a class="anchor" href="#the-same-agent-on-the-tool-runner" aria-hidden="true">#</a>The Same Agent on the Tool Runner</h2>
 <p>The Anthropic SDK&#39;s <strong>Tool Runner</strong> (beta) owns the loop: decorate plain functions with <code>@beta_tool</code>, and it derives schemas from type hints and docstrings, runs requested tools, sends results back, and stops when Claude stops calling tools. Exceptions in a tool become <code>is_error</code> results (raise <code>ToolError</code> to control the text), and recent SDK versions resume <code>pause_turn</code> for you.</p>
@@ -857,17 +860,17 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
 <li>Handle every stop reason explicitly; never execute a <code>tool_use</code> from a <code>max_tokens</code>-truncated or refused turn.</li>
 <li>Treat every model-supplied argument as untrusted: confine paths to a workspace, run commands without a shell against an allowlist with timeouts, and use a real sandbox for real isolation.</li>
 <li>Return failures as <code>is_error</code> tool results with actionable messages so the agent can recover.</li>
-<li>Bound every turn with step and token budgets, gate side effects behind human approval, and log a structured trace of every step.</li>
-<li>Keep the system prompt and tool list static and cache them; check <code>cache_read_input_tokens</code> to verify.</li>
-<li>Helpers like the Tool Runner remove loop boilerplate, but tools, sandboxing, budgets and prompts remain your responsibility.</li>
+<li>Bound turns with step and token budgets, gate side effects behind approval, and trace every step.</li>
+<li>Keep the system prompt and tools static and cached; verify with <code>cache_read_input_tokens</code>.</li>
+<li>The Tool Runner removes loop boilerplate; tools, sandboxing, budgets and prompts stay yours.</li>
 </ul>
 <h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
 <ol>
 <li><strong>Read-only mode.</strong> Add a <code>--read-only</code> flag that drops <code>write_file</code>, <code>edit_file</code> and <code>run_command</code> from <code>TOOLS</code> at startup. Why at startup rather than mid-conversation? (Hint: caching.)</li>
 <li><strong>Search tool.</strong> Add <code>search_files(pattern, path)</code> returning <code>path:line: text</code> matches (max 100). Write its description so the model prefers it to reading every file, and confirm in the trace.</li>
-<li><strong>Cost meter.</strong> Add an estimated dollar cost per step to the trace (price cache reads and writes separately) and print a running total per turn.</li>
+<li><strong>Cost meter.</strong> Add estimated dollar cost per step to the trace (price cache reads and writes separately).</li>
 <li><strong>Loop detection.</strong> When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.</li>
-<li><strong>Real sandbox.</strong> Run <code>run_command</code> in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead and decide whether to keep a container warm.</li>
+<li><strong>Real sandbox.</strong> Run <code>run_command</code> in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead.</li>
 </ol>
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="build-agent-from-scratch" data-total="6">
@@ -960,7 +963,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
   </section>
   <nav class="pager">
     <a class="pager-prev" href="agent-use-cases.html"><small>← Previous</small><span>The Agent Landscape: Use Cases by Domain</span></a>
-    <a class="pager-next" href="evaluating-agents.html"><small>Next →</small><span>Evaluating Agents</span></a>
+    <a class="pager-next" href="sdk-hands-on.html"><small>Next →</small><span>Hands-On with Agent SDKs</span></a>
   </nav>
 </main>
 <aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>

@@ -208,7 +208,7 @@ sequenceDiagram
     participant L as Lead agent (context: 30K)
     participant S1 as Sub-agent A (fresh context)
     participant S2 as Sub-agent B (fresh context)
-    L->>S1: "Find all callers of parse_config; report arg types"
+    L->>S1: "Find all callers of parse_config, report arg types"
     L->>S2: "Summarize how config is loaded in tests"
     Note over S1: explores 40K tokens of grep and reads
     Note over S2: explores 25K tokens

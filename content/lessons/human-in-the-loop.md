@@ -1,7 +1,7 @@
 ---
 title: "Human-in-the-Loop & Agent UX"
 description: "Designing oversight into agents: approval gates, interrupts and resume, clarifying questions, escalation, plans, progress, steering, undo, background agents, permission modes, and calibrated trust."
-duration: 40
+duration: 30
 level: intermediate
 objectives:
   - Choose the right level of human oversight for an action using a risk × reversibility matrix

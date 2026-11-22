@@ -14,7 +14,7 @@ tags: [tutorial, python, anthropic-sdk, agent-loop, tools, coding-agents]
 
 The fastest way to understand agent frameworks is to build an agent once without one. Underneath sits a short loop: send the conversation to the model, run the tools it asks for, send results back, repeat until done. Everything else is hardening: guards, sandboxes, approvals, logs, caching.
 
-In this lesson you will build **mini-agent**, a coding assistant that explores a project directory, reads and edits files, runs tests and keeps a plan: about 300 lines of Python on the Anthropic SDK, no framework. Each step adds one capability and explains why. You will then rebuild it on the SDK's **Tool Runner** to see what a helper library takes off your hands, and finish with the complete program. Afterwards you will recognize every part of any agent framework, because you will have written each one yourself.
+In this lesson you will build **mini-agent**, a coding assistant that explores a project directory, reads and edits files, runs tests and keeps a plan: about 300 lines of Python on the Anthropic SDK, no framework. Each step adds one capability and explains why. Then you will rebuild it on the SDK's **Tool Runner** to see what a helper library takes off your hands, and finish with the complete program.
 
 ## What We're Building
 
@@ -73,7 +73,7 @@ for block in response.content:          # a list of typed blocks, not a string
 print(response.stop_reason, response.usage.input_tokens, response.usage.output_tokens)
 ```
 
-Two habits start here. `response.content` is a *list of blocks* that can include `thinking` and `tool_use` blocks, so always branch on `block.type`. And always check `stop_reason`: it drives the whole loop. Note what we did *not* pass: no `temperature` (current models reject sampling parameters) and no assistant prefill.
+Two habits start here: `response.content` is a *list of blocks* (text, thinking, tool use), so branch on `block.type`; and check `stop_reason`, which drives the loop. Note what we did *not* pass: no `temperature` (current models reject sampling parameters) and no assistant prefill.
 
 ## The Minimal Loop
 
@@ -170,7 +170,7 @@ Reading is simple: return the file with line numbers so the model can cite locat
 - **Line-number patches**: compact, but numbers go stale as soon as anything above them changes.
 - **Exact string replacement** (`old_str` → `new_str`): the model quotes the text to change; the harness refuses unless it matches *exactly once*.
 
-Exact replacement is what most production coding agents use, because failure is loud and cheap. If the model misremembers the file, the edit fails with a clear error instead of silently changing the wrong thing:
+Exact replacement (the approach behind Anthropic's text editor tool and Claude Code's Edit tool) makes failure loud and cheap: if the model misremembers the file, the edit fails with a clear error instead of changing the wrong thing:
 
 ```python
 count = text.count(old_str)
@@ -214,7 +214,7 @@ def resolve(self, rel_path: str) -> Path:
 This handles `..`, absolute paths (`root / "/etc/passwd"` is just `/etc/passwd`, which fails the check) and symlinks pointing outside. Every file tool calls `resolve` first.
 
 > [!WARNING] This is a seatbelt, not a sandbox
-> Allowlisting `python` and `pytest` means the agent can run *arbitrary code*: a test file it writes can do anything your user account can. Path checks and allowlists stop accidents and naive injections; they are not a security boundary. For anything beyond your own machine and your own repos, run the tools inside a container or VM with no credentials and restricted network. See [guardrails and sandboxing](guardrails-and-sandboxing.html).
+> Allowlisting `python` and `pytest` means the agent can run *arbitrary code*: a test file it writes can do anything your account can. Path checks and allowlists stop accidents and naive injections; they are not a security boundary. Beyond your own machine and repos, run tools in a container or VM with no credentials and restricted network ([guardrails and sandboxing](guardrails-and-sandboxing.html)).
 
 ### Errors are results, not exceptions
 
@@ -234,7 +234,8 @@ return {"type": "tool_result", "tool_use_id": block.id, "content": content, "is_
 Action: edit_file({"path": "slug.py", "old_str": "return s.lower()", "new_str": "return s.strip().lower()"})
 Observation (is_error): old_str was not found. Re-read the file and copy the text exactly, including whitespace.
 Action: read_file({"path": "slug.py"})
-Observation:     12      return  s.lower()   # two spaces after 'return'
+Observation:    12      return  s.lower()
+Thought: Two spaces after "return"; my old_str must match exactly.
 Action: edit_file({"path": "slug.py", "old_str": "return  s.lower()", "new_str": "return s.strip().lower()"})
 Observation: Edited slug.py: replaced 1 occurrence.
 ```
@@ -270,7 +271,7 @@ if not allowed:
     # returned as an is_error tool_result: the model sees the refusal and the reason
 ```
 
-Returning the decline as a tool result (rather than aborting) means "no, put it in `tests/` instead" redirects the agent without restarting. Run with `--yes` to auto-approve. [Human-in-the-loop](human-in-the-loop.html) discusses when gates help and when approval fatigue makes them theater.
+Returning the decline as a tool result means "no, put it in `tests/` instead" redirects the agent without restarting. `--yes` auto-approves. [Human-in-the-loop](human-in-the-loop.html) discusses when gates help and when approval fatigue makes them theater.
 
 ## Making It Good
 
@@ -297,7 +298,7 @@ When an agent misbehaves you need the **trace**: every model and tool call in or
 {"ts": 1795312003.97, "event": "tool", "name": "run_command", "input": {"command": "pytest -q"}, "is_error": false, "ms": 1840, "output": "exit code: 1\n--- stdout ---\nF.."}
 ```
 
-JSONL is greppable and loads straight into pandas; the request ID helps when reporting API issues. In production you would emit OpenTelemetry spans; see [observability](observability.html).
+JSONL is greppable and loads into pandas. In production, emit OpenTelemetry spans instead ([observability](observability.html)).
 
 ### Prompt caching
 
@@ -317,7 +318,7 @@ print(response.usage.cache_read_input_tokens)   # > 0 on later steps means it wo
 The explicit breakpoint gives the static prefix a guaranteed read point; the top-level `cache_control` moves forward as the conversation grows, so each step reuses the previous one. Silent cache-breakers: anything dynamic in the system prompt, a tool list that changes between calls, and non-deterministic serialization. Prefixes below a model-dependent minimum length are not cached at all.
 
 > [!KEY] The loop is small; the harness is the product
-> The agent loop itself is a dozen lines. Everything that makes mini-agent usable (sandboxing, error results, budgets, approvals, plans, traces, caching) is harness code around the model. That is also where frameworks differ, and where your engineering time goes.
+> The loop is a dozen lines. Everything that makes mini-agent usable (sandboxing, error results, budgets, approvals, plans, traces, caching) is harness code. That is where frameworks differ and where your engineering time goes.
 
 ## The Same Agent on the Tool Runner
 
@@ -750,17 +751,17 @@ if __name__ == "__main__":
 - Handle every stop reason explicitly; never execute a `tool_use` from a `max_tokens`-truncated or refused turn.
 - Treat every model-supplied argument as untrusted: confine paths to a workspace, run commands without a shell against an allowlist with timeouts, and use a real sandbox for real isolation.
 - Return failures as `is_error` tool results with actionable messages so the agent can recover.
-- Bound every turn with step and token budgets, gate side effects behind human approval, and log a structured trace of every step.
-- Keep the system prompt and tool list static and cache them; check `cache_read_input_tokens` to verify.
-- Helpers like the Tool Runner remove loop boilerplate, but tools, sandboxing, budgets and prompts remain your responsibility.
+- Bound turns with step and token budgets, gate side effects behind approval, and trace every step.
+- Keep the system prompt and tools static and cached; verify with `cache_read_input_tokens`.
+- The Tool Runner removes loop boilerplate; tools, sandboxing, budgets and prompts stay yours.
 
 ## Exercises
 
 1. **Read-only mode.** Add a `--read-only` flag that drops `write_file`, `edit_file` and `run_command` from `TOOLS` at startup. Why at startup rather than mid-conversation? (Hint: caching.)
 2. **Search tool.** Add `search_files(pattern, path)` returning `path:line: text` matches (max 100). Write its description so the model prefers it to reading every file, and confirm in the trace.
-3. **Cost meter.** Add an estimated dollar cost per step to the trace (price cache reads and writes separately) and print a running total per turn.
+3. **Cost meter.** Add estimated dollar cost per step to the trace (price cache reads and writes separately).
 4. **Loop detection.** When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.
-5. **Real sandbox.** Run `run_command` in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead and decide whether to keep a container warm.
+5. **Real sandbox.** Run `run_command` in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead.
 
 ## Check Your Understanding
 

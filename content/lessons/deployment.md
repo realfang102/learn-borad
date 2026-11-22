@@ -13,7 +13,7 @@ prerequisites: [evaluating-agents, observability, reliability]
 tags: [deployment, operations, sandboxing, secrets, multi-tenancy, ci-cd, canary, monitoring, compliance]
 ---
 
-The agent works on your laptop. It reads tickets, queries the order database, runs a little Python to check refund math, and drafts replies your support leads love. Now it needs to serve two thousand concurrent users across forty customer organizations. It has to execute model-written code without endangering anything, use credentials it must never see, survive a model upgrade, and page someone at 3 a.m. when it starts looping. None of that is in the prompt.
+The agent works on your laptop: it reads tickets, queries the order database, runs a little Python to check refund math, and drafts replies your support leads love. Now it must serve two thousand concurrent users across forty customer organizations, execute model-written code safely, use credentials it must never see, survive a model upgrade, and page someone at 3 a.m. when it loops. None of that is in the prompt.
 
 **Deploying** an agent means building the system around the loop: where it runs, how it's triggered, where its state lives, what it's allowed to touch, how new versions roll out, and how you find out it's broken. **Operating** it means keeping all of that healthy over time. This lesson covers both, ending with a production readiness checklist you can use for real launches.
 
@@ -72,7 +72,7 @@ async def chat(turn: Turn):
     return StreamingResponse(sse(), media_type="text/event-stream")
 ```
 
-For multi-step agents that call tools, move the loop into a worker and have this endpoint stream the worker's events, so a dropped connection doesn't kill the run.
+For multi-step tool-using agents, run the loop in a worker and stream its events, so a dropped connection doesn't kill the run.
 
 ## A Reference Architecture
 
@@ -96,11 +96,11 @@ flowchart LR
     W --> OBS["Traces, metrics, audit log"]
 ```
 
-Two components are easy to overlook. An **LLM gateway** is an internal service that every model call passes through. It centralizes retries, fallbacks, per-tenant metering, spend caps and logging, so individual agents don't each reimplement them. An **egress proxy** is the single path to the outside world for both workers and sandboxes. It enforces a host allowlist and injects credentials, as described below.
+Two components are easy to overlook. An **LLM gateway** is an internal service every model call passes through, centralizing retries, fallbacks, per-tenant metering, spend caps and logging. An **egress proxy** is the only path to the outside world for workers and sandboxes. It enforces a host allowlist and injects credentials (see below).
 
 ## Sandboxing Tool Execution
 
-If your agent runs code it wrote, or code from a repository it cloned, treat that code as **untrusted**. Prompt injection, a malicious dependency, or plain model error can all produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox is what limits the damage. See [guardrails and sandboxing](guardrails-and-sandboxing.html) for the threat model. Isolation options, from weakest to strongest:
+Treat code your agent wrote or cloned as **untrusted**: prompt injection, a malicious dependency or plain model error can produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox limits the damage (threat model: [guardrails and sandboxing](guardrails-and-sandboxing.html)). From weakest to strongest:
 
 | Technology | Isolation mechanism | Trade-off |
 |---|---|---|
@@ -110,7 +110,7 @@ If your agent runs code it wrote, or code from a repository it cloned, treat tha
 | **Firecracker microVMs** | Hardware virtualization (KVM) with a minimal device model | VM-grade isolation with fast boot and low overhead; built by AWS for Lambda and Fargate |
 | Full VMs | Hypervisor with a full guest OS | Strongest, but slowest and heaviest |
 
-For multi-tenant execution of untrusted code, the industry norm as of 2026 is gVisor or microVMs, not plain containers. Hosted sandbox services let you skip running this infrastructure yourself. Examples include **E2B** (Firecracker-based sandboxes built for AI agents), **Modal** (serverless containers and sandboxes with gVisor isolation), and **Daytona** (fast-starting development environments for agent workloads). Features change quickly, so compare isolation model, cold-start time, maximum session length, persistence and pricing against your workload.
+For multi-tenant untrusted code, the norm as of 2026 is gVisor or microVMs, not plain containers. Hosted sandbox services spare you running this yourself: **E2B** (Firecracker-based sandboxes built for AI agents), **Modal** (serverless containers and sandboxes with gVisor isolation) and **Daytona** (fast-starting development environments for agent workloads). Compare isolation model, cold-start time, maximum session length, persistence and pricing against your workload.
 
 Whatever you choose, configure it defensively:
 
@@ -131,7 +131,7 @@ Keep workers **stateless** and put state in durable stores, so any worker can se
 - **Large artifacts** (files, screenshots, tool outputs over a few KB) go in blob storage, with only a reference kept in history.
 - **Long-term memory** goes in a store namespaced per user and per tenant (see [memory](memory.html)).
 
-Give every store a **retention policy**. Conversation logs are some of the most sensitive data your company holds.
+Give every store a **retention policy**: conversation logs are among the most sensitive data you hold.
 
 ### Secrets management
 
@@ -141,14 +141,14 @@ Give every store a **retention policy**. Conversation logs are some of the most 
 Three practices make that possible:
 
 1. **Keep credentials out of prompts, tool results and sandboxes.** Tools receive credentials from the harness at execution time. The model sees only `lookup_order(order_id)`, never an API key.
-2. **Use scoped, short-lived credentials.** Issue per-task tokens with the narrowest scope that works: read-only where possible, limited to one repository or one tenant, and expiring in minutes to hours. Examples include cloud workload identity and STS-style temporary credentials, GitHub App installation tokens (which expire after an hour), and OAuth tokens with minimal scopes. A leaked short-lived, narrowly scoped token is a contained incident. A leaked admin key is a disaster.
-3. **Inject credentials at an egress proxy.** Code in the sandbox calls `https://api.github.com/...` with no credentials. The proxy checks the destination against an allowlist, attaches the right token from the secrets manager, and forwards the request. The secret never exists inside the sandbox, and the allowlist also blocks exfiltration to attacker-controlled hosts. Managed platforms increasingly provide this pattern built in. For example, Claude Managed Agents keeps credentials in **vaults** that are attached to sessions rather than baked into agent definitions.
+2. **Use scoped, short-lived credentials.** Issue per-task tokens with the narrowest scope that works (read-only where possible, one repository or tenant) that expire in minutes to hours: cloud workload identity and STS-style temporary credentials, GitHub App installation tokens (one-hour lifetime), minimal-scope OAuth tokens. A leaked short-lived scoped token is a contained incident; a leaked admin key is a disaster.
+3. **Inject credentials at an egress proxy.** Sandbox code calls `https://api.github.com/...` with no credentials. The proxy checks the destination against an allowlist, attaches the right token from the secrets manager, and forwards the request. The secret never exists in the sandbox, and the allowlist blocks exfiltration to attacker hosts. Managed platforms increasingly build this in. Claude Managed Agents, for example, keeps credentials in **vaults** attached to sessions, not in agent definitions.
 
 Store root secrets in a secrets manager (HashiCorp Vault, AWS Secrets Manager, Google Secret Manager), rotate them, and scan logs and outputs for anything that looks like a leaked key.
 
 ### Multi-tenancy and isolation
 
-When one deployment serves many customers, a cross-tenant leak is the worst possible bug. Design for isolation at every layer:
+When one deployment serves many customers, a cross-tenant leak is the worst possible bug. Isolate at every layer:
 
 - **Propagate a tenant ID** through every request, tool call, query, log line and trace. Enforce it in the data layer, for example with row-level security, rather than trusting the model or the tool code to filter correctly.
 - **Scope tools per tenant.** The `search_docs` tool for tenant A physically cannot query tenant B's index.
@@ -163,11 +163,11 @@ Model providers enforce rate limits per organization and model, typically as **r
 
 One user action can trigger dozens of calls in a burst, so build your own controls in front of the provider's:
 
-- **Admission control.** Cap concurrent agent runs globally and per tenant, and queue the rest. A queue with backpressure beats a thundering herd of 429s.
-- **Token-bucket quotas** per user and per tenant, metered in tokens or dollars, not just requests.
-- **Priority lanes.** Interactive traffic gets reserved headroom, and batch or background work takes whatever is left (or goes through the Batch API).
-- **Daily spend caps** per tenant and per agent, enforced in the LLM gateway, with alerts at 50% and 80%.
-- **Headroom monitoring.** Track the `x-ratelimit-remaining-*` response headers and request limit increases *before* launch, not during it.
+- **Admission control.** Cap concurrent runs globally and per tenant, and queue the rest. Backpressure beats a thundering herd of 429s.
+- **Token-bucket quotas** per user and tenant, metered in tokens or dollars, not just requests.
+- **Priority lanes.** Reserve headroom for interactive traffic; background work takes the rest (or uses the Batch API).
+- **Daily spend caps** per tenant and agent, enforced in the LLM gateway, with alerts at 50% and 80%.
+- **Headroom monitoring.** Watch the `x-ratelimit-remaining-*` headers, and request limit increases *before* launch.
 
 ## Versioning, Releases and Rollbacks
 
@@ -199,7 +199,7 @@ Stamp the resolved version (or a hash of the config) on every trace, so any beha
 
 ### Shadow, canary, rollback
 
-- **Shadow deployment.** Run the new version on a copy of live traffic without showing its output to users, and compare outcomes, cost and latency against production. Shadow agents must use **stubbed or read-only side-effecting tools**, or you'll send every customer two emails. Shadow runs roughly double spend while active, so keep them short.
+- **Shadow deployment.** Run the new version on a copy of live traffic, hidden from users, and compare outcomes, cost and latency with production. Shadow agents need **stubbed or read-only side-effecting tools**, or every customer gets two emails. Shadows roughly double spend, so keep them short.
 - **Canary release.** Route a small share of *new* sessions (1%, then 5%, 25%, 100%) to the new version. At each stage, compare success rate, escalation rate, cost per task, p95 latency and guardrail triggers against the baseline, and roll back automatically on regression.
 - **Rollback** should be one command that points new sessions back at the previous config. That only works if old prompts and tool versions stay deployable, and if tool and schema changes stay backward-compatible for at least one release.
 
@@ -276,12 +276,12 @@ These products change fast, so check current docs. Build-vs-buy turns on how muc
 
 ## Compliance
 
-Agents touch customer data, take actions, and make decisions, which brings them under the same rules as any other system that does those things, and a few new ones.
+Agents touch customer data, take actions and make decisions, so the usual rules apply, plus a few new ones.
 
 - **Data retention.** Know how long your provider retains prompts and outputs, and what zero-data-retention (ZDR) arrangements are available. Requirements can vary by model. For example, as of 2026 Anthropic's Fable-tier models require 30-day retention, and organizations set to zero retention get errors when calling them, so check before you pick a model. Set retention on your *own* logs, traces and memory stores too, since those usually hold more than the provider does.
-- **Data residency.** Customers or regulators may require processing and storage in specific regions. Regional deployments through cloud platforms (Bedrock, Google Cloud, Azure) help, but residency also applies to your traces, vector stores and sandboxes.
-- **Audit logs.** Keep an immutable record for every run: who or what triggered it, the agent version, every tool call with arguments and results, every human approval, and what data was accessed. When someone asks why the agent issued a refund, the audit log is your answer.
-- **PII handling.** Redact sensitive fields in traces where you can, restrict who can read raw transcripts, and make deletion requests propagate to conversation stores, memory and backups.
+- **Data residency.** Customers or regulators may require specific regions. Regional cloud deployments (Bedrock, Google Cloud, Azure) help, but residency also covers your traces, vector stores and sandboxes.
+- **Audit logs.** Keep an immutable record per run: trigger, agent version, every tool call with arguments and results, every human approval, data accessed. When someone asks why the agent issued a refund, this is your answer.
+- **PII handling.** Redact sensitive fields in traces, restrict access to raw transcripts, and propagate deletion requests to conversation stores, memory and backups.
 - **Frameworks.** Map your controls to the frameworks you're subject to (SOC 2, ISO 27001, HIPAA, GDPR, and AI-specific regulation such as the EU AI Act) early on. Retrofitting audit trails is painful.
 
 ## Production Readiness Checklist
@@ -349,7 +349,7 @@ Q: Why are plain Docker containers generally considered insufficient for running
 - [x] Containers share the host kernel, so a kernel exploit can escape; gVisor or microVMs add a much stronger boundary
 - [ ] Containers can't run Python
 - [ ] Containers are too slow to start
-E: Namespaces and cgroups isolate resources but share one kernel. gVisor shrinks the kernel attack surface, and Firecracker-style microVMs add hardware virtualization.
+E: Namespaces and cgroups share one kernel. gVisor shrinks the kernel attack surface; microVMs add hardware virtualization.
 
 Q: What's the main advantage of injecting credentials at an egress proxy instead of passing them into the sandbox?
 - [ ] It makes API calls faster
@@ -363,7 +363,7 @@ Q: You deploy a new system prompt. Why should conversations already in progress 
 - [x] Changing the prompt mid-conversation invalidates the prompt cache and, on current models, the model's preserved earlier reasoning, and it makes behavior hard to attribute to one version
 - [ ] New prompts only take effect after 24 hours
 - [ ] Old conversations can't be stored with the new version
-E: Apply new versions to new sessions. Sticky versions keep costs predictable, preserve the model's reasoning continuity, and keep traces attributable.
+E: Apply new versions to new sessions to keep costs predictable, reasoning continuous and traces attributable.
 
 Q: When shadow-testing a new agent version on live traffic, what must you do with side-effecting tools?
 - [ ] Nothing; shadow runs are read-only by definition
@@ -389,5 +389,4 @@ E: A cost jump with unchanged quality usually means a cache-breaking change in p
 - [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview): Google Cloud's managed agent runtime.
 - [Introducing AgentKit (OpenAI)](https://openai.com/index/introducing-agentkit/): OpenAI's agent building and deployment toolkit.
 - [Google SRE Book](https://sre.google/sre-book/table-of-contents/): SLOs, alerting, incident response and postmortems, all of which apply directly to agents.
-- [The Twelve-Factor App](https://12factor.net/): the classic case for config in the environment, stateless processes and disposability.
 - [Claude API rate limits](https://platform.claude.com/docs/en/api/rate-limits): how RPM, ITPM and OTPM limits work and which headers report them.

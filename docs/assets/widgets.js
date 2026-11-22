@@ -141,7 +141,7 @@
       '<div class="w-range"><label>Per-step success rate</label><input type="range" class="ce-p" min="80" max="99.9" step="0.1" value="95"><output class="ce-po"></output></div>' +
       '<div class="w-range"><label>Number of steps</label><input type="range" class="ce-n" min="1" max="100" value="20"><output class="ce-no"></output></div>' +
       '<div class="w-range"><label>Errors caught & fixed by verification</label><input type="range" class="ce-c" min="0" max="95" step="5" value="0"><output class="ce-co"></output></div>' +
-      '<div class="w-grid2" style="margin-top:12px"><div class="w-box"><p class="w-label">Chance the whole task succeeds</p><div class="w-big ce-out"></div><p class="w-muted ce-exp"></p></div><div class="w-box"><p class="w-label">Success probability after each step</p><div class="chart ce-chart"></div><div class="chart-x"><span>step 1</span><span class="ce-last"></span></div><div class="legend"><span><i style="background:var(--accent)"></i>with verification</span><span><i style="background:var(--hl-builtin)"></i>without</span></div></div></div>' +
+      '<div class="w-grid2" style="margin-top:12px"><div class="w-box"><p class="w-label">Chance the whole task succeeds</p><div class="w-big ce-out"></div><p class="w-muted ce-exp"></p></div><div class="w-box"><p class="w-label">Success probability after each step</p><div class="chart ce-chart"></div><div class="chart-x"><span>step 1</span><span class="ce-last"></span></div><div class="legend ce-legend"></div></div></div>' +
       '<p class="w-muted" style="margin:12px 0 0">Assumes independent steps where any uncaught error sinks the task. Real agents can sometimes recover on their own — but the lesson stands: long chains need verification, checkpoints, or human review.</p></div>';
     function render() {
       var p = +$(".ce-p", el).value / 100, n = +$(".ce-n", el).value, c = +$(".ce-c", el).value / 100;
@@ -153,6 +153,7 @@
       var chart = $(".ce-chart", el); chart.innerHTML = cols;
       if (c > 0) { chart.innerHTML = ""; for (var k2 = 1; k2 <= n; k2++) { chart.innerHTML += '<div style="flex:1;display:flex;gap:1px;align-items:flex-end;height:100%"><div class="col" style="height:' + (100 * Math.pow(pe, k2)) + '%"></div><div class="col alt" style="height:' + (100 * Math.pow(p, k2)) + '%"></div></div>'; } }
       $(".ce-last", el).textContent = "step " + n;
+      $(".ce-legend", el).innerHTML = c > 0 ? '<span><i style="background:var(--accent)"></i>with verification</span><span><i style="background:var(--hl-builtin)"></i>without</span>' : '<span><i style="background:var(--accent)"></i>probability no error so far</span>';
     }
     $$("input", el).forEach(function (i) { i.addEventListener("input", render); });
     render();
@@ -253,14 +254,14 @@
     evalopt: {
       name: "Evaluator–optimizer",
       nodes: [["in", 40, 120, "Input", "io"], ["g", 220, 120, "Generator LLM", "llm"], ["e", 450, 120, "Evaluator LLM", "llm"], ["out", 650, 120, "Output", "io"]],
-      edges: [["in", "g"], ["g", "e", "draft"], ["e", "g", "feedback", 1, "M 450 95 C 400 30, 270 30, 220 95"], ["e", "out", "accepted"]],
+      edges: [["in", "g"], ["g", "e", "draft"], ["e", "g", "feedback", 1, "M 450 101 C 400 30, 270 30, 225 99"], ["e", "out", "accepted"]],
       seq: [["in"], ["in-g", "g"], ["g-e", "e"], ["e-g", "g"], ["g-e", "e"], ["e-out", "out"]],
       info: ["One LLM generates; another evaluates against criteria and gives feedback; repeat until good enough.", "When there are clear evaluation criteria and iterative refinement measurably helps (like a human editing a draft).", "Literary translation with nuance; complex search requiring several rounds."]
     },
     agent: {
       name: "Autonomous agent",
       nodes: [["h", 60, 130, "Human", "io"], ["m", 270, 130, "LLM", "llm"], ["env", 520, 130, "Environment / tools", "code"], ["stop", 270, 235, "Stop", "io"]],
-      edges: [["h", "m", "goal"], ["m", "env", "action", 0, "M 330 115 C 390 70, 440 70, 470 115"], ["env", "m", "observation", 1, "M 470 145 C 440 195, 390 195, 330 145"], ["m", "stop"], ["m", "h", "ask / report", 1, "M 220 145 C 180 185, 120 185, 90 150"]],
+      edges: [["h", "m", "goal"], ["m", "env", "action", 0, "M 300 112 C 360 60, 440 60, 490 110"], ["env", "m", "observation", 1, "M 490 150 C 440 200, 360 200, 312 150"], ["m", "stop"], ["m", "h", "ask / report", 1, "M 240 148 C 200 190, 120 190, 80 151"]],
       seq: [["h"], ["h-m", "m"], ["m-env", "env"], ["env-m", "m"], ["m-env", "env"], ["env-m", "m"], ["m-stop", "stop"]],
       info: ["The LLM directs its own process in a loop: plan, act with tools, observe results from the environment, and continue until done — pausing for human input when needed.", "Open-ended problems where the number of steps can't be predicted and you can trust the model's decisions within guardrails.", "A coding agent resolving a GitHub issue; a computer-use agent completing a web task."]
     }
@@ -270,16 +271,22 @@
     el.innerHTML = head("Explore", "Workflow pattern explorer") + '<div class="w-body"><div class="pe-tabs">' +
       Object.keys(PATTERNS).map(function (k) { return '<button type="button" class="w-btn" data-p="' + k + '">' + PATTERNS[k].name + "</button>"; }).join("") +
       '</div><div class="pe-stage"></div><div class="w-controls" style="margin:10px 0 0"><button class="w-btn primary pe-play" type="button">▶ Animate</button><span class="w-muted">Solid border = LLM call · dashed = code</span></div><div class="pe-info"></div></div>';
+    function nw(n) { return Math.max(96, n[3].length * 7.4 + 24); }
     function nodeById(P, id) { return P.nodes.filter(function (n) { return n[0] === id; })[0]; }
     function draw() {
       var P = PATTERNS[cur], W2 = 76;
-      var svg = '<svg viewBox="0 0 760 270" role="img" aria-label="' + esc(P.name) + ' diagram"><defs><marker id="pe-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-muted)"/></marker></defs>';
+      var bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
+      P.nodes.forEach(function (n) { var w = Math.max(W2 + 20, n[3].length * 7.4 + 24); bx0 = Math.min(bx0, n[1] - w / 2); bx1 = Math.max(bx1, n[1] + w / 2); by0 = Math.min(by0, n[2] - 18); by1 = Math.max(by1, n[2] + 18); });
+      P.edges.forEach(function (e) { if (e[4]) { var nums = e[4].match(/[\d.]+/g).map(Number); for (var q = 1; q < nums.length; q += 2) { by0 = Math.min(by0, nums[q] - 6); by1 = Math.max(by1, nums[q] + 6); } } });
+      var vb = (bx0 - 16) + " " + (by0 - 22) + " " + (bx1 - bx0 + 32) + " " + (by1 - by0 + 44);
+      var svg = '<svg viewBox="' + vb + '" style="max-height:340px" role="img" aria-label="' + esc(P.name) + ' diagram"><defs><marker id="pe-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-muted)"/></marker></defs>';
       P.edges.forEach(function (e) {
         var a = nodeById(P, e[0]), b = nodeById(P, e[1]), d;
         if (e[4]) d = e[4];
         else {
-          var ax = a[1] + (b[1] > a[1] + 10 ? W2 / 2 + 6 : b[1] < a[1] - 10 ? -W2 / 2 - 6 : 0), ay = a[2] + (b[2] > a[2] + 10 && Math.abs(b[1] - a[1]) < 10 ? 18 : 0);
-          var bx = b[1] + (b[1] > a[1] + 10 ? -W2 / 2 - 8 : b[1] < a[1] - 10 ? W2 / 2 + 8 : 0), by = b[2] + (b[2] > a[2] + 10 && Math.abs(b[1] - a[1]) < 10 ? -20 : 0);
+          var wa = nw(a) / 2, wb = nw(b) / 2;
+          var ax = a[1] + (b[1] > a[1] + 10 ? wa : b[1] < a[1] - 10 ? -wa : 0), ay = a[2] + (b[2] > a[2] + 10 && Math.abs(b[1] - a[1]) < 10 ? 18 : 0);
+          var bx = b[1] + (b[1] > a[1] + 10 ? -wb - 3 : b[1] < a[1] - 10 ? wb + 3 : 0), by = b[2] + (b[2] > a[2] + 10 && Math.abs(b[1] - a[1]) < 10 ? -21 : 0);
           d = "M " + ax + " " + ay + " C " + (ax + bx) / 2 + " " + ay + ", " + (ax + bx) / 2 + " " + by + ", " + bx + " " + by;
         }
         svg += '<path class="e' + (e[3] ? " dash" : "") + '" data-id="' + e[0] + "-" + e[1] + '" d="' + d + '"/>';

@@ -1,7 +1,7 @@
 ---
 title: "Workflow Patterns"
 description: "The six composable patterns behind most successful LLM systems: the augmented LLM, prompt chaining, routing, parallelization, orchestrator-workers and evaluator-optimizer, and when to graduate to a fully autonomous agent."
-duration: 40
+duration: 35
 level: intermediate
 objectives:
   - Distinguish workflows (code-defined control flow) from agents (model-defined control flow)

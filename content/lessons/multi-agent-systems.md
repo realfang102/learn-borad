@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems"
 description: "When and how to use multiple cooperating agents: topologies, communication, delegation, failure modes, the 'don't build multi-agents' debate, and a working orchestrator-subagent system."
-duration: 45
+duration: 35
 level: advanced
 objectives:
   - Explain the real benefits of multiple agents (context isolation, parallelism, specialization) and their real costs (token multiplier, coordination overhead)
