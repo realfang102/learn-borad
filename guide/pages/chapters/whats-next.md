@@ -69,7 +69,7 @@ No one can predict exactly how agents will reshape jobs, and you should be skept
 **Smaller teams can do bigger things.** A small business with a few well-used agents can do research, support and analysis that once needed a much larger staff. That's exciting for individuals and small organizations — and it's also why thoughtful conversations about fairness, training and jobs matter.
 
 > [!NOTE] Don't skip the learning
-> If an agent always writes your reports, you may stop learning how to write good reports — and then you can't judge the agent's work. Use agents to go faster, but keep practicing the core skills of your field. [Learning faster with AI](learn-faster.html) shows how to use AI to build skills, not replace them.
+> If an agent always writes your reports, you may stop learning how to write good reports — and then you can't judge the agent's work. Use agents to go faster, but keep practicing the core skills of your field. The chapter on [learning faster](learn-faster.html) shows how to use AI to build skills, not replace them.
 
 ## Your 7-day plan for getting started
 
