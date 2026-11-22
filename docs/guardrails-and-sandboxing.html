@@ -178,7 +178,7 @@
 <tr>
 <td>Action guardrails</td>
 <td>Is this specific tool call permitted?</td>
-<td>Allow/ask/deny rules, policy engines, hooks, rate limits</td>
+<td><dfn class="gt" tabindex="0" data-t="Permission rules" data-d="Allow, ask and deny rules that decide whether a specific tool call runs, for example ask on Bash(git push *) in Claude Code. Precedence is deny over ask over allow regardless of specificity, and unmatched calls are asked about or denied, never allowed." data-a="permission-rules">Allow/ask/deny rules</dfn>, policy engines, <dfn class="gt" tabindex="0" data-t="Hooks" data-d="User-defined code that runs at lifecycle points in an agent loop, such as Claude Code's PreToolUse (which can block or rewrite a tool call) and PostToolUse. Unlike prompt instructions, hooks are deterministic and cannot be talked out of a decision." data-a="hooks">hooks</dfn>, rate limits</td>
 <td>Deterministic</td>
 </tr>
 <tr>
@@ -383,7 +383,7 @@ tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span cl
 <h3 id="policy-engines"><a class="anchor" href="#policy-engines" aria-hidden="true">#</a>Policy engines</h3>
 <p>As rules grow, move them out of application code into a <strong>policy engine</strong> — a dedicated evaluator for declarative policies such as <strong>Open Policy Agent</strong> (Rego language) or <strong>Cedar</strong> (AWS&#39;s open-source policy language). Benefits: policies are versioned and reviewed like code, tested independently, shared across services, and can use rich context (user role, time of day, data classification, how many refunds this session has issued). CaMeL-style information-flow policies from the <a href="agent-security.html">security lesson</a> are a more powerful version of the same idea.</p>
 <h3 id="hooks"><a class="anchor" href="#hooks" aria-hidden="true">#</a>Hooks</h3>
-<p><strong>Hooks</strong> are user-defined code that runs at lifecycle points in the agent loop. In Claude Code, for instance, a <code>PreToolUse</code> hook receives the proposed tool call as JSON and can block it (by exiting with code 2, with stderr fed back to the model), and a <code>PostToolUse</code> hook can inspect results — say, scanning a fetched web page for injection patterns, or running a linter after every file edit. The Claude Agent SDK and other frameworks expose similar callbacks. Hooks let teams enforce organization-specific policy without modifying the agent itself.</p>
+<p><strong>Hooks</strong> are user-defined code that runs at lifecycle points in the agent loop. In Claude Code, for instance, a <code>PreToolUse</code> hook receives the proposed tool call as JSON and can block it (by exiting with code 2, with stderr fed back to the model), and a <code>PostToolUse</code> hook can inspect results — say, scanning a fetched web page for injection patterns, or running a linter after every file edit. The <dfn class="gt" tabindex="0" data-t="Claude Agent SDK" data-d="A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents." data-l="sdk-hands-on" data-a="claude-agent-sdk">Claude Agent SDK</dfn> and other frameworks expose similar callbacks. Hooks let teams enforce organization-specific policy without modifying the agent itself.</p>
 <h3 id="rate-limits-and-spend-caps"><a class="anchor" href="#rate-limits-and-spend-caps" aria-hidden="true">#</a>Rate limits and spend caps</h3>
 <p>Some harms come from <em>volume</em>, not any single action:</p>
 <ul>
@@ -428,7 +428,7 @@ tool_results.append({<span class="hljs-string">&quot;type&quot;</span>: <span cl
 <td>Multi-tenant code execution</td>
 </tr>
 <tr>
-<td><strong>MicroVMs</strong> (Firecracker, Cloud Hypervisor, Kata Containers)</td>
+<td><strong>MicroVMs</strong> (<dfn class="gt" tabindex="0" data-t="MicroVM" data-d="A lightweight virtual machine with its own kernel and a minimal device model, such as Firecracker, that boots quickly. Along with gVisor, it is the norm for running untrusted agent code in multi-tenant systems." data-a="microvm">Firecracker</dfn>, Cloud Hypervisor, Kata Containers)</td>
 <td>Lightweight VMs with their own kernel on hardware virtualization; minimal device model</td>
 <td>Very strong</td>
 <td>Low-moderate; fast boot</td>
@@ -535,7 +535,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <ul>
 <li><strong>Match controls to reversibility and blast radius.</strong> Reading files in a sandbox: allow. Editing files in a git-tracked workspace: allow (it&#39;s reversible). Pushing to <code>main</code>, sending external email, spending money: ask. Deleting backups, rotating credentials: deny or require out-of-band approval.</li>
 <li><strong>Prefer sandboxes over prompts.</strong> Strong containment lets you <em>reduce</em> permission prompts safely, because a mistaken command inside a disposable, network-less sandbox is cheap. This is the direction many coding agents have moved.</li>
-<li><strong>Measure approval fatigue.</strong> If users approve nearly every request without reading or changing it, your prompts are noise; promote those patterns to allow rules or tighten the sandbox so they&#39;re safe to allow.</li>
+<li><strong>Measure <dfn class="gt" tabindex="0" data-t="Approval fatigue" data-d="The erosion of human oversight when an agent asks for approval so often that people stop reading and approve reflexively, letting the rare dangerous action through. Countered by gating less but better and showing exactly what will happen." data-l="human-in-the-loop" data-a="approval-fatigue">approval fatigue</dfn>.</strong> If users approve nearly every request without reading or changing it, your prompts are noise; promote those patterns to allow rules or tighten the sandbox so they&#39;re safe to allow.</li>
 <li><strong>Measure false positives.</strong> A guardrail that blocks 5% of legitimate requests will be disabled by frustrated users. Track blocked-but-legitimate rates alongside attack catch rates.</li>
 <li><strong>Give the agent graceful paths.</strong> When an action is denied, return a clear error so the model can adapt, ask the user, or explain — not loop.</li>
 </ul>

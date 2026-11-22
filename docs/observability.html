@@ -239,7 +239,7 @@
 </tr>
 <tr>
 <td><strong>Model parameters</strong></td>
-<td>Model ID, <code>max_tokens</code>, effort/thinking settings, <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this." data-l="tool-use" data-a="tool-choice">tool choice</dfn>, structured-output schema</td>
+<td>Model ID, <code>max_tokens</code>, effort/thinking settings, <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Older APIs also allowed forcing a tool (any or a named tool); the latest Claude models reject forced tool choice, so steer with instructions or strict tools." data-l="tool-use" data-a="tool-choice">tool choice</dfn>, structured-output schema</td>
 <td>Behavior changes with these; misconfigurations hide here</td>
 </tr>
 <tr>
@@ -644,7 +644,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <tr>
 <td><strong>Token and cache stats</strong></td>
 <td>Input/output tokens per task; cache-read share</td>
-<td>Context growth; broken <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn> (<a href="cost-and-latency.html">cost and latency</a>)</td>
+<td>Context growth; broken <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn> (<a href="cost-and-latency.html">cost and latency</a>)</td>
 </tr>
 <tr>
 <td><strong>Escalation and feedback rates</strong></td>

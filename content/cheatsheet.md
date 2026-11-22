@@ -194,7 +194,7 @@ Details: [cost and latency](cost-and-latency.html).
 cost = (uncached_in × P_in + cache_write × P_in × 1.25 + cache_read × P_in × r + out × P_out) / 1,000,000
 ```
 
-`P_in`/`P_out` are prices per million tokens. Cache writes cost 1.25× base input for the 5-minute TTL (2× for 1-hour). Cache reads (r) cost about 0.1× base input, and some newer models are cheaper still. Output tokens typically cost several times more than input (5× on Claude models).
+`P_in`/`P_out` are prices per million tokens. Cache writes cost 1.25× base input for the 5-minute TTL (2× for 1-hour). Cache reads (r) cost 0.1× base input historically (still so on Haiku 5.5), but less on the newest models: 0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2. Output tokens typically cost several times more than input (5× on Claude models).
 
 **Per agent run**: context grows each turn, so input tokens grow roughly quadratically:
 
@@ -204,7 +204,7 @@ total_input ≈ n × S + T × n(n−1)/2
 
 Here *n* is the number of model calls, *S* the static prefix (system prompt + tools) and *T* the tokens added per turn. This is why caching and compaction matter.
 
-**Caching example**: a 50K-token prefix reused across 20 calls costs 1,000K input-token-equivalents uncached. Cached, it costs 1.25 × 50K + 19 × 0.1 × 50K = 157.5K, **about 84% less** on that prefix, and time to first token drops too. With a 5-minute TTL, caching pays off from the first reuse (1.25 + 0.1 = 1.35 vs 2.0).
+**Caching example** (Opus 5.5, r = 0.05): a 50K-token prefix reused across 20 calls costs 1,000K input-token-equivalents uncached. Cached, it costs 1.25 × 50K + 19 × 0.05 × 50K = 110K, **about 89% less** on that prefix (about 84% at the older r = 0.1), and time to first token drops too. With a 5-minute TTL, caching pays off from the first reuse (1.25 + 0.05 = 1.3 vs 2.0).
 
 | Lever | Typical effect | Watch out for |
 |---|---|---|
@@ -226,6 +226,7 @@ Details: [agent security](agent-security.html), [guardrails and sandboxing](guar
 - [ ] **Assume prompt injection will succeed** sometimes. Any text the agent reads (web, email, docs, tool output, memory) can carry instructions.
 - [ ] **Break the lethal trifecta**: never give one agent all three of private data access, exposure to untrusted content, and an external communication channel. Removing exfiltration paths is usually easiest.
 - [ ] **Least privilege**: minimal tools, scoped and short-lived credentials, read-only by default, per-user authorization enforced in the tool, never by the model.
+- [ ] **Permission rules with deny-first precedence**: allow / ask / deny rules per tool call (e.g. ask on `Bash(git push *)` in Claude Code), where **deny > ask > allow** regardless of specificity and anything unmatched is asked about or denied, never allowed.
 - [ ] **Human confirmation** for irreversible, financial or external-facing actions, showing exactly what will happen.
 - [ ] **Egress control**: network allowlists; block rendering of untrusted URLs and images in output (a common exfiltration channel).
 - [ ] **Sandbox code execution** (container or microVM, no host secrets, resource limits).
@@ -257,12 +258,14 @@ Details: [deployment](deployment.html), [observability](observability.html), [hu
 | **0.95²⁰ ≈ 36%** | 20 steps at 95% per-step reliability succeed end-to-end only about a third of the time |
 | **0.9⁸ ≈ 43%** | pass^8 for a 90%-reliable agent; consistency is much harder than capability |
 | **1 token ≈ 4 characters ≈ ¾ of an English word** | Rule of thumb for estimating token counts (varies by tokenizer and language) |
-| **1.25× / 2× / ~0.1×** | Cache write (5-minute TTL) / cache write (1-hour TTL) / cache read, relative to base input price |
+| **1.25× / 2× / 0.025–0.1×** | Cache write (5-minute TTL) / cache write (1-hour TTL) / cache read, relative to base input price (read: 0.1× historically, 0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2) |
 | **5 minutes** | Default prompt-cache TTL, refreshed on each hit |
 | **50%** | Typical Batch API discount, for asynchronous jobs |
 | **~15×** | Tokens used by Anthropic's multi-agent research system relative to chat (agents alone ~4×) |
-| **~7 months** | Historical doubling time of METR's 50% task time horizon (2019 to early 2025) |
+| **~7 months / ~4 months** | Doubling time of METR's 50% task time horizon since 2019 / since 2023 (Time Horizon 1.1, January 2026); a trend, not a guarantee |
 | **14 modes, 3 categories** | MAST taxonomy of multi-agent failures: specification, inter-agent misalignment, verification |
 | **~100:1** | Input-to-output token ratio Manus reports for its agent; input (and caching) dominates agent cost |
-| **500** | Human-validated tasks in SWE-bench Verified |
+| **500** | Human-validated tasks in SWE-bench Verified, which OpenAI stopped reporting in February 2026 (contamination, flawed tests); its suggested successor, SWE-bench Pro, was later audited at roughly 30% broken public tasks |
 | **Nov 2024 / Apr 2025** | MCP launched (Anthropic) / A2A announced (Google) |
+| **Dec 2025** | Linux Foundation's Agentic AI Foundation formed with MCP, goose and AGENTS.md; A2A joined Aug 2026, Agent Skills Oct 2026 |
+| **2026-07-28** | MCP spec revision: stateless core (no `initialize` handshake or session ID), `server/discover`, tasks moved to an extension, Roots/Sampling/Logging deprecated; Python `mcp` SDK 2.0 renamed FastMCP to `MCPServer` |

@@ -215,7 +215,7 @@
 <li>Output: 8,000 × $20/MTok = <strong>$0.16</strong></li>
 <li>Total: <strong>$2.28 per task</strong>. Input is 93% of it, and almost all of that input is history the model has already seen.</li>
 </ul>
-<p><strong>With <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-a="prompt-caching">prompt caching</dfn></strong>, each turn reads the previous prefix from cache at $0.20/MTok and writes only the new ~1,900 tokens at $5/MTok:</p>
+<p><strong>With <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)." data-a="prompt-caching">prompt caching</dfn></strong>, each turn reads the previous prefix from cache at $0.20/MTok and writes only the new ~1,900 tokens at $5/MTok:</p>
 <ul>
 <li>Cache reads: 486,400 tokens × $0.20 = $0.10</li>
 <li>Cache writes: 44,600 tokens × $5.00 = $0.22</li>
@@ -418,7 +418,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <h3 id="fewer-round-trips"><a class="anchor" href="#fewer-round-trips" aria-hidden="true">#</a>Fewer round trips</h3>
 <ul>
 <li><strong><dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">Parallel tool calls</dfn>.</strong> When the model requests several independent tools in one turn, run them concurrently and return all results in one message. Five lookups then cost one round trip instead of five, which saves both latency and re-sent history.</li>
-<li><strong>Programmatic tool calling.</strong> Instead of one model turn per tool call, the model writes a script that runs in a code-execution sandbox and calls your tools from there. Intermediate results flow through the script, not the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and only the final, filtered output comes back to the model. For chained or data-heavy tool use (loop over 200 records, filter, aggregate), this removes many turns and keeps large payloads out of the history the loop keeps re-sending.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Programmatic tool calling" data-d="Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model." data-l="designing-tools" data-a="programmatic-tool-calling">Programmatic tool calling</dfn>.</strong> Instead of one model turn per tool call, the model writes a script that runs in a code-execution sandbox and calls your tools from there. Intermediate results flow through the script, not the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and only the final, filtered output comes back to the model. For chained or data-heavy tool use (loop over 200 records, filter, aggregate), this removes many turns and keeps large payloads out of the history the loop keeps re-sending.</li>
 <li><strong>Better tools.</strong> One <code>get_order_summary</code> beats <code>get_order</code> + <code>get_items</code> + <code>get_shipping</code>. Give list tools <code>limit</code> and <code>fields</code> parameters. See <a href="designing-tools.html">designing tools</a>.</li>
 </ul>
 <h3 id="keep-context-lean"><a class="anchor" href="#keep-context-lean" aria-hidden="true">#</a>Keep context lean</h3>
@@ -470,7 +470,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 </tr>
 <tr>
 <td>Output tokens</td>
-<td>Lower effort, output shape, <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn></td>
+<td>Lower effort, output shape, <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, typically via schema-constrained decoding, so responses can be parsed reliably by code. Older JSON mode guarantees only syntactically valid JSON, not the right shape." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn></td>
 </tr>
 <tr>
 <td>Output speed</td>

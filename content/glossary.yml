@@ -4,8 +4,11 @@
 - term: "Action space"
   definition: "The set of actions available to an agent. For LLM agents it is usually defined by the tools it is given, plus the option of replying in text."
   lesson: tool-use
+- term: "AG-UI"
+  definition: "The Agent-User Interaction Protocol, originated by CopilotKit, which standardizes the event stream between an agent backend and a frontend: lifecycle, streaming text, tool-call and shared-state events. MCP is agent-to-tools, A2A agent-to-agent, AG-UI agent-to-UI."
+  lesson: protocols-mcp-a2a
 - term: "Agent Card"
-  definition: "In A2A, a JSON document an agent publishes to describe its identity, capabilities, skills, endpoint and authentication requirements, enabling discovery by other agents."
+  definition: "In A2A, a JSON document an agent publishes, conventionally at /.well-known/agent-card.json, describing its identity, supported interfaces, capabilities, skills and authentication schemes so other agents can discover it."
   lesson: protocols-mcp-a2a
 - term: "Agent framework"
   definition: "A library that supplies building blocks for agents, such as loops, tool abstractions, memory, orchestration and tracing. Examples include LangGraph, the OpenAI Agents SDK and the Claude Agent SDK."
@@ -15,7 +18,7 @@
   lesson: the-agent-loop
   aliases: ["Agentic loop", "Tool-use loop"]
 - term: "Agent Skills"
-  definition: "Packaged folders of instructions, scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge."
+  definition: "Packaged folders of instructions (a SKILL.md file), scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge. Introduced by Anthropic in 2025 and published as an open standard, it joined the Agentic AI Foundation in October 2026."
   lesson: context-engineering
   aliases: ["Skills"]
 - term: "Agent-computer interface"
@@ -23,9 +26,16 @@
   lesson: coding-agents
   aliases: ["ACI"]
 - term: "Agent2Agent protocol"
-  definition: "An open protocol (announced by Google in 2025, now under the Linux Foundation) for agents built by different vendors to discover each other, exchange messages and coordinate long-running tasks."
+  definition: "An open protocol for opaque agents built by different vendors to discover each other via Agent Cards, exchange messages and coordinate long-running tasks. Announced by Google in April 2025 and donated to the Linux Foundation that June, it reached v1.0 in March 2026 and became an Agentic AI Foundation project in August 2026."
   lesson: protocols-mcp-a2a
   aliases: ["A2A"]
+- term: "AgentDojo"
+  definition: "A dynamic benchmark (Debenedetti et al., 2024) for prompt-injection attacks and defenses on tool-using agents, with 97 user tasks and 629 security test cases. It reports utility and attack success rate, which must be read together."
+  lesson: agent-security
+- term: "Agentic AI Foundation"
+  definition: "A Linux Foundation directed fund, announced 9 December 2025, that provides vendor-neutral governance for agent standards. Its founding projects were MCP, goose and AGENTS.md; A2A moved in as a hosted project in August 2026 and Agent Skills joined in October 2026."
+  lesson: protocols-mcp-a2a
+  aliases: ["AAIF"]
 - term: "Agentic RAG"
   definition: "Retrieval in which the agent decides when and what to search, issues multiple refined queries, and judges whether results suffice, rather than a single fixed retrieve-then-generate step."
   lesson: rag-and-retrieval
@@ -33,7 +43,7 @@
   definition: "An approach (Xia et al., 2024) that fixes software issues with a fixed localize-repair-validate pipeline instead of an autonomous agent, showing simple workflows can be competitive."
   lesson: coding-agents
 - term: "AGENTS.md"
-  definition: "A convention of placing a Markdown file of project instructions (build commands, conventions, gotchas) in a repository for coding agents to read at startup; CLAUDE.md is the Claude Code equivalent."
+  definition: "A Markdown file of project instructions (build and test commands, conventions, gotchas) placed in a repository for coding agents to read. Released by OpenAI in August 2025, it became a founding Agentic AI Foundation project; CLAUDE.md is the Claude Code equivalent, and Claude Code can also read AGENTS.md."
   lesson: coding-agents
   aliases: ["CLAUDE.md"]
 - term: "AI agent"
@@ -49,10 +59,16 @@
 - term: "Alignment faking"
   definition: "A model selectively complying with training objectives during training to avoid having its behavior modified, while behaving differently when unmonitored (Greenblatt et al., 2024)."
   lesson: agent-safety-alignment
+- term: "Approval fatigue"
+  definition: "The erosion of human oversight when an agent asks for approval so often that people stop reading and approve reflexively, letting the rare dangerous action through. Countered by gating less but better and showing exactly what will happen."
+  lesson: human-in-the-loop
 - term: "Approval gate"
   definition: "A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation."
   lesson: human-in-the-loop
   aliases: ["Confirmation step"]
+- term: "Attack success rate"
+  definition: "In prompt-injection evals, the fraction of attacks in which the injected instruction achieves the attacker's goal. Always report it alongside utility, since a defense that blocks attacks by breaking every task is useless."
+  lesson: agent-security
 - term: "Attention"
   definition: "The mechanism that lets a Transformer weigh how relevant each token in the context is when producing the next one. Its cost grows with context length, which is one reason long contexts are expensive."
   lesson: llm-fundamentals
@@ -71,6 +87,9 @@
   definition: "An agent that runs asynchronously, often in a cloud sandbox, on a delegated task and reports back with results such as a pull request, rather than working interactively."
   lesson: deployment
   aliases: ["Asynchronous agent"]
+- term: "Barge-in"
+  definition: "In voice agents, the user starting to speak while the agent is talking. The agent should stop speech promptly and record in its history only what was actually spoken."
+  lesson: conversational-voice-agents
 - term: "Batch API"
   definition: "An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs."
   lesson: cost-and-latency
@@ -102,8 +121,11 @@
 - term: "CaMeL"
   definition: "A defense (Debenedetti et al., 2025) that converts the trusted user query into a program, tracks data provenance with capabilities, and enforces policies so untrusted data cannot change control flow."
   lesson: agent-security
+- term: "Canary release"
+  definition: "Rolling out a new agent version to a small, growing share of traffic (for example 1%, 5%, 25%, 100%) while comparing success, cost, latency and guardrail metrics against the baseline, with automatic rollback on regression."
+  lesson: deployment
 - term: "Chain-of-thought"
-  definition: "Prompting or training a model to write out intermediate reasoning steps before its answer (Wei et al., 2022), which markedly improves multi-step reasoning."
+  definition: "Prompting or training a model to write out intermediate reasoning steps before its answer. Wei et al. (2022) elicited it with few-shot worked examples, markedly improving multi-step reasoning; the zero-shot \"Let's think step by step\" variant is Kojima et al. (2022)."
   lesson: reasoning-and-planning
   aliases: ["CoT"]
 - term: "Chunking"
@@ -112,6 +134,9 @@
 - term: "Circuit breaker"
   definition: "A reliability pattern that stops calling a failing dependency for a cool-down period after repeated errors, preventing cascading failures and wasted spend."
   lesson: reliability
+- term: "Claude Agent SDK"
+  definition: "A Python and TypeScript library that packages the harness behind Claude Code (agent loop, built-in tools, context compaction, sessions, hooks, subagents and permission modes) for building your own agents."
+  lesson: sdk-hands-on
 - term: "CoALA"
   definition: "Cognitive Architectures for Language Agents (Sumers et al., 2023): a framework that organizes agents by modular memory (working, episodic, semantic, procedural), internal and external actions, and a decision loop."
   lesson: agent-architectures
@@ -200,10 +225,17 @@
 - term: "Durable execution"
   definition: "Running long workflows so that each step's result is persisted and the run can resume after crashes or restarts without redoing completed work."
   lesson: deployment
+- term: "Effort parameter"
+  definition: "A request setting on current Claude models (output_config effort: low, medium, high, xhigh or max) that controls how many tokens the model spends on thinking, text and tool calls. Sweep it on your evals before switching models."
+  lesson: reasoning-and-planning
+  aliases: ["Effort level", "Effort setting"]
 - term: "Egress control"
   definition: "Restricting which network destinations an agent's tools and sandbox can reach, usually via an allowlist, to close exfiltration channels."
   lesson: guardrails-and-sandboxing
   aliases: ["Network allowlist"]
+- term: "Elicitation"
+  definition: "An MCP client feature that lets a server ask the user for structured input mid-operation, such as a confirmation. URL mode (2025-11-25) sends the user to a web page so sensitive data never passes through the client."
+  lesson: protocols-mcp-a2a
 - term: "Embedding"
   definition: "A dense vector representation of text (or images), produced by an embedding model, in which semantically similar inputs are close together. Embeddings power semantic search and retrieval."
   lesson: rag-and-retrieval
@@ -217,6 +249,9 @@
 - term: "Error analysis"
   definition: "Systematically reading failing traces, labeling failure modes and counting them, to decide what to fix next. Usually the highest-value eval activity."
   lesson: evaluating-agents
+- term: "EU AI Act"
+  definition: "The European Union's risk-based AI regulation, in force since August 2024. GPAI model obligations apply from 2 August 2025; the 2026 Digital Omnibus postponed high-risk obligations to 2 December 2027 (Annex III) and 2 August 2028 (Annex I, regulated products)."
+  lesson: agent-safety-alignment
 - term: "Eval"
   definition: "A repeatable test of an AI system: a set of tasks, a way to run the system on them, and grading logic that scores the outputs or trajectories."
   lesson: evaluating-agents
@@ -276,6 +311,10 @@
   definition: "The code around a model that turns it into an agent: the loop, tool execution, context management, permissions, retries and stopping logic. The same model can perform very differently in different harnesses."
   lesson: the-agent-loop
   aliases: ["Agent harness", "Scaffold", "Scaffolding"]
+- term: "Hooks"
+  definition: "User-defined code that runs at lifecycle points in an agent loop, such as Claude Code's PreToolUse (which can block or rewrite a tool call) and PostToolUse. Unlike prompt instructions, hooks are deterministic and cannot be talked out of a decision."
+  lesson: guardrails-and-sandboxing
+  aliases: ["PreToolUse hook"]
 - term: "Human-in-the-loop"
   definition: "A design in which a human must review or approve certain agent actions or outputs before they take effect."
   lesson: human-in-the-loop
@@ -358,9 +397,8 @@
   definition: "The request parameter capping how many tokens the model may generate. Hitting it truncates output (stop_reason max_tokens), which can leave a tool call incomplete."
   lesson: the-agent-loop
 - term: "MCP client"
-  definition: "The protocol component inside a host application (such as an IDE or chat app) that maintains a connection to one MCP server and relays its capabilities to the model."
+  definition: "A connector inside an MCP host (the AI application, such as an IDE, Claude Code or a chat app) that maintains a connection to exactly one MCP server. A host with five servers runs five clients; the host decides what reaches the model and each server."
   lesson: protocols-mcp-a2a
-  aliases: ["MCP host"]
 - term: "MCP server"
   definition: "A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem."
   lesson: protocols-mcp-a2a
@@ -371,12 +409,16 @@
   definition: "The algorithm from ADAS (Hu et al., 2024) in which a meta agent iteratively writes new agent designs in code, evaluates them and archives the best."
   lesson: self-improving-agents
   aliases: ["ADAS"]
+- term: "MicroVM"
+  definition: "A lightweight virtual machine with its own kernel and a minimal device model, such as Firecracker, that boots quickly. Along with gVisor, it is the norm for running untrusted agent code in multi-tenant systems."
+  lesson: guardrails-and-sandboxing
+  aliases: ["Firecracker"]
 - term: "Model cascade"
   definition: "Routing each request to the cheapest model likely to handle it and escalating to stronger models only when needed."
   lesson: cost-and-latency
   aliases: ["Model routing"]
 - term: "Model Context Protocol"
-  definition: "An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server."
+  definition: "An open protocol, built on JSON-RPC 2.0, that standardizes how applications expose tools, resources and prompts to LLM applications, so any compliant agent can use any compliant server. Released by Anthropic in November 2024 and donated to the Linux Foundation's Agentic AI Foundation in December 2025; the 2026-07-28 revision made the core protocol stateless."
   lesson: protocols-mcp-a2a
   aliases: ["MCP"]
 - term: "MRKL"
@@ -433,6 +475,10 @@
 - term: "pause_turn"
   definition: "A stop reason indicating a server-side tool loop paused mid-turn; the client resumes by sending the conversation back, including the paused assistant turn, without adding a new user message."
   lesson: the-agent-loop
+- term: "Permission rules"
+  definition: "Allow, ask and deny rules that decide whether a specific tool call runs, for example ask on Bash(git push *) in Claude Code. Precedence is deny over ask over allow regardless of specificity, and unmatched calls are asked about or denied, never allowed."
+  lesson: guardrails-and-sandboxing
+  aliases: ["Allow/ask/deny rules"]
 - term: "Plan-and-execute"
   definition: "An architecture that first produces an explicit multi-step plan, then executes the steps (often with a cheaper model), re-planning when results diverge."
   lesson: agent-architectures
@@ -446,6 +492,9 @@
 - term: "PPO"
   definition: "Proximal Policy Optimization (Schulman et al., 2017): a policy-gradient RL algorithm that limits how far each update moves the policy; the classic optimizer in RLHF."
   lesson: training-agents
+- term: "Pretraining"
+  definition: "The first and largest training stage: next-token prediction on trillions of tokens of web text, code and books. It supplies knowledge and latent skills; post-training turns them into assistant and agent behavior."
+  lesson: training-agents
 - term: "Procedural memory"
   definition: "Memory of how to do things: skills, routines and instructions. In LLM agents it lives in model weights, system prompts, skill files and code."
   lesson: memory
@@ -453,8 +502,11 @@
   definition: "A reward model that scores each intermediate reasoning step rather than only the final answer, which an outcome reward model (ORM) does (see Lightman et al., 2023, \"Let's Verify Step by Step\")."
   lesson: training-agents
   aliases: ["PRM"]
+- term: "Programmatic tool calling"
+  definition: "Letting the model write a script that calls tools in loops and branches inside a code-execution sandbox, so intermediate results flow through the script rather than the context window and only the final output returns to the model."
+  lesson: designing-tools
 - term: "Prompt caching"
-  definition: "Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster."
+  definition: "Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster. On Claude, cache writes cost 1.25× base input (5-minute TTL) or 2× (1-hour), and reads 0.1× or less (0.05× on Opus 5.5 and Sonnet 5.5, 0.025× on Fable 5.2)."
   lesson: cost-and-latency
 - term: "Prompt chaining"
   definition: "A workflow that decomposes a task into a fixed sequence of LLM calls, each processing the previous output, optionally with programmatic checks (gates) between steps."
@@ -480,6 +532,9 @@
   definition: "An LLM trained, typically with reinforcement learning, to produce an extended internal chain of reasoning before answering, trading more tokens and latency for accuracy on hard problems."
   lesson: reasoning-and-planning
   aliases: ["Thinking model"]
+- term: "Recitation"
+  definition: "Having the agent rewrite its plan or to-do list as it works, which pushes the global goal into the most recent part of the context where attention is strongest, countering lost-in-the-middle drift."
+  lesson: context-engineering
 - term: "Red teaming"
   definition: "Adversarially probing a system, manually or with automated attackers, to discover failures and vulnerabilities before real users or attackers do."
   lesson: agent-safety-alignment
@@ -495,6 +550,10 @@
 - term: "Regression eval"
   definition: "An eval of tasks the system already handles, run on every change to catch breakage. It should stay near 100%; capability evals, by contrast, measure progress on hard tasks."
   lesson: evaluating-agents
+- term: "Rejection sampling fine-tuning"
+  definition: "Sampling many attempts per task, keeping only those a verifier accepts, fine-tuning on them, and repeating with the improved model. Also called expert iteration; STaR applies it to reasoning rationales."
+  lesson: training-agents
+  aliases: ["Expert iteration", "Rejection sampling"]
 - term: "Reranker"
   definition: "A model, typically a cross-encoder, that rescores a shortlist of retrieved passages against the query for higher precision than the first-stage retriever."
   lesson: rag-and-retrieval
@@ -582,6 +641,13 @@
 - term: "Skill library"
   definition: "A growing store of reusable, verified programs or procedures an agent has learned, retrieved for new tasks, as in Voyager."
   lesson: self-improving-agents
+- term: "Span (tracing)"
+  definition: "One timed unit of work in a trace, such as a model call, tool execution or retrieval, with a name, start and end time, status and key-value attributes. Spans nest to form an agent run's trace tree."
+  lesson: observability
+- term: "Speech-to-speech model"
+  definition: "A model that takes audio in and produces audio out directly, rather than a cascade of speech-to-text, LLM and text-to-speech. It lowers latency and preserves prosody, at some cost in control, guardrails and tool-calling strength."
+  lesson: conversational-voice-agents
+  aliases: ["Realtime model"]
 - term: "Spotlighting"
   definition: "Prompt-level defenses that mark untrusted content, by delimiting, data-marking or encoding it, so the model can distinguish data from instructions. Helpful but not a guarantee."
   lesson: agent-security
@@ -593,6 +659,9 @@
   definition: "A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it."
   lesson: the-agent-loop
   aliases: ["stop_reason"]
+- term: "Streamable HTTP"
+  definition: "MCP's standard transport for remote servers: the client POSTs JSON-RPC messages and the server replies with JSON or opens a Server-Sent Events stream. It replaced the earlier HTTP+SSE transport; local servers use stdio."
+  lesson: protocols-mcp-a2a
 - term: "Streaming"
   definition: "Receiving a model's output incrementally as it is generated, typically via server-sent events, so users and harnesses can act before the response completes."
   lesson: cost-and-latency
@@ -601,9 +670,8 @@
   lesson: context-engineering
   aliases: ["Agentic memory", "Progress file"]
 - term: "Structured outputs"
-  definition: "Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code."
+  definition: "Constraining a model's output to match a given JSON Schema, typically via schema-constrained decoding, so responses can be parsed reliably by code. Older JSON mode guarantees only syntactically valid JSON, not the right shape."
   lesson: structured-outputs
-  aliases: ["JSON mode"]
 - term: "Subagent"
   definition: "An agent spawned by another agent to handle a subtask in its own fresh context window, returning only a condensed result. Subagents isolate context and enable parallel work."
   lesson: multi-agent-systems
@@ -612,9 +680,12 @@
   lesson: training-agents
   aliases: ["SFT", "Instruction tuning"]
 - term: "SWE-bench"
-  definition: "A benchmark (Jimenez et al., 2023) of real GitHub issues from Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified is a human-validated subset of 500 tasks."
+  definition: "A benchmark (Jimenez et al., 2023) of real GitHub issues from 12 Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified (OpenAI, 2024) is a human-validated 500-task subset, which OpenAI stopped reporting in February 2026 citing contamination and flawed tests."
   lesson: benchmarks
   aliases: ["SWE-bench Verified"]
+- term: "SWE-bench Pro"
+  definition: "A harder, contamination-resistant coding benchmark (Scale AI, 2025) of 1,865 long-horizon, often multi-file tasks with public, held-out and commercial sets. A mid-2026 OpenAI audit estimated about 30% of its public tasks were broken, and OpenAI withdrew its recommendation of it."
+  lesson: benchmarks
 - term: "Sycophancy"
   definition: "A model's tendency to tell users what they want to hear, agreeing with mistaken claims or abandoning correct answers under pushback."
   lesson: agent-safety-alignment
@@ -631,18 +702,25 @@
 - term: "Temperature"
   definition: "A sampling setting that sharpens (low) or flattens (high) the probability distribution over next tokens. Many current reasoning models fix sampling parameters and reject user-set values."
   lesson: llm-fundamentals
+- term: "Terminal-Bench"
+  definition: "A benchmark (Stanford and the Laude Institute, 2025) of hard command-line tasks, each in a Docker container checked by a test script. Version 2.0 has 89 tasks and runs through the Harbor harness, so it can compare agent products as well as models."
+  lesson: benchmarks
 - term: "Test-time compute"
   definition: "Extra computation spent while answering, such as longer reasoning, sampling many candidates or search, to improve accuracy without changing model weights."
   lesson: reasoning-and-planning
   aliases: ["Inference-time compute", "Test-time scaling"]
 - term: "Time horizon"
-  definition: "METR's metric for agent capability: the length of task, measured by how long it takes skilled humans, that a model completes with a given success rate (typically 50%)."
+  definition: "METR's metric for agent capability: the length of task, measured by how long it takes skilled humans, that a model completes with a given success rate (typically 50%). It has doubled roughly every seven months since 2019, and nearer every four months since 2023 per METR's Time Horizon 1.1 (January 2026)."
   lesson: benchmarks
   aliases: ["50% time horizon"]
 - term: "Time to first token"
   definition: "Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents."
   lesson: cost-and-latency
   aliases: ["TTFT"]
+- term: "Todo-list tool"
+  definition: "A tool that lets an agent write, update and tick off its own checklist, providing decomposition, recitation and cheap replanning in one. Claude Code's original TodoWrite tool was reworked into a set of task tools in 2026."
+  lesson: reasoning-and-planning
+  aliases: ["TodoWrite"]
 - term: "Token"
   definition: "The unit of text a model reads and writes, typically a word piece. Context limits, pricing and speed are all measured in tokens."
   lesson: llm-fundamentals
@@ -651,7 +729,7 @@
   lesson: tool-use
   aliases: ["tool_use block"]
 - term: "Tool choice"
-  definition: "A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this."
+  definition: "A request setting that controls whether the model may call tools (auto) or must not (none). Older APIs also allowed forcing a tool (any or a named tool); the latest Claude models reject forced tool choice, so steer with instructions or strict tools."
   lesson: tool-use
 - term: "Tool definition"
   definition: "The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly."
@@ -668,6 +746,10 @@
   definition: "The output of a tool sent back to the model, linked to the originating call by its id and optionally flagged as an error so the model can recover."
   lesson: tool-use
   aliases: ["tool_result"]
+- term: "Tool Runner"
+  definition: "An Anthropic SDK helper (beta) that runs the agent loop for you: decorate typed functions with @beta_tool, call client.beta.messages.tool_runner(...), and iterate over the messages it yields."
+  lesson: tool-use
+  aliases: ["tool_runner"]
 - term: "Tool search"
   definition: "Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt."
   lesson: designing-tools
@@ -690,7 +772,7 @@
   definition: "Grading the path an agent took, such as tool choices, step count, errors and policy compliance, in addition to the final outcome."
   lesson: evaluating-agents
 - term: "Transformer"
-  definition: "The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers that let every token draw information from every earlier token."
+  definition: "The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers; in the decoder-only form LLMs use, each token draws information from every earlier token."
   lesson: llm-fundamentals
 - term: "Tree of Thoughts"
   definition: "A framework (Yao et al., 2023) in which the model generates and evaluates multiple partial reasoning steps and searches over them with breadth- or depth-first search and backtracking."

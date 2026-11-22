@@ -8,8 +8,10 @@ evaluation, observability, reliability, cost, security, alignment and training a
   a quiz with explanations, and curated further reading
 - **9 interactive simulations** (agent loop stepper, context-window simulator, prompt-injection
   sandbox, cost calculator, pass@k vs pass^k, workflow pattern explorer, and more)
+- **12 graded hands-on projects**, from a first tool call to a red-teamed, evaluated production agent
 - **4 learning paths** (Newcomer, Builder, Researcher, Leader)
-- **Glossary** of 200+ terms, **spaced-repetition flashcards**, a randomized **practice exam**,
+- **Glossary tooltips** inline in every lesson, and a one-page **course review** of every lesson's key takeaways
+- **Glossary** of 240+ terms, **spaced-repetition flashcards**, a randomized **practice exam**,
   a **reading list** of ~100 papers and guides, and a printable **cheat sheet**
 - Progress tracking, notes, quiz scores and export/import — all stored locally in the browser
 - Full-text search (`⌘K` / `Ctrl K` / `/`), dark mode, mobile-friendly, works offline,
@@ -34,9 +36,12 @@ content/
   glossary.yml        # glossary terms (also drive the flashcards)
   papers.yml          # reading list
   cheatsheet.md       # one-page reference
+  projects.md         # hands-on projects
 scripts/
-  build.mjs           # Markdown → HTML, search index, validation
+  build.mjs           # Markdown → HTML, search index, glossary tooltips, validation
   templates.mjs       # page templates
+  quiz-stats.mjs      # flags quiz giveaways (correct answer = longest option)
+  qa.cjs              # browser QA: JS errors, diagram failures, mobile overflow (needs Playwright)
 src/assets/
   styles.css          # all styles (light + dark themes)
   app.js              # progress, quizzes, search, flashcards, exam, dashboard

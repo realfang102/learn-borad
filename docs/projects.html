@@ -188,7 +188,7 @@ every claim.</p>
 </ul>
 <p><strong>Milestones</strong></p>
 <ol>
-<li>Use the web search server tool to answer a factual question; print the sources it used.</li>
+<li>Use the web search server tool to answer a factual question; print the sources it used. Handle <code>pause_turn</code> (re-send the conversation to let a long server-tool turn resume).</li>
 <li>Write a system prompt that requires a citation for every factual sentence and forbids uncited claims.</li>
 <li>Add a &quot;plan first&quot; step: the agent lists 3–6 sub-questions before searching.</li>
 <li>Add a verification pass: a second call checks each claim against its cited source and flags mismatches.</li>
@@ -235,18 +235,18 @@ in separate git worktrees.</p>
 <p><strong>Build</strong> an MCP server that exposes a data source you care about (notes, a SQLite database, a
 calendar export, an internal API) and use it from an MCP-capable client.</p>
 <ul>
-<li><strong>Skills:</strong> MCP primitives (tools, resources, prompts), transports, tool design for unknown clients</li>
+<li><strong>Skills:</strong> MCP primitives (tools, resources, prompts), transports, elicitation, tool design for unknown clients</li>
 <li><strong>Lessons:</strong> <a href="protocols-mcp-a2a.html">Protocols: MCP, A2A &amp; Interoperability</a>, <a href="designing-tools.html">Designing Great Tools</a></li>
 </ul>
 <p><strong>Milestones</strong></p>
 <ol>
-<li>Expose one read-only tool and one resource over stdio; connect it to a desktop or CLI client.</li>
-<li>Add a write tool and require confirmation for it in the client.</li>
+<li>Using the official Python SDK (<code>pip install &quot;mcp&gt;=2&quot;</code>; its high-level server class is <code>MCPServer</code>, imported with <code>from mcp.server import MCPServer</code>, which older 1.x tutorials call <code>FastMCP</code>), expose one read-only tool and one resource over stdio; connect it to a desktop or CLI client.</li>
+<li>Add a write tool, mark it with a destructive annotation (<code>destructive_hint=True</code> in SDK 2.x), and require confirmation, either in the client or by asking the user through elicitation.</li>
 <li>Write tool descriptions as if for a stranger — then test them by asking an agent to use the server cold.</li>
 </ol>
 <p><strong>Done when:</strong> a fresh agent session can accomplish three realistic tasks with your server with no
 extra instructions.</p>
-<p><strong>Stretch:</strong> serve it over Streamable HTTP with authentication; audit it against the security risks in
+<p><strong>Stretch:</strong> serve it over Streamable HTTP with OAuth-based authorization (audience-bound tokens, no token passthrough); audit it against the security risks in
 the lesson (over-broad permissions, injection via returned data).</p>
 <h2 id="level-3-production-skills"><a class="anchor" href="#level-3-production-skills" aria-hidden="true">#</a>Level 3 — Production skills</h2>
 <h3 id="project-7-customer-support-agent-with-a-real-eval"><a class="anchor" href="#project-7-customer-support-agent-with-a-real-eval" aria-hidden="true">#</a>Project 7: Customer-support agent with a real eval</h3>
@@ -292,7 +292,7 @@ its extra cost and when it isn&#39;t.</p>
 <ol>
 <li>Emit spans for every model call and tool call (OpenTelemetry or JSONL).</li>
 <li>Build a page or notebook showing task success, steps per task, tool error rate, p95 latency and cost per <em>completed</em> task.</li>
-<li>Turn on prompt caching for the system prompt and tools; verify cache hits in the usage fields and measure the savings.</li>
+<li>Turn on prompt caching for the system prompt and tools; verify cache hits in <code>usage.cache_read_input_tokens</code> and measure the savings.</li>
 </ol>
 <p><strong>Done when:</strong> you can answer &quot;what does one successful task cost, and where does the time go?&quot; from
 your dashboard alone.</p>

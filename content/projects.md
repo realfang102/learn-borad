@@ -71,7 +71,7 @@ every claim.
 - **Lessons:** [Deep Research Agents](research-agents.html), [Retrieval & Agentic RAG](rag-and-retrieval.html), [Prompt Engineering for Agents](prompting-for-agents.html)
 
 **Milestones**
-1. Use the web search server tool to answer a factual question; print the sources it used.
+1. Use the web search server tool to answer a factual question; print the sources it used. Handle `pause_turn` (re-send the conversation to let a long server-tool turn resume).
 2. Write a system prompt that requires a citation for every factual sentence and forbids uncited claims.
 3. Add a "plan first" step: the agent lists 3–6 sub-questions before searching.
 4. Add a verification pass: a second call checks each claim against its cited source and flags mismatches.
@@ -125,18 +125,18 @@ in separate git worktrees.
 **Build** an MCP server that exposes a data source you care about (notes, a SQLite database, a
 calendar export, an internal API) and use it from an MCP-capable client.
 
-- **Skills:** MCP primitives (tools, resources, prompts), transports, tool design for unknown clients
+- **Skills:** MCP primitives (tools, resources, prompts), transports, elicitation, tool design for unknown clients
 - **Lessons:** [Protocols: MCP, A2A & Interoperability](protocols-mcp-a2a.html), [Designing Great Tools](designing-tools.html)
 
 **Milestones**
-1. Expose one read-only tool and one resource over stdio; connect it to a desktop or CLI client.
-2. Add a write tool and require confirmation for it in the client.
+1. Using the official Python SDK (`pip install "mcp>=2"`; its high-level server class is `MCPServer`, imported with `from mcp.server import MCPServer`, which older 1.x tutorials call `FastMCP`), expose one read-only tool and one resource over stdio; connect it to a desktop or CLI client.
+2. Add a write tool, mark it with a destructive annotation (`destructive_hint=True` in SDK 2.x), and require confirmation, either in the client or by asking the user through elicitation.
 3. Write tool descriptions as if for a stranger — then test them by asking an agent to use the server cold.
 
 **Done when:** a fresh agent session can accomplish three realistic tasks with your server with no
 extra instructions.
 
-**Stretch:** serve it over Streamable HTTP with authentication; audit it against the security risks in
+**Stretch:** serve it over Streamable HTTP with OAuth-based authorization (audience-bound tokens, no token passthrough); audit it against the security risks in
 the lesson (over-broad permissions, injection via returned data).
 
 ## Level 3 — Production skills
@@ -188,7 +188,7 @@ its extra cost and when it isn't.
 **Milestones**
 1. Emit spans for every model call and tool call (OpenTelemetry or JSONL).
 2. Build a page or notebook showing task success, steps per task, tool error rate, p95 latency and cost per *completed* task.
-3. Turn on prompt caching for the system prompt and tools; verify cache hits in the usage fields and measure the savings.
+3. Turn on prompt caching for the system prompt and tools; verify cache hits in `usage.cache_read_input_tokens` and measure the savings.
 
 **Done when:** you can answer "what does one successful task cost, and where does the time go?" from
 your dashboard alone.

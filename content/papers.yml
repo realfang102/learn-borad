@@ -230,11 +230,11 @@
   lesson: tool-use
 
 - title: "Model Context Protocol (specification and documentation)"
-  authors: "Anthropic and MCP contributors"
+  authors: "Anthropic and MCP contributors (now Agentic AI Foundation)"
   year: 2024
   url: "https://modelcontextprotocol.io"
   category: "Tools & Actions"
-  summary: "The open standard for connecting agents to tools, resources and prompts via servers; read the spec's architecture and security sections."
+  summary: "The open standard for connecting agents to tools, resources and prompts via servers; read the architecture and security sections. The 2026-07-28 revision made the core protocol stateless (no initialize handshake or session ID) and moved tasks into an extension."
   essential: true
   lesson: protocols-mcp-a2a
 
@@ -252,7 +252,16 @@
   year: 2025
   url: "https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/"
   category: "Tools & Actions"
-  summary: "Introduces A2A, an open protocol for agents from different vendors to discover each other via Agent Cards and collaborate on tasks; complements MCP."
+  summary: "Introduces A2A, an open protocol for agents from different vendors to discover each other via Agent Cards and collaborate on tasks; complements MCP. Donated to the Linux Foundation in June 2025, it reached v1.0 in March 2026 and joined the Agentic AI Foundation in August 2026."
+  essential: false
+  lesson: protocols-mcp-a2a
+
+- title: "Linux Foundation Announces the Formation of the Agentic AI Foundation (AAIF)"
+  authors: "Linux Foundation"
+  year: 2025
+  url: "https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation"
+  category: "Tools & Actions"
+  summary: "The December 2025 launch of a vendor-neutral home for agent standards, with MCP, goose and AGENTS.md as founding projects; A2A and Agent Skills joined in 2026."
   essential: false
   lesson: protocols-mcp-a2a
 
@@ -335,6 +344,15 @@
   url: "https://arxiv.org/abs/2404.06654"
   category: "Memory & Retrieval"
   summary: "Goes beyond needle-in-a-haystack with multi-hop and aggregation tasks, showing effective context is often much shorter than advertised."
+  essential: false
+  lesson: context-engineering
+
+- title: "Context Rot: How Increasing Input Tokens Impacts LLM Performance"
+  authors: "Hong, Troynikov & Huber (Chroma)"
+  year: 2025
+  url: "https://research.trychroma.com/context-rot"
+  category: "Memory & Retrieval"
+  summary: "Tests 18 models and finds performance degrades as input grows, even on simple tasks and well before the window is full; distractors hurt more at length."
   essential: false
   lesson: context-engineering
 
@@ -435,9 +453,27 @@
   year: 2023
   url: "https://arxiv.org/abs/2310.06770"
   category: "Coding & Computer Use"
-  summary: "Real issues from popular Python repositories, graded by hidden tests; became the defining benchmark for coding agents."
+  summary: "Real issues from popular Python repositories, graded by hidden tests; became the defining benchmark for coding agents. Its successors show the benchmark life cycle: Verified saturated and was dropped by OpenAI in 2026, and SWE-bench Pro has faced its own audit."
   essential: true
   lesson: coding-agents
+
+- title: "Introducing SWE-bench Verified"
+  authors: "OpenAI"
+  year: 2024
+  url: "https://openai.com/index/introducing-swe-bench-verified/"
+  category: "Coding & Computer Use"
+  summary: "93 developers screened SWE-bench tasks to produce a 500-task human-validated subset. It became the headline coding number until OpenAI stopped reporting it in February 2026, citing contamination and tests that reject correct fixes."
+  essential: false
+  lesson: benchmarks
+
+- title: "SWE-Bench Pro: Can AI Agents Solve Long-Horizon Software Engineering Tasks?"
+  authors: "Deng et al. (Scale AI)"
+  year: 2025
+  url: "https://arxiv.org/abs/2509.16941"
+  category: "Coding & Computer Use"
+  summary: "1,865 harder, multi-file tasks from 41 repositories, with copyleft public, held-out and proprietary commercial sets to resist contamination. A mid-2026 OpenAI audit estimated about 30% of the public tasks were broken, a reminder that benchmarks need independent auditing."
+  essential: false
+  lesson: benchmarks
 
 - title: "SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering"
   authors: "Yang et al."
@@ -575,12 +611,30 @@
   essential: false
   lesson: benchmarks
 
+- title: "BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents"
+  authors: "Wei et al. (OpenAI)"
+  year: 2025
+  url: "https://arxiv.org/abs/2504.12516"
+  category: "Evaluation & Benchmarks"
+  summary: "1,266 hard-to-find but easy-to-verify facts that demand persistent, creative web browsing; a standard yardstick for deep research agents."
+  essential: false
+  lesson: research-agents
+
+- title: "AI Agents That Matter"
+  authors: "Kapoor et al."
+  year: 2024
+  url: "https://arxiv.org/abs/2407.01502"
+  category: "Evaluation & Benchmarks"
+  summary: "Argues agent results must report cost alongside accuracy (Pareto frontiers), use proper holdouts and be reproducible; simple baselines that retry often match elaborate agents."
+  essential: false
+  lesson: benchmarks
+
 - title: "Measuring AI Ability to Complete Long Tasks"
   authors: "Kwa et al. (METR)"
   year: 2025
   url: "https://arxiv.org/abs/2503.14499"
   category: "Evaluation & Benchmarks"
-  summary: "Defines the 50% task-completion time horizon and finds it has been doubling roughly every seven months; the key trend line for agent capability."
+  summary: "Defines the 50% task-completion time horizon and finds it has been doubling roughly every seven months since 2019; METR's Time Horizon 1.1 update (January 2026) kept that long-run estimate but put the post-2023 doubling time nearer four months."
   essential: true
   lesson: benchmarks
 
@@ -702,6 +756,15 @@
   essential: false
   lesson: agent-safety-alignment
 
+- title: "Frontier Models are Capable of In-context Scheming"
+  authors: "Meinke et al. (Apollo Research)"
+  year: 2024
+  url: "https://arxiv.org/abs/2412.04984"
+  category: "Safety & Security"
+  summary: "In agentic test environments that strongly nudge a goal, several frontier models covertly disabled oversight, introduced subtle errors or lied about it; a capability demonstration, not a deployment frequency."
+  essential: false
+  lesson: agent-safety-alignment
+
 - title: "Alignment faking in large language models"
   authors: "Greenblatt et al."
   year: 2024
@@ -793,6 +856,15 @@
   essential: false
   lesson: self-improving-agents
 
+- title: "The AI Scientist: Towards Fully Automated Open-Ended Scientific Discovery"
+  authors: "Lu et al. (Sakana AI)"
+  year: 2024
+  url: "https://arxiv.org/abs/2408.06292"
+  category: "Training & Self-Improvement"
+  summary: "An end-to-end pipeline that generates ideas, runs code experiments, writes papers and reviews them automatically; read alongside its documented limitations."
+  essential: false
+  lesson: self-improving-agents
+
 - title: "AlphaEvolve: A Gemini-powered coding agent for designing advanced algorithms"
   authors: "Google DeepMind"
   year: 2025
@@ -865,6 +937,24 @@
   summary: "Design tools for agents, not developers: consolidate, namespace, return meaningful token-efficient output, and iterate with evals."
   essential: true
   lesson: designing-tools
+
+- title: "Introducing advanced tool use on the Claude Developer Platform"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/advanced-tool-use"
+  category: "Engineering Guides"
+  summary: "Tool search with deferred loading, programmatic tool calling and tool-use examples: three techniques for agents with large tool sets and bulky intermediate results."
+  essential: false
+  lesson: designing-tools
+
+- title: "Equipping agents for the real world with Agent Skills"
+  authors: "Anthropic"
+  year: 2025
+  url: "https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills"
+  category: "Engineering Guides"
+  summary: "Skills as folders with a SKILL.md, loaded by progressive disclosure so only short descriptions sit in context; later published as an open standard and contributed to the AAIF."
+  essential: false
+  lesson: context-engineering
 
 - title: "Effective context engineering for AI agents"
   authors: "Anthropic"
