@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Making agents reliable · Agents Made Simple</title><meta name="description" content="Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one."><meta name="theme-color" content="#6d28d9">
+<title>Making agents reliable · Agents Made Simple</title><meta name="description" content="Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -8,15 +8,15 @@
 <a class="skip" href="#main">Skip to content</a>
 <div class="scroll-bar" aria-hidden="true"></div>
 <header class="top">
-  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <a class="logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--btn)"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="var(--btn-ink)" stroke-width="1.6" stroke-dasharray="36 11.1" transform="rotate(-60 16 16)"/><circle cx="21.9" cy="11.3" r="2.2" fill="var(--btn-ink)"/></svg><span>Agents Made Simple</span></a>
   <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
   <div class="top-actions">
-    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
-    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+    <div class="seg" role="group" aria-label="Explanation depth"><button type="button" class="mode-opt" data-mode="simple" aria-pressed="true">Simple</button><button type="button" class="mode-opt" data-mode="detail" aria-pressed="false">Detailed</button></div>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode"><svg class="icon i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg><svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="reliable-agents">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🔭 Going Further</a><div class="ch-hero-emoji">🎯</div><p class="eyebrow">Chapter 13 of 14</p><h1>Making agents reliable</h1><p class="lead">Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one.</p><p class="meta">⏱ 12 min read · 🎮 2 interactive demos</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">Going Further</a><p class="eyebrow">Chapter 13 <span aria-hidden="true">/</span> 14</p><h1>Making agents reliable</h1><p class="lead">Why small slips add up on long tasks — and the checking habits, tests and limits that turn a clever agent into a dependable one.</p><p class="meta">12 min read · 2 interactive demos</p>
 <nav class="mini-toc" aria-label="In this chapter"><a href="#why-small-errors-snowball">Why small errors snowball</a><a href="#your-verification-habits">Your verification habits</a><a href="#give-the-agent-a-way-to-check-its-own-work">Give the agent a way to check its own work</a><a href="#evals-test-driving-an-agent-before-you-trust-it">Evals: test-driving an agent before you trust it</a><a href="#limits-budgets-and-human-review">Limits, budgets and human review</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
 <article class="prose"><p>Think about baking a cake from a recipe with 20 steps. You&#39;re a careful baker: you get each step right 95% of the time. Sounds great — until you realize that a single mistake anywhere (salt instead of sugar, a forgotten egg) can ruin the whole cake. Twenty steps, twenty chances to slip.</p>
 <p>Agents face exactly this problem. A long task is a chain of many small steps, and every step is a chance for something to go a little wrong. This chapter explains why that matters so much, and the simple habits — for you <em>and</em> for the agent — that make agents dependable.</p>
@@ -57,7 +57,7 @@
 <li><strong>A number to match</strong> — &quot;the cleaned spreadsheet should still have 1,248 customers, and the revenue total should still be $84,210.&quot;</li>
 <li><strong>A second opinion</strong> — ask the agent (or a separate agent) to review the work as a strict critic, looking for errors.</li>
 </ul>
-<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">[Describe the task.]
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">[Describe the task.]
 You're done only when ALL of these are true:
 - [Success check 1, e.g. &quot;every company in the list has a price and a source link&quot;]
 - [Success check 2, e.g. &quot;the totals match the original spreadsheet&quot;]
@@ -135,8 +135,8 @@ When you think you're finished, go through this list one item at a time and show
 <h2 id="whats-next">What&#39;s next</h2>
 <p>You&#39;ve learned what agents are, how they work, and how to use them safely and reliably. In the <a href="whats-next.html">final chapter</a>, we&#39;ll look ahead: how fast agents are improving, what&#39;s still hard, and a simple plan to make agents part of your own week.</p>
 </article>
-<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="reliable-agents">Mark as done</button></section>
-<nav class="pager"><a href="under-the-hood.html"><small>← Previous</small>🔧 A peek under the hood</a><a class="next" href="whats-next.html"><small>Next →</small>🔭 What's next for agents (and for you)</a></nav>
+<section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="reliable-agents">Mark as done</button></section>
+<nav class="pager"><a href="under-the-hood.html"><small>← Previous</small>A peek under the hood</a><a class="next" href="whats-next.html"><small>Next →</small>What's next for agents (and for you)</a></nav>
 </main>
 <footer class="foot"><div class="foot-in">
   <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>

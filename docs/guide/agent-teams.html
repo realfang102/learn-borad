@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teams of agents · Agents Made Simple</title><meta name="description" content="Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more."><meta name="theme-color" content="#6d28d9">
+<title>Teams of agents · Agents Made Simple</title><meta name="description" content="Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -8,15 +8,15 @@
 <a class="skip" href="#main">Skip to content</a>
 <div class="scroll-bar" aria-hidden="true"></div>
 <header class="top">
-  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <a class="logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--btn)"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="var(--btn-ink)" stroke-width="1.6" stroke-dasharray="36 11.1" transform="rotate(-60 16 16)"/><circle cx="21.9" cy="11.3" r="2.2" fill="var(--btn-ink)"/></svg><span>Agents Made Simple</span></a>
   <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
   <div class="top-actions">
-    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
-    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+    <div class="seg" role="group" aria-label="Explanation depth"><button type="button" class="mode-opt" data-mode="simple" aria-pressed="true">Simple</button><button type="button" class="mode-opt" data-mode="detail" aria-pressed="false">Detailed</button></div>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode"><svg class="icon i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg><svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="agent-teams">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🧠 How Agents Think</a><div class="ch-hero-emoji">🤝</div><p class="eyebrow">Chapter 7 of 14</p><h1>Teams of agents</h1><p class="lead">Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more.</p><p class="meta">⏱ 10 min read · 🎮 1 interactive demo · ▶ animated walkthrough</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">How Agents Think</a><p class="eyebrow">Chapter 07 <span aria-hidden="true">/</span> 14</p><h1>Teams of agents</h1><p class="lead">Why several agents can beat one, how a lead agent splits up the work and merges the results — and why teams cost a lot more.</p><p class="meta">10 min read · 1 interactive demo · animated walkthrough</p>
 <nav class="mini-toc" aria-label="In this chapter"><a href="#why-use-more-than-one-agent">Why use more than one agent?</a><a href="#the-race-one-agent-vs-a-team">The race: one agent vs. a team</a><a href="#how-a-lead-agent-runs-a-team">How a lead agent runs a team</a><a href="#handoffs-passing-the-baton">Handoffs: passing the baton</a><a href="#the-catch-teams-are-expensive">The catch: teams are expensive</a><a href="#when-one-agent-is-better">When one agent is better</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
 <article class="prose"><p>Imagine a newspaper on a busy evening. One editor can&#39;t write every story alone, so she hands them out: one reporter covers the election, another the football, a third the weather. They all work at the same time. Then the editor reads every story, fixes the clashes (&quot;you both said the match was on different days!&quot;) and puts the paper together.</p>
 <p>Some AI systems work exactly like that newsroom. Instead of one agent doing everything, a <strong>lead agent</strong> splits a big job into parts and hands each part to a <strong>helper agent</strong>. The helpers work in parallel, report back, and the lead combines their work into one result.</p>
@@ -108,7 +108,7 @@
 <p>Teams also bring their own new kinds of mistakes: two helpers doing the same work, helpers making conflicting choices (one picks a blue theme, another a green one), or a lead that merges confidently without checking. More agents means more to coordinate — and more to review.</p>
 <div class="callout c-tip" role="note"><div class="callout-title"><span aria-hidden="true">💡</span>A simple rule of thumb</div><p>Start with <strong>one agent</strong>. Reach for a team only when the job naturally splits into several big, independent chunks — and when finishing faster or covering more ground is worth paying more.</p>
 </div>
-<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to research [topic, e.g. &quot;five project-management apps for a 10-person team&quot;].
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to research [topic, e.g. &quot;five project-management apps for a 10-person team&quot;].
 If you can use helper agents (subagents), split the work so each helper covers one [item/angle] independently. Give each helper a clear brief and ask for a short summary with sources.
 Then merge the results into one comparison table, point out any places where the helpers' findings disagree, and mark anything you couldn't confirm as &quot;unconfirmed&quot; rather than guessing.</pre></div>
 <h2 id="quick-check">Quick check</h2>
@@ -126,8 +126,8 @@ Then merge the results into one comparison table, point out any places where the
 <h2 id="whats-next">What&#39;s next</h2>
 <p>Whether it&#39;s one agent or a whole team, everything starts with what <em>you</em> ask for. Next: <a href="great-instructions.html">giving great instructions</a> — the simple recipe that turns a vague request into exactly the result you wanted.</p>
 </article>
-<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="agent-teams">Mark as done</button></section>
-<nav class="pager"><a href="planning.html"><small>← Previous</small>🗺️ Planning: breaking big goals into steps</a><a class="next" href="great-instructions.html"><small>Next →</small>🎯 Giving great instructions</a></nav>
+<section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="agent-teams">Mark as done</button></section>
+<nav class="pager"><a href="planning.html"><small>← Previous</small>Planning: breaking big goals into steps</a><a class="next" href="great-instructions.html"><small>Next →</small>Giving great instructions</a></nav>
 </main>
 <footer class="foot"><div class="foot-in">
   <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>

@@ -72,7 +72,7 @@ window.SIMS["inbox-assistant"] = {
            { pane: "tasks", op: "mark", i: 3, state: "done" }], tokens: 900 },
     { phase: "human", say: "Sending email **in Sam's name** has real-world impact, so the assistant shows exactly what will go out and waits. You're Sam — approve or deny!",
       do: [{ pane: "tasks", op: "mark", i: 4, state: "doing" },
-           { pane: "chat", op: "approval", title: "Send 4 replies as Sam?", detail: "To Marco Ruiz — offer Wed 2:00 pm / Thu 9:30 am\nTo Dana Whitfield — numbers by Wednesday\nTo Jordan Pike — Dec 3 OK, ask for tracking\nTo Ana Liu — yes to Friday lunch", approve: "✅ Send all 4", deny: "✋ Keep as drafts", deniedSay: "Sam chose to keep them as drafts — so nothing is sent. All four replies wait in the Drafts folder for Sam to edit or send personally." }] },
+           { pane: "chat", op: "approval", title: "Send 4 replies as Sam?", detail: "To Marco Ruiz — offer Wed 2:00 pm / Thu 9:30 am\nTo Dana Whitfield — numbers by Wednesday\nTo Jordan Pike — Dec 3 OK, ask for tracking\nTo Ana Liu — yes to Friday lunch", approve: "Send all 4", deny: "Keep as drafts", deniedSay: "Sam chose to keep them as drafts — so nothing is sent. All four replies wait in the Drafts folder for Sam to edit or send personally." }] },
     { phase: "act", say: "With approval, it sends the four replies and puts a **tentative hold** on both meeting slots so nobody else books them.",
       do: [{ pane: "tools", op: "call", name: "email.send", args: { drafts: ["Marco", "Dana", "Jordan", "Ana"] } },
            { pane: "tools", op: "result", text: "4 sent" },

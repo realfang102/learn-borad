@@ -51,7 +51,7 @@ window.SIMS["ch-agent-teams"] = {
       tokens: 4500, t: 10 },
     { phase: "human", say: "Sharing the plan with the whole launch team affects other people, so the lead **asks Dana first**. You're Dana — approve or deny!",
       do: [{ pane: "chat", op: "msg", from: "agent", text: "Draft ready. I fixed one conflict: orders open March 3 but ship March 10, so I moved the review push. One rival's price is unconfirmed. Post it to the #launch-team channel?" },
-           { pane: "chat", op: "approval", title: "Post the launch plan to #launch-team?", detail: "1 document · 3 sections · 1 item flagged as unconfirmed", approve: "✅ Post it", deny: "✋ I'll review first", deniedSay: "Dana wants to review first, so the lead keeps the draft private and stops here. Nothing is shared until she says so." }],
+           { pane: "chat", op: "approval", title: "Post the launch plan to #launch-team?", detail: "1 document · 3 sections · 1 item flagged as unconfirmed", approve: "Post it", deny: "I'll review first", deniedSay: "Dana wants to review first, so the lead keeps the draft private and stops here. Nothing is shared until she says so." }],
       tokens: 600, t: 2 },
     { phase: "done", say: "Done in about 2 minutes instead of roughly 5 for one agent working alone — but the team used **about three times the tokens**. Parallel work buys speed with extra cost. (Illustrative numbers.)",
       do: [{ pane: "team", op: "done", name: "🧭 Lead", result: "Plan merged, checked and shared" },

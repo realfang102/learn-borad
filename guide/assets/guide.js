@@ -23,10 +23,12 @@
   window.AMSG = { $: $, $$: $$, esc: esc, md: md, store: store, toast: toast, confetti: confetti, widgets: {}, reduceMotion: reduceMotion };
 
   // ---------- theme & explanation mode ----------
-  function syncThemeBtn() { $$(".theme-btn").forEach(function (b) { b.textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙"; }); }
+  function syncThemeBtn() { $$(".theme-btn").forEach(function (b) { b.setAttribute("aria-label", document.documentElement.dataset.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"); }); }
   $$(".theme-btn").forEach(function (b) { b.addEventListener("click", function () { var t = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = t; try { localStorage.setItem("ams-theme", t); } catch (e) {} syncThemeBtn(); document.dispatchEvent(new CustomEvent("ams-theme")); }); });
   syncThemeBtn();
-  $$(".mode-btn").forEach(function (b) { b.addEventListener("click", function () { var m = document.documentElement.dataset.mode === "detail" ? "simple" : "detail"; document.documentElement.dataset.mode = m; try { localStorage.setItem("ams-mode", m); } catch (e) {} toast(m === "detail" ? "🤓 Detailed explanations on" : "🙂 Simple explanations on"); }); });
+  function syncMode() { var m = document.documentElement.dataset.mode === "detail" ? "detail" : "simple"; $$(".mode-opt").forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.mode === m ? "true" : "false"); }); }
+  $$(".mode-opt").forEach(function (b) { b.addEventListener("click", function () { var m = b.dataset.mode; if ((document.documentElement.dataset.mode || "simple") === m) return; document.documentElement.dataset.mode = m; try { localStorage.setItem("ams-mode", m); } catch (e) {} syncMode(); toast(m === "detail" ? "Detailed explanations on" : "Simple explanations on"); }); });
+  syncMode();
 
   // ---------- progress ----------
   function prog() { return store.get("ams-progress", {}); }
@@ -38,7 +40,7 @@
     var all = (window.AMS && AMS.chapters) || [], next = all.filter(function (c) { return !p[c.s]; })[0];
     if (Object.keys(p).length && next) $$(".start-btn").forEach(function (b) { b.href = next.s + ".html"; b.textContent = "Continue: " + next.t + " →"; });
   }
-  $$(".done-btn").forEach(function (b) { b.addEventListener("click", function () { var p = prog(); if (p[b.dataset.slug]) delete p[b.dataset.slug]; else { p[b.dataset.slug] = Date.now(); confetti(); toast("🎉 Chapter complete!"); } store.set("ams-progress", p); refreshProgress(); }); });
+  $$(".done-btn").forEach(function (b) { b.addEventListener("click", function () { var p = prog(); if (p[b.dataset.slug]) delete p[b.dataset.slug]; else { p[b.dataset.slug] = Date.now(); confetti(); toast("Chapter complete"); } store.set("ams-progress", p); refreshProgress(); }); });
   var main = $("main.example[data-slug]"); if (main) { var p0 = prog(); p0[main.dataset.slug] = p0[main.dataset.slug] || Date.now(); store.set("ams-progress", p0); }
 
   // ---------- copy buttons ----------
@@ -79,9 +81,7 @@
      SIMULATION PLAYER
      window.SIMS[id] = { title, intro, panes:[{id,type,title,span}], steps:[{phase, say, do:[{pane, op, ...}], tokens, t}] }
      ====================================================================== */
-  var PANE_ICON = { chat: "💬", thoughts: "💭", tools: "🛠️", terminal: "⌨️", editor: "📝", browser: "🌐", sheet: "📊", chart: "📈", doc: "📄", inbox: "📧", agents: "🤝", sources: "📚", checklist: "✅", approval: "🙋", phone: "📞", info: "ℹ️", notes: "🗒️" };
-  var PHASES = [["user", "🎯 Goal"], ["think", "🧠 Think"], ["act", "🛠️ Act"], ["observe", "👀 Observe"], ["human", "🙋 You"], ["done", "✅ Done"]];
-  var FACES = { user: "🙂", think: "🤔", act: "🛠️", observe: "👀", human: "🙋", done: "🎉", info: "💡" };
+  var PHASES = [["user", "Goal"], ["think", "Think"], ["act", "Act"], ["observe", "Observe"], ["human", "You"], ["done", "Done"]];
   var CURSOR_SVG = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 2l7 19 2.5-7.5L20 11z" fill="#fff" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/></svg>';
 
   function Sim(el, spec) {
@@ -90,19 +90,19 @@
   }
   Sim.prototype.build = function () {
     var s = this.spec, self = this;
-    this.el.innerHTML = '<div class="sim-top"><div class="sim-title">▶ ' + esc(s.title || "Watch the agent work") + '</div><div class="sim-ctrl">' +
-      '<button type="button" class="w-btn primary s-play">▶ Play</button><button type="button" class="w-btn s-step">Step ⏭</button><button type="button" class="w-btn s-reset">↺ Restart</button>' +
+    this.el.innerHTML = '<div class="sim-top"><div class="sim-title">' + esc(s.title || "Watch the agent work") + '</div><div class="sim-ctrl">' +
+      '<button type="button" class="w-btn primary s-play">Play</button><button type="button" class="w-btn s-step">Step</button><button type="button" class="w-btn s-reset">Restart</button>' +
       '<select class="sim-speed" aria-label="Playback speed"><option value="0.6">Slow</option><option value="1" selected>Normal</option><option value="1.8">Fast</option></select></div></div>' +
       '<div class="sim-progress"><span></span></div>' +
-      '<div class="sim-status"><div class="loop-ind">' + PHASES.map(function (p) { return '<span data-ph="' + p[0] + '">' + p[1] + "</span>"; }).join("") + '</div>' +
-      '<div class="sim-stats"><span>step <b class="st-step">0</b>/' + s.steps.length + '</span><span>🛠️ <b class="st-tools">0</b> tool calls</span><span>🔤 <b class="st-tok">0</b> tokens</span><span>⏱ <b class="st-time">0s</b></span></div></div>' +
-      '<div class="sim-panes"></div><div class="sim-narr" aria-live="polite"><div class="narr-face">🙂</div><div class="narr-text"></div><button type="button" class="w-btn primary s-next" aria-label="Next step">Next ▶</button></div>';
+      '<div class="sim-status"><div class="loop-ind">' + PHASES.map(function (p) { return '<span data-ph="' + p[0] + '" class="">' + p[1] + "</span>"; }).join("") + '</div>' +
+      '<div class="sim-stats"><span>step <b class="st-step">0</b>/' + s.steps.length + '</span><span><b class="st-tools">0</b> tool calls</span><span><b class="st-tok">0</b> tokens</span><span><b class="st-time">0s</b></span></div></div>' +
+      '<div class="sim-panes"></div><div class="sim-narr" aria-live="polite"><div class="narr-face" data-ph="info" aria-hidden="true"></div><div class="narr-text"></div><button type="button" class="w-btn primary s-next" aria-label="Next step">Next</button></div>';
     this.panesEl = $(".sim-panes", this.el);
     this.panes = {};
     (s.panes || []).forEach(function (p) {
       var d = document.createElement("div");
       d.className = "pane p-" + p.type + (p.type === "terminal" ? " term" : "") + (p.span ? " span2" : "");
-      d.innerHTML = '<div class="pane-head"><span class="dots"><i></i><i></i><i></i></span><span>' + (PANE_ICON[p.type] || "▫️") + " " + esc(p.title || p.type) + '</span></div><div class="pane-body"></div>';
+      d.innerHTML = '<div class="pane-head"><span>' + esc(p.title || p.type) + '</span></div><div class="pane-body"></div>';
       self.panesEl.appendChild(d);
       self.panes[p.id] = { el: d, body: $(".pane-body", d), type: p.type, state: {} };
     });
@@ -117,10 +117,11 @@
     for (var k in this.panes) { this.panes[k].body.innerHTML = ""; this.panes[k].state = {}; this.panes[k].el.classList.remove("flash"); }
     $$(".loop-ind span", this.el).forEach(function (x) { x.className = ""; });
     this.narrate("info", this.spec.intro || "Press <strong>▶ Play</strong> to watch the agent work, or <strong>Step</strong> to go one move at a time.", true);
-    this.stats(); $(".s-play", this.el).textContent = "▶ Play"; $(".s-step", this.el).disabled = false; $(".s-next", this.el).disabled = false;
+    this.stats(); $(".s-play", this.el).textContent = "Play"; $(".s-step", this.el).disabled = false; $(".s-next", this.el).disabled = false;
   };
   Sim.prototype.narrate = function (phase, html, raw) {
-    $(".narr-face", this.el).textContent = FACES[phase] || "💡";
+    $(".narr-face", this.el).dataset.ph = phase || "info";
+    if (typeof html === "string") html = html.replace(/▶\s?/g, "");
     var kind = { user: "Goal", think: "Thinking", act: "Acting", observe: "Observing", human: "Your turn", done: "Finished" }[phase];
     $(".narr-text", this.el).innerHTML = (kind ? '<span class="narr-kind">' + kind + "</span>" : "") + (raw ? html : md(html));
   };
@@ -131,9 +132,9 @@
   };
   Sim.prototype.play = function () {
     if (this.ended) this.reset();
-    this.playing = true; $(".s-play", this.el).textContent = "⏸ Pause"; this.loop();
+    this.playing = true; $(".s-play", this.el).textContent = "Pause"; this.loop();
   };
-  Sim.prototype.pause = function () { this.playing = false; clearTimeout(this.timer); $(".s-play", this.el).textContent = this.ended ? "↺ Replay" : "▶ Play"; };
+  Sim.prototype.pause = function () { this.playing = false; clearTimeout(this.timer); $(".s-play", this.el).textContent = this.ended ? "Replay" : "Play"; };
   Sim.prototype.loop = function () {
     var self = this; if (!this.playing || this.waiting) return;
     var dur = this.next(); if (this.ended || this.waiting) return;
@@ -149,7 +150,7 @@
     this.tok += st.tokens || Math.round(120 + txt / 3.5);
     this.secs += st.t || (st.phase === "act" ? 3 : st.phase === "think" ? 4 : 1.5);
     this.stats();
-    if (this.i >= this.spec.steps.length && !this.waiting) { this.ended = true; this.playing = false; $(".s-play", this.el).textContent = "↺ Replay"; $(".s-step", this.el).disabled = true; $(".s-next", this.el).disabled = true; }
+    if (this.i >= this.spec.steps.length && !this.waiting) { this.ended = true; this.playing = false; $(".s-play", this.el).textContent = "Replay"; $(".s-step", this.el).disabled = true; $(".s-next", this.el).disabled = true; }
     var base = 1800 + Math.min(4200, ((st.say || "").length + txt) * 16) + (this.stepDelay || 0) * this.speed;
     return st.wait ? st.wait * 1000 : base;
   };
@@ -240,12 +241,12 @@
       case "checklist:set": p.body.innerHTML = '<ul class="checklist">' + op.items.map(function (x) { return "<li>" + md(x) + "</li>"; }).join("") + "</ul>"; len = op.items.join(" ").length; break;
       case "checklist:mark": { var li = $$(".checklist li", p.body)[op.i]; if (li) { li.className = op.state === "todo" ? "" : (op.state || "done"); if (op.text) li.innerHTML = md(op.text); } break; }
       case "approval:ask": {
-        var ap = this.add(p, '<div class="aq">🙋 ' + esc(op.title) + '</div><div class="ad">' + esc(op.detail || "") + '</div><div class="w-row"><button type="button" class="w-btn good a-yes">' + esc(op.approve || "Approve") + '</button><button type="button" class="w-btn bad a-no">' + esc(op.deny || "Deny") + '</button><span class="w-note a-hint">The agent is paused, waiting for you.</span></div>', "approval");
+        var ap = this.add(p, '<div class="aq">' + esc(op.title) + '</div><div class="ad">' + esc(op.detail || "") + '</div><div class="w-row"><button type="button" class="w-btn good a-yes">' + esc(op.approve || "Approve") + '</button><button type="button" class="w-btn bad a-no">' + esc(op.deny || "Deny") + '</button><span class="w-note a-hint">The agent is paused, waiting for you.</span></div>', "approval");
         this.waiting = ap;
         var finish = function (yes) {
           if (!self.waiting) return; self.waiting = null; ap.classList.add("resolved");
           $$("button", ap).forEach(function (b) { b.disabled = true; }); $(".a-hint", ap).textContent = yes ? "✓ You approved." : "✗ You denied.";
-          if (!yes) { self.narrate("human", op.deniedSay || "You said no — the agent stops here and reports back instead of acting. That's exactly what an approval step is for."); self.ended = true; self.playing = false; $(".s-play", self.el).textContent = "↺ Replay"; $(".s-step", self.el).disabled = true; return; }
+          if (!yes) { self.narrate("human", op.deniedSay || "You said no — the agent stops here and reports back instead of acting. That's exactly what an approval step is for."); self.ended = true; self.playing = false; $(".s-play", self.el).textContent = "Replay"; $(".s-step", self.el).disabled = true; return; }
           if (self.playing) self.loop();
         };
         $(".a-yes", ap).addEventListener("click", function () { finish(true); });

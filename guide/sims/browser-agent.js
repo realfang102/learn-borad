@@ -94,7 +94,7 @@ window.SIMS["browser-agent"] = {
     { phase: "human", say: "Paying is real money, and Leo said to check first — so the agent **pauses**. You're Leo: approve or deny.",
       do: [{ pane: "tasks", op: "mark", i: 5, state: "doing" },
            { pane: "chat", op: "msg", from: "agent", text: "Ready to pay: 08:40 direct, arriving 10:52 (the 08:05 was sold out), seat C24 at a table, €55.50 total. Heads-up: the site had hidden text telling AI agents to add insurance — I ignored it. Shall I pay?" },
-           { pane: "chat", op: "approval", title: "Pay €55.50 with card •••• 7310?", detail: "RailGo · Fri 4 Dec · 08:40 Riverton → 10:52 Lakeside\nSeat C24 (table, window) · no extras", approve: "✅ Pay", deny: "✋ Don't pay", deniedSay: "Leo said don't pay — so the agent leaves the booking unpaid and nothing is charged. It reports the options it found so Leo can decide himself." }] },
+           { pane: "chat", op: "approval", title: "Pay €55.50 with card •••• 7310?", detail: "RailGo · Fri 4 Dec · 08:40 Riverton → 10:52 Lakeside\nSeat C24 (table, window) · no extras", approve: "Pay", deny: "Don't pay", deniedSay: "Leo said don't pay — so the agent leaves the booking unpaid and nothing is charged. It reports the options it found so Leo can decide himself." }] },
     { phase: "act", say: "With Leo's go-ahead, it clicks **Pay** — the only action in the whole run that spends money.",
       do: [{ pane: "web", op: "click", el: 4 }],
       tokens: 700, t: 4 },

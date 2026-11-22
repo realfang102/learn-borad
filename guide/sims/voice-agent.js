@@ -54,7 +54,7 @@ window.SIMS["voice-agent"] = {
       do: [{ pane: "phone", op: "line", who: "agent", text: "Let me confirm: I'll move your cleaning from Thursday March 12th at 3 pm to Friday March 20th at 8 am, with Kim Lee. Is that right?" },
            { pane: "appt", op: "set", pairs: { "Proposed": "Fri 20 Mar · 8:00 am" } }], t: 12 },
     { phase: "human", say: "You're Tomás. Is the read-back right? Your \"yes\" is the go-ahead for the agent to actually change the booking.",
-      do: [{ pane: "phone", op: "approval", title: "Tomás, is that right?", detail: "Cancel: Thu 12 Mar, 3:00 pm\nBook: Fri 20 Mar, 8:00 am — cleaning with Kim Lee", approve: "✅ Yes, that's right", deny: "✋ No, wait", deniedSay: "Tomás said no — so the agent changes nothing. His Thursday appointment stays exactly as it was, and the agent would ask what needs fixing." }] },
+      do: [{ pane: "phone", op: "approval", title: "Tomás, is that right?", detail: "Cancel: Thu 12 Mar, 3:00 pm\nBook: Fri 20 Mar, 8:00 am — cleaning with Kim Lee", approve: "Yes, that's right", deny: "No, wait", deniedSay: "Tomás said no — so the agent changes nothing. His Thursday appointment stays exactly as it was, and the agent would ask what needs fixing." }] },
     { phase: "act", say: "Confirmed. The agent moves the appointment in **one step** — booking the new slot and releasing the old one together, so he's never left with zero or two appointments.",
       do: [{ pane: "phone", op: "line", who: "caller", text: "Yes, that's right." },
            { pane: "tools", op: "call", name: "reschedule_appointment", args: { patient: "Tomás Rivera", from: "Thu 12 Mar 3:00 pm", to: "Fri 20 Mar 8:00 am", hygienist: "Kim Lee" } },

@@ -65,7 +65,7 @@ window.SIMS["study-tutor"] = {
            { pane: "chat", op: "msg", from: "user", text: "Ugh, fair. OK, deal." }] },
     { phase: "human", say: "Finally, the tutor offers to put the plan in Leo's calendar. That changes something outside the chat, so it **asks first**. You're Leo — approve or deny!",
       do: [{ pane: "chat", op: "msg", from: "agent", text: "Want me to add your study sessions and flashcard reminders to your calendar so you don't have to remember?" },
-           { pane: "chat", op: "approval", title: "Add 4 study sessions to Leo's calendar?", detail: "Tue–Thu 7:00–7:45 pm: study sessions\nFri 7:30 am: 10-min review\nFlashcard reminders on review days", approve: "✅ Add them", deny: "✋ No thanks", deniedSay: "Leo said no thanks — so the tutor leaves his calendar untouched. The study plan and flashcards are still right here whenever he wants them." }] },
+           { pane: "chat", op: "approval", title: "Add 4 study sessions to Leo's calendar?", detail: "Tue–Thu 7:00–7:45 pm: study sessions\nFri 7:30 am: 10-min review\nFlashcard reminders on review days", approve: "Add them", deny: "No thanks", deniedSay: "Leo said no thanks — so the tutor leaves his calendar untouched. The study plan and flashcards are still right here whenever he wants them." }] },
     { phase: "act", say: "With Leo's OK, it adds the sessions and **saves what it learned** about him, so tomorrow's session picks up exactly where this one left off.",
       do: [{ pane: "tools", op: "call", name: "calendar.add_events", args: { events: ["Tue 19:00", "Wed 19:00", "Thu 19:00", "Fri 07:30"], length: "45 min / 10 min" } },
            { pane: "tools", op: "result", text: "4 events created" },

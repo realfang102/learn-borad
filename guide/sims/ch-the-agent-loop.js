@@ -33,7 +33,7 @@ window.SIMS["ch-the-agent-loop"] = {
     { phase: "human", say: "Booking spends Jordan's money, so the agent **stops and asks** before acting. You're Jordan — approve or deny!",
       do: [{ pane: "plan", op: "mark", i: 3, state: "doing" },
            { pane: "chat", op: "msg", from: "agent", text: "Heads-up: storms are likely Saturday afternoon, so I suggest arriving Saturday and hiking Sunday morning (sunny, 19°C). Cedar Hollow is $135, rated 4.7, 1.5 km from the trailhead, with free cancellation until Thursday. Shall I book it?" },
-           { pane: "chat", op: "approval", title: "Book Cedar Hollow for Saturday night?", detail: "1 night · $135 total\nFree cancellation until Thursday 18:00", approve: "✅ Book it", deny: "✋ Not yet", deniedSay: "Jordan said not yet — so the agent books nothing. It keeps the plan ready and stops, because spending money needs a yes." }], tokens: 400, t: 2 },
+           { pane: "chat", op: "approval", title: "Book Cedar Hollow for Saturday night?", detail: "1 night · $135 total\nFree cancellation until Thursday 18:00", approve: "Book it", deny: "Not yet", deniedSay: "Jordan said not yet — so the agent books nothing. It keeps the plan ready and stops, because spending money needs a yes." }], tokens: 400, t: 2 },
     { phase: "act", say: "**Act:** with permission, the agent uses the booking tool to make the reservation.",
       do: [{ pane: "tools", op: "call", name: "book_cabin", args: { cabin: "Cedar Hollow", night: "Saturday", guests: 1 } }], tokens: 200, t: 3 },
     { phase: "observe", say: "**Observe and check:** the agent doesn't just assume it worked. It reads the confirmation and compares it with what Jordan asked for: right night, right price.",

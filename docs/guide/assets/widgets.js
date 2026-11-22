@@ -12,24 +12,33 @@
   function card(box, html, cls) { var d = document.createElement("div"); d.className = cls || "tool-card"; d.innerHTML = html; box.appendChild(d); return d; }
   function feedback(box, cls, html) { var f = $(".w-feedback", box); if (!f) { f = document.createElement("div"); box.appendChild(f); } f.className = "w-feedback " + cls; f.innerHTML = html; return f; }
 
-  /* ---------------- hero-loop: animated mascot cycling Think → Act → Observe ---------------- */
+  /* ---------------- hero-loop: line-art loop, a point of light orbiting Think → Act → Observe ---------------- */
   W["hero-loop"] = function (el) {
-    el.innerHTML = '<svg class="pip" viewBox="0 0 420 400" role="img" aria-label="An agent loops: think, act, observe">' +
-      '<circle class="ring" cx="210" cy="200" r="150"/>' +
-      '<g class="node" data-n="think"><rect x="150" y="22" width="120" height="44" rx="22"/><text x="210" y="45">🧠 Think</text></g>' +
-      '<g class="node" data-n="act"><rect x="292" y="250" width="120" height="44" rx="22"/><text x="352" y="273">🛠️ Act</text></g>' +
-      '<g class="node" data-n="observe"><rect x="8" y="250" width="132" height="44" rx="22"/><text x="74" y="273">👀 Observe</text></g>' +
-      '<g class="bot"><rect class="bot-body" x="160" y="150" width="100" height="90" rx="34"/><circle class="bot-eye" cx="190" cy="190" r="14"/><circle class="bot-eye" cx="230" cy="190" r="14"/><circle class="bot-pupil" cx="190" cy="191" r="6.5"/><circle class="bot-pupil" cx="230" cy="191" r="6.5"/><path d="M193 218 q17 12 34 0" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><line x1="210" y1="150" x2="210" y2="128" stroke="#6d28d9" stroke-width="5" stroke-linecap="round"/><circle class="spark" cx="210" cy="124" r="8"/></g>' +
-      '<text class="say" x="210" y="370"></text></svg>';
-    var story = [["think", "“I need today's weather in Oslo…”"], ["act", "→ uses the weather tool"], ["observe", "“-3°C and snowing” 🌨️"], ["think", "“Pack a warm coat!” ✅"]], i = 0;
-    var say = $(".say", el), pupils = $$(".bot-pupil", el), off = { think: [0, -5], act: [5, 3], observe: [-5, 3] };
+    var C = 230, R = 150, N = { think: [230, 80], act: [359.9, 305], observe: [100.1, 305] };
+    var G = {
+      think: '<path d="M9 17.5h6M10 20.5h4M12 3.5a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.4 1.1 2.2h5c0-.8.4-1.6 1.1-2.2A6 6 0 0 0 12 3.5z"/>',
+      act: '<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-3-1-1-3z"/>',
+      observe: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>'
+    };
+    function node(k, label, ly) { var x = N[k][0], y = N[k][1]; return '<g class="node" data-n="' + k + '"><circle cx="' + x + '" cy="' + y + '" r="30"/><g class="glyph" transform="translate(' + (x - 12) + ' ' + (y - 12) + ')">' + G[k] + '</g><text x="' + x + '" y="' + ly + '">' + label + "</text></g>"; }
+    var circ = 2 * Math.PI * R, trail = circ / 4;
+    el.innerHTML = '<svg class="loopviz" viewBox="0 0 460 390" role="img" aria-label="The agent loop: think, act, observe, repeat">' +
+      '<circle class="ring" cx="' + C + '" cy="' + C + '" r="' + R + '"/><circle class="core" cx="' + C + '" cy="' + C + '" r="96" stroke-dasharray="2 6"/>' +
+      '<g class="orbit"><circle class="arc" cx="' + C + '" cy="' + C + '" r="' + R + '" stroke-dasharray="' + trail + " " + (circ - trail) + '" stroke-dashoffset="' + trail + '" opacity=".85"/><circle class="halo" cx="' + (C + R) + '" cy="' + C + '" r="13"/><circle class="dot" cx="' + (C + R) + '" cy="' + C + '" r="5.5"/></g>' +
+      node("think", "THINK", 36) + node("act", "ACT", 360) + node("observe", "OBSERVE", 360) +
+      '<text class="say2" x="' + C + '" y="196"></text><text class="say" x="' + C + '" y="232"><tspan class="l1" x="' + C + '"></tspan><tspan class="l2" x="' + C + '" dy="28"></tspan></text></svg>';
+    var story = [["think", "What's the weather", "in Oslo today?"], ["act", "Calling the", "weather tool…"], ["observe", "−3°C and", "snowing."], ["think", "Then: pack a", "warm coat."]];
+    var ANG = { think: -90, act: 30, observe: 150 }, orbit = $(".orbit", el), say = $(".say", el), say2 = $(".say2", el), l1 = $(".l1", el), l2 = $(".l2", el), i = 0, rot = -90 - 120;
+    orbit.style.transformOrigin = C + "px " + C + "px";
     function tick() {
-      var s = story[i % story.length]; i++;
-      $$(".node", el).forEach(function (n) { n.classList.toggle("on", n.dataset.n === s[0]); });
-      say.textContent = s[1]; var o = off[s[0]];
-      pupils.forEach(function (p) { p.style.transform = "translate(" + o[0] + "px," + o[1] + "px)"; });
+      var s = story[i % story.length], n = (i % story.length) + 1; i++;
+      var target = ANG[s[0]]; while (target <= rot) target += 360; rot = target;
+      orbit.style.transform = "rotate(" + rot + "deg)";
+      $$(".node", el).forEach(function (x) { x.classList.toggle("on", x.dataset.n === s[0]); });
+      say.style.opacity = 0; say2.style.opacity = 0;
+      setTimeout(function () { l1.textContent = s[1]; l2.textContent = s[2]; say2.textContent = "STEP " + n + " · " + s[0].toUpperCase(); say.style.opacity = 1; say2.style.opacity = 1; }, A.reduceMotion ? 0 : 380);
     }
-    tick(); if (!A.reduceMotion) setInterval(tick, 2000);
+    tick(); if (!A.reduceMotion) setInterval(tick, 2600);
   };
 
   /* ---------------- chat-vs-agent ---------------- */

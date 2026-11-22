@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Planning: breaking big goals into steps · Agents Made Simple</title><meta name="description" content="How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong."><meta name="theme-color" content="#6d28d9">
+<title>Planning: breaking big goals into steps · Agents Made Simple</title><meta name="description" content="How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong."><meta name="theme-color" content="#fbfbfa">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <script>(function(){try{var t=localStorage.getItem('ams-theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;var m=localStorage.getItem('ams-mode');if(m)document.documentElement.dataset.mode=m;}catch(e){}})();</script>
 <link rel="stylesheet" href="assets/guide.css"></head>
@@ -8,15 +8,15 @@
 <a class="skip" href="#main">Skip to content</a>
 <div class="scroll-bar" aria-hidden="true"></div>
 <header class="top">
-  <a class="logo" href="index.html"><svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true"><rect x="6" y="9" width="28" height="24" rx="10" fill="var(--brand)"/><circle cx="15.5" cy="20" r="3.4" fill="#fff"/><circle cx="24.5" cy="20" r="3.4" fill="#fff"/><circle cx="15.5" cy="20.4" r="1.6" fill="#1e1b4b"/><circle cx="24.5" cy="20.4" r="1.6" fill="#1e1b4b"/><path d="M16 27q4 3 8 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="20" y1="9" x2="20" y2="4" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="3.5" r="2.4" fill="var(--accent)"/></svg><span>Agents Made Simple</span></a>
+  <a class="logo" href="index.html"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="var(--btn)"/><circle cx="16" cy="16" r="7.5" fill="none" stroke="var(--btn-ink)" stroke-width="1.6" stroke-dasharray="36 11.1" transform="rotate(-60 16 16)"/><circle cx="21.9" cy="11.3" r="2.2" fill="var(--btn-ink)"/></svg><span>Agents Made Simple</span></a>
   <nav class="nav" aria-label="Main"><a href="chapters.html">Learn</a><a href="examples.html">Examples</a><a href="playground.html">Playground</a><a href="prompts.html">Prompt library</a></nav>
   <div class="top-actions">
-    <button type="button" class="mode-btn" aria-label="Switch between simple and detailed explanations" title="Simple / Detailed explanations"><span class="m-simple">🙂 Simple</span><span class="m-detail">🤓 Detailed</span></button>
-    <button type="button" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+    <div class="seg" role="group" aria-label="Explanation depth"><button type="button" class="mode-opt" data-mode="simple" aria-pressed="true">Simple</button><button type="button" class="mode-opt" data-mode="detail" aria-pressed="false">Detailed</button></div>
+    <button type="button" class="theme-btn" aria-label="Toggle dark mode"><svg class="icon i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg><svg class="icon i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
   </div>
 </header>
 <main id="main" class="page chapter" data-slug="planning">
-<div class="ch-hero reveal"><a class="crumb" href="chapters.html">🧠 How Agents Think</a><div class="ch-hero-emoji">🗺️</div><p class="eyebrow">Chapter 6 of 14</p><h1>Planning: breaking big goals into steps</h1><p class="lead">How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong.</p><p class="meta">⏱ 10 min read · 🎮 1 interactive demo</p>
+<div class="ch-hero reveal"><a class="crumb" href="chapters.html">How Agents Think</a><p class="eyebrow">Chapter 06 <span aria-hidden="true">/</span> 14</p><h1>Planning: breaking big goals into steps</h1><p class="lead">How agents turn one big, fuzzy goal into small steps, keep a to-do list, check their work, and change course when something goes wrong.</p><p class="meta">10 min read · 1 interactive demo</p>
 <nav class="mini-toc" aria-label="In this chapter"><a href="#why-big-goals-need-small-steps">Why big goals need small steps</a><a href="#watch-an-agent-plan-and-replan">Watch an agent plan (and replan)</a><a href="#the-to-do-list-agents-keep">The to-do list agents keep</a><a href="#plan-first-or-plan-as-you-go">Plan first, or plan as you go?</a><a href="#checking-its-own-work">Checking its own work</a><a href="#a-word-about-thinking-models">A word about &quot;thinking&quot; models</a><a href="#helping-an-agent-plan-well">Helping an agent plan well</a><a href="#quick-check">Quick check</a><a href="#whats-next">What's next</a></nav></div>
 <article class="prose"><p>Think about the last time you organized something big: a birthday party, a move to a new flat, a group trip. You didn&#39;t do it all in one go. You probably grabbed a piece of paper (or your phone) and wrote a list: <em>pick a date, book the place, invite people, order food.</em> Then you worked through it — and when the restaurant you wanted was full, you crossed that line out and wrote a new one.</p>
 <p>That&#39;s planning, and it&#39;s exactly what capable agents do. Give an agent a big goal like &quot;organize our team offsite&quot; and it doesn&#39;t jump straight into clicking buttons. It first breaks the goal into smaller steps, then works through them one at a time, adjusting as it learns more.</p>
@@ -113,7 +113,7 @@
 </ul>
 <div class="callout c-try" role="note"><div class="callout-title"><span aria-hidden="true">🧪</span>See planning in action</div><p>Watch the <a href="example-research-agent.html">research agent</a> split a big question into smaller ones and adapt its plan when two sources disagree, or the <a href="example-incident-responder.html">incident responder</a> form a theory, test it, and change course when the evidence points elsewhere.</p>
 </div>
-<div class="prompt-card"><div class="prompt-head"><span>✨ Prompt you can use</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to [describe your big goal, e.g. &quot;organize a one-day workshop for 25 people next month&quot;].
+<div class="prompt-card"><div class="prompt-head"><span>Prompt</span><button type="button" class="copy-btn">Copy</button></div><pre class="prompt-text">I need to [describe your big goal, e.g. &quot;organize a one-day workshop for 25 people next month&quot;].
 Before doing anything:
 1. Break this into a step-by-step plan with no more than 8 main steps.
 2. For each step, say how you'll know it's done.
@@ -134,8 +134,8 @@ Then wait for my OK before starting. If a step fails while you're working, tell 
 <h2 id="whats-next">What&#39;s next</h2>
 <p>One agent with a good plan can do a lot. But some jobs are so big — or have so many separate parts — that it helps to split them among <strong>several agents working at once</strong>. Next: <a href="agent-teams.html">teams of agents</a>, and why they&#39;re faster but more expensive.</p>
 </article>
-<section class="finish reveal"><div><h2>Nice work! 🎉</h2><p>Mark this chapter as done to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="planning">Mark as done</button></section>
-<nav class="pager"><a href="memory.html"><small>← Previous</small>🎒 Memory: how agents remember</a><a class="next" href="agent-teams.html"><small>Next →</small>🤝 Teams of agents</a></nav>
+<section class="finish reveal"><div><h2>Nicely done.</h2><p>Mark this chapter complete to track your progress.</p></div><button type="button" class="btn btn-primary done-btn" data-slug="planning">Mark as done</button></section>
+<nav class="pager"><a href="memory.html"><small>← Previous</small>Memory: how agents remember</a><a class="next" href="agent-teams.html"><small>Next →</small>Teams of agents</a></nav>
 </main>
 <footer class="foot"><div class="foot-in">
   <p><strong>Agents Made Simple</strong> — A friendly, hands-on guide to AI agents — what they are, how they work, and how to put them to work for you.</p>
