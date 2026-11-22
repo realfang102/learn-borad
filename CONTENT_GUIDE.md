@@ -180,6 +180,19 @@ Q: ...
 ```
 ````
 
+**Exercise solutions** — immediately after the `## Exercises` list, add one collapsible block with a hint
+and a solution sketch per exercise, numbered to match. Leave blank lines inside so Markdown renders:
+
+```markdown
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** … **Sketch:** …
+2. **Hint:** … **Sketch:** … (short code allowed)
+
+</details>
+```
+
 **Cross-links** to other lessons: `[the agent loop](the-agent-loop.html)` (slug + `.html`).
 Link generously to related lessons using slugs from `content/curriculum.json`.
 
