@@ -143,14 +143,14 @@ seconds before the next step.
 | `tools` | `call` `{name, args}` (args: object or string) · `result` `{text, error?: true}` |
 | `terminal` | `cmd` `{text}` · `out` `{text, style?: "out"|"err"|"ok"}` |
 | `editor` | `open` `{file, code}` · `highlight` `{lines: [n]}` (1-based) · `edit` `{from, to, code}` (replaces lines from..to, shows a red→green diff) |
-| `browser` | `go` `{url, title, els: [{text, kind?: "btn"|"input"|"danger"|"text", value?}]}` · `click` `{el: index}` · `type` `{el: index, text}` (animated cursor) |
+| `browser` | `go` `{url, title, els: [{text, kind?: "btn"|"input"|"danger"|"text", value?}]}` · `click` `{el: index}` · `type` `{el: index, text}` (animated cursor; several actions in one step play in sequence; typing fills the element's value field if it has one) |
 | `sheet` | `set` `{cols: [...], rows: [[...]]}` · `highlight` `{col?: i, row?: i}` · `addcol` `{name, values: [...]}` |
 | `chart` | `bars` `{title, unit?, data: [{label, value, hi?: true, text?}]}` (animated bar chart) |
 | `doc` | `heading` `{text}` · `para` `{text}` (use `[1]` for citation markers) · `bullets` `{items: [...]}` |
 | `inbox` | `list` `{items: [{from, subj, time}]}` · `tag` `{i, label, color?: "red"|"green"|"blue"|"amber"|"purple"}` · `draft` `{to?, text}` |
 | `agents` | `spawn` `{agents: [{name, task, lead?: true}]}` · `progress` `{name, pct, status?}` · `done` `{name, result?}` |
 | `sources` | `add` `{items: [{title, meta, score?: 0..1}]}` · `pick` `{i: index or [indexes]}` |
-| `checklist` | `set` `{items: [...]}` · `mark` `{i, state: "doing"|"done"|"fail", text?}` |
+| `checklist` | `set` `{items: [...]}` · `mark` `{i, state: "todo"|"doing"|"done"|"fail", text?}` (state defaults to done) |
 | `phone` | `line` `{who: "caller"|"agent", text}` (animated waveform) |
 | `info` | `set` `{pairs: {Key: "value"}}` (a small status board, e.g. order details) |
 | `notes` | `add` `{text}` |

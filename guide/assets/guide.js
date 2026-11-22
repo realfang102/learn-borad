@@ -4,7 +4,11 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
-  function md(s) { return esc(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/`([^`]+)`/g, "<code>$1</code>").replace(/_([^_]+)_/g, "<em>$1</em>"); }
+  function md(s) {
+    return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(“"])\*([^*\s][^*]*?)\*(?=[\s.,;:!?)”"]|$)/g, "$1<em>$2</em>")
+      .replace(/(^|[\s(“"])_([^_\s][^_]*?)_(?=[\s.,;:!?)”"]|$)/g, "$1<em>$2</em>");
+  }
   var store = {
     get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -137,6 +141,7 @@
   Sim.prototype.next = function () {
     if (this.waiting || this.i >= this.spec.steps.length) return 0;
     var st = this.spec.steps[this.i++], self = this, txt = 0;
+    this.stepDelay = 0;
     $$(".loop-ind span", this.el).forEach(function (x) { x.className = x.dataset.ph === st.phase ? "on " + (st.phase === "human" ? "human" : st.phase === "done" ? "done" : "") : ""; });
     this.narrate(st.phase, st.say || "");
     (st.do || []).forEach(function (op) { txt += self.apply(op) || 0; });
@@ -144,7 +149,7 @@
     this.secs += st.t || (st.phase === "act" ? 3 : st.phase === "think" ? 4 : 1.5);
     this.stats();
     if (this.i >= this.spec.steps.length && !this.waiting) { this.ended = true; this.playing = false; $(".s-play", this.el).textContent = "↺ Replay"; $(".s-step", this.el).disabled = true; }
-    var base = 1800 + Math.min(4200, ((st.say || "").length + txt) * 16);
+    var base = 1800 + Math.min(4200, ((st.say || "").length + txt) * 16) + (this.stepDelay || 0) * this.speed;
     return st.wait ? st.wait * 1000 : base;
   };
   Sim.prototype.flash = function (p) { p.el.classList.remove("flash"); void p.el.offsetWidth; p.el.classList.add("flash"); var e = p.el; clearTimeout(e._f); e._f = setTimeout(function () { e.classList.remove("flash"); }, 900); };
@@ -194,13 +199,19 @@
       }
       case "browser:click": case "browser:type": {
         var el = $('.b-el[data-i="' + op.el + '"]', p.body), cu = $(".cursor", p.body); if (!el || !cu) break;
-        $$(".b-el", p.body).forEach(function (x) { x.classList.remove("target"); }); el.classList.add("target");
-        cu.style.left = (el.offsetLeft + el.offsetWidth * 0.6) + "px"; cu.style.top = (el.offsetTop + el.offsetHeight * 0.45) + "px";
-        setTimeout(function () { cu.classList.remove("click"); void cu.offsetWidth; cu.classList.add("click"); if (o === "type") { var span = el.querySelector("span"); self.typeInto(span, op.text); } }, 850 / this.speed);
+        var d0 = this.stepDelay || 0; this.stepDelay = d0 + 1300 / this.speed;
+        setTimeout(function () {
+          $$(".b-el", p.body).forEach(function (x) { x.classList.remove("target"); }); el.classList.add("target");
+          cu.style.left = (el.offsetLeft + el.offsetWidth * 0.6) + "px"; cu.style.top = (el.offsetTop + el.offsetHeight * 0.45) + "px";
+          setTimeout(function () {
+            cu.classList.remove("click"); void cu.offsetWidth; cu.classList.add("click");
+            if (o === "type") { var spans = el.querySelectorAll("span"); self.typeInto(spans[spans.length - 1], op.text); } // type into the value field if there is one
+          }, 850 / self.speed);
+        }, d0);
         len = (op.text || "").length + 20; break;
       }
       case "sheet:set": {
-        p.state.cols = op.cols; p.state.rows = op.rows; this.renderSheet(p); len = 80; break;
+        p.state.cols = op.cols; p.state.rows = op.rows; p.state.hc = op.highlightCol; p.state.hr = op.highlightRow; this.renderSheet(p); len = 80; break;
       }
       case "sheet:highlight": p.state.hc = op.col; p.state.hr = op.row; this.renderSheet(p); break;
       case "sheet:addcol": p.state.cols = p.state.cols.concat([op.name]); p.state.rows = p.state.rows.map(function (r, i) { return r.concat([op.values[i]]); }); p.state.hc = p.state.cols.length - 1; this.renderSheet(p); break;
@@ -226,7 +237,7 @@
       case "sources:add": op.items.forEach(function (s, i) { self.add(p, '<div class="st">' + esc(s.title) + '</div><div class="sm">' + esc(s.meta || "") + "</div>" + (s.score != null ? '<div class="score" title="relevance ' + s.score + '"><i style="width:' + Math.round(s.score * 100) + '%"></i></div><div class="sm">relevance ' + Math.round(s.score * 100) + '%</div>' : ""), "src"); }); len = 30 * op.items.length; break;
       case "sources:pick": { var all = $$(".src", p.body); (op.i instanceof Array ? op.i : [op.i]).forEach(function (i) { if (all[i]) all[i].classList.add("picked"); }); break; }
       case "checklist:set": p.body.innerHTML = '<ul class="checklist">' + op.items.map(function (x) { return "<li>" + md(x) + "</li>"; }).join("") + "</ul>"; len = op.items.join(" ").length; break;
-      case "checklist:mark": { var li = $$(".checklist li", p.body)[op.i]; if (li) { li.className = op.state || "done"; if (op.text) li.innerHTML = md(op.text); } break; }
+      case "checklist:mark": { var li = $$(".checklist li", p.body)[op.i]; if (li) { li.className = op.state === "todo" ? "" : (op.state || "done"); if (op.text) li.innerHTML = md(op.text); } break; }
       case "approval:ask": {
         var ap = this.add(p, '<div class="aq">🙋 ' + esc(op.title) + '</div><div class="ad">' + esc(op.detail || "") + '</div><div class="w-row"><button type="button" class="w-btn good a-yes">' + esc(op.approve || "Approve") + '</button><button type="button" class="w-btn bad a-no">' + esc(op.deny || "Deny") + '</button><span class="w-note a-hint">The agent is paused, waiting for you.</span></div>', "approval");
         this.waiting = ap;
