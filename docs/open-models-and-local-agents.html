@@ -209,13 +209,13 @@
 <tbody><tr>
 <td><strong>Qwen</strong></td>
 <td>Alibaba</td>
-<td>Very wide size range, from phone-sized to large MoE; Qwen3 (2025) and Qwen3.5 (2026) generations; among the most downloaded and fine-tuned bases</td>
+<td>Very wide size range, from phone-sized to large MoE; Qwen3 (2025) and Qwen3.5 (February 2026) generations, with point releases since; among the most downloaded and fine-tuned bases</td>
 <td>Mostly Apache 2.0</td>
 </tr>
 <tr>
 <td><strong>DeepSeek</strong></td>
 <td>DeepSeek</td>
-<td>Large MoE models; V3 and R1 (2025) made open reasoning models mainstream; the V4 generation followed in 2026</td>
+<td>Large MoE models; V3 (December 2024) and R1 (January 2025) made open reasoning models mainstream; V4 followed in April 2026</td>
 <td>Mostly MIT</td>
 </tr>
 <tr>
@@ -348,7 +348,7 @@ Where is order A-1042?&lt;|im_end|&gt;
 <tr>
 <td><strong>llama.cpp</strong> (<code>llama-server</code>)</td>
 <td>CPU, Apple Silicon, consumer GPUs, GGUF files, edge devices</td>
-<td>Start with <code>--jinja</code> to use the model&#39;s template and enable tool parsing; override with <code>--chat-template-file</code>; native handlers for some families and a generic fallback</td>
+<td>Uses the model&#39;s embedded Jinja template and tool parsing via <code>--jinja</code> (on by default in recent builds; older builds needed the flag); override with <code>--chat-template-file</code>; native handlers for some families and a generic fallback</td>
 </tr>
 <tr>
 <td><strong>Ollama</strong></td>
@@ -370,8 +370,10 @@ Where is order A-1042?&lt;|im_end|&gt;
 <p>Commercial options (NVIDIA NIM and Dynamo, TensorRT-LLM, cloud endpoints) wrap similar engines. Hosted inference providers also serve open-weight models: open-model economics and portability without running GPUs, though not the data-control benefit.</p>
 <h3 id="calling-a-local-server-with-a-tool"><a class="anchor" href="#calling-a-local-server-with-a-tool" aria-hidden="true" tabindex="-1">#</a>Calling a local server with a tool</h3>
 <p>Start a server. With vLLM and a Qwen3 model, whose templates use the Hermes-style tags shown earlier:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-bash"><span class="hljs-comment"># GPU server (vLLM)</span>
-vllm serve Qwen/Qwen3-8B --enable-auto-tool-choice --tool-call-parser hermes
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-bash"><span class="hljs-comment"># GPU server (vLLM). Qwen3 thinks by default; the reasoning parser keeps its</span>
+<span class="hljs-comment"># &lt;think&gt; text out of `content`.</span>
+vllm serve Qwen/Qwen3-8B --enable-auto-tool-choice --tool-call-parser hermes \
+    --reasoning-parser qwen3
 
 <span class="hljs-comment"># Or on a laptop (Ollama); the OpenAI-compatible API is at localhost:11434/v1</span>
 ollama pull qwen3:8b</code></pre></div>
@@ -673,6 +675,7 @@ TOOLS = [{
 
 <span class="hljs-keyword">from</span> jsonschema <span class="hljs-keyword">import</span> Draft202012Validator
 
+<span class="hljs-comment"># TOOLS here is the OpenAI-format list from the local tool-calling example</span>
 SCHEMAS = {t[<span class="hljs-string">&quot;function&quot;</span>][<span class="hljs-string">&quot;name&quot;</span>]: t[<span class="hljs-string">&quot;function&quot;</span>][<span class="hljs-string">&quot;parameters&quot;</span>] <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> TOOLS}
 
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">call_is_valid</span>(<span class="hljs-params">call</span>) -&gt; <span class="hljs-built_in">bool</span>:
@@ -712,11 +715,11 @@ SCHEMAS = {t[<span class="hljs-string">&quot;function&quot;</span>][<span class=
   <div class="quiz-question"><span class="quiz-num">2</span><div>You serve a 4-bit model with grammar-constrained decoding for tool arguments. What does this guarantee?</div></div>
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model will pick the correct tool for each step</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model will never call a tool when no tool is needed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model skips tool calls when a direct answer would do</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Task success matches the unquantized model on agent tasks</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tool arguments will parse and conform to the schema</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding masks tokens that would violate the grammar, so the structure is always valid. It says nothing about whether the tool choice, IDs or plan are right, and it does not undo quantization loss. Validate semantics in your tool code.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding masks tokens that would violate the grammar, so the structure is always valid. It says nothing about whether the tool choice, the decision to call a tool at all, the IDs or the plan are right, and it does not undo quantization loss. Validate semantics in your tool code.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">

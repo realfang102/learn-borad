@@ -239,7 +239,7 @@ Tokenized actions are coarse, while folding laundry needs smooth, high-frequency
 ### Frontier VLAs: Gemini Robotics and GR00T
 
 - **Gemini Robotics** (Google DeepMind, March 2025) built a VLA on Gemini 2.0, alongside **Gemini Robotics-ER**, a VLM for embodied reasoning (spatial understanding, pointing, grasp prediction); an on-device version followed in June 2025. **Gemini Robotics 1.5** (September 2025) added "thinking" before acting and **motion transfer** across embodiments, with ER 1.5 available to developers through the Gemini API. **Gemini Robotics 2** (July 2026) extended control to humanoid **whole-body** movement, and **Gemini Robotics 2.5** (November 2026) was announced as DeepMind's most capable VLA so far, rolling out to robotics partners.
-- **NVIDIA Isaac GR00T N1** (March 2025) is an open humanoid foundation model with a dual-system design: a slower VLM reasoning module and a fast diffusion-based action module, trained on teleoperation, synthetic data and human videos. Updates followed (N1.5 in mid-2025, then N1.6 using NVIDIA's Cosmos Reason VLM).
+- **NVIDIA Isaac GR00T N1** (March 2025) is an open humanoid foundation model with a dual-system design: a slower VLM reasoning module and a fast diffusion-based action module, trained on teleoperation, synthetic data and human videos. Updates followed (N1.5 in mid-2025, then N1.6, announced in late 2025, using a Cosmos Reason VLM for reasoning).
 
 | Model | Org, date | Action representation | Open weights? |
 |---|---|---|---|
@@ -270,7 +270,7 @@ Robots have no web-scale corpus of "what the motors did", and this **data bottle
 A **world model** predicts how the world will change given an action. Model-based control has always used hand-written physics models; the new idea is learning **world foundation models** from video at scale.
 
 - **Genie** (Google DeepMind) learned controllable environments from unlabeled internet video in 2024. **Genie 2** (December 2024) generated playable 3D worlds from a prompt image, and **Genie 3** (August 2025) produced interactive worlds in real time that a user or an agent can move through.
-- **NVIDIA Cosmos** (announced at CES in January 2025) is a family of open world foundation models aimed squarely at physical AI: **Cosmos Predict** generates future video from text, image or video inputs, **Cosmos Transfer** turns simulator output or structured inputs into varied photorealistic video for synthetic data, and **Cosmos Reason** is a VLM for physical reasoning.
+- **NVIDIA Cosmos** (first announced at CES in January 2025 and expanded through the year) is a family of open world foundation models aimed squarely at physical AI: **Cosmos Predict** generates future video from text, image or video inputs, **Cosmos Transfer** turns simulator output or structured inputs into varied photorealistic video for synthetic data, and **Cosmos Reason** is a VLM for physical reasoning.
 
 World models serve robotics in three ways: **synthetic data**, **policy evaluation** (rolling a policy out "in imagination" instead of on hardware), and **planning** (imagining outcomes before committing). The open question is fidelity: generated video can look convincing while violating physics in small ways that matter enormously to a grasp, and errors compound over long rollouts. As of 2026, they help with data augmentation and coarse evaluation but do not replace real-world testing.
 
@@ -380,6 +380,7 @@ For where this might go, see [the future of agents](future-of-agents.html).
     TOOLS.append(skill("can_succeed", "Estimate the probability (0-1) that a skill succeeds now.",
                        {"skill": {"type": "string", "enum": ["pick", "place"]},
                         "obj": {"type": "string"}}))
+    robot = AffordanceRobot()  # use this in place of RobotStub() in the loop
     ```
 3. **Hint:** Fail without changing state, so the object stays where it was, and keep the retry counter in the harness, not in the prompt, for the same reason the knife gate lives there. **Sketch:** With feedback the planner usually just retries `pick`, which is the Inner Monologue lesson in action. With a limit of three attempts, an object at 25% failure per attempt still gets stuck 0.25³ = 1/64 ≈ 1.6% of the time, so escalation will happen in practice. When it does, return a `BLOCKED` result that tells the planner to stop and report to the user, and in a real system notify an operator.
 
@@ -418,11 +419,11 @@ Q: Why did SayCan multiply the language model's score for a skill by a learned a
 E: The LLM knows what would help in general, but not what this robot can do from its current state. The affordance value function estimates the chance that a skill succeeds here and now, so the product favors steps that are both useful and achievable. Converting to motor commands is the job of the skills themselves.
 
 Q: In a hierarchical embodied agent, why does the LLM planner not send motor commands directly?
-- [ ] LLMs cannot output numbers precisely enough to describe joint angles at all
-- [ ] Robot manufacturers do not permit language models to access joint controllers
+- [ ] LLMs emit numbers too imprecisely to specify joint angles reliably
+- [ ] Safety standards forbid neural networks from commanding joint motors
 - [x] It runs at seconds per step, far slower than the control loop needs
-- [ ] Motor commands use far too many tokens to fit in the model's context window
-E: Control loops correct motion tens to hundreds of times per second, while a large model takes on the order of a second or more per decision. So the planner works at the level of skills and objects, and faster policies and controllers handle motion. LLMs can emit numbers; the problem is timescale, not syntax.
+- [ ] A full trajectory needs too many tokens to fit in the context window
+E: Control loops correct motion tens to hundreds of times per second, while a large model takes on the order of a second or more per decision. So the planner works at the level of skills and objects, and faster policies and controllers handle motion. LLMs can emit numbers precisely, and VLAs do command motion through learned networks; the problem is timescale, not precision or permission.
 
 Q: What was the key idea that RT-2 introduced?
 - [ ] Training only in simulation, then transferring the policy to real robots
@@ -439,25 +440,25 @@ Q: A grasping policy trained in simulation fails on the real robot because real 
 E: Domain randomization trains across many variations of visual and physical parameters so the real world looks like one more variation. A bigger planner or faster controller does not change what the grasping policy learned about appearance and contact.
 
 Q: Two papers report 72% and 81% real-world success for different VLAs. Why is that comparison weak evidence?
-- [ ] Real-world success rates are always lower than simulation success rates
+- [ ] Real-world rates can't be compared until replicated in simulation
 - [x] Robots, scenes, task sets, trial counts and success criteria differ
-- [ ] Success rates only matter for humanoids, not for single-arm robots
-- [ ] Higher-capacity models always perform better on any real robot task
-E: Real-world results depend heavily on the hardware, objects, initial conditions, number of trials and how success is judged. Without a shared protocol and confidence intervals, a 9-point gap can be noise or setup differences. Shared simulation benchmarks like SIMPLER and LIBERO exist partly to address this.
+- [ ] A 9-point gap is too small to matter for manipulation tasks
+- [ ] Success should be reported per hour of operation, not per trial
+E: Real-world results depend heavily on the hardware, objects, initial conditions, number of trials and how success is judged. Without a shared protocol and confidence intervals, a 9-point gap can be noise or setup differences; under a shared protocol with enough trials, the same gap could matter a lot. Simulation benchmarks like SIMPLER and LIBERO help, but they complement real trials rather than validate them, and time-based metrics are useful additions, not the reason the comparison fails.
 
 Q: Where should the guarantee "the arm stops if it contacts a person unexpectedly" be implemented?
-- [ ] In the planner's system prompt, as a rule it must always follow
+- [ ] In the planner's system prompt, stated as a non-negotiable rule
 - [ ] In a semantic safety benchmark that the VLA is evaluated against
 - [x] In force sensing and stops below the AI, independent of any model
 - [ ] In the VLA's training data, through many demonstrations of stopping
 E: Physical safety guarantees must hold even if every AI component is wrong or manipulated. Prompts can be overridden, training only makes behavior more likely, and benchmarks measure rather than enforce. Hardware and low-level force limits act regardless of what the model decides.
 
 Q: What did the Open X-Embodiment collaboration find when training RT-X models on pooled data?
-- [x] A model trained on many robots often beat one trained on a single robot's data
-- [ ] Mixing robot types always hurt performance because their action spaces differ
-- [ ] Simulated data from many robots fully replaced the need for any real data
-- [ ] Cross-embodiment training only helped once the model exceeded 100B params
-E: The RT-X results showed positive transfer: diverse data from other robots improved performance on a given robot. Action-space differences are a real challenge, but they did not prevent the gains, and the dataset consisted of real robot trajectories, not simulation.
+- [x] Pooled training often beat training on a single robot's own data
+- [ ] Mixing robot types hurt results because their action spaces differ
+- [ ] Simulated data from many robots could stand in for most real data
+- [ ] Cross-embodiment gains required a model above 100B parameters
+E: The RT-X results showed positive transfer: diverse data from other robots improved performance on a given robot. Action-space differences are a real challenge, but they did not prevent the gains; the dataset consisted of real robot trajectories, not simulation; and gains did not require a huge model: the much smaller RT-1-X beat the per-robot models on several small-data setups.
 ```
 
 ## Further Reading

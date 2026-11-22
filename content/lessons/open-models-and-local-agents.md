@@ -56,8 +56,8 @@ The field moves too fast for a ranking to survive a quarter, so think in familie
 
 | Family | Developer | Notes as of November 2026 | Typical license (check each release) |
 |---|---|---|---|
-| **Qwen** | Alibaba | Very wide size range, from phone-sized to large MoE; Qwen3 (2025) and Qwen3.5 (2026) generations; among the most downloaded and fine-tuned bases | Mostly Apache 2.0 |
-| **DeepSeek** | DeepSeek | Large MoE models; V3 and R1 (2025) made open reasoning models mainstream; the V4 generation followed in 2026 | Mostly MIT |
+| **Qwen** | Alibaba | Very wide size range, from phone-sized to large MoE; Qwen3 (2025) and Qwen3.5 (February 2026) generations, with point releases since; among the most downloaded and fine-tuned bases | Mostly Apache 2.0 |
+| **DeepSeek** | DeepSeek | Large MoE models; V3 (December 2024) and R1 (January 2025) made open reasoning models mainstream; V4 followed in April 2026 | Mostly MIT |
 | **gpt-oss** | OpenAI | gpt-oss-120b and gpt-oss-20b (August 2025), reasoning MoE models trained for tool use, using the "harmony" response format | Apache 2.0 plus a usage policy |
 | **Gemma** | Google DeepMind | Gemma 4 (April 2026) in sizes from on-device to a 31B dense model; the first Gemma generation under Apache 2.0 | Apache 2.0 (Gemma 4); earlier Gemma versions used custom Gemma terms |
 | **Mistral** | Mistral AI | Small, medium and large models; the Mistral 3 family | Mostly Apache 2.0; some older models used research or non-production licenses |
@@ -164,7 +164,7 @@ flowchart LR
 |---|---|---|
 | **vLLM** | High-throughput GPU serving in production | `--enable-auto-tool-choice` plus a model-specific `--tool-call-parser` (for example `hermes` for Qwen-style tags, `openai` for gpt-oss, Llama and Mistral parsers); custom templates via `--chat-template` |
 | **SGLang** | High-throughput serving, strong prefix reuse for agent and multi-call workloads | `--tool-call-parser` with names such as `qwen`, `llama3`, `deepseekv3`, `kimi_k2`, `gpt-oss`; separate `--reasoning-parser` |
-| **llama.cpp** (`llama-server`) | CPU, Apple Silicon, consumer GPUs, GGUF files, edge devices | Start with `--jinja` to use the model's template and enable tool parsing; override with `--chat-template-file`; native handlers for some families and a generic fallback |
+| **llama.cpp** (`llama-server`) | CPU, Apple Silicon, consumer GPUs, GGUF files, edge devices | Uses the model's embedded Jinja template and tool parsing via `--jinja` (on by default in recent builds; older builds needed the flag); override with `--chat-template-file`; native handlers for some families and a generic fallback |
 | **Ollama** | Developer laptops and simple local deployments | Wraps llama.cpp-style inference with a model registry; OpenAI-compatible API at `http://localhost:11434/v1`; tool support depends on the model's packaged template |
 | **LM Studio** | Desktop GUI for trying models | Local OpenAI-compatible server (default port 1234) |
 | **TGI** (Hugging Face) | Existing deployments | In maintenance mode since late 2025; Hugging Face points new deployments to engines like vLLM and SGLang |
@@ -176,8 +176,10 @@ Commercial options (NVIDIA NIM and Dynamo, TensorRT-LLM, cloud endpoints) wrap s
 Start a server. With vLLM and a Qwen3 model, whose templates use the Hermes-style tags shown earlier:
 
 ```bash
-# GPU server (vLLM)
-vllm serve Qwen/Qwen3-8B --enable-auto-tool-choice --tool-call-parser hermes
+# GPU server (vLLM). Qwen3 thinks by default; the reasoning parser keeps its
+# <think> text out of `content`.
+vllm serve Qwen/Qwen3-8B --enable-auto-tool-choice --tool-call-parser hermes \
+    --reasoning-parser qwen3
 
 # Or on a laptop (Ollama); the OpenAI-compatible API is at localhost:11434/v1
 ollama pull qwen3:8b
@@ -496,6 +498,7 @@ Downloading weights from the internet and running them on your GPUs is a supply-
 
     from jsonschema import Draft202012Validator
 
+    # TOOLS here is the OpenAI-format list from the local tool-calling example
     SCHEMAS = {t["function"]["name"]: t["function"]["parameters"] for t in TOOLS}
 
     def call_is_valid(call) -> bool:
@@ -529,8 +532,8 @@ Q: You serve a 4-bit model with grammar-constrained decoding for tool arguments.
 - [ ] The model will pick the correct tool for each step
 - [ ] Task success matches the unquantized model on agent tasks
 - [x] Tool arguments will parse and conform to the schema
-- [ ] The model will never call a tool when no tool is needed
-E: Constrained decoding masks tokens that would violate the grammar, so the structure is always valid. It says nothing about whether the tool choice, IDs or plan are right, and it does not undo quantization loss. Validate semantics in your tool code.
+- [ ] The model skips tool calls when a direct answer would do
+E: Constrained decoding masks tokens that would violate the grammar, so the structure is always valid. It says nothing about whether the tool choice, the decision to call a tool at all, the IDs or the plan are right, and it does not undo quantization loss. Validate semantics in your tool code.
 
 Q: A model has 64 layers, 8 KV heads and head dimension 128, with a 16-bit KV cache. Roughly how much KV memory does one 32K-token session need?
 - [ ] About 0.26 GB, the same as a single token at full precision
