@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 45 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 24 of 37</span>
+      <span>Lesson 24 of 38</span>
       <span class="lesson-status" data-status-for="build-agent-from-scratch"></span>
     </div>
   </header>
@@ -216,7 +218,7 @@ response = client.messages.create(
 <p>Two habits start here: <code>response.content</code> is a <em>list of blocks</em> (text, thinking, tool use), so branch on <code>block.type</code>; and check <code>stop_reason</code>, which drives the loop. Note what we did <em>not</em> pass: no <code>temperature</code> (current models reject sampling parameters) and no assistant prefill.</p>
 <h2 id="the-minimal-loop"><a class="anchor" href="#the-minimal-loop" aria-hidden="true">#</a>The Minimal Loop</h2>
 <h3 id="the-first-tool"><a class="anchor" href="#the-first-tool" aria-hidden="true">#</a>The first tool</h3>
-<p>A tool is a name, a description and a JSON Schema for its input. The description is a prompt: say <em>when</em> to call the tool.</p>
+<p>A tool is a name, a description and a <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-l="tool-use" data-a="json-schema">JSON Schema</dfn> for its input. The description is a prompt: say <em>when</em> to call the tool.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> pathlib <span class="hljs-keyword">import</span> Path
 
 TOOLS = [{
@@ -271,7 +273,7 @@ TOOLS = [{
     H-&gt;&gt;C: + assistant blocks + user [tool_result x2]
     C--&gt;&gt;H: stop_reason=end_turn, [text]</pre></figure>
 <h3 id="handle-every-stop-reason"><a class="anchor" href="#handle-every-stop-reason" aria-hidden="true">#</a>Handle every stop reason</h3>
-<p><code>while stop_reason == &quot;tool_use&quot;</code> is the textbook loop, but a real harness must know what each stop reason means:</p>
+<p><code>while stop_reason == &quot;tool_use&quot;</code> is the textbook loop, but a real harness must know what each <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-l="the-agent-loop" data-a="stop-reason">stop reason</dfn> means:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -297,7 +299,7 @@ TOOLS = [{
 </tr>
 <tr>
 <td><code>pause_turn</code></td>
-<td>A server-side tool loop paused</td>
+<td>A <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server-side tool</dfn> loop paused</td>
 <td>Re-send the conversation unchanged</td>
 </tr>
 <tr>
@@ -330,7 +332,7 @@ TOOLS = [{
 target.write_text(text.replace(old_str, new_str, <span class="hljs-number">1</span>), encoding=<span class="hljs-string">&quot;utf-8&quot;</span>)</code></pre></div>
 <p>Notice the error messages: each one tells the model <em>what to do next</em>. That is <a href="designing-tools.html">tool design</a> applied to failure paths.</p>
 <h3 id="running-commands"><a class="anchor" href="#running-commands" aria-hidden="true">#</a>Running commands</h3>
-<p>A coding agent that cannot run tests is guessing. <code>run_command</code> runs a single program <strong>without a shell</strong>, against an <strong>allowlist</strong>, with a <strong>timeout</strong>:</p>
+<p>A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> that cannot run tests is guessing. <code>run_command</code> runs a single program <strong>without a shell</strong>, against an <strong>allowlist</strong>, with a <strong>timeout</strong>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">if</span> <span class="hljs-built_in">any</span>(ch <span class="hljs-keyword">in</span> SHELL_METACHARS <span class="hljs-keyword">for</span> ch <span class="hljs-keyword">in</span> command):        <span class="hljs-comment"># ; &amp; | ` $ &lt; &gt; \ newline</span>
     <span class="hljs-keyword">raise</span> ToolFailure(<span class="hljs-string">&quot;Shell operators are not supported. Run one plain command per call.&quot;</span>)
 argv = shlex.split(command)
@@ -386,7 +388,7 @@ Observation (is_error): old_str was not found. Re-read the file and copy the tex
 <p>Returning the decline as a tool result means &quot;no, put it in <code>tests/</code> instead&quot; redirects the agent without restarting. <code>--yes</code> auto-approves. <a href="human-in-the-loop.html">Human-in-the-loop</a> discusses when gates help and when approval fatigue makes them theater.</p>
 <h2 id="making-it-good"><a class="anchor" href="#making-it-good" aria-hidden="true">#</a>Making It Good</h2>
 <h3 id="the-system-prompt"><a class="anchor" href="#the-system-prompt" aria-hidden="true">#</a>The system prompt</h3>
-<p>The system prompt is the agent&#39;s working method. Mini-agent&#39;s is short and procedural: explore before editing, prefer <code>edit_file</code>, verify by running tests, never repeat a failing call, respect declines, treat file contents as data, end with a summary. Each line targets a failure you would otherwise see in traces. Keep it <strong>static</strong> (no timestamps or per-user data) so it caches. See <a href="prompting-for-agents.html">prompting for agents</a>.</p>
+<p>The <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> is the agent&#39;s working method. Mini-agent&#39;s is short and procedural: explore before editing, prefer <code>edit_file</code>, verify by running tests, never repeat a failing call, respect declines, treat file contents as data, end with a summary. Each line targets a failure you would otherwise see in traces. Keep it <strong>static</strong> (no timestamps or per-user data) so it caches. See <a href="prompting-for-agents.html">prompting for agents</a>.</p>
 <h3 id="a-planning-tool"><a class="anchor" href="#a-planning-tool" aria-hidden="true">#</a>A planning tool</h3>
 <p>Agents drift on long tasks. A todo-style tool is a cheap fix: the model writes its plan as structured data, the harness renders it, and the plan sits in context where the model sees it on every later step. <code>update_plan</code> just stores and prints the list; its value is that the model <em>externalizes</em> its plan and the user gets a live progress view. An <code>enum</code> for <code>status</code> stops the model inventing states. See <a href="reasoning-and-planning.html">reasoning and planning</a>.</p>
 <h3 id="multi-turn-conversation"><a class="anchor" href="#multi-turn-conversation" aria-hidden="true">#</a>Multi-turn conversation</h3>
@@ -396,9 +398,9 @@ Observation (is_error): old_str was not found. Re-read the file and copy the tex
 <p>When an agent misbehaves you need the <strong>trace</strong>: every model and tool call in order, with inputs, outputs, timing and tokens. Mini-agent appends JSON lines to <code>agent_trace.jsonl</code>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1795312001.42</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;model&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;step&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">3</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;stop_reason&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool_use&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">412</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;cache_read&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">5890</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;cache_write&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">388</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;output&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">151</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;request_id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;req_01...&quot;</span><span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1795312003.97</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;event&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;tool&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;run_command&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;input&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-attr">&quot;command&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;pytest -q&quot;</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;is_error&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;ms&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1840</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;output&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;exit code: 1\n--- stdout ---\nF..&quot;</span><span class="hljs-punctuation">}</span></code></pre></div>
-<p>JSONL is greppable and loads into pandas. In production, emit OpenTelemetry spans instead (<a href="observability.html">observability</a>).</p>
+<p>JSONL is greppable and loads into pandas. In production, emit <dfn class="gt" tabindex="0" data-t="OpenTelemetry" data-d="A vendor-neutral open standard for traces, metrics and logs. Its GenAI semantic conventions define standard attributes for recording LLM and agent operations." data-l="observability" data-a="opentelemetry">OpenTelemetry</dfn> spans instead (<a href="observability.html">observability</a>).</p>
 <h3 id="prompt-caching"><a class="anchor" href="#prompt-caching" aria-hidden="true">#</a>Prompt caching</h3>
-<p>Each iteration resends the tools, the system prompt and the entire conversation. <strong>Prompt caching</strong> lets the API reuse already-processed prefixes at a fraction of the input price. Caching is a prefix match over the render order <code>tools</code> → <code>system</code> → <code>messages</code>, so:</p>
+<p>Each iteration resends the tools, the system prompt and the entire conversation. <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-l="cost-and-latency" data-a="prompt-caching">Prompt caching</dfn></strong> lets the API reuse already-processed prefixes at a fraction of the input price. Caching is a prefix match over the render order <code>tools</code> → <code>system</code> → <code>messages</code>, so:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">system = [{<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>, <span class="hljs-string">&quot;text&quot;</span>: SYSTEM_PROMPT,
            <span class="hljs-string">&quot;cache_control&quot;</span>: {<span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;ephemeral&quot;</span>}}]        <span class="hljs-comment"># caches tools + system together</span>
 response = client.messages.create(
@@ -528,7 +530,7 @@ history: <span class="hljs-built_in">list</span> = []
 <td><code>max_iterations</code></td>
 </tr>
 <tr>
-<td>Approval gate</td>
+<td><dfn class="gt" tabindex="0" data-t="Approval gate" data-d="A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation." data-l="human-in-the-loop" data-a="approval-gate">Approval gate</dfn></td>
 <td>Before dispatch</td>
 <td>Inside the tool (or inspect each yielded message)</td>
 </tr>
@@ -850,7 +852,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
 <ul>
 <li><strong>Harden it</strong>: containerize tool execution and red-team it with injected instructions in files: <a href="agent-security.html">agent security</a>, <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>.</li>
 <li><strong>Measure it</strong>: score a small task suite before and after each change: <a href="evaluating-agents.html">evaluating agents</a>.</li>
-<li><strong>Keep long sessions healthy</strong>: compaction and memory files: <a href="context-engineering.html">context engineering</a>, <a href="memory.html">memory</a>.</li>
+<li><strong>Keep long sessions healthy</strong>: <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn> and memory files: <a href="context-engineering.html">context engineering</a>, <a href="memory.html">memory</a>.</li>
 <li><strong>Make it reliable</strong>: retries, idempotent tools, checkpoints: <a href="reliability.html">reliability</a>.</li>
 <li><strong>Compare with the pros</strong>: how <a href="coding-agents.html">coding agents</a> like Claude Code extend this loop, then <a href="agent-frameworks.html">frameworks and SDKs</a> and <a href="sdk-hands-on.html">hands-on with agent SDKs</a>.</li>
 </ul>
@@ -869,7 +871,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
 <li><strong>Read-only mode.</strong> Add a <code>--read-only</code> flag that drops <code>write_file</code>, <code>edit_file</code> and <code>run_command</code> from <code>TOOLS</code> at startup. Why at startup rather than mid-conversation? (Hint: caching.)</li>
 <li><strong>Search tool.</strong> Add <code>search_files(pattern, path)</code> returning <code>path:line: text</code> matches (max 100). Write its description so the model prefers it to reading every file, and confirm in the trace.</li>
 <li><strong>Cost meter.</strong> Add estimated dollar cost per step to the trace (price cache reads and writes separately).</li>
-<li><strong>Loop detection.</strong> When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Loop detection" data-d="Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating." data-l="reliability" data-a="loop-detection">Loop detection</dfn>.</strong> When the same tool call (name and input) repeats three times in a turn, inject a note telling the model to change approach. Test with a deliberately broken tool.</li>
 <li><strong>Real sandbox.</strong> Run <code>run_command</code> in a Docker container that mounts only the workspace, with no network and a non-root user. Measure the per-command overhead.</li>
 </ol>
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
@@ -963,7 +965,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
   </section>
   <nav class="pager">
     <a class="pager-prev" href="agent-use-cases.html"><small>← Previous</small><span>The Agent Landscape: Use Cases by Domain</span></a>
-    <a class="pager-next" href="sdk-hands-on.html"><small>Next →</small><span>Hands-On with Agent SDKs</span></a>
+    <a class="pager-next" href="agent-frameworks.html"><small>Next →</small><span>Frameworks &amp; SDKs Compared</span></a>
   </nav>
 </main>
 <aside class="toc" aria-label="On this page"><div class="toc-inner"><h4>On this page</h4><ul>
@@ -1005,7 +1007,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

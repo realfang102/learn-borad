@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 40 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 7 of 37</span>
+      <span>Lesson 7 of 38</span>
       <span class="lesson-status" data-status-for="tool-use"></span>
     </div>
   </header>
@@ -141,7 +143,7 @@
   <article class="prose">
 <p>A language model, by itself, can only do one thing: produce text. It can&#39;t check the weather, query a database, send an email or run code. And yet agents do all of those things every day. The bridge is <strong>tool use</strong> (also called <strong>function calling</strong>): you describe some functions to the model, the model replies with a structured request to call one, your code runs it, and you hand the result back. Repeat until the job is done.</p>
 <p>That simple handshake is the most important mechanism in this entire course. Everything an agent does in the world — browsing, coding, booking, researching — happens through it. If <a href="the-agent-loop.html">the agent loop</a> is the heartbeat of an agent, tool calls are its hands.</p>
-<p>In this lesson you&#39;ll learn exactly what happens in a tool call, byte by byte: how tools are defined with JSON Schema, how the request/response cycle works, how to handle multiple calls at once and errors gracefully, what &quot;strict&quot; mode guarantees, the different kinds of tools (including ones that run on the provider&#39;s servers), and the bugs that bite almost everyone the first time. You&#39;ll finish with a complete, runnable agent in Python.</p>
+<p>In this lesson you&#39;ll learn exactly what happens in a tool call, byte by byte: how tools are defined with <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-a="json-schema">JSON Schema</dfn>, how the request/response cycle works, how to handle multiple calls at once and errors gracefully, what &quot;strict&quot; mode guarantees, the different kinds of tools (including ones that run on the provider&#39;s servers), and the bugs that bite almost everyone the first time. You&#39;ll finish with a complete, runnable agent in Python.</p>
 <h2 id="the-core-idea-the-model-asks-your-code-acts"><a class="anchor" href="#the-core-idea-the-model-asks-your-code-acts" aria-hidden="true">#</a>The Core Idea: The Model Asks, Your Code Acts</h2>
 <p>Think of the model as a very capable manager who can&#39;t leave their office. They can&#39;t do anything physically, but they can write precise work orders: &quot;Call the weather service for Oslo and tell me what it says.&quot; You — the program around the model, usually called the <strong>harness</strong> — read the work order, do the work, and slide the result back under the door.</p>
 <p>Concretely:</p>
@@ -165,16 +167,16 @@ Model: Yes — it's -3 °C and snowing in Oslo, with a cold wind. Bring a warm,
 </div></aside>
 <h2 id="how-models-learn-to-call-functions"><a class="anchor" href="#how-models-learn-to-call-functions" aria-hidden="true">#</a>How Models Learn to Call Functions</h2>
 <p>Early experiments made models call tools by prompting them to write something like <code>ACTION: search[query]</code> and then parsing it with regular expressions. It worked, sometimes. Modern function calling is far more reliable because it is <strong>trained in</strong>.</p>
-<p>Under the hood, the API renders your tool definitions into the model&#39;s context in a format the model was trained on (Anthropic&#39;s docs describe tool definitions as being placed into a special system prompt, which is why tools count toward your input tokens). When the model decides to use a tool, it emits the call in a learned, structured format, and the API parses that into a clean <code>tool_use</code> object for you. You never see the raw format.</p>
+<p>Under the hood, the API renders your tool definitions into the model&#39;s context in a format the model was trained on (Anthropic&#39;s docs describe tool definitions as being placed into a special <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, which is why tools count toward your input tokens). When the model decides to use a tool, it emits the call in a learned, structured format, and the API parses that into a clean <code>tool_use</code> object for you. You never see the raw format.</p>
 <p>The model learns this through several kinds of training (the <a href="training-agents.html">training agents</a> lesson goes deeper):</p>
 <ul>
-<li><strong>Supervised fine-tuning on tool-use transcripts.</strong> Demonstrations of when to call which tool with which arguments, and how to use the results. Research such as <em>Toolformer</em> (2023) showed models can even bootstrap this by labeling where API calls would have helped, and <em>Gorilla</em> trained models to call real APIs from their documentation.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Supervised fine-tuning" data-d="Further training a pretrained model on curated input-output examples, such as instructions with good responses or successful agent trajectories." data-l="training-agents" data-a="supervised-fine-tuning">Supervised fine-tuning</dfn> on tool-use transcripts.</strong> Demonstrations of when to call which tool with which arguments, and how to use the results. Research such as <em><dfn class="gt" tabindex="0" data-t="Toolformer" data-d="A model (Schick et al., 2023) that taught itself when and how to call APIs by self-supervised filtering of candidate calls that improved next-token prediction." data-a="toolformer">Toolformer</dfn></em> (2023) showed models can even bootstrap this by labeling where API calls would have helped, and <em>Gorilla</em> trained models to call real APIs from their documentation.</li>
 <li><strong>Reinforcement learning in environments.</strong> The model attempts multi-step tasks with real or simulated tools and is rewarded for actually succeeding. This is what teaches judgment: when <em>not</em> to call a tool, how to recover from an error, when to stop.</li>
-<li><strong>Constrained decoding (optionally).</strong> For &quot;strict&quot; tools, the provider restricts which tokens the model may generate so the arguments are guaranteed to match your schema. More on this below and in <a href="structured-outputs.html">structured outputs</a>.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Constrained decoding" data-d="Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output." data-l="structured-outputs" data-a="constrained-decoding">Constrained decoding</dfn> (optionally).</strong> For &quot;strict&quot; tools, the provider restricts which tokens the model may generate so the arguments are guaranteed to match your schema. More on this below and in <a href="structured-outputs.html">structured outputs</a>.</li>
 </ul>
-<p>Benchmarks such as the Berkeley Function Calling Leaderboard and τ-bench measure how well models pick tools, fill arguments and complete multi-turn tool tasks; see <a href="benchmarks.html">benchmarks</a>.</p>
+<p>Benchmarks such as the Berkeley Function Calling Leaderboard and <dfn class="gt" tabindex="0" data-t="τ-bench" data-d="A benchmark (Yao et al., 2024) of tool-agent-user interaction in domains like airline and retail, with a simulated user and domain policies; it introduced the pass^k metric. τ²-bench adds dual-control environments." data-l="benchmarks" data-a="τ-bench">τ-bench</dfn> measure how well models pick tools, fill arguments and complete multi-turn tool tasks; see <a href="benchmarks.html">benchmarks</a>.</p>
 <h2 id="defining-a-tool-with-json-schema"><a class="anchor" href="#defining-a-tool-with-json-schema" aria-hidden="true">#</a>Defining a Tool with JSON Schema</h2>
-<p>A tool definition has three parts: a <strong>name</strong>, a <strong>description</strong>, and an <strong>input schema</strong> written in <strong>JSON Schema</strong>, a standard vocabulary for describing the shape of JSON data.</p>
+<p>A <dfn class="gt" tabindex="0" data-t="Tool definition" data-d="The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly." data-l="designing-tools" data-a="tool-definition">tool definition</dfn> has three parts: a <strong>name</strong>, a <strong>description</strong>, and an <strong>input schema</strong> written in <strong>JSON Schema</strong>, a standard vocabulary for describing the shape of JSON data.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;get_weather&quot;</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Get the current weather for a city. Use this when the user asks about current conditions or temperature somewhere. Returns temperature in Celsius, a short conditions string and wind speed. Does not provide forecasts.&quot;</span><span class="hljs-punctuation">,</span>
@@ -359,7 +361,7 @@ OPS = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
     <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(_<span class="hljs-built_in">eval</span>(ast.parse(expression, mode=<span class="hljs-string">&quot;eval&quot;</span>).body))
 
 HANDLERS = {<span class="hljs-string">&quot;get_weather&quot;</span>: get_weather, <span class="hljs-string">&quot;calculate&quot;</span>: calculate}</code></pre></div>
-<p>Finally, the loop. It runs every <code>tool_use</code> block in a response, sends <strong>all</strong> results back in <strong>one</strong> user message, reports failures with <code>is_error</code>, and handles every stop reason.</p>
+<p>Finally, the loop. It runs every <code>tool_use</code> block in a response, sends <strong>all</strong> results back in <strong>one</strong> user message, reports failures with <code>is_error</code>, and handles every <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-l="the-agent-loop" data-a="stop-reason">stop reason</dfn>.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">run_tool</span>(<span class="hljs-params">block</span>) -&gt; <span class="hljs-built_in">dict</span>:
     <span class="hljs-string">&quot;&quot;&quot;Execute one tool_use block and wrap the outcome as a tool_result.&quot;&quot;&quot;</span>
     <span class="hljs-keyword">if</span> block.name <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> HANDLERS:
@@ -434,7 +436,7 @@ Step 3  Model: Lisbon is warmer: 17 °C and sunny vs -3 °C and snowing in
 </tr>
 </tbody></table>
 </div>
-<p>Older APIs also offered <em>forcing</em> options — &quot;must call some tool&quot; (<code>any</code>) or &quot;must call this specific tool&quot;. As of 2026, the latest Claude models reject forced tool choice with an error; other providers still offer equivalents. The modern approach is to steer with instructions (&quot;Use the <code>get_weather</code> tool to answer&quot;) and, since <code>auto</code> never <em>guarantees</em> a call, check whether a <code>tool_use</code> block came back and re-prompt if it didn&#39;t. If you were forcing a tool only to get JSON out, use <a href="structured-outputs.html">structured outputs</a> instead.</p>
+<p>Older APIs also offered <em>forcing</em> options — &quot;must call some tool&quot; (<code>any</code>) or &quot;must call this specific tool&quot;. As of 2026, the latest Claude models reject forced <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this." data-a="tool-choice">tool choice</dfn> with an error; other providers still offer equivalents. The modern approach is to steer with instructions (&quot;Use the <code>get_weather</code> tool to answer&quot;) and, since <code>auto</code> never <em>guarantees</em> a call, check whether a <code>tool_use</code> block came back and re-prompt if it didn&#39;t. If you were forcing a tool only to get JSON out, use <a href="structured-outputs.html">structured outputs</a> instead.</p>
 <h3 id="strict-mode"><a class="anchor" href="#strict-mode" aria-hidden="true">#</a>Strict mode</h3>
 <p>By default, a model&#39;s tool arguments are almost always valid but not <em>guaranteed</em> to be: a field might be missing, or <code>&quot;passengers&quot;: &quot;two&quot;</code> might appear where an integer was expected. Setting <code>&quot;strict&quot;: true</code> on a tool turns on <strong>schema-constrained decoding</strong> for its arguments: the provider masks out any token that would violate the schema, so the input is guaranteed to parse and validate.</p>
 <p>Strict mode has requirements: every object must set <code>&quot;additionalProperties&quot;: false</code> and declare <code>required</code> fields, and some JSON Schema features (for example numeric bounds like <code>minimum</code>) aren&#39;t supported in the constrained grammar — the Python and TypeScript SDKs strip unsupported constraints from what they send and validate them client-side. A new schema also incurs a one-time compilation cost, after which it is cached. The <a href="structured-outputs.html">structured outputs</a> lesson explains how constrained decoding works.</p>
@@ -481,7 +483,7 @@ Step 3  Model: Lisbon is warmer: 17 °C and sunny vs -3 °C and snowing in
 <td><strong>Anthropic-defined client tools</strong></td>
 <td>Anthropic (schema built into the model)</td>
 <td>Your harness</td>
-<td>Bash, text editor, computer use, memory</td>
+<td>Bash, text editor, <dfn class="gt" tabindex="0" data-t="Computer use" data-d="A capability in which a model operates a graphical computer by viewing screenshots and issuing mouse and keyboard actions." data-l="computer-use-agents" data-a="computer-use">computer use</dfn>, memory</td>
 </tr>
 </tbody></table>
 </div>
@@ -584,7 +586,7 @@ runner = client.beta.messages.tool_runner(
 </tbody></table>
 </div>
 <p>Small differences matter in practice. For example, OpenAI returns arguments as a JSON-encoded string you must parse (and handle parse failures for, if not using strict mode), while Anthropic returns a parsed object. Gemini&#39;s Python SDK can optionally execute Python functions for you automatically. APIs evolve quickly, so check each provider&#39;s current docs before relying on details.</p>
-<p>Above the provider level, the <strong>Model Context Protocol (MCP)</strong> standardizes how tools are <em>served</em> to any compatible agent, so one tool server works with many hosts and models — see <a href="protocols-mcp-a2a.html">protocols: MCP and A2A</a>.</p>
+<p>Above the provider level, the <strong><dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">Model Context Protocol</dfn> (MCP)</strong> standardizes how tools are <em>served</em> to any compatible agent, so one tool server works with many hosts and models — see <a href="protocols-mcp-a2a.html">protocols: MCP and A2A</a>.</p>
 <h2 id="common-bugs-and-fixes"><a class="anchor" href="#common-bugs-and-fixes" aria-hidden="true">#</a>Common Bugs (and Fixes)</h2>
 <p>Nearly everyone hits some of these. Most produce a 400 error; a few silently degrade behavior.</p>
 <div class="table-wrap"><table>
@@ -653,7 +655,7 @@ runner = client.beta.messages.tool_runner(
 <tr>
 <td>Changing the tool list mid-conversation</td>
 <td>Prompt cache invalidated, higher latency</td>
-<td>Keep tools stable; load extras with tool search</td>
+<td>Keep tools stable; load extras with <dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-l="designing-tools" data-a="tool-search">tool search</dfn></td>
 </tr>
 </tbody></table>
 </div>
@@ -809,7 +811,7 @@ runner = client.beta.messages.tool_runner(
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

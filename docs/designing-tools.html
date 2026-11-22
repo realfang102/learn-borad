@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 40 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 8 of 37</span>
+      <span>Lesson 8 of 38</span>
       <span class="lesson-status" data-status-for="designing-tools"></span>
     </div>
   </header>
@@ -143,7 +145,7 @@
 <p>This lesson is about that kind of fix. A tool is not just an API wrapper. It is the interface through which a non-deterministic reasoner with a limited attention budget perceives and changes the world. Designing that interface well — the names, descriptions, parameters, responses and errors — is one of the highest-leverage things you can do for an agent&#39;s reliability.</p>
 <p>You&#39;ll learn the principles behind the <strong>agent–computer interface</strong>, concrete patterns for each part of a tool, how to handle safety and scale, and how to use agents themselves to evaluate and improve your tools. The mechanics of tool calling are covered in <a href="tool-use.html">tool use</a>; here we focus on design.</p>
 <h2 id="the-agentcomputer-interface"><a class="anchor" href="#the-agentcomputer-interface" aria-hidden="true">#</a>The Agent–Computer Interface</h2>
-<p>We spend enormous effort on <strong>human–computer interfaces</strong>: layouts, affordances, error messages, undo. In the 2024 SWE-agent paper, researchers at Princeton argued that language-model agents deserve the same care, and named the idea the <strong>agent–computer interface (ACI)</strong>: the set of commands an agent can use and the format of the feedback it gets back.</p>
+<p>We spend enormous effort on <strong>human–computer interfaces</strong>: layouts, affordances, error messages, undo. In the 2024 SWE-agent paper, researchers at Princeton argued that language-model agents deserve the same care, and named the idea the <strong>agent–computer interface (<dfn class="gt" tabindex="0" data-t="Agent-computer interface" data-d="The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance." data-l="coding-agents" data-a="agent-computer-interface">ACI</dfn>)</strong>: the set of commands an agent can use and the format of the feedback it gets back.</p>
 <p>SWE-agent gave a model a purpose-built interface for working in code repositories instead of a raw shell. Among its design choices:</p>
 <ul>
 <li>A <strong>file viewer</strong> that shows a window of about 100 lines with line numbers, instead of dumping whole files.</li>
@@ -151,7 +153,7 @@
 <li>An <strong>editor</strong> that runs a linter on each edit and rejects syntactically invalid changes with an explanation, so mistakes are caught immediately rather than three steps later.</li>
 <li><strong>Concise, informative feedback</strong> for every command — including an explicit message when a command succeeds with no output, so the agent isn&#39;t left guessing.</li>
 </ul>
-<p>The paper found that these interface choices substantially improved the agent&#39;s ability to resolve real GitHub issues compared with the same model using a plain shell. Anthropic&#39;s &quot;Building effective agents&quot; guidance makes the same point from production experience: invest as much effort in the ACI as you would in a human interface. One of their examples: while building a coding agent, they noticed the model made mistakes with relative file paths after changing directories. Changing the tool to require absolute paths eliminated the problem.</p>
+<p>The paper found that these interface choices substantially improved the agent&#39;s ability to resolve real GitHub issues compared with the same model using a plain shell. Anthropic&#39;s &quot;Building effective agents&quot; guidance makes the same point from production experience: invest as much effort in the ACI as you would in a human interface. One of their examples: while building a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn>, they noticed the model made mistakes with relative file paths after changing directories. Changing the tool to require absolute paths eliminated the problem.</p>
 <p>Why do agents need different interfaces than developers?</p>
 <div class="table-wrap"><table>
 <thead>
@@ -185,7 +187,7 @@
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Design tools for the agent&#39;s actual constraints: limited context, no access to your code, and judgment that depends entirely on what you write in descriptions and return in results. When an agent misuses a tool, first ask what about the interface made the mistake easy.</p>
 </div></aside>
 <h2 id="tool-descriptions-are-prompts"><a class="anchor" href="#tool-descriptions-are-prompts" aria-hidden="true">#</a>Tool Descriptions Are Prompts</h2>
-<p>The tool description, parameter names and parameter descriptions are loaded into the model&#39;s context and drive both <em>whether</em> the agent calls a tool and <em>how</em>. They are prompts, and they deserve the same care as the system prompt (see <a href="prompting-for-agents.html">prompt engineering for agents</a>). Anthropic has reported that precise refinements to tool descriptions alone produced large gains on coding benchmarks.</p>
+<p>The tool description, parameter names and parameter descriptions are loaded into the model&#39;s context and drive both <em>whether</em> the agent calls a tool and <em>how</em>. They are prompts, and they deserve the same care as the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> (see <a href="prompting-for-agents.html">prompt engineering for agents</a>). Anthropic has reported that precise refinements to tool descriptions alone produced large gains on coding benchmarks.</p>
 <p>A useful frame is a good man page. A strong description covers:</p>
 <ol>
 <li><strong>What it does</strong>, in one sentence.</li>
@@ -220,7 +222,7 @@
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code></pre></div>
 <p>The improved version disambiguates against a neighboring tool, names parameters unambiguously (<code>customer_email</code>, not <code>user</code> — is that a name, an ID, an email?), states coverage limits, and tells the agent what it will and won&#39;t get back.</p>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Contract, not steering</div><div class="callout-body"><p>Descriptions should state the tool&#39;s contract precisely. Avoid smuggling behavioral instructions into them (&quot;ALWAYS call this first!&quot;, &quot;After showing results, recommend our premium plan&quot;). Capitalized boosters cause modern models to over-call a tool, and conversational rules belong in the system prompt. The common failure is <em>under</em>-description, not length — a four-sentence description is normal.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Contract, not steering</div><div class="callout-body"><p>Descriptions should state the tool&#39;s contract precisely. Avoid smuggling behavioral instructions into them (&quot;ALWAYS call this first!&quot;, &quot;After showing results, recommend our premium plan&quot;). Capitalized boosters tend to make modern models over-call a tool, and conversational rules belong in the system prompt. The common failure is <em>under</em>-description, not length — a four-sentence description is normal.</p>
 </div></aside>
 <h2 id="choose-few-well-scoped-tools"><a class="anchor" href="#choose-few-well-scoped-tools" aria-hidden="true">#</a>Choose Few, Well-Scoped Tools</h2>
 <p>The instinct when connecting an agent to a system is to wrap every API endpoint as a tool. Resist it. APIs are designed for programs that can call 30 endpoints cheaply; agents pay for every call in latency, tokens and chances to go wrong.</p>
@@ -331,7 +333,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 </ol>
 <p>Return these as tool results with <code>is_error: true</code> (see <a href="tool-use.html">tool use</a>) rather than raising. Stack traces are almost never useful to the model; they leak internals and waste tokens. Log them for yourself in your <a href="observability.html">observability</a> system instead.</p>
 <h2 id="poka-yoke-make-mistakes-hard"><a class="anchor" href="#poka-yoke-make-mistakes-hard" aria-hidden="true">#</a>Poka-Yoke: Make Mistakes Hard</h2>
-<p><strong>Poka-yoke</strong> is a Japanese manufacturing term for mistake-proofing: designing a part so it physically can&#39;t be installed the wrong way. Applied to tools, it means changing the interface so the common mistakes become impossible or immediately visible.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Poka-yoke" data-d="Mistake-proofing: designing tool interfaces so that wrong usage is hard or impossible, for example requiring absolute file paths or enumerated values instead of free text." data-a="poka-yoke">Poka-yoke</dfn></strong> is a Japanese manufacturing term for mistake-proofing: designing a part so it physically can&#39;t be installed the wrong way. Applied to tools, it means changing the interface so the common mistakes become impossible or immediately visible.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -378,10 +380,10 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 <p>Read-only tools are forgiving: a wrong call wastes a step. Tools with <strong>side effects</strong> — sending, paying, deleting, deploying — need more design.</p>
 <ul>
 <li><strong>Separate reads from writes.</strong> <code>orders_get</code> and <code>orders_cancel</code>, not <code>orders(action=...)</code>. It makes gating and auditing simple and lets you run reads in parallel safely.</li>
-<li><strong>Make writes idempotent.</strong> Agents retry: a call times out, the agent doesn&#39;t know if it succeeded, and it calls again. Accept an <strong>idempotency key</strong> (or derive one from the arguments and conversation) so a repeated <code>charge_card</code> doesn&#39;t double-charge.</li>
+<li><strong>Make writes idempotent.</strong> Agents retry: a call times out, the agent doesn&#39;t know if it succeeded, and it calls again. Accept an <strong><dfn class="gt" tabindex="0" data-t="Idempotency" data-d="The property that repeating an operation has the same effect as doing it once. Idempotent tools make retries after timeouts safe." data-l="reliability" data-a="idempotency">idempotency</dfn> key</strong> (or derive one from the arguments and conversation) so a repeated <code>charge_card</code> doesn&#39;t double-charge.</li>
 <li><strong>Preview before commit.</strong> For high-impact actions, a <code>dry_run=true</code> mode (or a separate <code>preview_</code> tool) lets the agent — and a human — see the effect before it happens.</li>
 <li><strong>Enforce policy in code, not prose.</strong> If refunds over $200 need approval, the refund tool must check it. A prompt is guidance; the tool is the control. Gate irreversible actions behind <a href="human-in-the-loop.html">human approval</a>.</li>
-<li><strong>Label risk.</strong> The MCP specification lets servers annotate tools with hints such as read-only, destructive or idempotent, so hosts can decide what to auto-approve. Treat such hints from untrusted servers as advisory, not as security guarantees.</li>
+<li><strong>Label risk.</strong> The <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> specification lets servers annotate tools with hints such as read-only, destructive or idempotent, so hosts can decide what to auto-approve. Treat such hints from untrusted servers as advisory, not as security guarantees.</li>
 </ul>
 <p>Tool <em>results</em> are also an attack surface: a fetched web page or an email body can contain instructions aimed at the agent. Mark untrusted content clearly in results and limit what a single agent with untrusted inputs is allowed to do (see <a href="agent-security.html">agent security</a>).</p>
 <h2 id="bash-vs-dedicated-tools"><a class="anchor" href="#bash-vs-dedicated-tools" aria-hidden="true">#</a>Bash vs Dedicated Tools</h2>
@@ -424,12 +426,12 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
 </div>
 <p><strong>Rule of thumb:</strong> start with bash for breadth, then promote actions to dedicated tools when you need to gate, render, audit or parallelize them.</p>
 <h2 id="large-tool-sets-search-and-deferred-loading"><a class="anchor" href="#large-tool-sets-search-and-deferred-loading" aria-hidden="true">#</a>Large Tool Sets: Search and Deferred Loading</h2>
-<p>Every tool definition costs context on every request. With a handful of tools that&#39;s negligible. Connect five MCP servers and you may have a hundred tools whose definitions consume a large slice of the context window before the user says anything — and selection accuracy tends to drop as near-duplicate options multiply.</p>
+<p>Every <dfn class="gt" tabindex="0" data-t="Tool definition" data-d="The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly." data-a="tool-definition">tool definition</dfn> costs context on every request. With a handful of tools that&#39;s negligible. Connect five MCP servers and you may have a hundred tools whose definitions consume a large slice of the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> before the user says anything — and selection accuracy tends to drop as near-duplicate options multiply.</p>
 <p>Strategies, roughly in order of preference:</p>
 <ol>
 <li><strong>Fewer, better tools.</strong> Consolidation (above) is the first fix.</li>
 <li><strong>Scope tools per agent.</strong> A billing subagent doesn&#39;t need deployment tools (see <a href="multi-agent-systems.html">multi-agent systems</a>).</li>
-<li><strong>Tool search with deferred loading.</strong> Declare the full catalog, but mark most tools as deferred so their definitions aren&#39;t loaded up front. The model gets a search tool, finds what it needs (&quot;calendar availability&quot;), and only the matching definitions are added to context. With Claude&#39;s API, tools are marked with <code>&quot;defer_loading&quot;: true</code> and the provider&#39;s tool search tool is declared alongside them; discovered schemas are <em>appended</em> rather than swapped in, which preserves the prompt cache.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-a="tool-search">Tool search</dfn> with deferred loading.</strong> Declare the full catalog, but mark most tools as deferred so their definitions aren&#39;t loaded up front. The model gets a search tool, finds what it needs (&quot;calendar availability&quot;), and only the matching definitions are added to context. With Claude&#39;s API, tools are marked with <code>&quot;defer_loading&quot;: true</code> and the provider&#39;s tool search tool is declared alongside them; discovered schemas are <em>appended</em> rather than swapped in, which preserves the prompt cache.</li>
 </ol>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;calendar_find_free_slots&quot;</span><span class="hljs-punctuation">,</span>
@@ -438,7 +440,7 @@ Good:  Permission denied: you can view invoices but not void them. Ask a human
   <span class="hljs-attr">&quot;defer_loading&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span>
 <span class="hljs-punctuation">}</span></code></pre></div>
 <ol start="4">
-<li><strong>Progressive disclosure for instructions.</strong> Packaged &quot;skills&quot; put a short description in context and load the full instructions only when relevant — the same idea applied to know-how rather than tools.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Just-in-time retrieval" data-d="Keeping lightweight references (file paths, URLs, IDs) in context and letting the agent load full content with tools only when needed, instead of pre-loading everything." data-l="context-engineering" data-a="just-in-time-retrieval">Progressive disclosure</dfn> for instructions.</strong> Packaged &quot;skills&quot; put a short description in context and load the full instructions only when relevant — the same idea applied to know-how rather than tools.</li>
 <li><strong>Programmatic tool calling.</strong> For long chains of calls with large intermediate results, the model can write a script that calls tools in a sandbox and returns only the final output, so intermediate data never enters its context.</li>
 </ol>
 <p>These are context-management techniques at heart; <a href="context-engineering.html">context engineering</a> covers the broader picture.</p>
@@ -536,7 +538,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
 </ul>
 <h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
 <ol>
-<li><strong>Rewrite a description.</strong> Pick any tool from a public MCP server or API wrapper. Rewrite its description and parameter descriptions using the man-page structure from this lesson. Note every ambiguity you resolved.</li>
+<li><strong>Rewrite a description.</strong> Pick any tool from a public <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> or API wrapper. Rewrite its description and parameter descriptions using the man-page structure from this lesson. Note every ambiguity you resolved.</li>
 <li><strong>Teaching errors.</strong> Take the <code>tickets_search</code> implementation above and list five ways the agent could call it wrongly. For each, write the exact error message it should return, following the what/why/what-would-work pattern.</li>
 <li><strong>Consolidate.</strong> Given tools <code>list_flights(origin, dest, date)</code>, <code>get_flight(flight_id)</code>, <code>get_seat_map(flight_id)</code>, <code>list_passengers(booking_id)</code> and <code>create_booking(flight_id, passengers)</code>, design a smaller task-shaped tool set for an agent that books trips for employees. Justify each merge and each tool you kept separate.</li>
 <li><strong>Measure a change.</strong> Build a small eval (5–10 multi-step tasks) for an agent with a deliberately poor tool (UUIDs, no pagination, vague errors). Record success rate, calls per task and tokens. Apply the improvements from this lesson one at a time and chart which change mattered most.</li>
@@ -548,78 +550,78 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>An agent frequently calls the wrong record after a list tool returns 36-character UUIDs. Which change most directly addresses the cause?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Increase max_tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Return more fields per record so the agent has more context</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add &quot;Be careful with IDs&quot; to the system prompt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Return human-readable identifiers (names, emails, short handles) alongside or instead of UUIDs</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Turn on strict mode so the ID parameter must match the UUID format</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Return more fields per record so the agent can cross-check each match</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add a system-prompt rule telling the agent to copy IDs character by character</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Return readable handles such as names or emails alongside the UUIDs</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long opaque identifiers are easy for models to confuse or misreproduce. Meaningful identifiers reduce the error at its source; a prompt warning doesn&#39;t change the interface that causes it.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Long opaque identifiers are easy for models to confuse or misreproduce, so readable handles fix the error at its source. Strict mode is tempting but only checks the format: a well-formed UUID that belongs to the wrong record still passes. A prompt rule and extra fields leave the confusing interface in place.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Which tool set best follows the &quot;few, well-scoped tools&quot; principle for a scheduling agent?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A single bash tool with curl access to the calendar API</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>list_users, list_events, create_event, update_event, delete_event, get_room, list_rooms</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>calendar(action, params) handling every operation through one free-form tool</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A bash tool with curl access, so any calendar endpoint is reachable</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>list_users, list_events, create_event, update_event and get_room, mirroring the API</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One calendar(action, params) tool so the model has a single obvious choice</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>schedule_event (finds common free time and books), reschedule_event, cancel_event</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Task-shaped tools move deterministic work (finding overlap) into code and leave the agent judgment calls. A single god-tool hides actions from the schema and the harness, and raw curl is hard to gate or audit.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Task-shaped tools move deterministic work (finding overlap) into code and leave the agent the judgment calls. The single calendar(action, params) tool looks minimal, but it hides every action from the schema and from the harness, which can no longer gate or audit specific operations. Endpoint mirrors force many calls; raw curl is hard to gate.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">3</span><div>A search tool finds 4,000 matches. What should it return?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>All 4,000 so the agent has complete information</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An error saying there are too many results</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Nothing, to save tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A limited first page with a note like &quot;Showing 20 of 4,000; narrow with status or since, or pass cursor=&#39;...&#39; for more&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>All 4,000 in compact one-line form so that nothing relevant is missed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An error asking the agent to narrow the query before retrying</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A count of matches only, so the agent decides what to fetch next</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A first page of ~20 plus the total and how to filter or page further</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Default limits with truncation hints keep context lean while telling the agent how to get what it needs, ideally by narrowing the query rather than paging through everything.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Default limits with truncation hints keep context lean while telling the agent how to get what it needs, ideally by narrowing the query. An error discards useful results, and a bare count forces an extra round trip; even compact, 4,000 lines would flood the context.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>An agent edits the wrong line because the same snippet appears twice in a file. Which is a poka-yoke fix?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Remove the edit tool and use bash sed instead</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tell the agent in the prompt to double-check edits</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Require the replaced text to match exactly once, and return an error listing the match count when it doesn&#39;t</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Let the edit tool replace all occurrences silently</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have the edit tool pick the occurrence closest to the last viewed line</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add a prompt rule to re-read the file and double-check before every edit</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Require the replaced text to match exactly once, else error with the count</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Have the edit tool replace every occurrence so that no copy is left stale</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mistake-proofing changes the interface so the error can&#39;t happen silently. A unique-match requirement turns an ambiguous edit into an immediate, explanatory error.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mistake-proofing changes the interface so the error can&#39;t happen silently: a unique-match requirement turns an ambiguous edit into an immediate, explanatory error. Picking the &quot;closest&quot; occurrence sounds smart but still guesses silently, and a prompt rule is guidance the model may skip.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why promote &quot;send an email&quot; from a bash command to a dedicated send_email tool?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A typed tool gives the harness an action-specific hook to require approval, render a preview and audit the action</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Bash cannot send email</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Models refuse to send email through bash</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Dedicated tools are always faster</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Typed arguments let the harness require approval, preview and audit it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Models write malformed sendmail and curl commands more often than JSON</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Bash output can&#39;t report whether the message was actually delivered</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Dedicated tools run faster because they skip spawning a new shell process</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Bash gives the harness only an opaque string. Dedicated tools expose structured intent, which is what you need to gate, render, audit or parallelize an action.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Bash gives the harness only an opaque command string. A dedicated tool exposes structured intent, which is what you need to gate, render, audit or parallelize an action. Speed and command syntax are minor; the control point is the real reason.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">6</span><div>A payment tool times out and the agent retries. What design prevents a double charge?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Making the tool read-only</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Returning is_error true on every timeout</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An idempotency key so repeated calls with the same key execute at most once</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Telling the agent never to retry payment tools</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Lengthen the tool&#39;s timeout so the first call always gets a response</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Return is_error true on timeouts so the agent knows the charge failed</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Accept an idempotency key so repeat calls with that key run at most once</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tell the agent in the tool description not to retry payment calls</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Agents retry when outcomes are uncertain. Idempotency makes a retry safe by guaranteeing the side effect happens at most once per key.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Agents retry when outcomes are uncertain, so make retries safe: an idempotency key guarantees the side effect happens at most once per key. Flagging a timeout as an error is tempting but wrong: the charge may in fact have gone through, so the error misleads the agent. Longer timeouts only make the problem rarer.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">7</span><div>You connected six MCP servers and now have 150 tools; tool selection got worse and every request is expensive. What is the best next step?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Remove all tool descriptions to save tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch tool_choice to none</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add &quot;choose tools carefully&quot; to the system prompt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Consolidate overlapping tools, scope tools per agent, and defer rarely used tools behind tool search</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Prompt-cache the tool definitions so the large catalog becomes cheap</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Move the tool list into the system prompt as a categorized index</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Shorten every description to one line so all 150 definitions fit cheaply</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Consolidate overlaps, scope tools per agent, and defer rarely used ones</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Large catalogs cost context and create near-duplicate choices. Fewer tools, per-agent scoping and deferred loading address both the cost and the confusion.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Large catalogs cost context and create near-duplicate choices. Fewer tools, per-agent scoping and deferred loading fix both. Caching is tempting because it lowers cost, but it does nothing for selection accuracy; shorter descriptions make selection even worse.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -674,7 +676,7 @@ help_center_search(query, limit=5)      -&gt; article titles, snippets and URLs<
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

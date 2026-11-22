@@ -57,7 +57,7 @@ function layout({ title, description = "", body, page = "", bodyAttrs = "", scri
 </header>
 <div class="mobile-nav" hidden>
   ${NAV.map(([h, l]) => `<a href="${h}">${l}</a>`).join("")}
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 ${body}
 <footer class="site-footer">
@@ -66,7 +66,7 @@ ${body}
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
@@ -110,6 +110,7 @@ function sidebar(site, current) {
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -270,7 +271,9 @@ export function homePage(site) {
     <a class="feature" href="curriculum.html"><span>✅</span><h3>Quizzes in every lesson</h3><p>${quizCount} questions with explanations that test understanding, not trivia.</p></a>
     <a class="feature" href="flashcards.html"><span>🃏</span><h3>Spaced-repetition flashcards</h3><p>Drill ${glossary.length} key terms with a Leitner-box system that focuses on what you miss.</p></a>
     <a class="feature" href="exam.html"><span>🎓</span><h3>Practice exam</h3><p>Randomized questions across the whole course, with per-module scoring and review links.</p></a>
+    <a class="feature" href="review.html"><span>🧠</span><h3>One-page course review</h3><p>Every lesson's key takeaways in order — the fastest way to refresh the whole course.</p></a>
     <a class="feature" href="papers.html"><span>📚</span><h3>Curated reading list</h3><p>${papers.length} essential papers, essays and guides — filtered, summarized and trackable.</p></a>
+    <a class="feature" href="glossary.html"><span>📖</span><h3>Glossary with hover definitions</h3><p>${glossary.length} terms, defined plainly — and linked inline: hover any dotted term in a lesson to see its meaning.</p></a>
     <a class="feature" href="cheatsheet.html"><span>📋</span><h3>Builder's cheat sheet</h3><p>Loop code, patterns, checklists and formulas on one dense page.</p></a>
   </div>
 </section>
@@ -537,4 +540,40 @@ export function aboutPage(site) {
 </article>
 </main>`;
   return layout({ title: "About", description: "About Agent Academy.", body, page: "about" });
+}
+
+// ---------- review (key takeaways) ----------
+export function reviewPage(site) {
+  const body = `<main id="main" class="page page-narrow">
+<header class="page-header"><p class="eyebrow">Revision</p><h1>The whole course in one page</h1>
+<p class="lead">Every lesson's key takeaways, in order. Use it to review before the <a href="exam.html">practice exam</a>, or to find the lesson you need to revisit.</p>
+<div class="lesson-meta" style="border:0"><button type="button" class="btn btn-ghost print-btn">🖨️ Print / save as PDF</button></div></header>
+${site.curriculum.modules
+  .map(
+    (m, i) => `<section class="review-module" id="${m.id}">
+  <h2 class="review-mod-title"><span>${m.icon}</span> Module ${i + 1}: ${esc(m.title)}</h2>
+  ${m.lessonObjs
+    .filter((l) => l.takeaways)
+    .map(
+      (l) => `<article class="review-lesson prose" data-slug="${l.slug}">
+    <h3><a href="${l.slug}.html"><span class="side-check" aria-hidden="true">${ICON.check}</span>${l.order}. ${esc(l.title)}</a></h3>
+    ${l.takeaways}
+  </article>`
+    )
+    .join("\n")}
+</section>`
+  )
+  .join("\n")}
+</main>`;
+  return layout({ title: "Course Review", description: "Key takeaways from every Agent Academy lesson on one page.", body, page: "review" });
+}
+
+// ---------- 404 ----------
+export function notFoundPage() {
+  const body = `<main id="main" class="page page-narrow" style="text-align:center;padding-top:90px">
+<p class="eyebrow">404</p><h1 style="font-size:44px;letter-spacing:-.03em">This page wandered off.</h1>
+<p class="lead">Even good agents hit dead ends. Observe, re-plan, and try another action:</p>
+<div class="hero-cta" style="justify-content:center"><a class="btn btn-primary" href="index.html">Go home</a><a class="btn btn-ghost" href="curriculum.html">Browse the curriculum</a><button type="button" class="btn btn-ghost search-btn" style="min-width:0">Search</button></div>
+</main>`;
+  return layout({ title: "Page not found", description: "Page not found.", body, page: "404" });
 }

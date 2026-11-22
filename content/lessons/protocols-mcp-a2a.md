@@ -126,7 +126,7 @@ Servers can also ask things *of the client*:
 - **Roots**: the client tells the server which filesystem locations or URIs it should operate within (for example, the open project folder).
 
 > [!NOTE] The spec moves quickly
-> MCP is versioned by date. Notable revisions include 2025-03-26 (Streamable HTTP, OAuth-based authorization), 2025-06-18 (structured tool output, elicitation, authorization hardening), 2025-11-25 (experimental **tasks** for long-running operations, URL-mode elicitation, Client ID Metadata Documents) and **2026-07-28**, which made the core protocol **stateless** and started a deprecation period for Roots, Sampling and Logging. Teach yourself the durable concepts here, and check the current spec before implementing protocol details yourself.
+> MCP is versioned by date. Notable revisions include 2025-03-26 (Streamable HTTP, OAuth-based authorization), 2025-06-18 (structured tool output, elicitation, authorization hardening), 2025-11-25 (experimental **tasks** for long-running operations, URL-mode elicitation, Client ID Metadata Documents) and **2026-07-28**, which made the core protocol **stateless**, moved tasks out of the core into an official extension, and started a deprecation period for Roots, Sampling and Logging (deprecated features stay in the spec for a while before removal). Teach yourself the durable concepts here, and check the current spec before implementing protocol details yourself.
 
 ## Transports and Lifecycle
 
@@ -155,7 +155,7 @@ sequenceDiagram
     S-->>C: notifications/tools/list_changed (if tools change)
 ```
 
-The **2026-07-28** revision removed this handshake and the `Mcp-Session-Id` session header. Each request now carries its protocol version and client capabilities in its `_meta` field, so any request can be served by any server instance behind an ordinary load balancer, without sticky sessions or shared session storage. The *concept*, that both sides only use capabilities the other declared, survives; what changed is where the declaration travels. If you use an official SDK, it handles this for you.
+The **2026-07-28** revision removed this handshake and the `Mcp-Session-Id` session header. Each request now carries its protocol version and client capabilities in its `_meta` field, and a client that wants to learn the server's versions and capabilities up front calls a new `server/discover` method. Any request can be served by any server instance behind an ordinary load balancer, without sticky sessions or shared session storage. The *concept*, that both sides only use capabilities the other declared, survives; what changed is where the declaration travels. If you use an official SDK, it handles this for you.
 
 ## Authorization
 
@@ -164,19 +164,18 @@ Local stdio servers inherit the user's environment and typically read credential
 - The MCP server acts as an OAuth **resource server**. It advertises which **authorization server** protects it via **Protected Resource Metadata** (RFC 9728), so clients can discover where to get a token.
 - The client obtains an access token with the authorization code flow plus **PKCE**, the user consenting in a browser, and sends it as a Bearer token on each request.
 - Tokens must be **audience-bound** to the specific MCP server (via OAuth resource indicators), and servers must **reject tokens not issued for them**. The spec explicitly forbids **token passthrough**: a server must not take the token it received and forward it to an upstream API.
-- **Client registration**: since thousands of clients may meet thousands of servers with no prior relationship, MCP needed a way for clients to identify themselves. The 2025-11-25 revision made **Client ID Metadata Documents** (the client ID is a URL pointing to a JSON document describing the client) the recommended approach, and 2026-07-28 deprecated Dynamic Client Registration in its favor.
+- **Client registration**: since thousands of clients may meet thousands of servers with no prior relationship, MCP needed a way for clients to identify themselves. The 2025-11-25 revision made **Client ID Metadata Documents** (the client ID is a URL pointing to a JSON document describing the client) the recommended approach; under 2026-07-28, the older Dynamic Client Registration still works for backward compatibility but is slated for removal in CIMD's favor.
 
 The practical upshot: users sign in to each remote service with that service's own OAuth flow, and the host holds narrowly-scoped tokens per server.
 
 ## Building an MCP Server in Python
 
-The official Python SDK is the `mcp` package. Its high-level server API, long known as **FastMCP** (`from mcp.server.fastmcp import FastMCP` in SDK 1.x), was renamed **`MCPServer`** in SDK 2.0 (July 2026). The decorators are unchanged. (A separate, independently maintained `fastmcp` package also exists.) Here is a small notes server with a tool, a destructive tool that asks the user for confirmation via elicitation, a resource template and a prompt:
+The official Python SDK is the `mcp` package. Its high-level server API, long known as **FastMCP** (`from mcp.server.fastmcp import FastMCP, Context` in SDK 1.x), was renamed **`MCPServer`** in SDK 2.0 (released July 28, 2026, alongside the new spec revision). In 2.x you import it as `from mcp.server import MCPServer` or `from mcp.server.mcpserver import MCPServer`; the old `mcp.server.fastmcp` import raises `ModuleNotFoundError`, with no compatibility alias, so pin `mcp<2` if you are following a 1.x tutorial. The decorators and handler signatures are unchanged, so the code below runs on 1.x if you swap the import and class name. (A separate, independently maintained `fastmcp` package also exists.) Here is a small notes server with a tool, a destructive tool that asks the user for confirmation via elicitation, a resource template and a prompt:
 
 ```python
 # server.py   (pip install "mcp>=2")
 from pydantic import BaseModel
-from mcp.server import MCPServer
-from mcp.server.mcpserver import Context
+from mcp.server.mcpserver import MCPServer, Context   # 1.x: from mcp.server.fastmcp import FastMCP, Context
 from mcp.types import ToolAnnotations
 
 mcp = MCPServer("notes", instructions="Personal note store. Search before creating duplicates.")
@@ -292,7 +291,7 @@ async def main():
     params = StdioServerParameters(command="python", args=["server.py"])
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
-            await session.initialize()
+            await session.initialize()   # 2.x clients can also probe with session.discover()
             tools = (await session.list_tools()).tools
             runner = client.beta.messages.tool_runner(
                 model="claude-opus-5-5", max_tokens=16000,
@@ -333,13 +332,13 @@ MCP makes it trivially easy to give an agent new capabilities, which also makes 
 
 ## Governance: MCP at the Linux Foundation
 
-On **December 9, 2025**, the Linux Foundation announced the **Agentic AI Foundation (AAIF)**, with three founding projects: Anthropic's **Model Context Protocol**, Block's **goose** agent framework, and OpenAI's **AGENTS.md**. Anthropic donated MCP to the foundation so that the protocol would be governed neutrally rather than by one vendor, with major companies (including Anthropic, OpenAI, Google, Microsoft, AWS and Block) among its members. Anthropic later donated its **Agent Skills** standard to the AAIF as well, and in 2026 A2A also joined the AAIF umbrella.
+On **December 9, 2025**, the Linux Foundation announced the **Agentic AI Foundation (AAIF)**, with three founding projects: Anthropic's **Model Context Protocol**, Block's **goose** agent framework, and OpenAI's **AGENTS.md**. Anthropic donated MCP to the foundation so that the protocol would be governed neutrally rather than by one vendor, with major companies (including Anthropic, OpenAI, Google, Microsoft, AWS and Block) among its members. The foundation has since grown: Google's **A2A** moved under the AAIF as a hosted project in August 2026, and Anthropic contributed its **Agent Skills** standard in October 2026.
 
 Why it matters to you as a builder: a protocol owned by a competitor is a risk; a neutrally governed one is infrastructure. Neutral governance is a large part of why competing vendors adopted MCP in their own products.
 
 ## Agent2Agent (A2A)
 
-MCP connects an agent to **tools and data**. **Agent2Agent (A2A)** connects an agent to **other agents**. Google announced A2A in April 2025 with dozens of partners, donated it to the Linux Foundation in June 2025, and the project reached its first stable **v1.0** specification in early 2026.
+MCP connects an agent to **tools and data**. **Agent2Agent (A2A)** connects an agent to **other agents**. Google announced A2A in April 2025 with dozens of partners, donated it to the Linux Foundation in June 2025, and the project reached its first stable **v1.0** specification in March 2026.
 
 The core premise: agents built by different organizations, on different frameworks, should be able to collaborate **without exposing their internals**. An A2A agent is **opaque**: you do not see its prompts, tools, memory or model. You send it tasks and get results, the way you would hire a contractor rather than borrow their tools.
 
@@ -407,9 +406,9 @@ The two protocols are complementary, not competing.
 | Typical interaction | Fast, stateless function call: "run this query" | Possibly long-running, multi-turn task: "plan this trip" |
 | Who reasons? | The calling agent; the server executes | Both; the remote agent decides *how* to accomplish the task |
 | Discovery | Configured by the host; `tools/list` | Agent Cards at a well-known URL |
-| Long-running work | Experimental tasks (2025-11-25) | Core design: task lifecycle, streaming, push |
+| Long-running work | Tasks (experimental in 2025-11-25; an official extension since 2026-07-28) | Core design: task lifecycle, streaming, push |
 | Typical deployment | Local (stdio) or remote (HTTP) | Remote (HTTPS), often cross-organization |
-| Governance | AAIF (Linux Foundation) | Linux Foundation (AAIF umbrella from 2026) |
+| Governance | AAIF (Linux Foundation) | AAIF (Linux Foundation), since August 2026 |
 
 A useful mental model: **MCP is how an agent uses its hands; A2A is how it talks to colleagues.** A travel-planning assistant might use MCP servers for calendar and email (tools) and A2A to delegate booking to an airline's agent (a peer that owns its own booking logic and policies). In principle you *could* wrap an agent as an MCP tool, and many do for simple cases, but you lose A2A's task lifecycle, clarification turns and opacity guarantees. Conversely, wrapping a deterministic API as an A2A agent adds needless overhead. For the design questions behind delegating to other agents, see [Multi-Agent Systems](multi-agent-systems.html).
 
@@ -438,7 +437,7 @@ It works, with caveats. REST APIs are designed for programmers, not models: they
 | Standard | Connects | Format / transport | Steward (as of 2026) | Use it for |
 |---|---|---|---|---|
 | **MCP** | Agent ↔ tools, data, prompts | JSON-RPC 2.0 over stdio or Streamable HTTP | AAIF / Linux Foundation | Giving any agent access to systems and data |
-| **A2A** | Agent ↔ agent | JSON-RPC, gRPC or HTTP+JSON over HTTPS; SSE; webhooks | Linux Foundation (AAIF) | Delegating tasks to opaque, independent agents |
+| **A2A** | Agent ↔ agent | JSON-RPC, gRPC or HTTP+JSON over HTTPS; SSE; webhooks | AAIF / Linux Foundation | Delegating tasks to opaque, independent agents |
 | **AG-UI** | Agent ↔ frontend | Event stream (e.g. SSE) | Open source (CopilotKit-originated) | Streaming agent state and events to UIs |
 | **AGENTS.md** | Repository → coding agent | Markdown file | AAIF | Project instructions for any coding agent |
 | **Agent Skills** | Packaged know-how → agent | Folder with `SKILL.md` | AAIF | Reusable, on-demand procedural instructions |
@@ -452,7 +451,7 @@ It works, with caveats. REST APIs are designed for programmers, not models: they
 - Remote MCP uses **OAuth 2.1** with audience-bound tokens and no token passthrough; the 2026-07-28 revision also made the protocol **stateless**.
 - Treat every server as code or content that can attack you: **tool poisoning, rug pulls, injected results, over-broad tokens, confused deputies**. Use least privilege, approval gates and sandboxing.
 - **A2A** connects **opaque peer agents** via **agent cards, tasks, messages, parts and artifacts**, with streaming and push notifications for long-running work. MCP is for tools; A2A is for colleagues.
-- **AGENTS.md**, **Agent Skills**, **AG-UI** and **OpenAPI-as-tools** cover project instructions, packaged know-how, UI streaming and legacy APIs. MCP, AGENTS.md and Agent Skills are governed by the Linux Foundation's **Agentic AI Foundation**.
+- **AGENTS.md**, **Agent Skills**, **AG-UI** and **OpenAPI-as-tools** cover project instructions, packaged know-how, UI streaming and legacy APIs. MCP, A2A, AGENTS.md and Agent Skills are all now governed by the Linux Foundation's **Agentic AI Foundation**.
 
 ## Exercises
 

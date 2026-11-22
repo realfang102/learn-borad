@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 40 min</span>
       <span>✅ 8-question quiz</span>
       
-      <span>Lesson 6 of 37</span>
+      <span>Lesson 6 of 38</span>
       <span class="lesson-status" data-status-for="prompting-for-agents"></span>
     </div>
   </header>
@@ -139,9 +141,9 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="llm-fundamentals.html">LLMs: The Engine Inside Every Agent</a></p>
   </section>
   <article class="prose">
-<p>Give the same model the same tools and the same bug report, and swap only the system prompt. With the first prompt, the agent reads one file, guesses at a fix, sees a failing test and asks you what to do. With the second, it reproduces the bug, reads the surrounding code, fixes the root cause, runs the full test suite, notices it broke an unrelated snapshot test, fixes that too, and reports back in three sentences. Nothing about the model changed. What changed was the <strong>system prompt</strong>: the standing instructions that frame every step the agent takes.</p>
+<p>Give the same model the same tools and the same bug report, and swap only the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-a="system-prompt">system prompt</dfn>. With the first prompt, the agent reads one file, guesses at a fix, sees a failing test and asks you what to do. With the second, it reproduces the bug, reads the surrounding code, fixes the root cause, runs the full test suite, notices it broke an unrelated snapshot test, fixes that too, and reports back in three sentences. Nothing about the model changed. What changed was the <strong>system prompt</strong>: the standing instructions that frame every step the agent takes.</p>
 <p>Prompting a chatbot is about getting one good answer. Prompting an <strong>agent</strong> is closer to writing a job description, an onboarding document and an operating manual at once, for a colleague who will read it once and then work alone for hundreds of steps, with nobody to ask. Mistakes compound: a vague instruction that produces a slightly-off chat answer can produce a deleted directory or a refund the business never authorized when an agent acts on it.</p>
-<p>This lesson covers what goes into an agent prompt, how specific to be, how to steer autonomy and persistence, how to prompt for tasks that outlive a single context window, and how to treat prompts as versioned, tested code. It ends with two complete, annotated system prompts: one for a customer-support agent and one for a coding agent.</p>
+<p>This lesson covers what goes into an agent prompt, how specific to be, how to steer autonomy and persistence, how to prompt for tasks that outlive a single <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and how to treat prompts as versioned, tested code. It ends with two complete, annotated system prompts: one for a customer-support agent and one for a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn>.</p>
 <h2 id="why-agent-prompts-are-different"><a class="anchor" href="#why-agent-prompts-are-different" aria-hidden="true">#</a>Why Agent Prompts Are Different</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -280,7 +282,7 @@
 <ul>
 <li><strong>Put long reference material before the instructions that use it</strong>, and the specific task or question near the end. Models attend well to the end of a long context.</li>
 <li><strong>Use prose for behavior, structure for reference data.</strong> A wall of bullets flattens priorities and separates rules from their reasons; tables and lists are great for catalogs, price limits and status codes.</li>
-<li><strong>Tags are not a security boundary.</strong> Wrapping untrusted text in <code>&lt;customer_email&gt;</code> helps the model treat it as data, but a determined prompt injection can still work. Defend with permissions and sandboxing, not formatting (see <a href="agent-security.html">agent security</a>).</li>
+<li><strong>Tags are not a security boundary.</strong> Wrapping untrusted text in <code>&lt;customer_email&gt;</code> helps the model treat it as data, but a determined <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> can still work. Defend with permissions and sandboxing, not formatting (see <a href="agent-security.html">agent security</a>).</li>
 </ul>
 <h2 id="examples-and-few-shot-prompting"><a class="anchor" href="#examples-and-few-shot-prompting" aria-hidden="true">#</a>Examples and Few-Shot Prompting</h2>
 <p>Examples are the strongest signal in a prompt. Models match their length, tone, structure and even their specific values. That makes them powerful for pinning a format — and dangerous for agents.</p>
@@ -331,8 +333,8 @@ When you stop, say exactly what you need decided.
 <aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Pressure language over-triggers modern models</div><div class="callout-body"><p>ALL-CAPS &quot;CRITICAL&quot; and &quot;MUST&quot; were tuned for older models that under-followed instructions. Current models are highly responsive to the system prompt, so the same emphasis now causes over-application — a tool marked &quot;you MUST use this&quot; gets called when it&#39;s useless. When several instructions are all &quot;critical,&quot; the marker carries no information. State the constraint plainly, with its reason.</p>
 </div></aside>
 <h2 id="planning-reflection-and-verification"><a class="anchor" href="#planning-reflection-and-verification" aria-hidden="true">#</a>Planning, Reflection and Verification</h2>
-<p>There is a long tradition of prompts that elicit reasoning: &quot;think step by step,&quot; <code>&lt;scratchpad&gt;</code> tags, &quot;plan before you act,&quot; &quot;reflect on the tool result before continuing.&quot; These techniques were important when models only reasoned if you made room for it in the visible output. (The research behind them, from chain-of-thought to ReAct and Reflexion, is covered in <a href="reasoning-and-planning.html">reasoning and planning</a>.)</p>
-<p>With models that have native, trained-in reasoning — <strong>extended or adaptive thinking</strong>, including thinking interleaved between tool calls — much of that prose is redundant. Worse, it can cause over-planning on easy steps. The modern division of labor:</p>
+<p>There is a long tradition of prompts that elicit reasoning: &quot;think step by step,&quot; <code>&lt;scratchpad&gt;</code> tags, &quot;plan before you act,&quot; &quot;reflect on the tool result before continuing.&quot; These techniques were important when models only reasoned if you made room for it in the visible output. (The research behind them, from <dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer (Wei et al., 2022), which markedly improves multi-step reasoning." data-l="reasoning-and-planning" data-a="chain-of-thought">chain-of-thought</dfn> to <dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn> and <dfn class="gt" tabindex="0" data-t="Reflexion" data-d="A technique (Shinn et al., 2023) in which an agent writes verbal self-reflections on failed attempts and stores them in memory to improve later attempts, without weight updates." data-l="agent-architectures" data-a="reflexion">Reflexion</dfn>, is covered in <a href="reasoning-and-planning.html">reasoning and planning</a>.)</p>
+<p>With models that have native, trained-in reasoning — <strong>extended or <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">adaptive thinking</dfn></strong>, including thinking interleaved between tool calls — much of that prose is redundant. Worse, it can cause over-planning on easy steps. The modern division of labor:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -365,11 +367,11 @@ When you stop, say exactly what you need decided.
 </div>
 <p>The last row is where prompts still add real value. The model knows how to double-check; it doesn&#39;t know that in your repository <code>make check</code> runs the linters and type checker, or that support answers must cite a policy section. <strong>Tell it how success is verified, not that it should be careful.</strong></p>
 <h2 id="prompting-for-long-horizon-tasks"><a class="anchor" href="#prompting-for-long-horizon-tasks" aria-hidden="true">#</a>Prompting for Long-Horizon Tasks</h2>
-<p>Some tasks take hours and outlive a single context window: migrating a codebase, building an app feature by feature. Each new context window (after compaction, a crash or a restart) begins with partial amnesia, so prompting for these tasks is largely about making the agent <strong>leave itself good notes</strong>. The mechanics of compaction and context budgets belong to <a href="context-engineering.html">context engineering</a> and <a href="memory.html">memory</a>; here we focus on what to put in the prompt.</p>
+<p>Some tasks take hours and outlive a single context window: migrating a codebase, building an app feature by feature. Each new context window (after <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, a crash or a restart) begins with partial amnesia, so prompting for these tasks is largely about making the agent <strong>leave itself good notes</strong>. The mechanics of compaction and context budgets belong to <a href="context-engineering.html">context engineering</a> and <a href="memory.html">memory</a>; here we focus on what to put in the prompt.</p>
 <p>Three scaffolds recur:</p>
 <ol>
 <li><strong>A todo list.</strong> For multi-step work within a session, ask the agent to maintain an explicit checklist (many coding agents expose a dedicated todo tool for this). It keeps the plan visible to the agent and the user, and makes skipped steps obvious.</li>
-<li><strong>A progress file.</strong> A plain-text file (for example <code>PROGRESS.md</code>) the agent updates at milestones: what&#39;s done, what&#39;s in flight, what&#39;s broken, what&#39;s next. A fresh session reads it first.</li>
+<li><strong>A <dfn class="gt" tabindex="0" data-t="Structured note-taking" data-d="Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions." data-l="context-engineering" data-a="structured-note-taking">progress file</dfn>.</strong> A plain-text file (for example <code>PROGRESS.md</code>) the agent updates at milestones: what&#39;s done, what&#39;s in flight, what&#39;s broken, what&#39;s next. A fresh session reads it first.</li>
 <li><strong>Structured state plus checkpoints.</strong> A machine-readable list of requirements with a pass/fail status (JSON works well because the model is less inclined to rewrite it casually than prose), and version-control commits at each working milestone so the agent can bisect or revert.</li>
 </ol>
 <p>Anthropic&#39;s write-up on harnesses for long-running agents describes this pattern: a first session sets up the environment, a feature list and a progress log; each later session reads the log and recent commits, completes and verifies one item, commits, and updates the log.</p>
@@ -494,7 +496,7 @@ NEXT:        Enforce 30-min expiry in reset_password(); test expired token</code
 <li><strong>Transcript critique:</strong> paste a failing transcript plus the system prompt and ask, &quot;Where did the agent&#39;s understanding diverge from the intended behavior, and what in the prompt caused it?&quot; Models are good at spotting the ambiguous sentence.</li>
 <li><strong>Audit:</strong> ask a model to flag instructions that conflict, lack reasons, or look like workarounds for a specific old model.</li>
 </ul>
-<p>The guardrail is the same as for any change: every meta-prompted edit gets run through the eval suite before it ships. A model asked to &quot;improve&quot; a prompt tends to make it longer and more emphatic, which is often the opposite of what helps.</p>
+<p>The <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> is the same as for any change: every meta-prompted edit gets run through the eval suite before it ships. A model asked to &quot;improve&quot; a prompt tends to make it longer and more emphatic, which is often the opposite of what helps.</p>
 <h2 id="worked-example-customer-support-agent"><a class="anchor" href="#worked-example-customer-support-agent" aria-hidden="true">#</a>Worked Example: Customer-Support Agent</h2>
 <p>Here is a complete system prompt for a fictional outdoor retailer&#39;s order-support agent. Numbers in brackets refer to the annotations below.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">&lt;role&gt;
@@ -814,7 +816,7 @@ response = client.messages.create(
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

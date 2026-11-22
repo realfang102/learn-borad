@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 38 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 30 of 37</span>
+      <span>Lesson 31 of 38</span>
       <span class="lesson-status" data-status-for="cost-and-latency"></span>
     </div>
   </header>
@@ -139,13 +141,13 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="context-engineering.html">Context Engineering</a>, <a href="evaluating-agents.html">Evaluating Agents</a></p>
   </section>
   <article class="prose">
-<p>A team prototypes a support agent. In testing, a ticket costs about thirty cents and takes forty seconds. After launch, real conversations run three times longer than the test cases, the bill grows far faster than ticket volume, and users abandon chats while staring at a spinner. Nobody changed the model or the prompt. The team simply hadn&#39;t understood how an agent loop spends tokens and time.</p>
+<p>A team prototypes a support agent. In testing, a ticket costs about thirty cents and takes forty seconds. After launch, real conversations run three times longer than the test cases, the bill grows far faster than ticket volume, and users abandon chats while staring at a spinner. Nobody changed the model or the prompt. The team simply hadn&#39;t understood how an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> spends tokens and time.</p>
 <p>This lesson takes apart where an agent&#39;s dollars and seconds go, then works through the levers that cut them, starting with the free wins (caching, hygiene, batching) and moving to the trade-offs (effort, model choice). The unit throughout is the one that matters to the business: <strong>cost and time per completed task</strong>, not per request.</p>
 <h2 id="token-economics"><a class="anchor" href="#token-economics" aria-hidden="true">#</a>Token Economics</h2>
 <p>You pay per <strong>token</strong>, the sub-word unit models read and write, priced per million tokens (MTok). Three facts drive nearly every cost decision:</p>
 <ol>
 <li><strong>Output costs much more than input.</strong> On current Claude models, output is 5× the input price. <strong>Thinking tokens bill as output</strong>, whether or not you display them.</li>
-<li><strong>The model is stateless.</strong> Every call re-sends everything: system prompt, tool definitions, and the entire conversation so far.</li>
+<li><strong>The model is stateless.</strong> Every call re-sends everything: <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, tool definitions, and the entire conversation so far.</li>
 <li><strong>Agents make many calls.</strong> A 30-step task is 30 requests, each one carrying all the history before it.</li>
 </ol>
 <h3 id="current-pricing"><a class="anchor" href="#current-pricing" aria-hidden="true">#</a>Current pricing</h3>
@@ -212,7 +214,7 @@
 <li>Output: 8,000 × $20/MTok = <strong>$0.16</strong></li>
 <li>Total: <strong>$2.28 per task</strong>. Input is 93% of it, and almost all of that input is history the model has already seen.</li>
 </ul>
-<p><strong>With prompt caching</strong>, each turn reads the previous prefix from cache at $0.20/MTok and writes only the new ~1,900 tokens at $5/MTok:</p>
+<p><strong>With <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-a="prompt-caching">prompt caching</dfn></strong>, each turn reads the previous prefix from cache at $0.20/MTok and writes only the new ~1,900 tokens at $5/MTok:</p>
 <ul>
 <li>Cache reads: 486,400 tokens × $0.20 = $0.10</li>
 <li>Cache writes: 44,600 tokens × $5.00 = $0.22</li>
@@ -253,7 +255,7 @@
 <div class="widget" data-widget="cost-calculator"></div>
 
 <h2 id="prompt-caching-in-depth"><a class="anchor" href="#prompt-caching-in-depth" aria-hidden="true">#</a>Prompt Caching in Depth</h2>
-<p><strong>Prompt caching</strong> stores the model&#39;s processed state for a prompt prefix so later requests that start with the same bytes can skip re-processing them. It cuts both cost and time to first token on long prompts.</p>
+<p><strong>Prompt caching</strong> stores the model&#39;s processed state for a prompt prefix so later requests that start with the same bytes can skip re-processing them. It cuts both cost and <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-a="time-to-first-token">time to first token</dfn> on long prompts.</p>
 <h3 id="the-one-invariant-prefix-matching"><a class="anchor" href="#the-one-invariant-prefix-matching" aria-hidden="true">#</a>The one invariant: prefix matching</h3>
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>Caching is an exact <strong>prefix match</strong>. Any byte that changes invalidates the cache for everything after it. Design the prompt so stable content comes first and volatile content comes last.</p>
 </div></aside>
@@ -401,7 +403,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <p>Don&#39;t switch models <em>inside</em> a conversation to save money. The cold cache usually costs more than the switch saves.</p>
 <h2 id="doing-less-work"><a class="anchor" href="#doing-less-work" aria-hidden="true">#</a>Doing Less Work</h2>
 <h3 id="batch-processing-50-off-for-offline-work"><a class="anchor" href="#batch-processing-50-off-for-offline-work" aria-hidden="true">#</a>Batch processing: 50% off for offline work</h3>
-<p>The <strong>Message Batches API</strong> processes requests asynchronously at <strong>half price on every token</strong>, and that discount stacks with caching. Most batches finish within an hour, and the hard limit is 24 hours. Use it for evaluation runs, backfills, nightly report generation, and any job nobody is waiting on:</p>
+<p>The <strong><dfn class="gt" tabindex="0" data-t="Batch API" data-d="An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs." data-a="batch-api">Message Batches</dfn> API</strong> processes requests asynchronously at <strong>half price on every token</strong>, and that discount stacks with caching. Most batches finish within an hour, and the hard limit is 24 hours. Use it for evaluation runs, backfills, nightly report generation, and any job nobody is waiting on:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python">batch = client.messages.batches.create(requests=[
     {<span class="hljs-string">&quot;custom_id&quot;</span>: <span class="hljs-string">f&quot;ticket-<span class="hljs-subst">{t.<span class="hljs-built_in">id</span>}</span>&quot;</span>,
      <span class="hljs-string">&quot;params&quot;</span>: {<span class="hljs-string">&quot;model&quot;</span>: <span class="hljs-string">&quot;claude-sonnet-5-5&quot;</span>, <span class="hljs-string">&quot;max_tokens&quot;</span>: <span class="hljs-number">4000</span>,
@@ -414,14 +416,14 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 <p>Batch requests are single-shot, with no tool loop inside. You can sometimes flatten an agent task into one request by pre-fetching its inputs, but that changes how the model reasons, so re-run your evals.</p>
 <h3 id="fewer-round-trips"><a class="anchor" href="#fewer-round-trips" aria-hidden="true">#</a>Fewer round trips</h3>
 <ul>
-<li><strong>Parallel tool calls.</strong> When the model requests several independent tools in one turn, run them concurrently and return all results in one message. Five lookups then cost one round trip instead of five, which saves both latency and re-sent history.</li>
-<li><strong>Programmatic tool calling.</strong> Instead of one model turn per tool call, the model writes a script that runs in a code-execution sandbox and calls your tools from there. Intermediate results flow through the script, not the context window, and only the final, filtered output comes back to the model. For chained or data-heavy tool use (loop over 200 records, filter, aggregate), this removes many turns and keeps large payloads out of the history the loop keeps re-sending.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">Parallel tool calls</dfn>.</strong> When the model requests several independent tools in one turn, run them concurrently and return all results in one message. Five lookups then cost one round trip instead of five, which saves both latency and re-sent history.</li>
+<li><strong>Programmatic tool calling.</strong> Instead of one model turn per tool call, the model writes a script that runs in a code-execution sandbox and calls your tools from there. Intermediate results flow through the script, not the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, and only the final, filtered output comes back to the model. For chained or data-heavy tool use (loop over 200 records, filter, aggregate), this removes many turns and keeps large payloads out of the history the loop keeps re-sending.</li>
 <li><strong>Better tools.</strong> One <code>get_order_summary</code> beats <code>get_order</code> + <code>get_items</code> + <code>get_shipping</code>. Give list tools <code>limit</code> and <code>fields</code> parameters. See <a href="designing-tools.html">designing tools</a>.</li>
 </ul>
 <h3 id="keep-context-lean"><a class="anchor" href="#keep-context-lean" aria-hidden="true">#</a>Keep context lean</h3>
 <ul>
-<li><strong>Trim at the source.</strong> Truncate or summarize large tool outputs before they enter history. Downscale images. Load rarely used tools on demand (tool search) when schemas run to many thousands of tokens.</li>
-<li><strong>Compaction and context editing</strong> keep long sessions inside the window by summarizing earlier turns or clearing old tool results. Treat them as <strong>context-window tools rather than savings levers</strong>. Every rewrite of history is a cache miss from that point onward, and on current Claude models, client-side edits to earlier turns also invalidate preserved thinking. Prefer the API&#39;s server-side compaction and context editing, trigger them infrequently, and clear in large batches. See <a href="context-engineering.html">context engineering</a>.</li>
+<li><strong>Trim at the source.</strong> Truncate or summarize large tool outputs before they enter history. Downscale images. Load rarely used tools on demand (<dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-l="designing-tools" data-a="tool-search">tool search</dfn>) when schemas run to many thousands of tokens.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">Compaction</dfn> and <dfn class="gt" tabindex="0" data-t="Context editing" data-d="Selectively removing stale content from the context, such as old tool results or thinking blocks, while keeping the rest of the conversation intact." data-l="context-engineering" data-a="context-editing">context editing</dfn></strong> keep long sessions inside the window by summarizing earlier turns or clearing old tool results. Treat them as <strong>context-window tools rather than savings levers</strong>. Every rewrite of history is a cache miss from that point onward, and on current Claude models, client-side edits to earlier turns also invalidate preserved thinking. Prefer the API&#39;s server-side compaction and context editing, trigger them infrequently, and clear in large batches. See <a href="context-engineering.html">context engineering</a>.</li>
 </ul>
 <h3 id="control-output-length"><a class="anchor" href="#control-output-length" aria-hidden="true">#</a>Control output length</h3>
 <p>Output is the expensive side. <code>max_tokens</code> is a <strong>backstop, not a tuning knob</strong>: the model never sees it, and hitting it truncates a response mid-thought, which wastes the whole attempt. To get shorter output, specify the shape you want (with an example), use <a href="structured-outputs.html">structured outputs</a>, ask for no commentary between tool calls, and lower effort to reduce thinking.</p>
@@ -467,7 +469,7 @@ read, wrote = u.cache_read_input_tokens <span class="hljs-keyword">or</span> <sp
 </tr>
 <tr>
 <td>Output tokens</td>
-<td>Lower effort, output shape, structured outputs</td>
+<td>Lower effort, output shape, <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn></td>
 </tr>
 <tr>
 <td>Output speed</td>
@@ -544,7 +546,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <li><strong>p50 / p95 task latency</strong>, kept separate per traffic type (an interactive chat path and a nightly batch job shouldn&#39;t be blended into one number).</li>
 <li><strong>Cache hit rate</strong>, with an alert when it drops. That is your early warning for silent invalidators.</li>
 </ul>
-<p>Plot candidate configurations as success rate against cost per task and pick from the Pareto frontier. Work the levers in order: <strong>free wins first</strong> (caching, input and output hygiene, batching for offline work), then <strong>trade-offs</strong> (effort, then model tier), each validated on the eval before you keep it.</p>
+<p>Plot candidate configurations as success rate against <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-a="cost-per-task">cost per task</dfn> and pick from the Pareto frontier. Work the levers in order: <strong>free wins first</strong> (caching, input and output hygiene, batching for offline work), then <strong>trade-offs</strong> (effort, then model tier), each validated on the eval before you keep it.</p>
 <h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
 <ul>
 <li>Output tokens cost about 5× input, thinking bills as output, and because every call re-sends the history, uncached agent cost grows roughly with the <strong>square</strong> of the turn count.</li>
@@ -705,7 +707,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

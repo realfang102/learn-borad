@@ -257,53 +257,53 @@ Look at the weaknesses column again: stale knowledge, hallucination, poor arithm
 
 ```quiz
 Q: An agent calls a function `run_tests`. What is the model itself actually doing?
-- [ ] Executing the test suite inside the model's weights
-- [x] Generating tokens that form a structured tool-use request, which the harness parses and executes
-- [ ] Sending an HTTP request directly to the test server
-- [ ] Retrieving cached test results from training data
-E: Models only produce tokens. A tool call is structured output that the API surfaces as a tool_use block; your harness runs the tool and returns the result as text.
+- [ ] Running the test suite in a sandbox that the API attaches to the model
+- [x] Generating tokens that the harness parses as a tool call and runs
+- [ ] Sending an HTTP request to the test runner on the agent's behalf
+- [ ] Predicting what the tests would print, based on its training data
+E: Models only produce tokens. A tool call is structured output that the API surfaces as a tool_use block; your harness runs the tool and returns the result. The model doesn't make network requests or execute code itself, and if it merely predicted test output that would be a hallucination, not a tool call.
 
 Q: Why does an agent's cost per step tend to grow during a long task?
-- [ ] Providers charge more for later turns of a conversation
-- [x] The model is stateless, so the growing transcript is sent as input on every call
-- [ ] Output tokens get more expensive over time
-- [ ] The model's weights grow as it learns during the task
-E: Each call resends the system prompt, tools and the full transcript, which grows with every tool result. Prompt caching and context management exist largely to tame this.
+- [ ] Providers charge a higher per-token rate for later turns in a chat
+- [x] The model is stateless, so the whole growing transcript is resent
+- [ ] Output gets longer each step as the model explains more context
+- [ ] The model's internal memory of the task fills up and costs more
+E: Each call resends the system prompt, tools and the full transcript, which grows with every tool result. Per-token prices don't change mid-conversation, and the model keeps no memory between calls. Prompt caching and context management exist largely to tame this.
 
 Q: Which training stage contributes most of an LLM's broad world knowledge?
 - [x] Pretraining on large text corpora
-- [ ] Supervised instruction tuning
-- [ ] RLHF preference tuning
-- [ ] The system prompt at inference time
-E: Knowledge comes mostly from pretraining. Post-training (SFT, preference tuning, RL on verifiable tasks) mainly shapes behavior, format and skills like tool use.
+- [ ] Supervised instruction tuning on chats
+- [ ] RLHF and preference tuning
+- [ ] RL on verifiable agentic tasks
+E: Knowledge comes mostly from pretraining. Post-training (SFT, preference tuning, RL on verifiable tasks) mainly shapes behavior, format and skills like tool use. RL on agentic tasks makes a model better at *using* tools, not more knowledgeable about the world.
 
 Q: You run the same agent task five times and get three successes and two failures with different tool sequences. What is the most accurate interpretation?
-- [ ] The API is malfunctioning
-- [ ] The two failed runs used a different model
-- [x] Sampling makes trajectories vary, so success is best described as a rate measured across runs
-- [ ] Agents are deterministic, so the environment must have changed
-E: Generation is stochastic and agents are path-dependent; small early differences compound. That's why agents are evaluated with repeated trials and success rates.
+- [ ] The environment must have changed between the runs you compared
+- [ ] The two failed runs must have been routed to a different model
+- [x] Sampling makes trajectories vary, so success is a rate across runs
+- [ ] The prompt is ambiguous; a clearer one would make every run identical
+E: Generation is stochastic and agents are path-dependent, so small early differences compound. A clearer prompt can raise the success rate but won't make runs identical. That's why agents are evaluated with repeated trials and success rates.
 
 Q: What is the most effective general strategy against hallucination in agents?
-- [ ] Ask the model to be more confident
-- [ ] Use the largest available context window
-- [x] Ground the agent with tools that look things up and verify results, instead of relying on recall
-- [ ] Set temperature to zero
-E: Hallucination comes from producing plausible text without the facts. Reading files, searching and running checks turn guesses into observations. (Current Claude models don't accept temperature anyway.)
+- [ ] Tell the model in the system prompt to never make up any facts
+- [ ] Use the largest context window so that more of the facts are in view
+- [x] Have the agent look things up and verify results, not just recall
+- [ ] Set a low temperature so the model picks its most likely answer
+E: Hallucination comes from producing plausible text without the facts. Reading files, searching and running checks turn guesses into observations. Instructions help a little but don't supply missing facts, and the most likely continuation can still be false. (Current Claude models don't accept temperature anyway.)
 
 Q: What is "interleaved thinking" and why does it matter for agents?
-- [ ] Two models taking turns answering
-- [x] The model reasoning between tool calls, so it can interpret each result before choosing the next action
-- [ ] Splitting the context window into parallel threads
-- [ ] Thinking only once at the start of a task
-E: Reasoning between steps lets the agent react to surprising tool output, revise its plan and recover from errors, which is where much of the reliability gain comes from.
+- [ ] Two models taking turns, one planning while the other acts
+- [x] Reasoning between tool calls, to interpret each result first
+- [ ] Thinking at length once, up front, to plan the whole task
+- [ ] Running several reasoning threads in parallel, then voting
+E: Reasoning between steps lets the agent react to surprising tool output, revise its plan and recover from errors. A single up-front plan can't adapt to what the tools return, which is where much of the reliability gain comes from.
 
 Q: Why is tool use described as the natural complement to LLMs?
-- [ ] Tools make models faster at generating tokens
-- [ ] Tools remove the need for a context window
-- [x] Tools supply fresh facts, exact computation, persistence and real-world actions, exactly where LLMs are weak
-- [ ] Tools let models update their own weights
-E: LLMs bring judgment and language; their weaknesses (stale knowledge, hallucination, arithmetic, statelessness, no actuators) are covered by tools whose results flow back into context.
+- [ ] Tools make the model generate its tokens faster on hard tasks
+- [ ] Tools let the model skip reasoning by returning answers
+- [x] Tools cover facts, precision and action, where LLMs are weak
+- [ ] Tools let the model update its own weights as it works
+E: LLMs bring judgment and language; their weaknesses (stale knowledge, hallucination, arithmetic, statelessness, no actuators) are covered by tools whose results flow back into context. The model still has to decide which tool to call and interpret the result, so tools don't replace its reasoning.
 ```
 
 ## Further Reading

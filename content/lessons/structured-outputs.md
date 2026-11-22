@@ -399,53 +399,53 @@ APIs evolve quickly; check each project's current documentation for exact parame
 
 ```quiz
 Q: What does schema-constrained decoding guarantee?
-- [ ] That every field value is factually correct
-- [x] That the output parses and conforms to the schema's structure and types (when generation completes normally)
-- [ ] That the model will never refuse
-- [ ] That the output is identical across runs
-E: Constrained decoding masks tokens that would violate the grammar, guaranteeing syntax and shape. Correctness of values, refusals and truncation must still be handled.
+- [ ] That values are correct, since only schema-valid tokens can be sampled
+- [x] That a normally completed response parses and matches the schema
+- [ ] That a response always arrives, because refusals can't fit the schema
+- [ ] That the output is complete, since the grammar must reach its end state
+E: Masking guarantees syntax and shape for a response that finishes normally. It says nothing about whether values are true, and refusals and max_tokens truncation can still produce output that doesn't match, which is why you check stop_reason.
 
 Q: How does a constrained decoder prevent the model from outputting "feature" when the enum allows only "bug" or "billing"?
-- [ ] It retries generation until a valid value appears
-- [ ] It post-processes the text and replaces invalid values
-- [x] At each step it sets the scores of tokens that can't lead to a valid value to negative infinity before sampling
-- [ ] It fine-tunes the model on the schema before each request
-E: The grammar tracks which continuations are legal; tokens that would break the schema are masked out of the distribution, so they can never be sampled.
+- [ ] It samples freely, then retries the request until a valid value appears
+- [ ] It maps the invalid value to the closest allowed one after generation
+- [x] Before each sampling step it masks tokens that can't lead to a valid value
+- [ ] It adds the allowed values to the prompt so the model is told to pick one of them
+E: The grammar tracks which continuations are legal and sets the scores of illegal tokens to negative infinity, so "feature" can never be sampled. Retrying and post-hoc mapping are what prompt-only pipelines do; telling the model the values is prompting, not a guarantee.
 
 Q: An extraction schema has a required, non-nullable field contract_end_date. Many contracts have no end date. What is the likely result?
-- [x] The model fills in plausible-looking but invented dates, because the schema gives it no legal way to say "absent"
-- [ ] The API returns an error for those documents
-- [ ] The field will be an empty string
-- [ ] The model will skip the field
-E: Constrained decoding forces a legal output. Without a nullable option, the nearest legal output is a fabricated date. Make possibly-absent fields nullable and say what null means.
+- [x] The model writes plausible but invented dates for contracts that lack one
+- [ ] The API rejects those requests because the field cannot be satisfied
+- [ ] The model returns an empty string, the nearest thing to "no value"
+- [ ] The response ends with a refusal since no truthful answer is allowed
+E: Constrained decoding always forces some legal output, and for a required date field the legal outputs are dates, so the model fabricates one. An empty string isn't a valid date and the API doesn't detect "unanswerable"; make possibly-absent fields nullable and say what null means.
 
 Q: Your validator checks that invoice line items sum to the total. Some real invoices have printing errors. What is the best design?
-- [ ] Retry until the model produces numbers that sum correctly
-- [ ] Remove the validator
-- [x] Keep the check, but let the model report a genuine inconsistency in a notes field that the validator accepts, and bound the retries
-- [ ] Have the model compute the total itself and ignore the printed one
-E: Validators that demand impossible consistency pressure the model to fabricate. An honest escape hatch plus bounded retries catches extraction errors without forcing invented data.
+- [ ] Retry with specific feedback until the extracted numbers sum correctly
+- [ ] Drop the check, since printing errors make it unreliable on real data
+- [x] Keep the check, but accept a notes field explaining a real mismatch
+- [ ] Have the model recompute the total from line items and store that one
+E: A validator that demands consistency the document doesn't have pressures the model to fabricate; retrying "until it sums" is exactly that trap. An honest escape hatch keeps the check's value for catching extraction errors, with retries still bounded.
 
 Q: When should you use strict tools rather than output_config.format?
-- [ ] When you need the model's final answer as JSON
-- [x] When you need guaranteed-valid arguments for tool calls during an agent loop
-- [ ] When the schema is recursive
-- [ ] Never; they are the same feature
-E: output_config.format constrains the final response; strict: true constrains a tool's arguments. Agents that act through tools and end with a structured report can use both.
+- [ ] When the agent's final answer must be returned as schema-valid JSON
+- [x] When arguments to tool calls made mid-loop must be schema-valid
+- [ ] When the schema is recursive, since output formats reject recursion
+- [ ] When you want the model forced to call a particular tool every turn
+E: output_config.format constrains the final response; strict: true constrains a tool's arguments, and agents can use both. Strict tools don't add recursive-schema support, and forcing a specific tool via tool_choice is rejected on current Claude models.
 
 Q: In an LLM-decides/code-executes refund state machine, how do you stop the model from jumping from collect_info straight to approve_refund?
-- [ ] Add "never skip verification" to the system prompt
-- [x] Build the next_state enum from only the transitions legal in the current state, and execute actions in code
-- [ ] Use a lower effort setting
-- [ ] Ask the model to output its reasoning first
-E: With a per-state enum, illegal transitions can't be generated at all, and code still controls what each transition does. That is a structural guarantee rather than a request.
+- [ ] Add a firm system-prompt rule that verification must not be skipped
+- [x] Build the next_state enum from only the moves legal in the current state
+- [ ] Have code reject approve_refund and re-ask the model until a legal move comes back
+- [ ] Ask for a reasoning field before next_state so the model checks policy
+E: A per-state enum makes illegal transitions impossible to generate, a structural guarantee. Rejecting and re-asking also enforces the rule, but it wastes calls and only catches the error after the fact; prompt rules and reasoning fields are requests, not guarantees.
 
 Q: Using a model with adaptive thinking, how should you get careful judgment on a structured classification?
-- [ ] Put a long required reasoning field first in the schema and ask the model to show all its work there
-- [x] Let the model think before producing the output (raising effort if needed), and keep only short, purpose-specific fields like evidence or a one-line reason
-- [ ] Remove the enum so the model can explain itself freely
-- [ ] Ask for the answer first, then the explanation
-E: Native thinking happens before the constrained output, so heavy reasoning fields are unnecessary and current guidance is to keep reasoning in thinking blocks. Short evidence or reason fields still serve auditing.
+- [ ] Put a long required reasoning field first and have the model show its work
+- [x] Let the model think first, raising effort if needed, and keep fields lean
+- [ ] Drop the enum so the model can explain borderline cases in free text
+- [ ] Put the label first and a justification field after it for auditing
+E: Native thinking happens before the constrained output, so a long reasoning field is unnecessary and current guidance is to keep reasoning in thinking blocks. The reasoning-field-first option was good advice for older models without thinking; answer-first commits before deliberating, and dropping the enum loses the guarantee.
 ```
 
 ## Further Reading

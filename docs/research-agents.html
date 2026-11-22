@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 30 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 21 of 37</span>
+      <span>Lesson 21 of 38</span>
       <span class="lesson-status" data-status-for="research-agents"></span>
     </div>
   </header>
@@ -139,7 +141,7 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="rag-and-retrieval.html">Retrieval &amp; Agentic RAG</a></p>
   </section>
   <article class="prose">
-<p>Ask a chatbot &quot;What are the main approaches to grid-scale energy storage, and how do their costs compare?&quot; and you get a fluent answer from the model&#39;s training data, possibly with a few search results stitched in. Ask a <strong>deep research agent</strong> the same question and something different happens: it may ask whether you care about lithium-ion, flow batteries, pumped hydro or all of them; it drafts a plan; it runs dozens of searches, reads government reports and industry analyses, notices that two sources disagree on costs because they use different years and assumptions, digs further, and returns a structured, multi-page report with citations after several minutes.</p>
+<p>Ask a chatbot &quot;What are the main approaches to grid-scale energy storage, and how do their costs compare?&quot; and you get a fluent answer from the model&#39;s training data, possibly with a few search results stitched in. Ask a <strong><dfn class="gt" tabindex="0" data-t="Deep research" data-d="A class of agent that performs many searches and reads over minutes to hours, then writes a cited report on a complex question." data-a="deep-research">deep research</dfn> agent</strong> the same question and something different happens: it may ask whether you care about lithium-ion, flow batteries, pumped hydro or all of them; it drafts a plan; it runs dozens of searches, reads government reports and industry analyses, notices that two sources disagree on costs because they use different years and assumptions, digs further, and returns a structured, multi-page report with citations after several minutes.</p>
 <p>Deep research was one of the first agent products to reach a mass audience, and it is an excellent case study in agent design: open-ended search spaces, unreliable information sources, huge context pressure, and an output (a long report) that is hard to evaluate. This lesson covers how these systems work, how to make them trustworthy, how to evaluate them, and how to build a small one yourself.</p>
 <h2 id="what-makes-research-deep"><a class="anchor" href="#what-makes-research-deep" aria-hidden="true">#</a>What Makes Research &quot;Deep&quot;</h2>
 <p>A <strong>deep research agent</strong> is an agent that autonomously conducts multi-step investigation (searching, reading, reasoning about what is still missing, searching again) and synthesizes the findings into a cited report. Compare it with simpler designs:</p>
@@ -184,7 +186,7 @@
 </tr>
 </tbody></table>
 </div>
-<p>The key difference is <strong>adaptive iteration</strong>. Classic retrieval-augmented generation (see <a href="rag-and-retrieval.html">RAG and retrieval</a>) retrieves once with the user&#39;s query. A research agent treats each result as evidence that changes what it should look for next, just as a human analyst does: &quot;this report mentions a 2024 cost study; find the study itself&quot; or &quot;these two numbers disagree; find out why.&quot;</p>
+<p>The key difference is <strong>adaptive iteration</strong>. Classic <dfn class="gt" tabindex="0" data-t="Retrieval-augmented generation" data-d="Retrieving relevant documents from an external corpus at query time and placing them in the prompt so the model answers from them (Lewis et al., 2020)." data-l="rag-and-retrieval" data-a="retrieval-augmented-generation">retrieval-augmented generation</dfn> (see <a href="rag-and-retrieval.html">RAG and retrieval</a>) retrieves once with the user&#39;s query. A research agent treats each result as evidence that changes what it should look for next, just as a human analyst does: &quot;this report mentions a 2024 cost study; find the study itself&quot; or &quot;these two numbers disagree; find out why.&quot;</p>
 <h2 id="the-product-landscape"><a class="anchor" href="#the-product-landscape" aria-hidden="true">#</a>The Product Landscape</h2>
 <p>Deep research became a product category in a few months.</p>
 <div class="table-wrap"><table>
@@ -217,7 +219,7 @@
 </tr>
 </tbody></table>
 </div>
-<p>Since then, deep research has spread into most assistants and many enterprise products, and it has been combined with other capabilities. OpenAI, for example, merged deep research with its Operator browser agent into ChatGPT agent in July 2025, so research can include interacting with websites (see <a href="computer-use-agents.html">computer-use agents</a>). Enterprise versions increasingly research internal sources (wikis, drives, tickets, CRM) alongside the public web, often through <a href="protocols-mcp-a2a.html">MCP</a> connectors.</p>
+<p>Since then, deep research has spread into most assistants and many enterprise products, and it has been combined with other capabilities. OpenAI, for example, merged deep research with its Operator <dfn class="gt" tabindex="0" data-t="Browser agent" data-d="An agent that navigates and acts on websites, using screenshots, the DOM or the accessibility tree as observations and clicks, typing and navigation as actions." data-l="computer-use-agents" data-a="browser-agent">browser agent</dfn> into ChatGPT agent in July 2025, so research can include interacting with websites (see <a href="computer-use-agents.html">computer-use agents</a>). Enterprise versions increasingly research internal sources (wikis, drives, tickets, CRM) alongside the public web, often through <a href="protocols-mcp-a2a.html">MCP</a> connectors.</p>
 <h2 id="the-research-pipeline"><a class="anchor" href="#the-research-pipeline" aria-hidden="true">#</a>The Research Pipeline</h2>
 <p>Most deep research systems implement some variant of this pipeline:</p>
 <figure class="diagram"><pre class="mermaid">flowchart TD
@@ -259,14 +261,14 @@
 <p>The design, in the <strong>orchestrator-worker</strong> pattern (see <a href="workflow-patterns.html">workflow patterns</a> and <a href="multi-agent-systems.html">multi-agent systems</a>):</p>
 <ul>
 <li>A <strong>lead agent</strong> analyzes the query, develops a strategy, and saves its plan to external memory so it survives if the context grows too large.</li>
-<li>It spawns <strong>subagents</strong> in parallel, each with a clear task description: objective, output format, suggested tools and sources, and boundaries. Each subagent searches and reasons in its <em>own</em> context window, then returns a condensed summary.</li>
+<li>It spawns <strong>subagents</strong> in parallel, each with a clear task description: objective, output format, suggested tools and sources, and boundaries. Each subagent searches and reasons in its <em>own</em> <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, then returns a condensed summary.</li>
 <li>The lead synthesizes the results, decides whether more research is needed, and may spawn more subagents.</li>
 <li>A dedicated <strong>citation step</strong> processes the final report and source documents to attach citations to the specific claims they support.</li>
 </ul>
 <p>Lessons reported in that write-up are widely applicable:</p>
 <ul>
 <li><strong>Multi-agent wins on breadth.</strong> On Anthropic&#39;s internal research evaluation, a system with Claude Opus 4 leading Claude Sonnet 4 subagents outperformed single-agent Claude Opus 4 by 90.2%. The advantage was largest on breadth-first queries with many independent directions.</li>
-<li><strong>Tokens drive performance and cost.</strong> In their analysis of BrowseComp results, token usage alone explained 80% of the performance variance. Multi-agent systems work partly because they spend more tokens across separate context windows. They also reported that agents typically use about 4× the tokens of a chat interaction, and multi-agent systems about 15×, so the architecture only makes economic sense for high-value tasks.</li>
+<li><strong>Tokens drive performance and cost.</strong> In their analysis of <dfn class="gt" tabindex="0" data-t="BrowseComp" data-d="A benchmark from OpenAI (2025) of hard-to-find facts that require persistent, creative web browsing to locate, while being easy to verify." data-l="benchmarks" data-a="browsecomp">BrowseComp</dfn> results, token usage alone explained 80% of the performance variance. Multi-agent systems work partly because they spend more tokens across separate context windows. They also reported that agents typically use about 4× the tokens of a chat interaction, and multi-agent systems about 15×, so the architecture only makes economic sense for high-value tasks.</li>
 <li><strong>Teach the orchestrator to delegate.</strong> Vague instructions such as &quot;research the semiconductor shortage&quot; caused subagents to duplicate each other&#39;s work or miss areas. Detailed task descriptions fixed this.</li>
 <li><strong>Scale effort to the query.</strong> Agents initially over-invested in simple questions. Explicit guidance (simple fact-finding: one agent with a handful of tool calls; complex research: many subagents with divided responsibilities) helped.</li>
 <li><strong>Parallelize tool calls.</strong> Spawning subagents in parallel, and having subagents call tools in parallel, cut research time substantially for complex queries.</li>
@@ -295,7 +297,7 @@
 </ul>
 <p><strong>Triangulate.</strong> For important claims, seek <strong>independent corroboration</strong>, meaning sources that did not copy each other. Ten articles quoting one press release are one source, not ten. When sources conflict, the agent should explain <em>why</em> (different years, definitions, regions, methodologies) rather than silently picking one or averaging.</p>
 <p><strong>Express uncertainty.</strong> A good report distinguishes &quot;well established (multiple independent primary sources)&quot;, &quot;reported (single credible source)&quot; and &quot;contested&quot;. Readers trust reports that admit uncertainty more over time, because the confidence becomes informative.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Put it in the prompt</div><div class="callout-body"><p>Source-quality rules belong in the subagent system prompt: &quot;Prefer primary sources. Record publication dates. Note when a figure comes from a party with a financial interest. If sources conflict, report both and explain the discrepancy.&quot; Models follow such guidance well.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Put it in the prompt</div><div class="callout-body"><p>Source-quality rules belong in the subagent <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>: &quot;Prefer primary sources. Record publication dates. Note when a figure comes from a party with a financial interest. If sources conflict, report both and explain the discrepancy.&quot; Models follow such guidance well.</p>
 </div></aside>
 <h2 id="citations-and-hallucinated-citations"><a class="anchor" href="#citations-and-hallucinated-citations" aria-hidden="true">#</a>Citations and Hallucinated Citations</h2>
 <p>Citations are what make a research report checkable, and they fail in several distinct ways:</p>
@@ -318,14 +320,14 @@
 <li><strong>Subagent isolation</strong>: raw pages stay in subagent contexts; only summaries flow up.</li>
 <li><strong>Extract, don&#39;t paste</strong>: store distilled notes with source references rather than full documents.</li>
 <li><strong>External memory</strong>: persist the plan, findings and source list to a file or store, so progress survives summarization or a context reset.</li>
-<li><strong>Compaction</strong>: summarize older turns when the context grows long, keeping the plan and key findings verbatim.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">Compaction</dfn></strong>: summarize older turns when the context grows long, keeping the plan and key findings verbatim.</li>
 <li><strong>Server-side filtering</strong>: some search tools can filter or process results before they reach the model&#39;s context. Claude&#39;s newer web search and fetch tools, for instance, can run code to filter results, saving tokens.</li>
 </ul>
 <h2 id="evaluating-research-agents"><a class="anchor" href="#evaluating-research-agents" aria-hidden="true">#</a>Evaluating Research Agents</h2>
 <p>Research agents are hard to evaluate because the output is long, open-ended and has many valid forms. Use several layers (the general methodology is in <a href="evaluating-agents.html">evaluating agents</a> and <a href="benchmarks.html">benchmarks</a>).</p>
 <p><strong>Benchmarks with verifiable answers:</strong></p>
 <ul>
-<li><strong>GAIA</strong> (Mialon et al., 2023): 466 real-world questions for general AI assistants, in three difficulty levels, requiring browsing, file handling and multi-step reasoning, each with a short unambiguous answer. At release, humans scored about 92% versus 15% for GPT-4 with plugins, a gap that agents have since narrowed dramatically.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="GAIA" data-d="A benchmark (Mialon et al., 2023) of real-world questions that are simple for humans but require general assistants to combine reasoning, web browsing, multimodality and tool use." data-l="benchmarks" data-a="gaia">GAIA</dfn></strong> (Mialon et al., 2023): 466 real-world questions for general AI assistants, in three difficulty levels, requiring browsing, file handling and multi-step reasoning, each with a short unambiguous answer. At release, humans scored about 92% versus 15% for GPT-4 with plugins, a gap that agents have since narrowed dramatically.</li>
 <li><strong>BrowseComp</strong> (OpenAI, 2025): 1,266 questions designed to be very hard to find but easy to verify, such as identifying an entity that satisfies several obscure constraints. It measures persistence and creative searching rather than report writing.</li>
 </ul>
 <p><strong>Rubric-based evaluation of reports.</strong> For the reports themselves, teams use <strong>LLM-as-judge</strong> with explicit rubrics. Anthropic described judging research outputs on factual accuracy, citation accuracy, completeness, source quality and tool efficiency, with a single judge call scoring each dimension. Good practice:</p>
@@ -336,7 +338,7 @@
 <li>Keep <strong>human review</strong> for what judges miss: subtle source-quality problems, such as an agent preferring SEO content farms over authoritative sources, were found by human testers.</li>
 </ul>
 <h2 id="build-your-own-a-small-research-agent"><a class="anchor" href="#build-your-own-a-small-research-agent" aria-hidden="true">#</a>Build Your Own: A Small Research Agent</h2>
-<p>The sketch below implements plan, parallel research, and synthesis with the Anthropic SDK. Subagents use the <strong>server-side</strong> web search and web fetch tools, which run on Anthropic&#39;s infrastructure, so you implement no search code. Note the handling of <code>pause_turn</code>: when a server-side tool loop hits its iteration limit, you re-send the conversation and the server resumes.</p>
+<p>The sketch below implements plan, parallel research, and synthesis with the Anthropic SDK. Subagents use the <strong>server-side</strong> web search and web fetch tools, which run on Anthropic&#39;s infrastructure, so you implement no search code. Note the handling of <code>pause_turn</code>: when a <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server-side tool</dfn> loop hits its <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">iteration limit</dfn>, you re-send the conversation and the server resumes.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> concurrent.futures <span class="hljs-keyword">import</span> ThreadPoolExecutor
 
 <span class="hljs-keyword">import</span> anthropic
@@ -423,7 +425,7 @@ WEB_TOOLS = [
 <h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
 <ol>
 <li><strong>Compare products.</strong> Give the same question to two deep research products. Compare plan quality, source quality (primary vs. secondary), how conflicts are handled, and verify five random citations by hand. Which failure modes from this lesson did you find?</li>
-<li><strong>Add clarification.</strong> Extend the sketch with a <code>clarify(question)</code> step that returns up to three clarifying questions, using structured outputs. Run it on five vague questions and judge whether the questions would change the research.</li>
+<li><strong>Add clarification.</strong> Extend the sketch with a <code>clarify(question)</code> step that returns up to three clarifying questions, using <dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn>. Run it on five vague questions and judge whether the questions would change the research.</li>
 <li><strong>Reflection loop.</strong> After the parallel research, add a lead-agent step that reads the findings and outputs either &quot;done&quot; or up to three follow-up sub-questions, then runs them. Cap it at two extra rounds. Measure how report quality and token usage change.</li>
 <li><strong>Citation verifier.</strong> Write a verifier that, for each sentence with a citation, fetches the source and asks a model whether the source supports the sentence, outputting supported, partially supported or unsupported. Run it on ten reports and report the unsupported rate.</li>
 <li><strong>Rubric judge.</strong> Write an LLM-judge rubric (accuracy, citation accuracy, completeness, source quality, efficiency) and score ten reports. Then score three yourself and measure agreement. Where does the judge disagree with you?</li>
@@ -563,7 +565,7 @@ WEB_TOOLS = [
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

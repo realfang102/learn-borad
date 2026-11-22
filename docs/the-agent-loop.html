@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 30 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 4 of 37</span>
+      <span>Lesson 4 of 38</span>
       <span class="lesson-status" data-status-for="the-agent-loop"></span>
     </div>
   </header>
@@ -154,7 +156,7 @@
 <tbody><tr>
 <td><strong>Perceive</strong></td>
 <td>Read sensors</td>
-<td>The harness puts the task and all tool results so far into the context window</td>
+<td>The harness puts the task and all tool results so far into the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn></td>
 </tr>
 <tr>
 <td><strong>Think</strong></td>
@@ -232,7 +234,7 @@ loop:
 <li><strong>Append the assistant content unchanged</strong>, including any <code>thinking</code> blocks. Current models need their thinking blocks passed back intact to continue reasoning coherently across tool calls.</li>
 </ul>
 <h2 id="a-react-style-trace"><a class="anchor" href="#a-react-style-trace" aria-hidden="true">#</a>A ReAct-Style Trace</h2>
-<p>The <strong>ReAct</strong> pattern (Yao et al., 2022) describes this loop as Thought → Action → Observation. Here&#39;s what an agent investigating a failing deployment looks like, rendered in that style:</p>
+<p>The <strong><dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn></strong> pattern (Yao et al., 2022) describes this loop as Thought → Action → Observation. Here&#39;s what an agent investigating a failing deployment looks like, rendered in that style:</p>
 <div class="code-block trace"><div class="code-head"><span class="code-lang">agent trace</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Task: The nightly deploy failed. Find out why and suggest a fix.
 
 <span class="tr-thought">Thought:</span> Start with the most recent deploy log.
@@ -275,7 +277,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 <tr>
 <td>When the task is done</td>
-<td>Hard limits: max steps, tokens, dollars, wall-clock time</td>
+<td>Hard limits: <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-a="step-budget">max steps</dfn>, tokens, dollars, wall-clock time</td>
 </tr>
 <tr>
 <td>When to ask the user a question</td>
@@ -287,7 +289,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 <tr>
 <td>What to say in the final answer</td>
-<td>What context goes into the next call (compaction, memory)</td>
+<td>What context goes into the next call (<dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, memory)</td>
 </tr>
 <tr>
 <td></td>
@@ -297,12 +299,12 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </div>
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>The model proposes; the harness disposes. Anything that <em>must</em> hold (a budget, a permission, a safety rule, a format) belongs in the harness as code, not in the prompt as a hope. Prompts steer behavior. Code guarantees it.</p>
 </div></aside>
-<p>For example, &quot;never delete files outside the project directory&quot; in a system prompt is a request. A <code>delete_file</code> tool that resolves the path and refuses anything outside the project root is a guarantee. You want both (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</p>
+<p>For example, &quot;never delete files outside the project directory&quot; in a <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> is a request. A <code>delete_file</code> tool that resolves the path and refuses anything outside the project root is a guarantee. You want both (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</p>
 <p>Try it yourself: step through the loop below and watch which component acts at each stage, and how the transcript grows.</p>
 <div class="widget" data-widget="agent-loop"></div>
 
 <h2 id="stop-conditions-and-termination"><a class="anchor" href="#stop-conditions-and-termination" aria-hidden="true">#</a>Stop Conditions and Termination</h2>
-<p>An agent loop has to end. There are two families of stopping: the model decides it&#39;s done, or the harness stops it.</p>
+<p>An <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-a="agent-loop">agent loop</dfn> has to end. There are two families of stopping: the model decides it&#39;s done, or the harness stops it.</p>
 <h3 id="model-driven-stops-the-stop-reason"><a class="anchor" href="#model-driven-stops-the-stop-reason" aria-hidden="true">#</a>Model-driven stops: the stop reason</h3>
 <p>Every Messages API response includes <code>stop_reason</code>. A correct loop handles each value:</p>
 <div class="table-wrap"><table>
@@ -330,7 +332,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 <tr>
 <td><code>pause_turn</code></td>
-<td>A long-running server-side tool turn paused</td>
+<td>A long-running <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server-side tool</dfn> turn paused</td>
 <td>Append the assistant content and call again so it can resume</td>
 </tr>
 <tr>
@@ -351,7 +353,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <li><strong>Max steps (iterations).</strong> The simplest and most essential guard. Typical values range from about 10 for narrow tasks to hundreds for long coding sessions.</li>
 <li><strong>Token or cost budget.</strong> Sum <code>response.usage</code> across calls and stop when you exceed a limit. This matters because a single step can be expensive when contexts are large.</li>
 <li><strong>Wall-clock timeout.</strong> For both the whole run and each tool call. A hung <code>curl</code> shouldn&#39;t hang your agent.</li>
-<li><strong>Loop detection.</strong> The same tool called with identical arguments three times in a row is a strong signal the agent is stuck. You can stop, or inject a message telling the model it&#39;s repeating itself.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Loop detection" data-d="Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating." data-l="reliability" data-a="loop-detection">Loop detection</dfn>.</strong> The same tool called with identical arguments three times in a row is a strong signal the agent is stuck. You can stop, or inject a message telling the model it&#39;s repeating itself.</li>
 <li><strong>Human interruption.</strong> A way for a user or operator to cancel a run.</li>
 </ul>
 <p>When the harness stops a run, fail <em>informatively</em>. Return what the agent accomplished, why it stopped, and the transcript for debugging, rather than a bare error.</p>
@@ -393,7 +395,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 </tr>
 </tbody></table>
 </div>
-<p>The Anthropic SDK already retries transient API errors (connection errors, 429s and 5xx) with exponential backoff. Your own tools need the same discipline: retry transient failures in code, and surface meaningful failures to the model.</p>
+<p>The Anthropic SDK already retries transient API errors (connection errors, 429s and 5xx) with <dfn class="gt" tabindex="0" data-t="Exponential backoff" data-d="Retrying failed requests with waits that grow exponentially (usually with random jitter), to ride out rate limits and transient errors without hammering the service." data-l="reliability" data-a="exponential-backoff">exponential backoff</dfn>. Your own tools need the same discipline: retry transient failures in code, and surface meaningful failures to the model.</p>
 <h2 id="interleaved-thinking"><a class="anchor" href="#interleaved-thinking" aria-hidden="true">#</a>Interleaved Thinking</h2>
 <p>With reasoning models, the &quot;think&quot; phase can be explicit. On current Claude models, thinking is <strong>adaptive</strong>: the model decides when and how much to reason, including <em>between</em> tool calls. After each observation it can think through what the result means before choosing the next action:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">[thinking] The test failed with KeyError: &#x27;DATABASE_URL&#x27;. The settings module reads
@@ -401,7 +403,7 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
            load .env in conftest.py, or set the var in the test config. The project
            already uses pytest-env according to pyproject.toml, so use that.
 [tool_use] edit_file(pyproject.toml, ...)</code></pre></div>
-<p>This <strong>interleaved thinking</strong> is a large part of why modern agents recover from surprises much better than 2023-era ones. Two practical notes:</p>
+<p>This <strong><dfn class="gt" tabindex="0" data-t="Interleaved thinking" data-d="Reasoning that happens between tool calls, not only before the first one, so the model can reflect on each tool result before choosing its next action." data-l="reasoning-and-planning" data-a="interleaved-thinking">interleaved thinking</dfn></strong> is a large part of why modern agents recover from surprises much better than 2023-era ones. Two practical notes:</p>
 <ul>
 <li>Always pass thinking blocks back unchanged in the assistant message. Appending <code>response.content</code> as-is does this for you.</li>
 <li>Control the overall depth with <code>output_config={&quot;effort&quot;: ...}</code>: lower for fast, routine loops and higher for hard debugging or planning.</li>
@@ -409,14 +411,14 @@ Final: The deploy failed because db/migrations/20261121_create_invoices_v2.sql d
 <h2 id="state-what-the-loop-remembers"><a class="anchor" href="#state-what-the-loop-remembers" aria-hidden="true">#</a>State: What the Loop Remembers</h2>
 <p>Within a single run, the <strong>transcript is the state</strong>. But real agents usually keep state in several places:</p>
 <ul>
-<li><strong>The transcript</strong>: messages, tool calls and results. Short-term working memory.</li>
+<li><strong>The transcript</strong>: messages, tool calls and results. Short-term <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn>.</li>
 <li><strong>The environment itself</strong>: files written, tickets updated, branches created. Often the most reliable state, because it can be re-observed.</li>
 <li><strong>Harness variables</strong>: step count, token spend, start time, approval decisions. Never shown to the model unless you choose to.</li>
 <li><strong>External memory</strong>: notes, to-do lists or progress files the agent writes so it can resume later or survive context compaction (see <a href="memory.html">memory</a>).</li>
 </ul>
 <p>As runs get longer, the transcript outgrows the context window and has to be compacted or pruned. That&#39;s the subject of <a href="context-engineering.html">context engineering</a>.</p>
 <h2 id="a-compact-agent-loop-in-python"><a class="anchor" href="#a-compact-agent-loop-in-python" aria-hidden="true">#</a>A Compact Agent Loop in Python</h2>
-<p>Here is a small but correct loop using the Anthropic Python SDK. It gives the model two read-only tools for exploring a project directory, handles every stop reason, returns errors as observations, and enforces a step limit.</p>
+<p>Here is a small but correct loop using the Anthropic Python SDK. It gives the model two read-only tools for exploring a project directory, handles every <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-a="stop-reason">stop reason</dfn>, returns errors as observations, and enforces a step limit.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> pathlib
 <span class="hljs-keyword">import</span> anthropic
 
@@ -491,7 +493,7 @@ TOOLS = [
 <li><strong>The stop-reason branches</strong> cover every outcome. Anything that isn&#39;t a terminal state falls through to tool execution.</li>
 <li><strong><code>safe_path</code></strong> is a harness-enforced permission, so the model can&#39;t read <code>/etc/passwd</code> however it&#39;s prompted.</li>
 <li><strong><code>try/except</code></strong> turns failures into <code>is_error</code> observations the model can learn from within the run.</li>
-<li><strong>One user message with every result</strong> keeps parallel tool calls correctly paired.</li>
+<li><strong>One user message with every result</strong> keeps <dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">parallel tool calls</dfn> correctly paired.</li>
 </ul>
 <aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Don&#39;t always hand-roll it</div><div class="callout-body"><p>The Anthropic SDK&#39;s <strong>tool runner</strong> (<code>client.beta.messages.tool_runner(...)</code> with <code>@beta_tool</code>-decorated functions) runs this loop for you, and agent SDKs add context management, permissions and more. Write the manual loop once so you understand it, then use the higher-level tools where they fit (see <a href="sdk-hands-on.html">SDK hands-on</a> and <a href="agent-frameworks.html">agent frameworks</a>).</p>
 </div></aside>
@@ -557,7 +559,7 @@ TOOLS = [
 <li><strong>Add a cost budget.</strong> Extend the loop to sum <code>response.usage.input_tokens</code> and <code>response.usage.output_tokens</code> across calls and stop with an informative message once the total exceeds 200,000 tokens.</li>
 <li><strong>Detect loops.</strong> Add a guard that notices when the same tool is called with identical input three times in a row. Instead of stopping, inject a short note into the next tool result telling the model it&#39;s repeating itself. Does the agent change strategy?</li>
 <li><strong>Make errors actionable.</strong> Change <code>read_file</code> so that on <code>FileNotFoundError</code> it returns the closest matching filenames in that directory (hint: <code>difflib.get_close_matches</code>). Compare how many steps the agent needs to recover from a typo&#39;d path before and after.</li>
-<li><strong>Stretch: approval gate.</strong> Add a <code>write_file</code> tool. Before executing it, have the harness print the proposed change and ask for <code>y/n</code> on stdin. On &quot;n&quot;, return <code>is_error: true</code> with &quot;User declined this change&quot;, and observe how the model adapts. Which stop conditions and guards does a write-capable agent need that a read-only one doesn&#39;t?</li>
+<li><strong>Stretch: <dfn class="gt" tabindex="0" data-t="Approval gate" data-d="A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation." data-l="human-in-the-loop" data-a="approval-gate">approval gate</dfn>.</strong> Add a <code>write_file</code> tool. Before executing it, have the harness print the proposed change and ask for <code>y/n</code> on stdin. On &quot;n&quot;, return <code>is_error: true</code> with &quot;User declined this change&quot;, and observe how the model adapts. Which stop conditions and guards does a write-capable agent need that a read-only one doesn&#39;t?</li>
 </ol>
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="the-agent-loop" data-total="7">
@@ -691,7 +693,7 @@ TOOLS = [
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

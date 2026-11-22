@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 28 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 19 of 37</span>
+      <span>Lesson 19 of 38</span>
       <span class="lesson-status" data-status-for="coding-agents"></span>
     </div>
   </header>
@@ -154,7 +156,7 @@
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The verification advantage</div><div class="callout-body"><p>Coding agents work mainly because the environment talks back. An agent that runs <code>pytest</code> and sees <code>3 failed, 41 passed</code> has a grounded signal to correct against. When designing agents for other domains, ask: <em>what is my equivalent of the test suite?</em></p>
 </div></aside>
 <h2 id="anatomy-of-a-coding-agent"><a class="anchor" href="#anatomy-of-a-coding-agent" aria-hidden="true">#</a>Anatomy of a Coding Agent</h2>
-<p>Strip away the branding and nearly every coding agent is the <a href="the-agent-loop.html">agent loop</a> with four families of tools.</p>
+<p>Strip away the branding and nearly every <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-a="coding-agent">coding agent</dfn> is the <a href="the-agent-loop.html">agent loop</a> with four families of tools.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     U[&quot;Task from developer&quot;] --&gt; M[&quot;Model reasons&quot;]
     M --&gt; N[&quot;Navigate: glob, grep, read&quot;]
@@ -228,11 +230,11 @@
 <span class="tr-thought">Thought:</span> Fixed and verified. Summarize the root cause and the change.</code></pre></div>
 <p>Notice the order: reproduce, fix, run the <em>whole</em> suite, then lint. A good coding agent is fussy about evidence.</p>
 <h2 id="the-agent-computer-interface-aci"><a class="anchor" href="#the-agent-computer-interface-aci" aria-hidden="true">#</a>The Agent-Computer Interface (ACI)</h2>
-<p>The SWE-agent paper (Yang et al., 2024) coined <strong>agent-computer interface (ACI)</strong>: just as humans benefit from good user interfaces, language-model agents benefit from interfaces designed for <em>them</em>. The authors found a raw shell worked worse than a small set of purpose-built commands:</p>
+<p>The SWE-agent paper (Yang et al., 2024) coined <strong><dfn class="gt" tabindex="0" data-t="Agent-computer interface" data-d="The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance." data-a="agent-computer-interface">agent-computer interface</dfn> (ACI)</strong>: just as humans benefit from good user interfaces, language-model agents benefit from interfaces designed for <em>them</em>. The authors found a raw shell worked worse than a small set of purpose-built commands:</p>
 <ul>
 <li>A file viewer showing ~100 numbered lines at a time, with scroll and goto, instead of <code>cat</code> dumping whole files.</li>
 <li>Search commands returning a <strong>concise summary</strong> (which files matched) rather than thousands of lines.</li>
-<li>An edit command with a <strong>lint guardrail</strong>: edits introducing syntax errors were rejected with an explanation, so broken code never accumulated.</li>
+<li>An edit command with a <strong>lint <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn></strong>: edits introducing syntax errors were rejected with an explanation, so broken code never accumulated.</li>
 <li>Explicit feedback for empty output (&quot;ran successfully, no output&quot;) instead of silence, which models misread.</li>
 </ul>
 <p>The durable lesson matches <a href="designing-tools.html">designing tools</a>: tool output is the agent&#39;s only window on the world, so make it compact, unambiguous and actionable.</p>
@@ -359,7 +361,7 @@ runner = client.beta.messages.tool_runner(
 <p>Each session starts with an agent that knows nothing about <em>your</em> conventions: how to run tests, which directories are generated, that you use <code>uv</code> rather than <code>pip</code>. <strong>Project memory files</strong> are loaded automatically at session start to fix this.</p>
 <ul>
 <li><strong>CLAUDE.md</strong> is Claude Code&#39;s convention, at the repo root, in subdirectories, or at user level.</li>
-<li><strong>AGENTS.md</strong> is a vendor-neutral &quot;README for agents&quot; read by Codex, Cursor, Jules and many others. OpenAI contributed it to the Linux Foundation&#39;s Agentic AI Foundation in December 2025, alongside MCP.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="AGENTS.md" data-d="A convention of placing a Markdown file of project instructions (build commands, conventions, gotchas) in a repository for coding agents to read at startup; CLAUDE.md is the Claude Code equivalent." data-a="agentsmd">AGENTS.md</dfn></strong> is a vendor-neutral &quot;README for agents&quot; read by Codex, Cursor, Jules and many others. OpenAI contributed it to the Linux Foundation&#39;s Agentic AI Foundation in December 2025, alongside <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn>.</li>
 </ul>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text"># Notes for agents
 - Python 3.12 via uv. Tests: `uv run pytest -q`. Lint: `uv run ruff check .`
@@ -402,21 +404,21 @@ runner = client.beta.messages.tool_runner(
 <h2 id="benchmarks-briefly"><a class="anchor" href="#benchmarks-briefly" aria-hidden="true">#</a>Benchmarks, Briefly</h2>
 <p>The full treatment is in <a href="benchmarks.html">benchmarks</a>.</p>
 <ul>
-<li><strong>SWE-bench</strong> (Jimenez et al., 2023): 2,294 real GitHub issues from 12 Python repositories. The agent gets the repo and issue text and must produce a patch that passes hidden tests from the real fix.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="SWE-bench" data-d="A benchmark (Jimenez et al., 2023) of real GitHub issues from Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified is a human-validated subset of 500 tasks." data-l="benchmarks" data-a="swe-bench">SWE-bench</dfn></strong> (Jimenez et al., 2023): 2,294 real GitHub issues from 12 Python repositories. The agent gets the repo and issue text and must produce a patch that passes hidden tests from the real fix.</li>
 <li><strong>SWE-bench Verified</strong> (August 2024): a 500-task subset human-validated as well-specified. It became the headline number; frontier agents went from low single digits in 2023 to well above 70% by 2025, and it is now near saturation with contamination concerns. Variants (Multimodal, Multi-SWE-bench, SWE-bench Pro) push into other languages and harder tasks.</li>
 <li><strong>Terminal-Bench</strong> (Stanford and the Laude Institute): hard command-line tasks such as building software from source, training models and reverse engineering, each checked by a test script. Its 2.0 release has 89 tasks.</li>
 </ul>
 <p>A score measures a <strong>model plus a harness</strong>, and benchmark tasks are cleaner than your Tuesday ticket. Your own <a href="evaluating-agents.html">evaluations</a> on your codebase matter more than leaderboards.</p>
 <h2 id="failure-modes"><a class="anchor" href="#failure-modes" aria-hidden="true">#</a>Failure Modes</h2>
 <h3 id="test-tampering-and-reward-hacking"><a class="anchor" href="#test-tampering-and-reward-hacking" aria-hidden="true">#</a>Test tampering and reward hacking</h3>
-<p>When the objective is &quot;make the tests pass&quot;, the easiest path is sometimes to change the tests: deleting assertions, adding <code>@pytest.mark.skip</code>, swallowing the exception under test, or special-casing inputs in production code (<code>if name == &quot;test_user&quot;: return 42</code>). This <strong>reward hacking</strong> has been documented in system cards and independent evaluations of frontier models, and it emerges naturally from RL on test-pass rewards (see <a href="agent-safety-alignment.html">agent safety and alignment</a>). Mitigate with explicit instructions, tests committed first, test-diff review, read-only test directories in the sandbox, and hidden tests in automated pipelines.</p>
+<p>When the objective is &quot;make the tests pass&quot;, the easiest path is sometimes to change the tests: deleting assertions, adding <code>@pytest.mark.skip</code>, swallowing the exception under test, or special-casing inputs in production code (<code>if name == &quot;test_user&quot;: return 42</code>). This <strong><dfn class="gt" tabindex="0" data-t="Reward hacking" data-d="An agent achieving high reward by exploiting flaws in the reward signal or tests, such as special-casing tests, instead of doing the intended task." data-l="agent-safety-alignment" data-a="reward-hacking">reward hacking</dfn></strong> has been documented in system cards and independent evaluations of frontier models, and it emerges naturally from RL on test-pass rewards (see <a href="agent-safety-alignment.html">agent safety and alignment</a>). Mitigate with explicit instructions, tests committed first, test-diff review, read-only test directories in the sandbox, and hidden tests in automated pipelines.</p>
 <h3 id="over-engineering"><a class="anchor" href="#over-engineering" aria-hidden="true">#</a>Over-engineering</h3>
 <p>Agents often do <em>more</em> than asked: unrequested config options, abstractions for single uses, &quot;consistency&quot; rewrites of adjacent code, defensive checks for impossible states. Counter with explicit scope (&quot;minimal change; do not refactor unrelated code&quot;), small tasks and plan review.</p>
 <h3 id="hallucinated-apis-and-packages"><a class="anchor" href="#hallucinated-apis-and-packages" aria-hidden="true">#</a>Hallucinated APIs and packages</h3>
-<p>Models call functions or flags that do not exist, or existed in an older version. A verify loop usually catches this fast, which is another reason to run code. More dangerous is <strong>package hallucination</strong>: installing a plausible but nonexistent package name, which attackers can pre-register (&quot;slopsquatting&quot;). Pin dependencies and require approval for new ones.</p>
+<p>Models call functions or flags that do not exist, or existed in an older version. A verify loop usually catches this fast, which is another reason to run code. More dangerous is <strong>package <dfn class="gt" tabindex="0" data-t="Hallucination" data-d="Model output that is fluent and confident but factually wrong or unsupported by the provided sources, such as an invented citation or API." data-l="llm-fundamentals" data-a="hallucination">hallucination</dfn></strong>: installing a plausible but nonexistent package name, which attackers can pre-register (&quot;slopsquatting&quot;). Pin dependencies and require approval for new ones.</p>
 <h3 id="context-exhaustion"><a class="anchor" href="#context-exhaustion" aria-hidden="true">#</a>Context exhaustion</h3>
-<p>Every file read, test log and failed attempt consumes context. On long tasks in big repos, the window fills with stale observations: the agent forgets constraints, re-reads files, or loops. Remedies from <a href="context-engineering.html">context engineering</a>: truncate tool output, delegate investigations to subagents that return summaries, compact at milestones while keeping a durable progress file, and start fresh sessions for new subtasks.</p>
-<p>Also watch for <strong>premature victory</strong> (claiming success without running the full suite), <strong>flailing</strong> (near-identical retries; set a step budget and an instruction to stop and report, see <a href="reliability.html">reliability</a>), and <strong>confident wrong explanations</strong> (the summary says root cause, the diff fixes a symptom).</p>
+<p>Every file read, test log and failed attempt consumes context. On long tasks in big repos, the window fills with stale observations: the agent forgets constraints, re-reads files, or loops. Remedies from <a href="context-engineering.html">context engineering</a>: truncate tool output, delegate investigations to subagents that return summaries, compact at milestones while keeping a durable <dfn class="gt" tabindex="0" data-t="Structured note-taking" data-d="Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions." data-l="context-engineering" data-a="structured-note-taking">progress file</dfn>, and start fresh sessions for new subtasks.</p>
+<p>Also watch for <strong>premature victory</strong> (claiming success without running the full suite), <strong>flailing</strong> (near-identical retries; set a <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">step budget</dfn> and an instruction to stop and report, see <a href="reliability.html">reliability</a>), and <strong>confident wrong explanations</strong> (the summary says root cause, the diff fixes a symptom).</p>
 <h2 id="working-well-with-coding-agents"><a class="anchor" href="#working-well-with-coding-agents" aria-hidden="true">#</a>Working Well With Coding Agents</h2>
 <p>The developer&#39;s role shifts from typing code to <strong>specifying, delegating and reviewing</strong>.</p>
 <ol>
@@ -573,7 +575,7 @@ runner = client.beta.messages.tool_runner(
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

@@ -265,6 +265,7 @@ for (const mod of curriculum.modules) {
       links: r.links,
       words,
       widgets: [...r.html.matchAll(/data-widget="([a-z0-9-]+)"/g)].map((m) => m[1]),
+      takeaways: (r.html.match(/<h2 id="key-takeaways">[\s\S]*?<\/h2>([\s\S]*?)(?=<h2 |$)/) || [])[1] || "",
     };
     lessons.push(lesson);
     bySlug.set(slug, lesson);
@@ -302,16 +303,76 @@ if (fs.existsSync(csFile)) {
   cheatsheet = { ...data, ...r };
 }
 
+// ---------- glossary term tooltips ----------
+const STOP = new Set(["agent", "autonomous agent", "thinking", "summarization", "skills", "evaluation", "eval", "transcript",
+  "supervisor", "voting", "sectioning", "token", "environment", "benchmark", "workflow", "autonomy", "alignment", "routing",
+  "observation", "trace", "streaming", "fallback", "reflection", "rubric", "trajectory", "rollout", "attention", "self-attention",
+  "temperature", "grounding", "verifier", "orchestrator", "lead agent", "embedding", "handoff", "refusal", "sandbox", "max_tokens",
+  "stop_reason", "tool_result", "tool_use block", "pause_turn", "claude.md", "scaffold", "scaffolding", "harness", "trajectory evaluation",
+  "large language model", "llm", "ai agent", "llm agent", "tool use", "function calling", "tool call", "tool result", "subagent"]);
+function buildTermMatcher(glossary) {
+  const phrases = [];
+  for (const g of glossary) {
+    for (const p of [g.term, ...(g.aliases || [])]) {
+      if (!p || p.length < 3 || STOP.has(p.toLowerCase())) continue;
+      const cs = (p.match(/[A-Z]/g) || []).length >= 2 || !/[a-z]/.test(p);
+      phrases.push({ p, cs, g });
+    }
+  }
+  phrases.sort((a, b) => b.p.length - a.p.length);
+  const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const mk = (list, flags) => list.length ? new RegExp(`(?<![\\p{L}\\p{N}_-])(${list.map((x) => escRe(x.p)).join("|")})(?![\\p{L}\\p{N}_-])`, flags) : null;
+  const ci = phrases.filter((x) => !x.cs), cs = phrases.filter((x) => x.cs);
+  return { reCI: mk(ci, "giu"), reCS: mk(cs, "gu"), lookupCI: new Map(ci.map((x) => [x.p.toLowerCase(), x.g])), lookupCS: new Map(cs.map((x) => [x.p, x.g])) };
+}
+const SKIP_TAGS = new Set(["code", "pre", "a", "h1", "h2", "h3", "h4", "h5", "h6", "script", "style", "svg", "button", "dfn", "kbd", "summary", "figure", "th"]);
+function linkTerms(html, M, ownSlug, limit = 45) {
+  const cut = html.indexOf('<div class="quiz"');
+  const head = cut >= 0 ? html.slice(0, cut) : html, tail = cut >= 0 ? html.slice(cut) : "";
+  const used = new Set();
+  let skip = 0, count = 0;
+  const parts = head.split(/(<[^>]+>)/);
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (part.startsWith("<")) {
+      const m = part.match(/^<\/?([a-zA-Z0-9]+)/);
+      if (m && SKIP_TAGS.has(m[1].toLowerCase()) && !part.endsWith("/>")) skip += part[1] === "/" ? -1 : 1;
+      continue;
+    }
+    if (skip > 0 || !part.trim() || count >= limit) continue;
+    const hits = [];
+    for (const [re, look, cs] of [[M.reCI, M.lookupCI, false], [M.reCS, M.lookupCS, true]]) {
+      if (!re) continue;
+      re.lastIndex = 0;
+      let m;
+      while ((m = re.exec(part))) hits.push({ i: m.index, len: m[0].length, text: m[0], g: look.get(cs ? m[0] : m[0].toLowerCase()) });
+    }
+    hits.sort((a, b) => a.i - b.i || b.len - a.len);
+    let out = "", pos = 0;
+    for (const h of hits) {
+      if (!h.g || h.i < pos || used.has(h.g.term) || count >= limit) continue;
+      used.add(h.g.term); count++;
+      out += part.slice(pos, h.i) + `<dfn class="gt" tabindex="0" data-t="${esc(h.g.term)}" data-d="${esc(h.g.definition)}"${h.g.lesson && h.g.lesson !== ownSlug ? ` data-l="${h.g.lesson}"` : ""} data-a="${slugify(h.g.term)}">${h.text}</dfn>`;
+      pos = h.i + h.len;
+    }
+    if (pos) parts[i] = out + part.slice(pos);
+  }
+  return parts.join("") + tail;
+}
+const termMatcher = buildTermMatcher(glossary);
+for (const l of lessons) l.html = linkTerms(l.html, termMatcher, l.slug);
+
 // ---------- validation ----------
 const knownPages = new Set([
   ...curriculum.modules.flatMap((m) => m.lessons.map((s) => `${s}.html`)),
   "index.html", "glossary.html", "papers.html", "cheatsheet.html", "lab.html",
-  "paths.html", "flashcards.html", "exam.html", "progress.html", "about.html", "curriculum.html",
+  "paths.html", "flashcards.html", "review.html", "exam.html", "progress.html", "about.html", "curriculum.html",
 ]);
 for (const l of lessons) {
   for (const href of l.links) if (!knownPages.has(href)) warn(`${l.slug}: broken internal link → ${href}`);
   for (const p of l.prerequisites) if (!curriculum.modules.some((m) => m.lessons.includes(p))) warn(`${l.slug}: unknown prerequisite ${p}`);
   if (!l.quiz.length) warn(`${l.slug}: no quiz`);
+  if (!l.takeaways) warn(`${l.slug}: no "Key Takeaways" section`);
 }
 const allCurriculumSlugs = new Set(curriculum.modules.flatMap((m) => m.lessons));
 for (const g of glossary) if (g.lesson && !allCurriculumSlugs.has(g.lesson)) warn(`glossary ${g.term}: unknown lesson ${g.lesson}`);
@@ -380,6 +441,8 @@ write("flashcards.html", T.flashcardsPage(site));
 write("exam.html", T.examPage(site));
 write("progress.html", T.progressPage(site));
 write("about.html", T.aboutPage(site));
+write("review.html", T.reviewPage(site));
+write("404.html", T.notFoundPage());
 
 // ---------- report ----------
 const totalWords = lessons.reduce((a, l) => a + l.words, 0);

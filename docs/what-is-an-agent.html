@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 24 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 1 of 37</span>
+      <span>Lesson 1 of 38</span>
       <span class="lesson-status" data-status-for="what-is-an-agent"></span>
     </div>
   </header>
@@ -151,9 +153,9 @@
 <ul>
 <li><strong>Percept sequence.</strong> An agent acts on everything it has perceived so far, not just the latest input. For an LLM agent, the percept sequence is the <strong>transcript</strong>: the user&#39;s request plus every tool result it has seen.</li>
 <li><strong>Agent function vs. agent program.</strong> The <em>function</em> is the abstract mapping from percept sequences to actions. The <em>program</em> is the code that implements it on a real machine. For an LLM agent, the model plus the code around it is the program.</li>
-<li><strong>Rational agent.</strong> A rational agent picks the action expected to maximize its <strong>performance measure</strong>, given what it has perceived and what it already knows. Rationality isn&#39;t omniscience. An agent that makes a reasonable decision on incomplete information is rational even if the outcome is bad.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Rational agent" data-d="In classical AI (Russell &amp; Norvig), an agent that selects the action expected to maximize its performance measure given its percepts and knowledge." data-l="history-of-agents" data-a="rational-agent">Rational agent</dfn>.</strong> A rational agent picks the action expected to maximize its <strong>performance measure</strong>, given what it has perceived and what it already knows. Rationality isn&#39;t omniscience. An agent that makes a reasonable decision on incomplete information is rational even if the outcome is bad.</li>
 </ul>
-<p>Russell and Norvig also describe a task with <strong>PEAS</strong>: <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors. PEAS still works as a design checklist. For a coding agent:</p>
+<p>Russell and Norvig also describe a task with <strong>PEAS</strong>: <strong>P</strong>erformance measure, <strong>E</strong>nvironment, <strong>A</strong>ctuators, <strong>S</strong>ensors. PEAS still works as a design checklist. For a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn>:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -179,7 +181,7 @@
 </tr>
 </tbody></table>
 </div>
-<p>They also give a ladder of agent designs, from <strong>simple reflex agents</strong> (if condition then action), through <strong>model-based</strong> agents (keep internal state about the world), <strong>goal-based</strong> agents (choose actions that reach a goal) and <strong>utility-based</strong> agents (trade off competing goals), to <strong>learning agents</strong> that improve with experience. A modern LLM agent is goal-based and keeps internal state (its context window) almost by default. That&#39;s a big part of why LLMs made agents practical.</p>
+<p>They also give a ladder of agent designs, from <strong>simple reflex agents</strong> (if condition then action), through <strong>model-based</strong> agents (keep internal state about the world), <strong>goal-based</strong> agents (choose actions that reach a goal) and <strong>utility-based</strong> agents (trade off competing goals), to <strong>learning agents</strong> that improve with experience. A modern LLM agent is goal-based and keeps internal state (its <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>) almost by default. That&#39;s a big part of why LLMs made agents practical.</p>
 <h3 id="environment-properties"><a class="anchor" href="#environment-properties" aria-hidden="true">#</a>Environment properties</h3>
 <p>The classical framework also classifies environments, and the classification predicts how hard a task will be for an agent:</p>
 <ul>
@@ -202,11 +204,11 @@
 <ol>
 <li><strong>An LLM</strong> as the decision-maker. It reads the situation and decides what to do next.</li>
 <li><strong>Tools</strong>: functions the LLM can ask to have run, such as search, read a file, run a test or send an email. Tools are the agent&#39;s actuators <em>and</em> its sensors (see <a href="tool-use.html">tool use</a>).</li>
-<li><strong>A loop with feedback.</strong> The tool&#39;s result goes back to the model, which decides the next step. The loop continues until the model decides the goal is met, or until a guardrail stops it (see <a href="the-agent-loop.html">the agent loop</a>).</li>
+<li><strong>A loop with feedback.</strong> The tool&#39;s result goes back to the model, which decides the next step. The loop continues until the model decides the goal is met, or until a <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> stops it (see <a href="the-agent-loop.html">the agent loop</a>).</li>
 </ol>
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big idea</div><div class="callout-body"><p>What makes something an agent is <strong>who controls the control flow</strong>. In a workflow, your code decides the sequence of steps. In an agent, the model decides, one step at a time, based on what it observes. Everything else, from memory and planning to multi-agent setups, is elaboration on that core.</p>
 </div></aside>
-<p>This definition also explains why agents are both powerful and risky. Because the model chooses the path, an agent can handle situations its designers never anticipated. For the same reason, you can&#39;t list in advance every path it might take. That&#39;s why evaluation, observability and guardrails matter so much more for agents than for ordinary software.</p>
+<p>This definition also explains why agents are both powerful and risky. Because the model chooses the path, an agent can handle situations its designers never anticipated. For the same reason, you can&#39;t list in advance every path it might take. That&#39;s why evaluation, <dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">observability</dfn> and guardrails matter so much more for agents than for ordinary software.</p>
 <h2 id="anatomy-of-an-agent"><a class="anchor" href="#anatomy-of-an-agent" aria-hidden="true">#</a>Anatomy of an Agent</h2>
 <p>The core is simple, but production agents have recognizable parts. Here is the anatomy most practitioners would agree on:</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
@@ -239,7 +241,7 @@
 </tr>
 <tr>
 <td><strong>Instructions</strong></td>
-<td>System prompt: role, goals, constraints, style, when to stop</td>
+<td><dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">System prompt</dfn>: role, goals, constraints, style, when to stop</td>
 <td>The job description</td>
 <td><a href="prompting-for-agents.html">Prompting for agents</a></td>
 </tr>
@@ -252,7 +254,7 @@
 <tr>
 <td><strong>Memory</strong></td>
 <td>What persists: the transcript (short-term), plus stores the agent can read and write across sessions (long-term)</td>
-<td>Working memory and a notebook</td>
+<td><dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">Working memory</dfn> and a notebook</td>
 <td><a href="memory.html">Memory</a>, <a href="rag-and-retrieval.html">RAG</a></td>
 </tr>
 <tr>
@@ -333,7 +335,7 @@
 <td><strong>Autonomous agent</strong></td>
 <td>Model</td>
 <td>Model; humans set goals and review outcomes</td>
-<td>A background agent that takes an issue and opens a PR hours later</td>
+<td>A <dfn class="gt" tabindex="0" data-t="Background agent" data-d="An agent that runs asynchronously, often in a cloud sandbox, on a delegated task and reports back with results such as a pull request, rather than working interactively." data-l="deployment" data-a="background-agent">background agent</dfn> that takes an issue and opens a PR hours later</td>
 </tr>
 </tbody></table>
 </div>
@@ -469,11 +471,11 @@ Final: Fixed a ZeroDivisionError in export_orders for users with no orders; adde
 <h2 id="why-now"><a class="anchor" href="#why-now" aria-hidden="true">#</a>Why Now?</h2>
 <p>The idea of software agents is decades old (the <a href="history-of-agents.html">next lesson</a> tells that story). LLM agents took off in 2023–2025 because several things converged:</p>
 <ol>
-<li><strong>General-purpose reasoning in one model.</strong> Earlier agents needed a hand-built world model for each domain. LLMs bring broad knowledge and flexible reasoning to any domain that can be described in text.</li>
+<li><strong>General-purpose reasoning in one model.</strong> Earlier agents needed a hand-built <dfn class="gt" tabindex="0" data-t="World model" data-d="An internal model of how an environment works, used to predict the consequences of actions and plan ahead." data-l="future-of-agents" data-a="world-model">world model</dfn> for each domain. LLMs bring broad knowledge and flexible reasoning to any domain that can be described in text.</li>
 <li><strong>Reliable tool use.</strong> Models are now explicitly trained to emit well-formed tool calls and to use the results. Early 2023 experiments like AutoGPT showed the idea but broke constantly. Models trained on agentic tasks fixed much of that brittleness.</li>
-<li><strong>Reasoning models and test-time compute.</strong> Models that think before acting (2024 onward) plan better, catch their own mistakes and recover from errors more often.</li>
+<li><strong>Reasoning models and <dfn class="gt" tabindex="0" data-t="Test-time compute" data-d="Extra computation spent while answering, such as longer reasoning, sampling many candidates or search, to improve accuracy without changing model weights." data-l="reasoning-and-planning" data-a="test-time-compute">test-time compute</dfn>.</strong> Models that think before acting (2024 onward) plan better, catch their own mistakes and recover from errors more often.</li>
 <li><strong>Long context.</strong> Context windows grew from a few thousand tokens to hundreds of thousands and, as of 2026, around a million for frontier models. An agent can now hold a long task&#39;s history in view.</li>
-<li><strong>Standard plumbing.</strong> The Model Context Protocol (MCP, November 2024) and similar standards made it cheap to connect agents to tools and data (see <a href="protocols-mcp-a2a.html">protocols</a>).</li>
+<li><strong>Standard plumbing.</strong> The <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">Model Context Protocol</dfn> (MCP, November 2024) and similar standards made it cheap to connect agents to tools and data (see <a href="protocols-mcp-a2a.html">protocols</a>).</li>
 <li><strong>Falling costs.</strong> The price of a given level of capability has dropped steeply year over year, which makes many-step loops affordable.</li>
 </ol>
 <p>One measurement captures the trend. In March 2025, METR published research tracking the length of tasks (measured in how long they take skilled humans) that frontier AI agents can complete with 50% reliability. It found that this length had been doubling roughly every seven months for several years. Extrapolations are uncertain, but the direction explains why agents moved from demos to daily tools for millions of developers and knowledge workers in 2025–2026. The <a href="future-of-agents.html">future of agents</a> lesson looks at where that might lead.</p>
@@ -500,78 +502,78 @@ Final: Fixed a ZeroDivisionError in export_orders for users with no orders; adde
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>According to Anthropic&#39;s distinction, what most fundamentally separates an agent from a workflow?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents use larger, more capable models</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In an agent, the model dynamically decides the sequence of steps; in a workflow, code paths are predefined</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Workflows cannot call tools</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents always involve multiple LLMs collaborating</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents can use tools, while workflows rely only on the model&#39;s own text</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In an agent the model picks each next step; in a workflow, code does</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agents run on larger models that are able to plan many steps ahead</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents coordinate several LLMs, while a workflow makes a single call</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows can use tools and big models too. The defining difference is control flow: who decides what happens next. In an agent it&#39;s the model, step by step, based on feedback.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows can call tools, use frontier models and chain many LLM calls. The defining difference is control flow: who decides what happens next. In an agent it&#39;s the model, step by step, based on feedback; in a workflow the developer&#39;s code fixes the path.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A system receives support emails, classifies them with an LLM, drafts a reply with a second LLM call, and queues the draft for a human. Where does it best fit?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Level 2 workflow</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Level 4 autonomous agent</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Level 0 chatbot</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Level 3 semi-autonomous agent</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Level 2: LLM workflow</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Level 4: autonomous agent</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Level 1: copilot</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Level 3: semi-autonomous agent</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The steps are fixed by the developer (classify, then draft, then human review). The LLM never chooses what to do next, so it&#39;s a workflow, a perfectly good design for this task.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The steps are fixed by the developer (classify, then draft, then human review). Using two LLM calls and a human checkpoint doesn&#39;t make it a Level 3 agent: the model never chooses what to do next. It&#39;s a workflow, and a perfectly good design for this task.</div>
 </div>
 
-<div class="quiz-q" data-correct="3">
+<div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Why is a codebase described as a &quot;partially observable&quot; environment for a coding agent?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Other developers may change the code</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tests are non-deterministic</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The code is encrypted</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The agent can&#39;t see everything at once and must choose what to read, so it acts on incomplete information</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Each edit the agent makes changes what its later actions will do</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent only sees the files it chooses to read, not the whole state</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Other developers may change files while the agent is still working on them</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Test results can vary between runs, so outcomes are hard to predict</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Partial observability means the agent&#39;s percepts don&#39;t reveal the full state. A coding agent has to decide which files to open, and it can be wrong about parts of the code it hasn&#39;t read.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Partial observability means the agent&#39;s percepts don&#39;t reveal the full state, so it must choose what to read and can be wrong about code it hasn&#39;t seen. The other options describe different properties: a dynamic environment, a stochastic one, and a sequential one.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Two teams build agents on the same frontier model, and one is far more reliable. What is the most likely explanation?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One team got a better random seed</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Differences in the harness, tools, instructions and context management</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Reliability depends only on the user&#39;s prompt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The models must actually be different versions</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One team&#39;s runs happened to draw luckier samples from the model</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Differences in the harness, tools, instructions and context handling</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The two teams must in fact be calling different versions of the model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The more reliable team gave its agent many more tools to choose from</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The model is one component. Tool design, context strategy, error handling, guardrails and prompts often account for large quality differences between agents on the same model.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The model is one component. Tool design, context strategy, error handling, guardrails and prompts often account for large quality differences between agents on the same model. Piling on more tools tends to hurt rather than help, and luck doesn&#39;t explain a consistent gap.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Which is the best example of &quot;proactivity&quot; in an agent?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Refusing an unsafe request</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Writing and running a regression test without being asked, because it serves the goal of a correct fix</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Retrying a tool call that returned a timeout</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Answering a question accurately</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Asking the user a clarifying question before editing any files</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Writing a regression test unasked, because it serves a correct fix</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Retrying a tool call with backoff after it returned a timeout error</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Answering the user&#39;s question accurately and with cited sources</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Proactivity means taking initiative toward the goal beyond what was literally requested. Retrying after an error is reactivity: responding to a change in the environment.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Proactivity means taking initiative toward the goal beyond what was literally requested. Retrying after an error is reactivity (responding to a change in the environment), and asking a clarifying question is social ability.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">6</span><div>A vendor&#39;s &quot;AI agent&quot; turns out to replay a recorded sequence of clicks and adds an LLM-generated summary at the end. What is this most accurately called?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A copilot</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A multi-agent system</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An autonomous agent</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An RPA workflow with an LLM step, marketed as an agent (agent-washing)</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A semi-autonomous agent, since the LLM step adds some judgment</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A copilot, since it adds AI output to a task a human has set up</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An autonomous agent, since it runs without a human approving steps</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A scripted RPA flow with one LLM step, marketed as an agent</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The control flow is scripted and the LLM never decides the next action. Labelling it an agent without real agentic capability is what Gartner calls agent-washing.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The control flow is scripted and the LLM never decides the next action. Running unattended isn&#39;t the same as being an agent. Labelling this an agent without real agentic capability is what Gartner calls agent-washing.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Why should autonomy usually be chosen per tool rather than per product?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It reduces token usage</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Models perform better with fewer tools</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Actions differ in reversibility and cost of error, so a read can be autonomous while a payment needs approval</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>APIs require separate permission tokens per tool</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Asking approval for every call would use too many tokens per task</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Models make fewer mistakes when only a few tools can run unapproved</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Actions differ in reversibility and cost of error, so oversight should too</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Each tool needs its own API credentials, so access is per tool anyway</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reading a file is harmless and easy to repeat; deleting data or moving money isn&#39;t. Matching oversight to each action&#39;s risk gets most of the speed of autonomy with far less risk.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reading a file is harmless and easy to repeat; deleting data or moving money isn&#39;t. Matching oversight to each action&#39;s risk gets most of the speed of autonomy with far less risk. Credentials and token cost are real concerns, but neither is the reason to vary autonomy.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -627,7 +629,7 @@ Final: Fixed a ZeroDivisionError in export_orders for users with no orders; adde
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

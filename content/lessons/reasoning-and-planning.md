@@ -60,7 +60,7 @@ A single chain of thought can go wrong at any step. **Self-consistency** (Wang e
 
 The cost is linear: five samples cost five times as much. It only works when answers can be compared exactly (a number, a multiple-choice letter, a function's output on a test). For free-form text, variants use a model to pick the most consistent answer ("universal self-consistency").
 
-Here's self-consistency with the Anthropic SDK, using structured outputs so the final answer is easy to compare:
+Here's self-consistency with the Anthropic SDK. Each call reasons in its own thinking phase, and structured outputs keep the final answer easy to compare:
 
 ```python
 import collections
@@ -70,25 +70,29 @@ from pydantic import BaseModel
 client = anthropic.Anthropic()
 
 class Solution(BaseModel):
-    reasoning: str
     final_answer: str  # e.g. "42", normalized so votes can be compared
 
-def solve_once(question: str) -> str:
+def solve_once(question: str) -> str | None:
     response = client.messages.parse(
         model="claude-sonnet-5-5",
         max_tokens=8000,
+        thinking={"type": "adaptive"},  # each call reasons in its own thinking phase
         messages=[{
             "role": "user",
-            "content": f"{question}\n\nShow your reasoning, then put only the final number in final_answer.",
+            "content": f"{question}\n\nPut only the final number in final_answer.",
         }],
         output_format=Solution,
     )
+    if response.stop_reason != "end_turn":  # refusal or truncation: no vote
+        return None
     return response.parsed_output.final_answer.strip()
 
-def self_consistency(question: str, n: int = 5) -> tuple[str, float]:
+def self_consistency(question: str, n: int = 5) -> tuple[str | None, float]:
     # Default sampling is stochastic, so independent calls explore different paths.
-    votes = collections.Counter(solve_once(question) for _ in range(n))
-    answer, count = votes.most_common(1)[0]
+    answers = [a for a in (solve_once(question) for _ in range(n)) if a is not None]
+    if not answers:
+        return None, 0.0
+    answer, count = collections.Counter(answers).most_common(1)[0]
     return answer, count / n  # agreement rate doubles as a cheap confidence score
 
 answer, agreement = self_consistency("If 3 workers build 3 walls in 3 hours, how many hours do 9 workers need for 9 walls?")
@@ -101,7 +105,7 @@ The agreement rate is useful on its own. If five samples split 2/2/1, the agent 
 
 CoT reasons through a problem in one pass. **Decomposition** methods first break a problem into subproblems, then solve them in order.
 
-**Least-to-most prompting** (Zhou et al., 2022) runs in two stages: (1) ask the model to reduce the problem to a list of simpler subquestions; (2) solve them sequentially, feeding each answer into the next. Its signature result was **easy-to-hard generalization**: trained on short examples, it could solve problems longer than any in the prompt, where plain CoT broke down.
+**Least-to-most prompting** (Zhou et al., 2022) runs in two stages: (1) ask the model to reduce the problem to a list of simpler subquestions; (2) solve them sequentially, feeding each answer into the next. Its signature result was **easy-to-hard generalization**: prompted with short examples, it could solve problems longer than any in the prompt, where plain CoT broke down.
 
 Related ideas you'll meet:
 
@@ -195,7 +199,7 @@ Benefits: the plan is an inspectable artifact (a human can approve it, see [huma
 
 ### Todo lists: planning in practical agents
 
-Production coding agents mostly don't use a separate planner model. They give the main model a **todo-list tool**. Claude Code's `TodoWrite`, for example, lets the model write a checklist, mark items in progress, and tick them off. This does several jobs at once:
+Production coding agents mostly don't use a separate planner model. They give the main model a **todo-list tool**. Claude Code's todo tool (originally `TodoWrite`, since reworked into a set of task tools), for example, lets the model write a checklist, mark items in progress, and tick them off. This does several jobs at once:
 
 - **Decomposition**: writing the list forces the model to break the task down.
 - **Recitation**: rewriting the list keeps the goal near the end of the context, where models attend most reliably. Manus describes the same trick with a `todo.md` file (see [context engineering](context-engineering.html)).

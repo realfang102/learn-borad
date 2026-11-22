@@ -486,53 +486,53 @@ This harness gets the essentials right: fresh state per trial, outcome graded fr
 
 ```quiz
 Q: A booking agent's final message says "Your flight is booked!" but the reservations table is empty. Which grading approach would have caught this most reliably?
-- [ ] An LLM judge scoring the final message for helpfulness
-- [x] A code grader that checks the environment's reservations table after the trial
-- [ ] Counting how many tool calls the agent made
-- [ ] Measuring the latency of the final response
-E: The outcome (environment state) is ground truth; the transcript is only the agent's account. A state check catches false claims of success that a judge reading only the reply might accept.
+- [ ] An LLM judge scoring the final message against a booking-confirmation rubric
+- [x] A code grader that queries the reservations table after the trial ends
+- [ ] A trajectory check that a booking tool was called before the final message
+- [ ] A regex check that the final message contains a confirmation number
+E: The outcome (environment state) is ground truth; the transcript is only the agent's account. A judge reading only the reply accepts a confident claim, a regex is fooled by an invented confirmation number, and a tool-call check passes even when the booking call returned an error.
 
-Q: Your support agent has pass@1 = 0.85. Every customer gets exactly one conversation, and many customers return several times a month. Which metric best reflects their experience of reliability?
-- [ ] pass@k, because it shows the agent can solve the task
-- [x] pass^k, because it measures the probability that every one of k attempts succeeds
-- [ ] BLEU score against reference replies
-- [ ] pass@1 alone is sufficient
-E: pass@k assumes you can pick the best of k attempts, which customers can't. pass^k measures consistency across repeated interactions and falls quickly as k grows (0.85^5 ≈ 0.44).
+Q: Your support agent has pass@1 = 0.85. Customers come back several times a month, and each conversation must go right. Which metric best reflects their experience?
+- [ ] pass@k, since it shows how often the agent can solve each customer's task
+- [x] pass^k, since it is the chance that all k of a customer's attempts succeed
+- [ ] pass@1, since each conversation is independent and gets a single attempt
+- [ ] Mean steps per task, since faster resolutions are what customers notice
+E: pass@k assumes someone picks the best of k attempts, which customers can't. pass@1 describes one conversation but hides how quickly repeated interactions accumulate failures: pass^k falls fast as k grows (0.85^5 ≈ 0.44).
 
 Q: In a pairwise LLM-judge comparison, response A wins when shown first but B wins when the order is swapped. What is the best interpretation and handling?
-- [ ] A is better, because the first verdict counts
-- [ ] The judge model is broken and should be replaced
-- [x] This reflects position bias; treat inconsistent verdicts across orderings as a tie
-- [ ] Average the two verdicts' confidence scores
-E: Judges show position bias. Evaluating both orderings and only counting consistent wins is the standard mitigation.
+- [ ] Verbosity bias; truncate both responses to the same length and re-run once
+- [ ] Judge randomness; re-run the original ordering a few times and take the majority
+- [x] Position bias; run both orders and count inconsistent verdicts as a tie
+- [ ] Self-preference; switch to a judge from a different model family and re-run
+E: A verdict that flips with order is the signature of position bias. The standard mitigation is to evaluate both orderings and count a win only when it is consistent. Re-running one ordering just repeats the bias; a different judge family addresses self-preference, a different problem.
 
 Q: Your judge agrees with human labels 92% of the time. 90% of the labeled transcripts are passes. What should you check next?
-- [ ] Nothing — 92% agreement is excellent
-- [x] The judge's true negative rate: how many of the human-labeled failures it actually catches
-- [ ] Whether the judge's reasoning is long enough
-- [ ] Whether the judge uses a 1–10 scale
-E: With imbalanced labels, a judge that always says "pass" would score 90%. Measure how often it catches real failures (and use chance-corrected metrics like Cohen's kappa).
+- [ ] Its agreement on a fresh labeled set, to make sure 92% wasn't a lucky sample
+- [x] Its true negative rate: how many human-labeled failures it actually catches
+- [ ] Its true positive rate: how many human-labeled passes it correctly accepts
+- [ ] Whether a stronger judge model raises raw agreement above 95 percent
+E: With 90% passes, a judge that always says "pass" scores 90% agreement and catches no failures. The rare class is where it can hide, so check the true negative rate (or Cohen's kappa). Its true positive rate is almost certainly high already; more raw agreement on the same skewed set proves little.
 
 Q: Version B scores 76% vs version A's 72% on a 50-task suite. What's the most defensible conclusion?
-- [ ] B is 4 points better; ship it
-- [ ] A is better because it's the baseline
-- [x] The difference is within the noise for n=50 (CI roughly ±12 points); run a paired comparison with more tasks before deciding
-- [ ] Rerun A until it also scores 76%
-E: At n=50 the 95% CI on each score is around ±12 points. A paired analysis on the same tasks (and more tasks) is needed to detect a 4-point difference.
+- [ ] B is better; a 4-point gain is meaningful when both use the same 50 tasks
+- [ ] A is better; a new version must clear a margin before replacing the baseline
+- [x] It's within noise at n=50; use a paired comparison on more tasks first
+- [ ] B is better if you rerun both with 5 trials per task and B still leads
+E: At n=50 the 95% CI on each score is about ±12 points. Extra trials shrink within-task noise but not between-task uncertainty, which dominates; you need more tasks and a paired, per-task analysis to detect a 4-point difference.
 
 Q: Which trajectory check is most robust to the "many valid paths" problem?
 - [ ] The agent must call search, then read_page, then answer, in that order
-- [ ] The agent must use exactly 6 steps
-- [x] The agent must never call issue_refund before get_order has returned for that order
-- [ ] The agent's tool calls must match a recorded golden transcript
-E: Constraints ("never X before Y", "at most N", "never call Z") allow any valid path while catching policy violations. Golden-path matching penalizes correct alternative strategies.
+- [ ] The agent's tool calls must match one of three recorded golden transcripts
+- [x] The agent must never call issue_refund before get_order returns for that order
+- [ ] The agent must finish in the same number of steps as the reference solution
+E: Constraints ("never X before Y", "at most N calls") allow any valid path while catching policy violations. Even several golden transcripts still penalize a correct fourth strategy, and step-count matching punishes efficient or careful alternatives.
 
 Q: Where do the highest-value new eval tasks usually come from?
-- [ ] Popular public benchmarks
-- [ ] Brainstorming edge cases in a meeting
-- [x] Error analysis of real transcripts: categorizing and counting how the agent actually fails
-- [ ] Asking the agent to generate tasks it finds hard
-E: Error analysis grounds the suite in real failure modes, weighted by frequency. Synthetic and brainstormed cases help, but should supplement observed failures, not replace them.
+- [ ] Public benchmarks in your domain, since experts have already validated them
+- [ ] A team brainstorm of edge cases, since it covers failures not yet seen in prod
+- [x] Error analysis of real transcripts: categorizing and counting actual failures
+- [ ] Model-generated hard cases, since they scale cheaply to thousands of tasks
+E: Error analysis grounds the suite in real failure modes, weighted by frequency. Brainstormed and synthetic cases are useful supplements, and public benchmarks help shortlist models, but none tells you how *your* agent actually fails.
 ```
 
 ## Further Reading

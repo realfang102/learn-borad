@@ -264,53 +264,53 @@ One measurement captures the trend. In March 2025, METR published research track
 
 ```quiz
 Q: According to Anthropic's distinction, what most fundamentally separates an agent from a workflow?
-- [ ] Agents use larger, more capable models
-- [ ] Workflows cannot call tools
-- [x] In an agent, the model dynamically decides the sequence of steps; in a workflow, code paths are predefined
-- [ ] Agents always involve multiple LLMs collaborating
-E: Workflows can use tools and big models too. The defining difference is control flow: who decides what happens next. In an agent it's the model, step by step, based on feedback.
+- [ ] Agents can use tools, while workflows rely only on the model's own text
+- [ ] Agents run on larger models that are able to plan many steps ahead
+- [x] In an agent the model picks each next step; in a workflow, code does
+- [ ] Agents coordinate several LLMs, while a workflow makes a single call
+E: Workflows can call tools, use frontier models and chain many LLM calls. The defining difference is control flow: who decides what happens next. In an agent it's the model, step by step, based on feedback; in a workflow the developer's code fixes the path.
 
 Q: A system receives support emails, classifies them with an LLM, drafts a reply with a second LLM call, and queues the draft for a human. Where does it best fit?
-- [ ] Level 0 chatbot
-- [x] Level 2 workflow
-- [ ] Level 3 semi-autonomous agent
-- [ ] Level 4 autonomous agent
-E: The steps are fixed by the developer (classify, then draft, then human review). The LLM never chooses what to do next, so it's a workflow, a perfectly good design for this task.
+- [ ] Level 1: copilot
+- [x] Level 2: LLM workflow
+- [ ] Level 3: semi-autonomous agent
+- [ ] Level 4: autonomous agent
+E: The steps are fixed by the developer (classify, then draft, then human review). Using two LLM calls and a human checkpoint doesn't make it a Level 3 agent: the model never chooses what to do next. It's a workflow, and a perfectly good design for this task.
 
 Q: Why is a codebase described as a "partially observable" environment for a coding agent?
-- [ ] The code is encrypted
-- [x] The agent can't see everything at once and must choose what to read, so it acts on incomplete information
-- [ ] Tests are non-deterministic
-- [ ] Other developers may change the code
-E: Partial observability means the agent's percepts don't reveal the full state. A coding agent has to decide which files to open, and it can be wrong about parts of the code it hasn't read.
+- [ ] Other developers may change files while the agent is still working on them
+- [ ] Test results can vary between runs, so outcomes are hard to predict
+- [x] The agent only sees the files it chooses to read, not the whole state
+- [ ] Each edit the agent makes changes what its later actions will do
+E: Partial observability means the agent's percepts don't reveal the full state, so it must choose what to read and can be wrong about code it hasn't seen. The other options describe different properties: a dynamic environment, a stochastic one, and a sequential one.
 
 Q: Two teams build agents on the same frontier model, and one is far more reliable. What is the most likely explanation?
-- [ ] One team got a better random seed
-- [x] Differences in the harness, tools, instructions and context management
-- [ ] The models must actually be different versions
-- [ ] Reliability depends only on the user's prompt
-E: The model is one component. Tool design, context strategy, error handling, guardrails and prompts often account for large quality differences between agents on the same model.
+- [ ] One team's runs happened to draw luckier samples from the model
+- [x] Differences in the harness, tools, instructions and context handling
+- [ ] The more reliable team gave its agent many more tools to choose from
+- [ ] The two teams must in fact be calling different versions of the model
+E: The model is one component. Tool design, context strategy, error handling, guardrails and prompts often account for large quality differences between agents on the same model. Piling on more tools tends to hurt rather than help, and luck doesn't explain a consistent gap.
 
 Q: Which is the best example of "proactivity" in an agent?
-- [ ] Answering a question accurately
-- [ ] Retrying a tool call that returned a timeout
-- [x] Writing and running a regression test without being asked, because it serves the goal of a correct fix
-- [ ] Refusing an unsafe request
-E: Proactivity means taking initiative toward the goal beyond what was literally requested. Retrying after an error is reactivity: responding to a change in the environment.
+- [ ] Answering the user's question accurately and with cited sources
+- [ ] Retrying a tool call with backoff after it returned a timeout error
+- [x] Writing a regression test unasked, because it serves a correct fix
+- [ ] Asking the user a clarifying question before editing any files
+E: Proactivity means taking initiative toward the goal beyond what was literally requested. Retrying after an error is reactivity (responding to a change in the environment), and asking a clarifying question is social ability.
 
 Q: A vendor's "AI agent" turns out to replay a recorded sequence of clicks and adds an LLM-generated summary at the end. What is this most accurately called?
-- [ ] An autonomous agent
-- [ ] A multi-agent system
-- [x] An RPA workflow with an LLM step, marketed as an agent (agent-washing)
-- [ ] A copilot
-E: The control flow is scripted and the LLM never decides the next action. Labelling it an agent without real agentic capability is what Gartner calls agent-washing.
+- [ ] An autonomous agent, since it runs without a human approving steps
+- [ ] A copilot, since it adds AI output to a task a human has set up
+- [x] A scripted RPA flow with one LLM step, marketed as an agent
+- [ ] A semi-autonomous agent, since the LLM step adds some judgment
+E: The control flow is scripted and the LLM never decides the next action. Running unattended isn't the same as being an agent. Labelling this an agent without real agentic capability is what Gartner calls agent-washing.
 
 Q: Why should autonomy usually be chosen per tool rather than per product?
-- [ ] APIs require separate permission tokens per tool
-- [x] Actions differ in reversibility and cost of error, so a read can be autonomous while a payment needs approval
-- [ ] Models perform better with fewer tools
-- [ ] It reduces token usage
-E: Reading a file is harmless and easy to repeat; deleting data or moving money isn't. Matching oversight to each action's risk gets most of the speed of autonomy with far less risk.
+- [ ] Each tool needs its own API credentials, so access is per tool anyway
+- [x] Actions differ in reversibility and cost of error, so oversight should too
+- [ ] Models make fewer mistakes when only a few tools can run unapproved
+- [ ] Asking approval for every call would use too many tokens per task
+E: Reading a file is harmless and easy to repeat; deleting data or moving money isn't. Matching oversight to each action's risk gets most of the speed of autonomy with far less risk. Credentials and token cost are real concerns, but neither is the reason to vary autonomy.
 ```
 
 ## Further Reading

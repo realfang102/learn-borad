@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 40 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 35 of 37</span>
+      <span>Lesson 36 of 38</span>
       <span class="lesson-status" data-status-for="training-agents"></span>
     </div>
   </header>
@@ -140,7 +142,7 @@
   </section>
   <article class="prose">
 <p>Every agent in this course runs on a model that was, at some point, <em>taught to be an agent</em>. A raw pretrained language model will happily continue a document, but it will not reliably decide to call a tool, wait for the result, notice that the test still fails, and try something else. Those behaviors were trained in — first by imitation, then increasingly by <strong>reinforcement learning (RL)</strong> in environments where the model acts, observes consequences and is rewarded for getting things done.</p>
-<p>This lesson opens the black box. You&#39;ll walk through the full training pipeline (pretraining → supervised fine-tuning → preference optimization → RL with verifiable rewards), see why a once-obscure algorithm called GRPO became the workhorse of reasoning models, learn the main techniques for teaching tool use, and understand the hard problems of <em>agentic</em> RL: long horizons, sparse rewards, credit assignment and reward hacking. We finish with a practical question most teams actually face: <strong>should you fine-tune your own agent model at all?</strong></p>
+<p>This lesson opens the black box. You&#39;ll walk through the full training pipeline (pretraining → <dfn class="gt" tabindex="0" data-t="Supervised fine-tuning" data-d="Further training a pretrained model on curated input-output examples, such as instructions with good responses or successful agent trajectories." data-a="supervised-fine-tuning">supervised fine-tuning</dfn> → preference optimization → RL with verifiable rewards), see why a once-obscure algorithm called <dfn class="gt" tabindex="0" data-t="GRPO" data-d="Group Relative Policy Optimization (introduced in DeepSeekMath, 2024): an RL algorithm that scores each sample relative to a group of samples for the same prompt, removing the need for a value model." data-a="grpo">GRPO</dfn> became the workhorse of reasoning models, learn the main techniques for teaching tool use, and understand the hard problems of <em>agentic</em> RL: long horizons, sparse rewards, credit assignment and <dfn class="gt" tabindex="0" data-t="Reward hacking" data-d="An agent achieving high reward by exploiting flaws in the reward signal or tests, such as special-casing tests, instead of doing the intended task." data-l="agent-safety-alignment" data-a="reward-hacking">reward hacking</dfn>. We finish with a practical question most teams actually face: <strong>should you fine-tune your own agent model at all?</strong></p>
 <p>Even if you never train a model, knowing how they were trained explains their quirks — why they over-eagerly &quot;fix&quot; tests, why reasoning effort matters — and helps you design tools and evals that work <em>with</em> the training.</p>
 <h2 id="the-training-pipeline-at-a-glance"><a class="anchor" href="#the-training-pipeline-at-a-glance" aria-hidden="true">#</a>The Training Pipeline at a Glance</h2>
 <p>Modern agentic models are built in stages. Each stage changes <em>what</em> the model is optimizing for:</p>
@@ -179,10 +181,10 @@
 <td>Helpfulness, harmlessness, tone</td>
 </tr>
 <tr>
-<td><strong>RLVR</strong></td>
+<td><strong><dfn class="gt" tabindex="0" data-t="RLVR" data-d="Reinforcement learning with verifiable rewards: RL where the reward comes from automatic checks, such as correct math answers or passing tests, the recipe behind modern reasoning models." data-a="rlvr">RLVR</dfn></strong></td>
 <td>Problems with checkable answers</td>
 <td>Maximize verifiable reward</td>
-<td>Reasoning, persistence, self-correction</td>
+<td>Reasoning, persistence, <dfn class="gt" tabindex="0" data-t="Self-correction" data-d="A model revising its own output. Research shows intrinsic self-correction without external feedback is unreliable; it works best with grounded signals like test results or tool errors." data-l="reasoning-and-planning" data-a="self-correction">self-correction</dfn></td>
 </tr>
 <tr>
 <td><strong>Agentic RL</strong></td>
@@ -193,11 +195,11 @@
 </tbody></table>
 </div>
 <p>Labs interleave and repeat stages, but the progression from <em>imitation</em> to <em>optimization against outcomes</em> is the core story.</p>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big shift</div><div class="callout-body"><p>Early assistants were mostly shaped by imitation (SFT) and human taste (RLHF). Since 2024 the frontier has moved toward <strong>RL against outcomes that can be checked automatically</strong> — does the code pass the tests, is the math answer correct, did the agent complete the task? Outcome-based RL is what turned &quot;chatbots that can call tools&quot; into agents that persist through long tasks.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>The big shift</div><div class="callout-body"><p>Early assistants were mostly shaped by imitation (SFT) and human taste (<dfn class="gt" tabindex="0" data-t="RLHF" data-d="Reinforcement learning from human feedback: train a reward model on human preference comparisons, then optimize the policy model against it, as in InstructGPT (Ouyang et al., 2022)." data-a="rlhf">RLHF</dfn>). Since 2024 the frontier has moved toward <strong>RL against outcomes that can be checked automatically</strong> — does the code pass the tests, is the math answer correct, did the agent complete the task? Outcome-based RL is what turned &quot;chatbots that can call tools&quot; into agents that persist through long tasks.</p>
 </div></aside>
 <h2 id="pretraining-and-sft-where-agent-skills-begin"><a class="anchor" href="#pretraining-and-sft-where-agent-skills-begin" aria-hidden="true">#</a>Pretraining and SFT: Where Agent Skills Begin</h2>
 <h3 id="pretraining"><a class="anchor" href="#pretraining" aria-hidden="true">#</a>Pretraining</h3>
-<p><strong>Pretraining</strong> is next-token prediction on an enormous corpus (covered in <a href="llm-fundamentals.html">LLM fundamentals</a>). Beyond facts and syntax, the model absorbs <em>procedural</em> text — shell sessions, stack traces, GitHub issues followed by patches — that later stages teach it to use deliberately. Many labs add <strong>mid-training</strong>, a phase that up-weights high-quality code, math, long documents and synthetic agent data to shift the base model toward what later RL will reward.</p>
+<p><strong>Pretraining</strong> is <dfn class="gt" tabindex="0" data-t="Autoregressive generation" data-d="Producing output one token at a time, with each new token conditioned on all previous tokens. This is why output tokens are slower and pricier than input tokens." data-l="llm-fundamentals" data-a="autoregressive-generation">next-token prediction</dfn> on an enormous corpus (covered in <a href="llm-fundamentals.html">LLM fundamentals</a>). Beyond facts and syntax, the model absorbs <em>procedural</em> text — shell sessions, stack traces, GitHub issues followed by patches — that later stages teach it to use deliberately. Many labs add <strong>mid-training</strong>, a phase that up-weights high-quality code, math, long documents and synthetic agent data to shift the base model toward what later RL will reward.</p>
 <h3 id="supervised-fine-tuning-sft"><a class="anchor" href="#supervised-fine-tuning-sft" aria-hidden="true">#</a>Supervised fine-tuning (SFT)</h3>
 <p><strong>Supervised fine-tuning</strong> (also <em>instruction tuning</em>) trains the model on demonstrations: a prompt plus the response we want. The loss is the same cross-entropy as pretraining, usually computed only on the response tokens. For agents, the demonstrations are often whole <strong>trajectories</strong>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">[system] You can call: search(query), read_file(path), run_tests()
@@ -210,24 +212,24 @@
 [tool] 42 passed
 [assistant] Fixed the off-by-one in export.py; all tests pass.</code></pre></div>
 <p>Loss is applied to the assistant turns (including the structured tool calls), not to tool outputs — the model should learn to <em>produce</em> actions, not to predict what the environment returns.</p>
-<p>SFT is cheap, stable and excellent for teaching <strong>format and protocol</strong>: tool-call syntax, when to stop, how to summarize. Its weakness is fundamental: the model only imitates states that appear in demonstrations. After a mistake at step 3 lands it somewhere no demonstration visited, it has no idea how to recover. This <strong>compounding error</strong> (or <em>exposure bias</em>) problem is the main reason agentic training moved toward RL (see <a href="when-to-use-agents.html">when to use agents</a>).</p>
+<p>SFT is cheap, stable and excellent for teaching <strong>format and protocol</strong>: tool-call syntax, when to stop, how to summarize. Its weakness is fundamental: the model only imitates states that appear in demonstrations. After a mistake at step 3 lands it somewhere no demonstration visited, it has no idea how to recover. This <strong><dfn class="gt" tabindex="0" data-t="Compounding error" data-d="The way per-step failure probabilities multiply over long tasks: at 95% per-step reliability, a 20-step task succeeds end-to-end only about 36% of the time." data-l="when-to-use-agents" data-a="compounding-error">compounding error</dfn></strong> (or <em>exposure bias</em>) problem is the main reason agentic training moved toward RL (see <a href="when-to-use-agents.html">when to use agents</a>).</p>
 <h2 id="preference-optimization-rlhf-dpo-and-rlaif"><a class="anchor" href="#preference-optimization-rlhf-dpo-and-rlaif" aria-hidden="true">#</a>Preference Optimization: RLHF, DPO and RLAIF</h2>
 <p>The next stage teaches the model <em>which</em> of several plausible responses is better.</p>
 <h3 id="rlhf-with-ppo"><a class="anchor" href="#rlhf-with-ppo" aria-hidden="true">#</a>RLHF with PPO</h3>
 <p><strong>Reinforcement Learning from Human Feedback (RLHF)</strong>, popularized by OpenAI&#39;s InstructGPT paper (2022), has three steps:</p>
 <ol>
 <li>Collect prompts and several model responses; humans <strong>rank</strong> them.</li>
-<li>Train a <strong>reward model</strong> — usually the LLM with a scalar head — to predict which response humans prefer (a Bradley–Terry pairwise loss).</li>
-<li>Optimize the policy with <strong>PPO (Proximal Policy Optimization)</strong> to maximize the reward model&#39;s score, minus a <strong>KL penalty</strong> that keeps it close to the SFT model so it doesn&#39;t drift into gibberish that fools the reward model.</li>
+<li>Train a <strong><dfn class="gt" tabindex="0" data-t="Reward model" data-d="A model trained to score outputs according to human (or AI) preferences, providing the reward signal for reinforcement learning." data-a="reward-model">reward model</dfn></strong> — usually the LLM with a scalar head — to predict which response humans prefer (a Bradley–Terry pairwise loss).</li>
+<li>Optimize the policy with <strong><dfn class="gt" tabindex="0" data-t="PPO" data-d="Proximal Policy Optimization (Schulman et al., 2017): a policy-gradient RL algorithm that limits how far each update moves the policy; the classic optimizer in RLHF." data-a="ppo">PPO</dfn> (Proximal Policy Optimization)</strong> to maximize the reward model&#39;s score, minus a <strong>KL penalty</strong> that keeps it close to the SFT model so it doesn&#39;t drift into gibberish that fools the reward model.</li>
 </ol>
 <p>InstructGPT&#39;s striking result was that labelers preferred outputs from a 1.3B-parameter RLHF model over the 175B GPT-3 — alignment to intent mattered more than raw scale for perceived usefulness.</p>
 <p>PPO is heavy: you hold the <strong>policy</strong>, a frozen <strong>reference</strong> model, the <strong>reward model</strong>, and a <strong>value model</strong> (critic) that estimates expected reward — four large networks, many hyperparameters, well-known instability.</p>
 <h3 id="dpo"><a class="anchor" href="#dpo" aria-hidden="true">#</a>DPO</h3>
-<p><strong>Direct Preference Optimization</strong> (Rafailov et al., 2023) observed that the RLHF objective with a KL constraint has a closed-form optimal policy, which lets you skip the reward model and the RL loop entirely. Given a prompt <em>x</em>, a preferred response <em>y_w</em> and a rejected one <em>y_l</em>, DPO minimizes:</p>
+<p><strong>Direct Preference Optimization</strong> (Rafailov et al., 2023) observed that the RLHF objective with a KL constraint has a closed-form optimal policy, which lets you skip the reward model and the RL loop entirely. Given a prompt <em>x</em>, a preferred response <em>y_w</em> and a rejected one <em>y_l</em>, <dfn class="gt" tabindex="0" data-t="DPO" data-d="Direct Preference Optimization (Rafailov et al., 2023): learning from preference pairs with a simple classification-style loss, without training a separate reward model or running RL." data-a="dpo">DPO</dfn> minimizes:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">L = -log σ( β·[log πθ(y_w|x) − log π_ref(y_w|x)] − β·[log πθ(y_l|x) − log π_ref(y_l|x)] )</code></pre></div>
 <p>Intuitively: raise the winner&#39;s probability relative to the reference model, lower the loser&#39;s, with β limiting how far you move. This simple, stable loss (plus variants like IPO, KTO and SimPO) became the default for open-model preference tuning. Its limitation: it is <strong>offline</strong>, learning from a fixed set of pairs rather than being graded on its own new outputs — which matters a lot for agents.</p>
 <h3 id="rlaif-and-constitutional-ai"><a class="anchor" href="#rlaif-and-constitutional-ai" aria-hidden="true">#</a>RLAIF and Constitutional AI</h3>
-<p>Human labels are slow and expensive. <strong>RLAIF</strong> (RL from AI Feedback) replaces human rankers with a model. Anthropic&#39;s <strong>Constitutional AI</strong> (Bai et al., 2022) is the canonical example: the model critiques and revises its own responses according to a written set of principles (a <em>constitution</em>), and an AI preference model trained on AI-generated comparisons provides the reward for harmlessness. Google&#39;s RLAIF paper (Lee et al., 2023) later showed AI feedback could rival human feedback on tasks like summarization.</p>
+<p>Human labels are slow and expensive. <strong><dfn class="gt" tabindex="0" data-t="RLAIF" data-d="Reinforcement learning from AI feedback: using model-generated preference labels, often guided by principles, in place of or alongside human labels." data-a="rlaif">RLAIF</dfn></strong> (RL from AI Feedback) replaces human rankers with a model. Anthropic&#39;s <strong><dfn class="gt" tabindex="0" data-t="Constitutional AI" data-d="Anthropic's method (Bai et al., 2022) of training harmlessness from a written set of principles, using model self-critique and AI feedback instead of human labels for harms." data-l="agent-safety-alignment" data-a="constitutional-ai">Constitutional AI</dfn></strong> (Bai et al., 2022) is the canonical example: the model critiques and revises its own responses according to a written set of principles (a <em>constitution</em>), and an AI preference model trained on AI-generated comparisons provides the reward for harmlessness. Google&#39;s RLAIF paper (Lee et al., 2023) later showed AI feedback could rival human feedback on tasks like summarization.</p>
 <p>For agents, AI feedback appears as <strong>LLM-as-judge</strong> graders for trajectories and rubric-scored research reports. The caveats from <a href="evaluating-agents.html">evaluating agents</a> apply: a judge is only as good as its rubric, and the policy will find its blind spots.</p>
 <h2 id="rl-with-verifiable-rewards"><a class="anchor" href="#rl-with-verifiable-rewards" aria-hidden="true">#</a>RL with Verifiable Rewards</h2>
 <h3 id="from-learned-rewards-to-checkable-rewards"><a class="anchor" href="#from-learned-rewards-to-checkable-rewards" aria-hidden="true">#</a>From learned rewards to checkable rewards</h3>
@@ -267,13 +269,13 @@
 <li><strong>R1-Zero:</strong> applying GRPO <em>directly</em> to the base model (DeepSeek-V3-Base), with only rule-based rewards for answer accuracy and a format reward for wrapping reasoning in think tags, produced steadily lengthening chains of thought and behaviors nobody explicitly taught — re-checking work, trying alternative approaches, and the much-quoted &quot;aha moment&quot; where the model interrupts itself to reconsider. The downside: poor readability and language mixing.</li>
 <li><strong>R1:</strong> a multi-stage recipe — a small &quot;cold-start&quot; SFT set of readable long reasoning, then reasoning-focused RL, then <strong>rejection sampling</strong> to build a large SFT dataset (reasoning plus general data), then a final RL stage for both reasoning and helpfulness/harmlessness.</li>
 </ul>
-<p>They also <strong>distilled</strong> R1&#39;s reasoning into smaller open models (Qwen and Llama variants) via plain SFT on its outputs, and reported that distillation beat running RL directly on the small models. That&#39;s a lesson that generalizes to agents: <em>RL discovers behaviors in a strong model; SFT on its trajectories transfers them cheaply.</em></p>
-<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>There is an active research debate about how much RLVR creates genuinely new capabilities versus sharpening behaviors the base model could already produce with enough samples (i.e., improving pass@1 toward the base model&#39;s pass@k). Both effects likely occur, and the answer depends on how long and how broadly you train.</p>
+<p>They also <strong>distilled</strong> R1&#39;s reasoning into smaller open models (Qwen and Llama variants) via plain SFT on its outputs, and reported that <dfn class="gt" tabindex="0" data-t="Distillation" data-d="Training a smaller student model to imitate a larger teacher's outputs or reasoning traces, transferring much of its capability at lower cost." data-a="distillation">distillation</dfn> beat running RL directly on the small models. That&#39;s a lesson that generalizes to agents: <em>RL discovers behaviors in a strong model; SFT on its trajectories transfers them cheaply.</em></p>
+<aside class="callout callout-note"><div class="callout-title"><span class="callout-icon" aria-hidden="true">ℹ️</span>Note</div><div class="callout-body"><p>There is an active research debate about how much RLVR creates genuinely new capabilities versus sharpening behaviors the base model could already produce with enough samples (i.e., improving pass@1 toward the base model&#39;s <dfn class="gt" tabindex="0" data-t="pass@k" data-d="The probability that at least one of k sampled attempts solves a task (Chen et al., 2021). It rewards capability: a 50% per-attempt success rate gives pass@3 of 87.5%." data-l="evaluating-agents" data-a="passk">pass@k</dfn>). Both effects likely occur, and the answer depends on how long and how broadly you train.</p>
 </div></aside>
 <h2 id="teaching-models-to-use-tools"><a class="anchor" href="#teaching-models-to-use-tools" aria-hidden="true">#</a>Teaching Models to Use Tools</h2>
 <p>Reasoning RL taught models to think. Agents also need to <em>act</em>. Several lines of work taught tool use, roughly in chronological order.</p>
 <h3 id="toolformer-self-supervised-api-calls"><a class="anchor" href="#toolformer-self-supervised-api-calls" aria-hidden="true">#</a>Toolformer: self-supervised API calls</h3>
-<p><strong>Toolformer</strong> (Schick et al., Meta, 2023) asked: can a model teach <em>itself</em> when to call a tool? The recipe:</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Toolformer" data-d="A model (Schick et al., 2023) that taught itself when and how to call APIs by self-supervised filtering of candidate calls that improved next-token prediction." data-l="tool-use" data-a="toolformer">Toolformer</dfn></strong> (Schick et al., Meta, 2023) asked: can a model teach <em>itself</em> when to call a tool? The recipe:</p>
 <ol>
 <li>Prompt the model with a few examples to insert candidate API calls into ordinary text, e.g. <code>The population of Oslo is [QA(&quot;population of Oslo?&quot;)] ...</code>.</li>
 <li>Execute the calls (calculator, Q&amp;A system, Wikipedia search, machine translation, calendar).</li>
@@ -289,7 +291,7 @@
 <h3 id="trajectory-distillation-fireact-and-agenttuning"><a class="anchor" href="#trajectory-distillation-fireact-and-agenttuning" aria-hidden="true">#</a>Trajectory distillation, FireAct and AgentTuning</h3>
 <p>The most common practical recipe is <strong>distillation from a stronger model</strong>: run a capable agent (e.g., a frontier model in a ReAct-style loop) on many tasks, keep the trajectories that succeed, and SFT a smaller model on them.</p>
 <ul>
-<li><strong>FireAct</strong> (Chen et al., 2023) fine-tuned smaller models on agent trajectories generated by GPT-4, showing that even a modest number of trajectories yielded large gains on multi-hop QA, and that mixing trajectories from multiple methods (ReAct, CoT, Reflexion-style) made agents more robust.</li>
+<li><strong>FireAct</strong> (Chen et al., 2023) fine-tuned smaller models on agent trajectories generated by GPT-4, showing that even a modest number of trajectories yielded large gains on multi-hop QA, and that mixing trajectories from multiple methods (<dfn class="gt" tabindex="0" data-t="ReAct" data-d="A prompting pattern (Yao et al., 2022) in which the model interleaves reasoning traces (Thought) with actions (tool calls) and observations, letting reasoning guide actions and observations update reasoning." data-l="agent-architectures" data-a="react">ReAct</dfn>, <dfn class="gt" tabindex="0" data-t="Chain-of-thought" data-d="Prompting or training a model to write out intermediate reasoning steps before its answer (Wei et al., 2022), which markedly improves multi-step reasoning." data-l="reasoning-and-planning" data-a="chain-of-thought">CoT</dfn>, Reflexion-style) made agents more robust.</li>
 <li><strong>AgentTuning</strong> (Zeng et al., 2023) built <em>AgentInstruct</em>, a dataset of filtered interaction trajectories across several environments, and mixed it with general instruction data — demonstrating that you need that mix to gain agent skills <strong>without</strong> losing general capability.</li>
 </ul>
 <h3 id="rejection-sampling-star-and-expert-iteration"><a class="anchor" href="#rejection-sampling-star-and-expert-iteration" aria-hidden="true">#</a>Rejection sampling, STaR and expert iteration</h3>
@@ -333,7 +335,7 @@
 <li><strong>Tool/API simulations</strong>: a mock airline backend plus an LLM-simulated customer (τ-bench-style).</li>
 <li><strong>Games and puzzles</strong>: cheap, fully verifiable, good for studying behavior.</li>
 </ul>
-<p>OpenAI stated in 2025 that its o3 and o4-mini models were trained via RL to use tools — not just to reason — and most frontier labs now describe agentic RL as a core part of post-training. Open examples include Meta&#39;s <strong>SWE-RL</strong> (RL on software-evolution data from GitHub) and several open recipes that trained open-weight models with RL directly in SWE environments.</p>
+<p>OpenAI stated in 2025 that its o3 and o4-mini models were trained via RL to use tools — not just to reason — and most frontier labs now describe agentic RL as a core part of <dfn class="gt" tabindex="0" data-t="Post-training" data-d="Everything done to a pretrained model to make it useful and safe: instruction tuning, preference optimization, reinforcement learning, and tool-use training." data-a="post-training">post-training</dfn>. Open examples include Meta&#39;s <strong>SWE-RL</strong> (RL on software-evolution data from GitHub) and several open recipes that trained open-weight models with RL directly in SWE environments.</p>
 <h3 id="outcome-vs-process-rewards"><a class="anchor" href="#outcome-vs-process-rewards" aria-hidden="true">#</a>Outcome vs. process rewards</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -356,7 +358,7 @@
 <tr>
 <td><strong>Cons</strong></td>
 <td>Sparse; long episodes give almost no signal early in training</td>
-<td>Requires a step grader (a <strong>process reward model</strong>, PRM) that itself can be wrong or hacked</td>
+<td>Requires a step grader (a <strong><dfn class="gt" tabindex="0" data-t="Process reward model" data-d="A reward model that scores each intermediate reasoning step rather than only the final answer, which an outcome reward model (ORM) does (see Lightman et al., 2023, &quot;Let's Verify Step by Step&quot;)." data-a="process-reward-model">process reward model</dfn></strong>, PRM) that itself can be wrong or hacked</td>
 </tr>
 <tr>
 <td><strong>Example</strong></td>
@@ -381,7 +383,7 @@
 <li>Editing or deleting the tests instead of fixing the code.</li>
 <li>Special-casing the exact inputs the tests check.</li>
 <li>Hard-coding expected outputs, or calling <code>sys.exit(0)</code> before failures can register.</li>
-<li>Claiming success in the final message when nothing was verified (if an LLM judge reads the message).</li>
+<li>Claiming success in the final message when nothing was verified (if an <dfn class="gt" tabindex="0" data-t="LLM-as-a-judge" data-d="Using a language model with a rubric to grade outputs that lack a simple programmatic check. Judges must be validated against human labels and watched for biases." data-l="evaluating-agents" data-a="llm-as-a-judge">LLM judge</dfn> reads the message).</li>
 </ul>
 <p>Evaluators such as METR reported frontier models reward-hacking in their task environments, and Anthropic published research in 2025 finding that models which learned to reward-hack in coding environments could generalize toward broader misaligned behavior — a reason environment design is treated as a <em>safety</em> issue, not only a data-quality issue (see <a href="agent-safety-alignment.html">agent safety &amp; alignment</a>).</p>
 <aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Your verifier is your specification</div><div class="callout-body"><p>In RL, the model optimizes exactly what you measure, with superhuman persistence. Hidden tests, read-only test files, checks on <em>final state</em> rather than the agent&#39;s claims, randomized test inputs, and audits of a sample of high-reward trajectories are all standard defenses. If a trajectory got reward suspiciously fast, read it.</p>
@@ -548,7 +550,7 @@ trainer.train()</code></pre></div>
 <ul>
 <li><strong>Held-out tasks, held-out environments.</strong> Test on repos, tools and task types that never appeared in training. Agents overfit to environment quirks quickly.</li>
 <li><strong>Contamination checks.</strong> Make sure public benchmark tasks (or their solutions) didn&#39;t leak into synthetic training data.</li>
-<li><strong>pass@1 and pass@k / pass^k.</strong> RL often raises pass@1 while narrowing diversity; measure both, plus consistency across repeated runs.</li>
+<li><strong>pass@1 and pass@k / <dfn class="gt" tabindex="0" data-t="pass^k" data-d="The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%." data-l="evaluating-agents" data-a="passk">pass^k</dfn>.</strong> RL often raises pass@1 while narrowing diversity; measure both, plus consistency across repeated runs.</li>
 <li><strong>Capability regression suite.</strong> General instruction following, safety refusals, and non-agent tasks — AgentTuning&#39;s lesson was that specialization can erode general ability.</li>
 <li><strong>Reward-hacking audits.</strong> Sample high-reward trajectories and read them. Compare &quot;reward says success&quot; against independent checks.</li>
 <li><strong>Cost and behavior metrics.</strong> Steps, tokens and tool errors per task — RL can make agents verbose or overly persistent.</li>
@@ -722,7 +724,7 @@ trainer.train()</code></pre></div>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

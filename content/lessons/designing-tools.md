@@ -93,7 +93,7 @@ After:
 The improved version disambiguates against a neighboring tool, names parameters unambiguously (`customer_email`, not `user` — is that a name, an ID, an email?), states coverage limits, and tells the agent what it will and won't get back.
 
 > [!WARNING] Contract, not steering
-> Descriptions should state the tool's contract precisely. Avoid smuggling behavioral instructions into them ("ALWAYS call this first!", "After showing results, recommend our premium plan"). Capitalized boosters cause modern models to over-call a tool, and conversational rules belong in the system prompt. The common failure is *under*-description, not length — a four-sentence description is normal.
+> Descriptions should state the tool's contract precisely. Avoid smuggling behavioral instructions into them ("ALWAYS call this first!", "After showing results, recommend our premium plan"). Capitalized boosters tend to make modern models over-call a tool, and conversational rules belong in the system prompt. The common failure is *under*-description, not length — a four-sentence description is normal.
 
 ## Choose Few, Well-Scoped Tools
 
@@ -390,53 +390,53 @@ Use this when reviewing any tool an agent will call:
 
 ```quiz
 Q: An agent frequently calls the wrong record after a list tool returns 36-character UUIDs. Which change most directly addresses the cause?
-- [ ] Add "Be careful with IDs" to the system prompt
-- [x] Return human-readable identifiers (names, emails, short handles) alongside or instead of UUIDs
-- [ ] Return more fields per record so the agent has more context
-- [ ] Increase max_tokens
-E: Long opaque identifiers are easy for models to confuse or misreproduce. Meaningful identifiers reduce the error at its source; a prompt warning doesn't change the interface that causes it.
+- [ ] Add a system-prompt rule telling the agent to copy IDs character by character
+- [x] Return readable handles such as names or emails alongside the UUIDs
+- [ ] Return more fields per record so the agent can cross-check each match
+- [ ] Turn on strict mode so the ID parameter must match the UUID format
+E: Long opaque identifiers are easy for models to confuse or misreproduce, so readable handles fix the error at its source. Strict mode is tempting but only checks the format: a well-formed UUID that belongs to the wrong record still passes. A prompt rule and extra fields leave the confusing interface in place.
 
 Q: Which tool set best follows the "few, well-scoped tools" principle for a scheduling agent?
-- [ ] list_users, list_events, create_event, update_event, delete_event, get_room, list_rooms
+- [ ] list_users, list_events, create_event, update_event and get_room, mirroring the API
 - [x] schedule_event (finds common free time and books), reschedule_event, cancel_event
-- [ ] calendar(action, params) handling every operation through one free-form tool
-- [ ] A single bash tool with curl access to the calendar API
-E: Task-shaped tools move deterministic work (finding overlap) into code and leave the agent judgment calls. A single god-tool hides actions from the schema and the harness, and raw curl is hard to gate or audit.
+- [ ] One calendar(action, params) tool so the model has a single obvious choice
+- [ ] A bash tool with curl access, so any calendar endpoint is reachable
+E: Task-shaped tools move deterministic work (finding overlap) into code and leave the agent the judgment calls. The single calendar(action, params) tool looks minimal, but it hides every action from the schema and from the harness, which can no longer gate or audit specific operations. Endpoint mirrors force many calls; raw curl is hard to gate.
 
 Q: A search tool finds 4,000 matches. What should it return?
-- [ ] All 4,000 so the agent has complete information
-- [ ] An error saying there are too many results
-- [x] A limited first page with a note like "Showing 20 of 4,000; narrow with status or since, or pass cursor='...' for more"
-- [ ] Nothing, to save tokens
-E: Default limits with truncation hints keep context lean while telling the agent how to get what it needs, ideally by narrowing the query rather than paging through everything.
+- [ ] All 4,000 in compact one-line form so that nothing relevant is missed
+- [ ] An error asking the agent to narrow the query before retrying
+- [x] A first page of ~20 plus the total and how to filter or page further
+- [ ] A count of matches only, so the agent decides what to fetch next
+E: Default limits with truncation hints keep context lean while telling the agent how to get what it needs, ideally by narrowing the query. An error discards useful results, and a bare count forces an extra round trip; even compact, 4,000 lines would flood the context.
 
 Q: An agent edits the wrong line because the same snippet appears twice in a file. Which is a poka-yoke fix?
-- [ ] Tell the agent in the prompt to double-check edits
-- [x] Require the replaced text to match exactly once, and return an error listing the match count when it doesn't
-- [ ] Let the edit tool replace all occurrences silently
-- [ ] Remove the edit tool and use bash sed instead
-E: Mistake-proofing changes the interface so the error can't happen silently. A unique-match requirement turns an ambiguous edit into an immediate, explanatory error.
+- [ ] Add a prompt rule to re-read the file and double-check before every edit
+- [x] Require the replaced text to match exactly once, else error with the count
+- [ ] Have the edit tool replace every occurrence so that no copy is left stale
+- [ ] Have the edit tool pick the occurrence closest to the last viewed line
+E: Mistake-proofing changes the interface so the error can't happen silently: a unique-match requirement turns an ambiguous edit into an immediate, explanatory error. Picking the "closest" occurrence sounds smart but still guesses silently, and a prompt rule is guidance the model may skip.
 
 Q: Why promote "send an email" from a bash command to a dedicated send_email tool?
-- [ ] Bash cannot send email
-- [ ] Dedicated tools are always faster
-- [x] A typed tool gives the harness an action-specific hook to require approval, render a preview and audit the action
-- [ ] Models refuse to send email through bash
-E: Bash gives the harness only an opaque string. Dedicated tools expose structured intent, which is what you need to gate, render, audit or parallelize an action.
+- [ ] Models write malformed sendmail and curl commands more often than JSON
+- [ ] Dedicated tools run faster because they skip spawning a new shell process
+- [x] Typed arguments let the harness require approval, preview and audit it
+- [ ] Bash output can't report whether the message was actually delivered
+E: Bash gives the harness only an opaque command string. A dedicated tool exposes structured intent, which is what you need to gate, render, audit or parallelize an action. Speed and command syntax are minor; the control point is the real reason.
 
 Q: A payment tool times out and the agent retries. What design prevents a double charge?
-- [ ] Telling the agent never to retry payment tools
-- [x] An idempotency key so repeated calls with the same key execute at most once
-- [ ] Returning is_error true on every timeout
-- [ ] Making the tool read-only
-E: Agents retry when outcomes are uncertain. Idempotency makes a retry safe by guaranteeing the side effect happens at most once per key.
+- [ ] Tell the agent in the tool description not to retry payment calls
+- [x] Accept an idempotency key so repeat calls with that key run at most once
+- [ ] Return is_error true on timeouts so the agent knows the charge failed
+- [ ] Lengthen the tool's timeout so the first call always gets a response
+E: Agents retry when outcomes are uncertain, so make retries safe: an idempotency key guarantees the side effect happens at most once per key. Flagging a timeout as an error is tempting but wrong: the charge may in fact have gone through, so the error misleads the agent. Longer timeouts only make the problem rarer.
 
 Q: You connected six MCP servers and now have 150 tools; tool selection got worse and every request is expensive. What is the best next step?
-- [ ] Add "choose tools carefully" to the system prompt
-- [x] Consolidate overlapping tools, scope tools per agent, and defer rarely used tools behind tool search
-- [ ] Remove all tool descriptions to save tokens
-- [ ] Switch tool_choice to none
-E: Large catalogs cost context and create near-duplicate choices. Fewer tools, per-agent scoping and deferred loading address both the cost and the confusion.
+- [ ] Shorten every description to one line so all 150 definitions fit cheaply
+- [x] Consolidate overlaps, scope tools per agent, and defer rarely used ones
+- [ ] Prompt-cache the tool definitions so the large catalog becomes cheap
+- [ ] Move the tool list into the system prompt as a categorized index
+E: Large catalogs cost context and create near-duplicate choices. Fewer tools, per-agent scoping and deferred loading fix both. Caching is tempting because it lowers cost, but it does nothing for selection accuracy; shorter descriptions make selection even worse.
 ```
 
 ## Further Reading

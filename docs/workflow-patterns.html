@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 35 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 14 of 37</span>
+      <span>Lesson 14 of 38</span>
       <span class="lesson-status" data-status-for="workflow-patterns"></span>
     </div>
   </header>
@@ -181,13 +183,13 @@ T = TypeVar(<span class="hljs-string">&quot;T&quot;</span>, bound=BaseModel)
         output_format=schema,
     )
     <span class="hljs-keyword">return</span> resp.parsed_output</code></pre></div>
-<p>Note that <code>llm_json</code> uses <strong>structured outputs</strong> (<a href="structured-outputs.html">lesson</a>). Almost every pattern below depends on one step producing machine-readable output that code can branch on, so reliable JSON is the glue that holds workflows together.</p>
+<p>Note that <code>llm_json</code> uses <strong><dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code." data-l="structured-outputs" data-a="structured-outputs">structured outputs</dfn></strong> (<a href="structured-outputs.html">lesson</a>). Almost every pattern below depends on one step producing machine-readable output that code can branch on, so reliable JSON is the glue that holds workflows together.</p>
 <h2 id="the-augmented-llm"><a class="anchor" href="#the-augmented-llm" aria-hidden="true">#</a>The Augmented LLM</h2>
 <p>Every pattern is built from the same brick: an <strong>augmented LLM</strong>, meaning a model enhanced with three capabilities:</p>
 <ul>
-<li><strong>Retrieval</strong>: it can pull in relevant information (search, a vector store, a database) rather than relying on its weights. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
+<li><strong>Retrieval</strong>: it can pull in relevant information (search, a <dfn class="gt" tabindex="0" data-t="Vector database" data-d="A datastore optimized for storing embeddings and running fast nearest-neighbor similarity queries over them." data-l="rag-and-retrieval" data-a="vector-database">vector store</dfn>, a database) rather than relying on its weights. See <a href="rag-and-retrieval.html">RAG &amp; Retrieval</a>.</li>
 <li><strong>Tools</strong>: it can take actions and fetch live data through function calls. See <a href="tool-use.html">Tool Use</a>.</li>
-<li><strong>Memory</strong>: it can read and write information that persists beyond the current context window. See <a href="memory.html">Memory</a>.</li>
+<li><strong>Memory</strong>: it can read and write information that persists beyond the current <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>. See <a href="memory.html">Memory</a>.</li>
 </ul>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     In([Input]) --&gt; LLM[&quot;Augmented LLM&quot;]
@@ -216,7 +218,7 @@ runner = client.beta.messages.tool_runner(
 <span class="hljs-built_in">print</span>(runner.until_done().content[-<span class="hljs-number">1</span>].text)</code></pre></div>
 <p>Every box labelled &quot;LLM&quot; in the diagrams below can be one of these: a call that may itself use tools and retrieval.</p>
 <h2 id="prompt-chaining"><a class="anchor" href="#prompt-chaining" aria-hidden="true">#</a>Prompt Chaining</h2>
-<p><strong>Prompt chaining</strong> decomposes a task into a fixed sequence of steps, where each LLM call processes the output of the previous one. Between steps you can insert <strong>programmatic gates</strong>: plain code checks that verify the intermediate output and stop, retry or branch if it is not acceptable.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Prompt chaining" data-d="A workflow that decomposes a task into a fixed sequence of LLM calls, each processing the previous output, optionally with programmatic checks (gates) between steps." data-a="prompt-chaining">Prompt chaining</dfn></strong> decomposes a task into a fixed sequence of steps, where each LLM call processes the output of the previous one. Between steps you can insert <strong>programmatic gates</strong>: plain code checks that verify the intermediate output and stop, retry or branch if it is not acceptable.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     In([Input]) --&gt; A[&quot;LLM 1: outline&quot;]
     A --&gt; G{&quot;Gate: valid?&quot;}
@@ -269,7 +271,7 @@ runner = client.beta.messages.tool_runner(
 <p><strong>Examples:</strong></p>
 <ul>
 <li>Customer service: route refund requests, technical issues and general questions to different prompts, tools and escalation policies.</li>
-<li><strong>Model routing</strong>: send easy questions to a small, fast model and hard ones to a frontier model. This is one of the most effective cost levers available (<a href="cost-and-latency.html">Cost &amp; Latency</a>).</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Model cascade" data-d="Routing each request to the cheapest model likely to handle it and escalating to stronger models only when needed." data-l="cost-and-latency" data-a="model-cascade">Model routing</dfn></strong>: send easy questions to a small, fast model and hard ones to a frontier model. This is one of the most effective cost levers available (<a href="cost-and-latency.html">Cost &amp; Latency</a>).</li>
 </ul>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
@@ -299,7 +301,7 @@ HANDLERS = {
 <li>(−) Ambiguous inputs that span categories need a fallback (a &quot;general&quot; route with access to everything, or a clarifying question).</li>
 </ul>
 <h2 id="parallelization"><a class="anchor" href="#parallelization" aria-hidden="true">#</a>Parallelization</h2>
-<p><strong>Parallelization</strong> runs several LLM calls simultaneously and aggregates their outputs programmatically. It comes in two flavors:</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Parallelization" data-d="A workflow that runs LLM calls simultaneously, either sectioning a task into independent parts or voting by running the same task several times." data-a="parallelization">Parallelization</dfn></strong> runs several LLM calls simultaneously and aggregates their outputs programmatically. It comes in two flavors:</p>
 <ul>
 <li><strong>Sectioning</strong>: split a task into <em>independent</em> subtasks that run in parallel.</li>
 <li><strong>Voting</strong>: run the <em>same</em> task several times to get diverse outputs, then aggregate (majority vote, threshold, best-of).</li>
@@ -316,14 +318,14 @@ HANDLERS = {
 <p><strong>When to use it:</strong> subtasks are independent and can run concurrently for speed, or you want multiple perspectives or attempts for higher confidence. A subtle but important insight from Anthropic&#39;s essay: for complex tasks with several considerations, LLMs generally do better when <strong>each consideration is handled by a separate call</strong>, giving focused attention to each.</p>
 <p><strong>Sectioning examples:</strong></p>
 <ul>
-<li><strong>Guardrails in parallel</strong>: one call answers the user while another screens the input for policy violations. This tends to work better than asking a single call to do both.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">Guardrails</dfn> in parallel</strong>: one call answers the user while another screens the input for policy violations. This tends to work better than asking a single call to do both.</li>
 <li><strong>Multi-aspect evaluation</strong>: score a response for accuracy, tone and safety in three separate calls.</li>
 </ul>
 <p><strong>Voting examples:</strong></p>
 <ul>
 <li>Review code for vulnerabilities with several differently-prompted reviewers; flag the code if any of them finds a problem.</li>
 <li>Content moderation where you tune the threshold (2 of 3 votes) to balance false positives and negatives.</li>
-<li><strong>Self-consistency</strong>: sample several reasoning paths and take the majority answer, a classic technique from the <a href="reasoning-and-planning.html">reasoning</a> literature.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Self-consistency" data-d="Sampling several independent reasoning paths and taking the majority answer (Wang et al., 2022), trading extra compute for accuracy." data-l="reasoning-and-planning" data-a="self-consistency">Self-consistency</dfn></strong>: sample several reasoning paths and take the majority answer, a classic technique from the <a href="reasoning-and-planning.html">reasoning</a> literature.</li>
 </ul>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 
@@ -364,7 +366,7 @@ aclient = anthropic.AsyncAnthropic()
 <li>(−) Watch your rate limits when fanning out widely.</li>
 </ul>
 <h2 id="orchestrator-workers"><a class="anchor" href="#orchestrator-workers" aria-hidden="true">#</a>Orchestrator-Workers</h2>
-<p>In <strong>orchestrator-workers</strong>, a central LLM (the <strong>orchestrator</strong>) dynamically breaks a task into subtasks, delegates them to <strong>worker</strong> LLM calls, and synthesizes their results.</p>
+<p>In <strong><dfn class="gt" tabindex="0" data-t="Orchestrator-workers" data-d="A pattern in which a central LLM dynamically decides the subtasks, delegates them to worker LLMs, and synthesizes their results; the subtasks are not known in advance." data-a="orchestrator-workers">orchestrator-workers</dfn></strong>, a central LLM (the <strong>orchestrator</strong>) dynamically breaks a task into subtasks, delegates them to <strong>worker</strong> LLM calls, and synthesizes their results.</p>
 <figure class="diagram"><pre class="mermaid">flowchart TB
     In([Task]) --&gt; O[&quot;Orchestrator LLM (plan)&quot;]
     O --&gt;|subtask 1| W1[&quot;Worker&quot;]
@@ -409,7 +411,7 @@ aclient = anthropic.AsyncAnthropic()
 <li>(−) Synthesis must reconcile overlaps and contradictions between workers.</li>
 </ul>
 <h2 id="evaluator-optimizer"><a class="anchor" href="#evaluator-optimizer" aria-hidden="true">#</a>Evaluator-Optimizer</h2>
-<p>In <strong>evaluator-optimizer</strong>, one LLM call generates a response while another evaluates it and provides feedback, in a loop, until the output passes or a budget runs out.</p>
+<p>In <strong><dfn class="gt" tabindex="0" data-t="Evaluator-optimizer" data-d="A loop in which one LLM generates a response and another evaluates it with feedback, iterating until the evaluator is satisfied or a limit is reached." data-a="evaluator-optimizer">evaluator-optimizer</dfn></strong>, one LLM call generates a response while another evaluates it and provides feedback, in a loop, until the output passes or a budget runs out.</p>
 <figure class="diagram"><pre class="mermaid">flowchart LR
     In([Task]) --&gt; Gen[&quot;Generator LLM&quot;]
     Gen --&gt;|candidate| Ev[&quot;Evaluator LLM&quot;]
@@ -450,7 +452,7 @@ aclient = anthropic.AsyncAnthropic()
 <li>(−) An LLM evaluator can be miscalibrated: too lenient (accepts junk) or too picky (never converges). Calibrate it against human judgments, as covered in <a href="evaluating-agents.html">Evaluating Agents</a>.</li>
 <li>(−) Oscillation: the generator can flip-flop between two versions. Passing the full history of feedback helps.</li>
 </ul>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Ground the evaluator whenever you can</div><div class="callout-body"><p>The best evaluators are external signals: tests passing, a schema validating, a fact found in a retrieved source. An LLM judging an LLM is the fallback, not the first choice. Research such as Self-Refine showed iterative self-feedback can help, but gains are much more reliable when feedback is grounded in real execution.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Ground the evaluator whenever you can</div><div class="callout-body"><p>The best evaluators are external signals: tests passing, a schema validating, a fact found in a retrieved source. An LLM judging an LLM is the fallback, not the first choice. Research such as <dfn class="gt" tabindex="0" data-t="Self-Refine" data-d="An iterative loop (Madaan et al., 2023) in which the same model generates an output, critiques it, and revises it until a stopping condition." data-a="self-refine">Self-Refine</dfn> showed iterative self-feedback can help, but gains are much more reliable when feedback is grounded in real execution.</p>
 </div></aside>
 <h2 id="the-autonomous-agent"><a class="anchor" href="#the-autonomous-agent" aria-hidden="true">#</a>The Autonomous Agent</h2>
 <p>When none of the fixed shapes fit, because you genuinely cannot predict the number of steps or the path through the problem, you move to an <strong>autonomous agent</strong>: an LLM using tools in a loop, based on environmental feedback, until it decides the task is done (or hits a stopping condition you set).</p>
@@ -480,7 +482,7 @@ runner = client.beta.messages.tool_runner(
     messages=[{<span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;user&quot;</span>, <span class="hljs-string">&quot;content&quot;</span>: <span class="hljs-string">&quot;Make the failing tests in ./billing pass.&quot;</span>}],
 )
 final = runner.until_done()</code></pre></div>
-<p>The simplicity is deceptive. Almost all the engineering effort goes into the tools and their documentation (Anthropic reported spending more time optimizing tools than the overall prompt for its SWE-bench agent), into sandboxing (<a href="guardrails-and-sandboxing.html">Guardrails &amp; Sandboxing</a>), and into evaluation.</p>
+<p>The simplicity is deceptive. Almost all the engineering effort goes into the tools and their documentation (Anthropic reported spending more time optimizing tools than the overall prompt for its <dfn class="gt" tabindex="0" data-t="SWE-bench" data-d="A benchmark (Jimenez et al., 2023) of real GitHub issues from Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified is a human-validated subset of 500 tasks." data-l="benchmarks" data-a="swe-bench">SWE-bench</dfn> agent), into sandboxing (<a href="guardrails-and-sandboxing.html">Guardrails &amp; Sandboxing</a>), and into evaluation.</p>
 <p><strong>Trade-offs:</strong></p>
 <ul>
 <li>(+) Handles problems no fixed workflow can.</li>
@@ -564,7 +566,7 @@ final = runner.until_done()</code></pre></div>
 <li><strong>Route, then chain</strong>: a router picks the category, and each category runs its own prompt chain.</li>
 <li><strong>Chain with a parallel step</strong>: outline → draft each section in parallel (sectioning) → merge → evaluator-optimizer loop on the merged draft.</li>
 <li><strong>Orchestrator whose workers are agents</strong>: the orchestrator plans, and each worker is itself an autonomous tool-using loop. This is the architecture of most <a href="research-agents.html">deep research agents</a>.</li>
-<li><strong>Agent with workflow tools</strong>: an autonomous agent whose tools are themselves deterministic workflows (a <code>generate_report</code> tool that internally runs a fixed chain). This keeps the agent&#39;s action space small and each action reliable.</li>
+<li><strong>Agent with workflow tools</strong>: an autonomous agent whose tools are themselves deterministic workflows (a <code>generate_report</code> tool that internally runs a fixed chain). This keeps the agent&#39;s <dfn class="gt" tabindex="0" data-t="Action space" data-d="The set of actions available to an agent. For LLM agents it is usually defined by the tools it is given, plus the option of replying in text." data-l="tool-use" data-a="action-space">action space</dfn> small and each action reliable.</li>
 <li><strong>Guardrail sectioning around anything</strong>: an input screen running in parallel with the main path, and an output check after it.</li>
 </ul>
 <figure class="diagram"><pre class="mermaid">flowchart LR
@@ -594,7 +596,7 @@ final = runner.until_done()</code></pre></div>
 <ol>
 <li><strong>Simplicity</strong>: keep the design as simple as the task allows.</li>
 <li><strong>Transparency</strong>: make the system&#39;s steps visible: log every call, show plans, keep traces (<a href="observability.html">Observability</a>).</li>
-<li><strong>A well-crafted agent-computer interface (ACI)</strong>: invest as much in tool design and documentation as you would in a human-facing UI.</li>
+<li><strong>A well-crafted <dfn class="gt" tabindex="0" data-t="Agent-computer interface" data-d="The set of commands, tools and output formats an agent uses to interact with a computer. The SWE-agent paper showed that designing this interface for the model, not for humans, substantially improves performance." data-l="coding-agents" data-a="agent-computer-interface">agent-computer interface</dfn> (ACI)</strong>: invest as much in tool design and documentation as you would in a human-facing UI.</li>
 </ol>
 <h2 id="key-takeaways"><a class="anchor" href="#key-takeaways" aria-hidden="true">#</a>Key Takeaways</h2>
 <ul>
@@ -611,7 +613,7 @@ final = runner.until_done()</code></pre></div>
 <ol>
 <li><strong>Pattern spotting.</strong> For each task, name the pattern you would start with and why: (a) summarizing 500 customer reviews into themes, (b) answering HR policy questions where 80% are about vacation days, (c) converting a legacy Java service to Python, (d) writing a product description that must be under 50 words and mention three features.</li>
 <li><strong>Add a gate.</strong> Extend <code>write_brief</code> so that if the gate fails, it retries the outline step once with the missing topics named explicitly, before raising. Log how often the retry is needed over 20 runs.</li>
-<li><strong>Measure routing.</strong> Build a labelled set of 30 support tickets across the three categories. Run <code>handle_ticket</code>&#39;s router on them, compute accuracy and a confusion matrix, then improve the router&#39;s system prompt and re-measure.</li>
+<li><strong>Measure routing.</strong> Build a labelled set of 30 support tickets across the three categories. Run <code>handle_ticket</code>&#39;s router on them, compute accuracy and a confusion matrix, then improve the router&#39;s <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> and re-measure.</li>
 <li><strong>Ground the evaluator.</strong> Rewrite <code>refine</code> for code generation: the generator writes a Python function, and the evaluator first runs a provided set of <code>assert</code> tests (in a sandbox) and only calls the LLM reviewer if all tests pass. Compare rounds-to-success with the pure-LLM evaluator.</li>
 <li><strong>Design challenge.</strong> Sketch, as a mermaid diagram, a pipeline that combines at least three patterns for &quot;turn a 2-hour meeting transcript into decisions, action items with owners, and a follow-up email.&quot; Justify each pattern and identify where you would put human review.</li>
 </ol>
@@ -744,7 +746,7 @@ final = runner.until_done()</code></pre></div>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

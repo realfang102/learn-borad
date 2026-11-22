@@ -92,7 +92,7 @@ Shakey also exposed the weakness of pure deliberation. Planning took so long tha
 
 ### Expert systems
 
-The 1970s and 80s brought **expert systems**: programs that encoded specialist knowledge as hundreds or thousands of if-then rules. **DENDRAL** inferred molecular structures, **MYCIN** recommended antibiotics for blood infections, and **XCON (R1)** configured computer orders at Digital Equipment Corporation and was a genuine commercial success.
+The 1970s and 80s brought **expert systems**: programs that encoded specialist knowledge as hundreds or thousands of if-then rules. **DENDRAL** inferred molecular structures, **MYCIN** recommended antibiotics for serious bacterial infections, and **XCON (R1)** configured computer orders at Digital Equipment Corporation and was a genuine commercial success.
 
 Expert systems were mostly advisors, not agents, but their story matters. They hit the **knowledge acquisition bottleneck**: getting experts' knowledge into rules was slow and expensive, rules interacted in unexpected ways, and systems were **brittle**, failing badly just outside their designed scope. Inflated expectations and disappointing results contributed to the late-1980s collapse in funding known as an **AI winter**.
 
@@ -147,7 +147,7 @@ A parallel tradition tried to build complete models of the mind. **Soar** (Laird
 
 Symbolic agents had knowledge but no learning. **Reinforcement learning (RL)** agents learn behavior from **reward**: try actions, observe outcomes, and adjust to get more reward over time. The theory (temporal-difference learning, Q-learning) matured in the late 1980s and 90s, and Sutton and Barto's textbook *Reinforcement Learning: An Introduction* (1998) consolidated it.
 
-- **TD-Gammon** (Gerald Tesauro, IBM, early 1990s) learned backgammon by playing against itself with a small neural network and temporal-difference learning, reaching the level of top human players. It was an early demonstration that self-play plus neural networks could discover strong strategies.
+- **TD-Gammon** (Gerald Tesauro, IBM, early 1990s) learned backgammon by playing against itself with a small neural network and temporal-difference learning, coming close to the level of the world's best human players. It was an early demonstration that self-play plus neural networks could discover strong strategies.
 - **DQN** (DeepMind; arXiv 2013, *Nature* 2015) learned to play dozens of Atari 2600 games from raw pixels and the score alone, reaching human-level performance on many. One algorithm and one architecture across many games was the breakthrough.
 - **AlphaGo** (DeepMind) defeated Lee Sedol 4–1 in March 2016, combining deep networks with Monte Carlo tree search. Successors **AlphaGo Zero** and **AlphaZero** (2017) learned from self-play alone.
 - **OpenAI Five** beat the reigning world-champion team at Dota 2 in April 2019, and DeepMind's **AlphaStar** reached Grandmaster level at StarCraft II the same year. Both games involve long horizons, partial observability, and (in Dota's case) teams of agents.
@@ -156,7 +156,7 @@ RL agents were superhuman in their domains and useless outside them. Each needed
 
 **Lesson for today:** RL never went away; it became the *training method* for LLM agents. Reasoning models and agentic coding models are trained with RL on tasks that have verifiable rewards (tests pass, answer correct). The ingredients of AlphaGo's success, namely a verifiable reward, lots of practice and search at decision time, are back in a new form (see [training agents](training-agents.html)).
 
-## Early Web Agents (2017–2021)
+## Early Web Agents (2017–2022)
 
 Before LLMs, researchers already wanted agents to use the web. **World of Bits / MiniWoB** (OpenAI and Stanford, 2017) offered dozens of small web tasks, such as clicking buttons, filling forms and booking a flight on a toy site, for RL agents. Agents learned them slowly from pixels and DOM elements, and struggled to generalize.
 
@@ -179,7 +179,7 @@ Two 2022 papers set the template for LLM agents:
 - **MRKL** (Modular Reasoning, Knowledge and Language; AI21 Labs, May 2022) proposed an LLM that routes sub-problems to external modules such as a calculator, a database or an API, which they called "neuro-symbolic" architecture.
 - **ReAct** (Yao et al., October 2022) interleaved **Reasoning** traces and **Act**ions in one loop: *Thought → Action → Observation → Thought…* Reasoning helped the model plan and handle exceptions, and actions grounded the reasoning in real information, reducing hallucination.
 
-ReAct's trace format, shown in [the agent loop](the-agent-loop.html), is the direct ancestor of how virtually every agent works today. LangChain, launched the same month, made the pattern easy to try, and ChatGPT's launch on November 30, 2022 put LLMs in front of hundreds of millions of people.
+ReAct's trace format, shown in [the agent loop](the-agent-loop.html), is the direct ancestor of how virtually every agent works today. LangChain, launched the same month, made the pattern easy to try, and ChatGPT's launch on November 30, 2022 put LLMs in front of a mass audience almost overnight.
 
 ## The Agent Explosion (2023–2024)
 
@@ -302,53 +302,53 @@ And four cautionary lessons that keep recurring:
 
 ```quiz
 Q: Which classical idea most directly corresponds to the basic structure of the modern agent loop?
-- [ ] Expert systems' if-then rules
+- [ ] Expert systems' chains of if-then rules firing on new facts
 - [x] The cybernetic feedback loop: act, measure the result, correct
-- [ ] The A* search algorithm
-- [ ] The Turing test
-E: Cybernetics framed goal-directed behavior as a loop of acting and sensing the result. The agent loop of tool call, observation and next decision is that same feedback structure.
+- [ ] A* search expanding the most promising node toward the goal state
+- [ ] GPS's means-ends analysis of the gap between state and goal
+E: Cybernetics framed goal-directed behavior as a loop of acting and sensing the result. The agent loop of tool call, observation and next decision is that same feedback structure. Means-ends analysis is tempting, but it's a planning method run over an internal model, closer to task decomposition than to acting and observing.
 
 Q: What was the main reason expert systems proved brittle and hard to scale?
-- [ ] Computers in the 1980s were too slow to evaluate rules
-- [x] Knowledge had to be hand-encoded as rules, which was expensive and failed outside the designed scope
-- [ ] They used neural networks that were hard to train
-- [ ] They could not communicate with other systems
-E: The knowledge-acquisition bottleneck and brittleness at the edges of the rule base limited expert systems. LLMs ease the bottleneck by learning from text, but edge-of-competence brittleness remains a concern.
+- [ ] 1980s hardware was too slow to evaluate thousands of rules in time
+- [x] Knowledge had to be hand-coded as rules and failed outside their scope
+- [ ] Their neural networks needed more training data than was available then
+- [ ] They had no standard way to exchange facts with other systems
+E: The knowledge-acquisition bottleneck and brittleness at the edges of the rule base limited expert systems. Speed wasn't the core issue (XCON ran in production), and they were rule-based, not neural. LLMs ease the bottleneck by learning from text, but edge-of-competence brittleness remains.
 
 Q: Rodney Brooks' subsumption architecture was a reaction against what?
-- [ ] Reinforcement learning's need for reward
-- [ ] Multi-agent communication standards
-- [x] Slow sense–model–plan–act pipelines that depended on a central world model
-- [ ] Neural networks
-E: Brooks argued that robots should react to the world directly through layered behaviors instead of building and planning over an internal model that quickly went stale.
+- [ ] Reinforcement learning's need for a carefully designed reward
+- [ ] Rigid agent communication languages such as KQML and FIPA-ACL
+- [x] Slow sense–plan–act pipelines built on a central world model
+- [ ] Neural networks that could not explain how they chose actions
+E: Brooks argued that robots should react to the world directly through layered behaviors instead of building and planning over an internal model that quickly went stale. His key papers (1986–1991) predate or run parallel to the agent-communication standards, which weren't his target.
 
 Q: In BDI terms, what does an LLM agent's written to-do list or plan file most closely correspond to?
 - [ ] Beliefs
 - [ ] Desires
 - [x] Intentions
-- [ ] Percepts
-E: Intentions are the goals the agent has committed to pursuing via specific plans. A plan file records those commitments, and the classic BDI question of when to reconsider them applies directly.
+- [ ] Percept sequence
+E: Desires is the tempting answer, but desires are states the agent would like to bring about. Intentions are the subset it has committed to, with plans in progress. A plan file records those commitments, and the classic BDI question of when to reconsider them applies directly.
 
 Q: What did ReAct (2022) contribute that became the template for LLM agents?
-- [ ] Training models from pixels with reinforcement learning
-- [ ] A standard protocol for connecting tools to models
-- [x] Interleaving reasoning traces with actions and observations in a single loop
-- [ ] Letting models see screenshots and click
-E: ReAct's Thought → Action → Observation cycle combined chain-of-thought reasoning with grounded tool use, and nearly every modern agent loop descends from it.
+- [ ] Self-supervised training that taught a model when to call an outside API
+- [ ] Routing each sub-problem from an LLM to a separate expert module
+- [x] Interleaving reasoning, actions and observations in a single loop
+- [ ] Prompting models to write out their reasoning before answering
+E: ReAct's Thought → Action → Observation cycle combined chain-of-thought reasoning with grounded tool use. The distractors describe neighbours: Toolformer (self-supervised API calls), MRKL (routing to modules) and chain-of-thought (reasoning without acting).
 
 Q: Why did 2023's AutoGPT-style agents mostly fail despite huge excitement?
-- [ ] They had no access to tools
-- [ ] GPT-4 could not produce structured output at all
-- [x] Long-horizon reliability, context management and cost weren't solved, so they looped, drifted and burned budget
-- [ ] They were only available to researchers
-E: Building the loop was easy. Keeping a model on task over many steps, managing context, and knowing when to stop were the unsolved problems, and much of the work since has targeted exactly those.
+- [ ] The models of the day had no way to call tools or run any code
+- [ ] GPT-4's API was limited to researchers, so few people could test them
+- [x] Long-horizon reliability, context and cost were still unsolved
+- [ ] The loop itself was hard to build, so most projects never ran
+E: Building the loop was the easy part, which is why so many copies appeared. Keeping a model on task over many steps, managing context, and knowing when to stop were the unsolved problems, and much of the work since has targeted exactly those.
 
 Q: How is reinforcement learning most important to LLM agents today?
-- [ ] It replaced language models as the agent's policy
-- [x] It's used to train models on tasks with verifiable rewards, improving reasoning and agentic skills
-- [ ] It's only used for game-playing agents
-- [ ] It's how MCP servers are discovered
-E: Reasoning models and agentic coding models are post-trained with RL on tasks whose outcomes can be checked, carrying AlphaGo-era ideas into the LLM era.
+- [ ] It replaced the language model as the policy that picks actions
+- [x] It trains models on tasks with verifiable rewards, like passing tests
+- [ ] It's mainly used for game-playing agents, as it was in the AlphaGo era
+- [ ] It lets agents update their own weights during each user session
+E: Reasoning models and agentic coding models are post-trained with RL on tasks whose outcomes can be checked, carrying AlphaGo-era ideas into the LLM era. That training happens before deployment; a deployed agent's weights don't change during a session.
 ```
 
 ## Further Reading

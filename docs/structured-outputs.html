@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 35 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 9 of 37</span>
+      <span>Lesson 9 of 38</span>
       <span class="lesson-status" data-status-for="structured-outputs"></span>
     </div>
   </header>
@@ -140,8 +142,8 @@
   </section>
   <article class="prose">
 <p>A team builds a ticket-triage agent. It reads each support ticket and replies with JSON — category, priority, a one-line summary — which code then routes to the right queue. In testing it&#39;s flawless. In production, at ten thousand tickets a day, a small fraction of responses start with &quot;Sure! Here&#39;s the JSON:&quot;, or use <code>&quot;priority&quot;: &quot;high-ish&quot;</code>, or omit a field, or get cut off mid-object. Each failure is a ticket silently dropped or misrouted. Fifty a day, every day.</p>
-<p><strong>Structured outputs</strong> fix this class of problem at its root. Instead of <em>asking</em> a model for JSON and hoping, you give the API a schema and the model&#39;s output is <em>guaranteed</em> to conform to it. That turns a language model from a text generator into something closer to a typed function: text in, validated object out. And once outputs are typed, you can build reliable control flow around them — routers, pipelines and state machines where the model makes judgments and ordinary code takes actions.</p>
-<p>This lesson covers why structure matters, the spectrum of techniques from prompting to constrained decoding (and how the latter works under the hood), the Anthropic SDK&#39;s structured-output features with Pydantic, validation loops, the core extraction/classification/routing patterns, and how to design schemas that don&#39;t sabotage the model&#39;s reasoning.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Structured outputs" data-d="Constraining a model's output to match a given JSON Schema, so responses can be parsed reliably by code." data-a="structured-outputs">Structured outputs</dfn></strong> fix this class of problem at its root. Instead of <em>asking</em> a model for JSON and hoping, you give the API a schema and the model&#39;s output is <em>guaranteed</em> to conform to it. That turns a language model from a text generator into something closer to a typed function: text in, validated object out. And once outputs are typed, you can build reliable control flow around them — routers, pipelines and state machines where the model makes judgments and ordinary code takes actions.</p>
+<p>This lesson covers why structure matters, the spectrum of techniques from prompting to <dfn class="gt" tabindex="0" data-t="Constrained decoding" data-d="Enforcing a grammar or schema at generation time by masking tokens that would violate it, guaranteeing syntactically valid structured output." data-a="constrained-decoding">constrained decoding</dfn> (and how the latter works under the hood), the Anthropic SDK&#39;s structured-output features with Pydantic, validation loops, the core extraction/classification/routing patterns, and how to design schemas that don&#39;t sabotage the model&#39;s reasoning.</p>
 <h2 id="why-agents-need-structure"><a class="anchor" href="#why-agents-need-structure" aria-hidden="true">#</a>Why Agents Need Structure</h2>
 <p>Free-form text is great for humans and terrible for programs. Anywhere a model&#39;s output feeds code instead of a person, you want structure:</p>
 <ul>
@@ -185,7 +187,7 @@
 </tr>
 <tr>
 <td><strong>Schema-constrained decoding</strong></td>
-<td>API compiles your JSON Schema and constrains generation</td>
+<td>API compiles your <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-l="tool-use" data-a="json-schema">JSON Schema</dfn> and constrains generation</td>
 <td>Parses <em>and</em> matches the schema</td>
 <td>Semantics still unchecked; truncation at max tokens; refusals</td>
 </tr>
@@ -293,7 +295,7 @@ data = json.loads(text)  <span class="hljs-comment"># guaranteed to parse and ma
 </tr>
 <tr>
 <td><code>&quot;strict&quot;: true</code> tools</td>
-<td>You want <strong>tool arguments</strong> guaranteed during an agent loop (bookings, database writes)</td>
+<td>You want <strong>tool arguments</strong> guaranteed during an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> (bookings, database writes)</td>
 </tr>
 <tr>
 <td>Both together</td>
@@ -301,7 +303,7 @@ data = json.loads(text)  <span class="hljs-comment"># guaranteed to parse and ma
 </tr>
 </tbody></table>
 </div>
-<p>A common older pattern was to define a fake tool and force the model to call it just to get JSON out. With output formats available, use those instead; forced tool choice is rejected on the latest Claude models anyway.</p>
+<p>A common older pattern was to define a fake tool and force the model to call it just to get JSON out. With output formats available, use those instead; forced <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this." data-l="tool-use" data-a="tool-choice">tool choice</dfn> is rejected on the latest Claude models anyway.</p>
 <h2 id="validation-and-retry-loops"><a class="anchor" href="#validation-and-retry-loops" aria-hidden="true">#</a>Validation and Retry Loops</h2>
 <p>Schema validity is necessary but not sufficient. Real data has <strong>semantic</strong> rules that a schema can&#39;t express or that constrained decoding doesn&#39;t enforce: line items should sum to the total, an end date should follow the start date, a referenced product ID should exist in your catalog.</p>
 <p>The standard pattern is <strong>validate, then retry with feedback</strong>: check the parsed object in code, and if it fails, show the model exactly what&#39;s wrong and ask again — a bounded number of times.</p>
@@ -465,7 +467,7 @@ HANDLERS[route.intent](message_text, route.summary)</code></pre></div>
 <td>A log of (state, decision, reason) tuples</td>
 </tr>
 <tr>
-<td>Guardrails</td>
+<td><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">Guardrails</dfn></td>
 <td>Mostly in tools and prompts</td>
 <td>Structural: illegal transitions can&#39;t be generated</td>
 </tr>
@@ -483,7 +485,7 @@ HANDLERS[route.intent](message_text, route.summary)</code></pre></div>
 <li><strong>Field order:</strong> put fields that require analysis (evidence quotes, extracted facts) <em>before</em> the fields that depend on them (the classification, the decision). Pydantic preserves declaration order in the schema.</li>
 <li><strong>A reasoning field:</strong> historically, many schemas began with a free-text <code>reasoning</code> field so the model could think &quot;on paper&quot; before answering.</li>
 </ul>
-<p>With models that have native <strong>thinking</strong> (Claude&#39;s adaptive thinking, and similar features from other providers), the model reasons in a separate thinking phase <em>before</em> it writes the constrained output, so the structured output itself can stay lean. That changes the advice:</p>
+<p>With models that have native <strong>thinking</strong> (Claude&#39;s <dfn class="gt" tabindex="0" data-t="Extended thinking" data-d="A model feature that exposes a reasoning phase before the final answer. With adaptive thinking the model decides how much to think, steered by an effort setting rather than a fixed token budget." data-l="reasoning-and-planning" data-a="extended-thinking">adaptive thinking</dfn>, and similar features from other providers), the model reasons in a separate thinking phase <em>before</em> it writes the constrained output, so the structured output itself can stay lean. That changes the advice:</p>
 <ul>
 <li>Let thinking do the deliberation. Raise <code>effort</code> for harder judgments rather than adding a long reasoning field.</li>
 <li>Anthropic&#39;s current guidance is to keep reasoning in thinking blocks rather than asking the model to reproduce it in output fields; on some current models, instructions to reproduce reasoning in the response can be declined. If you need reasoning for debugging, read the thinking blocks the API returns.</li>
@@ -539,78 +541,78 @@ HANDLERS[route.intent](message_text, route.summary)</code></pre></div>
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What does schema-constrained decoding guarantee?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That every field value is factually correct</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That the model will never refuse</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the output is identical across runs</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That the output parses and conforms to the schema&#39;s structure and types (when generation completes normally)</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That values are correct, since only schema-valid tokens can be sampled</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That a response always arrives, because refusals can&#39;t fit the schema</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the output is complete, since the grammar must reach its end state</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That a normally completed response parses and matches the schema</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding masks tokens that would violate the grammar, guaranteeing syntax and shape. Correctness of values, refusals and truncation must still be handled.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Masking guarantees syntax and shape for a response that finishes normally. It says nothing about whether values are true, and refusals and max_tokens truncation can still produce output that doesn&#39;t match, which is why you check stop_reason.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>How does a constrained decoder prevent the model from outputting &quot;feature&quot; when the enum allows only &quot;bug&quot; or &quot;billing&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It fine-tunes the model on the schema before each request</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It retries generation until a valid value appears</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It post-processes the text and replaces invalid values</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>At each step it sets the scores of tokens that can&#39;t lead to a valid value to negative infinity before sampling</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It adds the allowed values to the prompt so the model is told to pick one of them</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It samples freely, then retries the request until a valid value appears</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It maps the invalid value to the closest allowed one after generation</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Before each sampling step it masks tokens that can&#39;t lead to a valid value</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The grammar tracks which continuations are legal; tokens that would break the schema are masked out of the distribution, so they can never be sampled.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The grammar tracks which continuations are legal and sets the scores of illegal tokens to negative infinity, so &quot;feature&quot; can never be sampled. Retrying and post-hoc mapping are what prompt-only pipelines do; telling the model the values is prompting, not a guarantee.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>An extraction schema has a required, non-nullable field contract_end_date. Many contracts have no end date. What is the likely result?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API returns an error for those documents</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model fills in plausible-looking but invented dates, because the schema gives it no legal way to say &quot;absent&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The field will be an empty string</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model will skip the field</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API rejects those requests because the field cannot be satisfied</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model writes plausible but invented dates for contracts that lack one</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model returns an empty string, the nearest thing to &quot;no value&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The response ends with a refusal since no truthful answer is allowed</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding forces a legal output. Without a nullable option, the nearest legal output is a fabricated date. Make possibly-absent fields nullable and say what null means.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constrained decoding always forces some legal output, and for a required date field the legal outputs are dates, so the model fabricates one. An empty string isn&#39;t a valid date and the API doesn&#39;t detect &quot;unanswerable&quot;; make possibly-absent fields nullable and say what null means.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Your validator checks that invoice line items sum to the total. Some real invoices have printing errors. What is the best design?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have the model compute the total itself and ignore the printed one</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry until the model produces numbers that sum correctly</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Keep the check, but let the model report a genuine inconsistency in a notes field that the validator accepts, and bound the retries</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Remove the validator</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have the model recompute the total from line items and store that one</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry with specific feedback until the extracted numbers sum correctly</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Keep the check, but accept a notes field explaining a real mismatch</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Drop the check, since printing errors make it unreliable on real data</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Validators that demand impossible consistency pressure the model to fabricate. An honest escape hatch plus bounded retries catches extraction errors without forcing invented data.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A validator that demands consistency the document doesn&#39;t have pressures the model to fabricate; retrying &quot;until it sums&quot; is exactly that trap. An honest escape hatch keeps the check&#39;s value for catching extraction errors, with retries still bounded.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>When should you use strict tools rather than output_config.format?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When you need the model&#39;s final answer as JSON</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the schema is recursive</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Never; they are the same feature</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When you need guaranteed-valid arguments for tool calls during an agent loop</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When the agent&#39;s final answer must be returned as schema-valid JSON</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the schema is recursive, since output formats reject recursion</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When you want the model forced to call a particular tool every turn</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When arguments to tool calls made mid-loop must be schema-valid</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> output_config.format constrains the final response; strict: true constrains a tool&#39;s arguments. Agents that act through tools and end with a structured report can use both.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> output_config.format constrains the final response; strict: true constrains a tool&#39;s arguments, and agents can use both. Strict tools don&#39;t add recursive-schema support, and forcing a specific tool via tool_choice is rejected on current Claude models.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>In an LLM-decides/code-executes refund state machine, how do you stop the model from jumping from collect_info straight to approve_refund?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Build the next_state enum from only the transitions legal in the current state, and execute actions in code</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Use a lower effort setting</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Ask the model to output its reasoning first</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add &quot;never skip verification&quot; to the system prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Build the next_state enum from only the moves legal in the current state</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Have code reject approve_refund and re-ask the model until a legal move comes back</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Ask for a reasoning field before next_state so the model checks policy</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add a firm system-prompt rule that verification must not be skipped</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With a per-state enum, illegal transitions can&#39;t be generated at all, and code still controls what each transition does. That is a structural guarantee rather than a request.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A per-state enum makes illegal transitions impossible to generate, a structural guarantee. Rejecting and re-asking also enforces the rule, but it wastes calls and only catches the error after the fact; prompt rules and reasoning fields are requests, not guarantees.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Using a model with adaptive thinking, how should you get careful judgment on a structured classification?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Ask for the answer first, then the explanation</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Let the model think before producing the output (raising effort if needed), and keep only short, purpose-specific fields like evidence or a one-line reason</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Remove the enum so the model can explain itself freely</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Put a long required reasoning field first in the schema and ask the model to show all its work there</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Put the label first and a justification field after it for auditing</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Let the model think first, raising effort if needed, and keep fields lean</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Drop the enum so the model can explain borderline cases in free text</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Put a long required reasoning field first and have the model show its work</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Native thinking happens before the constrained output, so heavy reasoning fields are unnecessary and current guidance is to keep reasoning in thinking blocks. Short evidence or reason fields still serve auditing.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Native thinking happens before the constrained output, so a long reasoning field is unnecessary and current guidance is to keep reasoning in thinking blocks. The reasoning-field-first option was good advice for older models without thinking; answer-first commits before deliberating, and dropping the enum loses the guarantee.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -664,7 +666,7 @@ HANDLERS[route.intent](message_text, route.summary)</code></pre></div>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

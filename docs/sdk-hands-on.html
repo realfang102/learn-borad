@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on" aria-current="page"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,13 +132,13 @@
       <span>⏱ 50 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 25 of 37</span>
+      <span>Lesson 26 of 38</span>
       <span class="lesson-status" data-status-for="sdk-hands-on"></span>
     </div>
   </header>
   <section class="objectives">
     <h2 class="objectives-title">What you'll learn</h2><ul><li>Implement one agent spec with four different SDKs and frameworks</li><li>Use the Claude Agent SDK's built-in tools, in-process MCP tools, hooks, subagents and permission modes</li><li>Use OpenAI Agents SDK handoffs, guardrails, tool approvals and sessions</li><li>Build a LangGraph StateGraph with a checkpointer and an interrupt-based approval</li><li>Compare what each option gives you for the loop, state, human-in-the-loop and tracing</li></ul>
-    <p class="prereqs"><strong>Builds on:</strong> <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a></p>
+    <p class="prereqs"><strong>Builds on:</strong> <a href="build-agent-from-scratch.html">Build an Agent From Scratch</a>, <a href="agent-frameworks.html">Frameworks &amp; SDKs Compared</a></p>
   </section>
   <article class="prose">
 <p>Reading framework comparisons only gets you so far. The differences that matter (how much loop you own, where state lives, how a human approves a risky action, what a trace looks like) only become clear when you build the <em>same</em> agent in each and feel where the seams are.</p>
@@ -270,7 +272,7 @@ runner = client.beta.messages.tool_runner(
 <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;stop_reason:&quot;</span>, message.stop_reason, <span class="hljs-string">&quot;| usage:&quot;</span>, message.usage.output_tokens, <span class="hljs-string">&quot;output tokens&quot;</span>)</code></pre></div>
 <p><strong>What you get:</strong> schemas inferred from type hints and docstring <code>Args:</code> (the <code>Literal</code> becomes an <code>enum</code>), the tool loop with correct <code>tool_use_id</code> matching, exceptions mapped to <code>is_error</code> results, and a <code>max_iterations</code> cap. <strong>What you still own:</strong> the read tools themselves, the approval prompt (inside <code>file_ticket</code>), the conversation history across user turns, tracing beyond printing, and persistence. It runs anywhere Python runs and is the thinnest layer over the Messages API, so nothing is hidden.</p>
 <h2 id="b-claude-agent-sdk"><a class="anchor" href="#b-claude-agent-sdk" aria-hidden="true">#</a>(b) Claude Agent SDK</h2>
-<p>The <strong>Claude Agent SDK</strong> (<code>pip install claude-agent-sdk</code>, Python and TypeScript) packages the harness behind Claude Code as a library. The Python package bundles the Claude Code CLI and drives it as a subprocess, so you inherit its agent loop, its built-in tools (<code>Read</code>, <code>Write</code>, <code>Edit</code>, <code>Bash</code>, <code>Grep</code>, <code>Glob</code>, <code>WebSearch</code>, <code>WebFetch</code> and more), context compaction, sessions, permissions, hooks and subagents. Authenticate with <code>ANTHROPIC_API_KEY</code> (cloud-provider credentials are also supported).</p>
+<p>The <strong>Claude Agent SDK</strong> (<code>pip install claude-agent-sdk</code>, Python and TypeScript) packages the harness behind Claude Code as a library. The Python package bundles the Claude Code CLI and drives it as a subprocess, so you inherit its <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>, its built-in tools (<code>Read</code>, <code>Write</code>, <code>Edit</code>, <code>Bash</code>, <code>Grep</code>, <code>Glob</code>, <code>WebSearch</code>, <code>WebFetch</code> and more), context <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, sessions, permissions, hooks and subagents. Authenticate with <code>ANTHROPIC_API_KEY</code> (cloud-provider credentials are also supported).</p>
 <p>The smallest useful program needs no custom code at all:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 <span class="hljs-keyword">from</span> claude_agent_sdk <span class="hljs-keyword">import</span> ClaudeAgentOptions, ResultMessage, query
@@ -409,16 +411,16 @@ asyncio.run(main())</code></pre></div>
 <p>The key ideas, mapped to the code:</p>
 <ul>
 <li><strong>Two tool layers.</strong> <code>tools</code> decides which built-ins <em>exist</em> in the agent&#39;s context (here no <code>Bash</code>, <code>Edit</code> or <code>Write</code>, so the agent is read-only by construction). <code>allowed_tools</code> decides which calls are <em>pre-approved</em>. Anything else goes through the permission flow and, finally, your <code>can_use_tool</code> callback, which is where our human approves the ticket.</li>
-<li><strong>Custom tools are MCP tools.</strong> <code>@tool</code> plus <code>create_sdk_mcp_server</code> runs an MCP server <em>in your process</em>. Tools are addressed as <code>mcp__{server}__{tool}</code>, so the ticket tool is <code>mcp__tickets__file_ticket</code>; that is the name to use in <code>allowed_tools</code>, hook matchers or deny rules. Return <code>&quot;is_error&quot;: True</code> in the result to report a failure.</li>
-<li><strong>Hooks are deterministic policy.</strong> A <code>PreToolUse</code> hook can deny, allow, or rewrite a call (<code>updatedInput</code>); <code>PostToolUse</code> sees results (good for audit logs). Unlike a system-prompt instruction, a hook cannot be talked out of its decision by a prompt injection.</li>
+<li><strong>Custom tools are <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> tools.</strong> <code>@tool</code> plus <code>create_sdk_mcp_server</code> runs an <dfn class="gt" tabindex="0" data-t="MCP server" data-d="A program that exposes tools, resources and prompts over the Model Context Protocol, for example wrapping a database, a SaaS API or the local filesystem." data-l="protocols-mcp-a2a" data-a="mcp-server">MCP server</dfn> <em>in your process</em>. Tools are addressed as <code>mcp__{server}__{tool}</code>, so the ticket tool is <code>mcp__tickets__file_ticket</code>; that is the name to use in <code>allowed_tools</code>, hook matchers or deny rules. Return <code>&quot;is_error&quot;: True</code> in the result to report a failure.</li>
+<li><strong>Hooks are deterministic policy.</strong> A <code>PreToolUse</code> hook can deny, allow, or rewrite a call (<code>updatedInput</code>); <code>PostToolUse</code> sees results (good for audit logs). Unlike a system-prompt instruction, a hook cannot be talked out of its decision by a <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn>.</li>
 <li><strong>Permission modes</strong> set the default posture: <code>default</code> (ask for anything not pre-approved), <code>acceptEdits</code> (auto-approve file edits), <code>plan</code> (explore and plan, no execution), <code>dontAsk</code> (deny anything not pre-approved, never prompt), <code>bypassPermissions</code> (allow everything; sandboxed environments only) and <code>auto</code> (a model-based classifier approves or denies).</li>
-<li><strong>Subagents</strong> (<code>agents=</code>) get their own context window, prompt, tool subset and model. The main agent delegates through the built-in <code>Agent</code> tool, which must be allowed. Only the subagent&#39;s final report returns, keeping the main context clean.</li>
+<li><strong>Subagents</strong> (<code>agents=</code>) get their own <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn>, prompt, tool subset and model. The main agent delegates through the built-in <code>Agent</code> tool, which must be allowed. Only the subagent&#39;s final report returns, keeping the main context clean.</li>
 <li><strong>Bounds and sessions.</strong> <code>max_turns</code> and <code>max_budget_usd</code> cap the run; the final <code>ResultMessage</code> carries <code>num_turns</code>, <code>total_cost_usd</code> and a <code>session_id</code> you can pass as <code>resume=</code> later. <code>ClaudeSDKClient</code> keeps one session open for multi-turn conversations.</li>
 </ul>
 <aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Where Claude Agent SDK fits</div><div class="callout-body"><p>It shines when your agent needs to <em>work on a computer</em>: files, shells, code, the web. You get Claude Code&#39;s tuned tools and context management for free. The cost is less control over the loop internals, a dependency on the CLI runtime, and Claude models only. If Anthropic should host the loop and sandbox too, look at Claude Managed Agents (<a href="agent-frameworks.html">frameworks compared</a>).</p>
 </div></aside>
 <h2 id="c-openai-agents-sdk"><a class="anchor" href="#c-openai-agents-sdk" aria-hidden="true">#</a>(c) OpenAI Agents SDK</h2>
-<p>The <strong>OpenAI Agents SDK</strong> (<code>pip install openai-agents</code>, imported as <code>agents</code>) is a lightweight, Python-first framework built on a few primitives: <strong>Agents</strong> (instructions + tools), <strong>handoffs</strong> (one agent passing control to another), <strong>guardrails</strong> (validation that runs alongside the agent), <strong>sessions</strong> (conversation memory) and built-in <strong>tracing</strong>. <code>Runner</code> executes the loop.</p>
+<p>The <strong>OpenAI Agents SDK</strong> (<code>pip install openai-agents</code>, imported as <code>agents</code>) is a lightweight, Python-first framework built on a few primitives: <strong>Agents</strong> (instructions + tools), <strong>handoffs</strong> (one agent passing control to another), <strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrails</dfn></strong> (validation that runs alongside the agent), <strong>sessions</strong> (conversation memory) and built-in <strong>tracing</strong>. <code>Runner</code> executes the loop.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> asyncio
 <span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
@@ -518,7 +520,7 @@ investigator = Agent(
 asyncio.run(main())</code></pre></div>
 <p>Mapped to the spec:</p>
 <ul>
-<li><strong>Tools.</strong> <code>@function_tool</code> builds a strict JSON Schema from type hints and the docstring. By default an exception inside a tool is returned to the model as an error message instead of crashing the run.</li>
+<li><strong>Tools.</strong> <code>@function_tool</code> builds a strict <dfn class="gt" tabindex="0" data-t="JSON Schema" data-d="A standard vocabulary for describing the shape of JSON data. It is how tool inputs and structured outputs are specified to a model." data-l="tool-use" data-a="json-schema">JSON Schema</dfn> from type hints and the docstring. By default an exception inside a tool is returned to the model as an error message instead of crashing the run.</li>
 <li><strong>Handoffs as multi-agent.</strong> The investigator lists <code>ticket_writer</code> in <code>handoffs</code>; the SDK exposes that as a tool (<code>transfer_to_...</code>), and when the model calls it, the ticket writer takes over the conversation. <code>result.last_agent</code> tells you who finished.</li>
 <li><strong>Approval as interruption.</strong> <code>needs_approval=True</code> makes the run <em>pause</em> before the tool executes: <code>result.interruptions</code> lists pending calls, you <code>approve</code> or <code>reject</code> each on <code>result.to_state()</code>, and pass the state back to <code>Runner.run</code>. Because a <code>RunState</code> can be serialized (<code>to_json</code>), approval can happen later, in another process.</li>
 <li><strong>Guardrails.</strong> An <code>@input_guardrail</code> runs on the user input (in parallel with the agent by default) and raises <code>InputGuardrailTripwireTriggered</code> if it trips. Real guardrails often run a small, fast model; ours is a keyword check for brevity.</li>
@@ -527,7 +529,7 @@ asyncio.run(main())</code></pre></div>
 </ul>
 <p>Model choice: agents default to an OpenAI model, set by the SDK and overridable per agent. Other providers work through model adapters (for example LiteLLM, with model names like <code>litellm/anthropic/...</code>), though provider-specific features may not carry over.</p>
 <h2 id="d-langgraph"><a class="anchor" href="#d-langgraph" aria-hidden="true">#</a>(d) LangGraph</h2>
-<p><strong>LangGraph</strong> models an agent as an explicit <strong>state machine</strong>: nodes are functions that read and update a shared state, edges (including conditional ones) decide what runs next, and a <strong>checkpointer</strong> saves the state after every step. That makes it the most explicit of the four, and the strongest at durability and human-in-the-loop.</p>
+<p><strong>LangGraph</strong> models an agent as an explicit <strong>state machine</strong>: nodes are functions that read and update a shared state, edges (including conditional ones) decide what runs next, and a <strong>checkpointer</strong> saves the state after every step. That makes it the most explicit of the four, and the strongest at durability and <dfn class="gt" tabindex="0" data-t="Human-in-the-loop" data-d="A design in which a human must review or approve certain agent actions or outputs before they take effect." data-l="human-in-the-loop" data-a="human-in-the-loop">human-in-the-loop</dfn>.</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 
 <span class="hljs-keyword">from</span> langchain_anthropic <span class="hljs-keyword">import</span> ChatAnthropic
@@ -615,7 +617,7 @@ agent = create_agent(
     checkpointer=InMemorySaver(),
 )
 <span class="hljs-comment"># After it pauses: agent.invoke(Command(resume={&quot;decisions&quot;: [{&quot;type&quot;: &quot;approve&quot;}]}), config)</span></code></pre></div>
-<p>Tracing is not built into the library itself; set the LangSmith environment variables (or wire in OpenTelemetry or another callback handler) to record every node, model call and tool call.</p>
+<p>Tracing is not built into the library itself; set the LangSmith environment variables (or wire in <dfn class="gt" tabindex="0" data-t="OpenTelemetry" data-d="A vendor-neutral open standard for traces, metrics and logs. Its GenAI semantic conventions define standard attributes for recording LLM and agent operations." data-l="observability" data-a="opentelemetry">OpenTelemetry</dfn> or another callback handler) to record every node, model call and tool call.</p>
 <h2 id="side-by-side-comparison"><a class="anchor" href="#side-by-side-comparison" aria-hidden="true">#</a>Side-by-Side Comparison</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -827,7 +829,7 @@ agent = create_agent(
     <textarea id="notes-sdk-hands-on" class="notes" data-slug="sdk-hands-on" rows="4" placeholder="Jot down insights, questions, ideas to try…"></textarea>
   </section>
   <nav class="pager">
-    <a class="pager-prev" href="build-agent-from-scratch.html"><small>← Previous</small><span>Build an Agent From Scratch</span></a>
+    <a class="pager-prev" href="agent-frameworks.html"><small>← Previous</small><span>Frameworks &amp; SDKs Compared</span></a>
     <a class="pager-next" href="evaluating-agents.html"><small>Next →</small><span>Evaluating Agents</span></a>
   </nav>
 </main>
@@ -851,7 +853,7 @@ agent = create_agent(
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

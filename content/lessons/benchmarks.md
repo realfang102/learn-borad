@@ -57,13 +57,13 @@ Coding is the best-benchmarked agent domain, because code has a natural automati
 
 **SWE-bench** (Jimenez et al., 2023) changed the game. Each task is a real GitHub issue from one of 12 popular Python repositories (Django, scikit-learn, sympy and others). The agent gets the issue text and the repository at the commit before the fix, and must produce a patch. Grading runs the tests that the real fix made pass (**FAIL_TO_PASS**) plus existing tests that must not break (**PASS_TO_PASS**). The full set has 2,294 tasks; **SWE-bench Lite** is a 300-task subset. When it launched, the best model resolved only a few percent of issues.
 
-**SWE-bench Verified** (OpenAI with the SWE-bench authors, August 2024) is the human-validated 500-task subset. OpenAI had 93 professional developers screen 1,699 SWE-bench tasks and found many were problematic: underspecified issues, or tests so specific that a correct fix would fail them (e.g., tests that check an exact error message the issue never mentioned). Verified became the standard coding-agent number. Scores on SWE-bench-family benchmarks went from low single digits in late 2023 to well above 70% on Verified by 2025. That success brought problems: by 2026 the benchmark was widely considered near-saturated and at risk of contamination, and in February 2026 OpenAI announced it would stop reporting SWE-bench Verified scores, citing contamination, and recommended SWE-bench Pro instead.
+**SWE-bench Verified** (OpenAI with the SWE-bench authors, August 2024) is the human-validated 500-task subset. OpenAI had 93 professional developers screen 1,699 SWE-bench tasks and found many were problematic: underspecified issues, or tests so specific that a correct fix would fail them (e.g., tests that check an exact error message the issue never mentioned). Verified became the standard coding-agent number. Scores on SWE-bench-family benchmarks went from low single digits in late 2023 to well above 70% on Verified by 2025. That success brought problems: by 2026 the benchmark was widely considered near-saturated. In February 2026 OpenAI announced it would stop reporting SWE-bench Verified scores, citing contamination (frontier models could reproduce some original fixes from memory) and an audit of frequently failed tasks that found many with tests rejecting functionally correct fixes, and it recommended SWE-bench Pro instead.
 
 **SWE-bench Multimodal** (2024) extends the idea to JavaScript repositories with visual components, where issues include screenshots — testing whether agents can work on front-end bugs they need to *see*.
 
-**SWE-bench Pro** (Scale AI, September 2025) was designed to resist contamination and be harder: 1,865 tasks from 41 repositories, split into a public set (from repositories under strong copyleft licenses, which discourages their inclusion in training data), a private held-out set, and a commercial set from proprietary startup codebases. Tasks are long-horizon and frequently require multi-file changes. Scores at launch were far below those on Verified.
+**SWE-bench Pro** (Scale AI, September 2025) was designed to resist contamination and be harder: 1,865 tasks from 41 repositories, split into a public set (from repositories under strong copyleft licenses, which discourages their inclusion in training data), a private held-out set, and a commercial set from proprietary startup codebases. Tasks are long-horizon and frequently require multi-file changes. Scores at launch were far below those on Verified. Pro has not escaped the life cycle either: in mid-2026 OpenAI published an audit estimating that roughly 30% of SWE-bench Pro's public tasks were broken (overly strict or low-coverage tests, misleading task statements) and retracted its recommendation to adopt it. Even a benchmark built to fix a predecessor's flaws needs independent auditing.
 
-**Terminal-Bench** (Stanford and the Laude Institute, 2025) tests agents in a sandboxed command-line environment: compile a codebase, configure a server, train a small model, fix a broken environment. Each task ships with a Docker container and a test script that checks the final state. **Terminal-Bench 2.0** (November 2025) contains 89 carefully validated hard tasks and is run through the Harbor harness, which can plug in agents such as Claude Code or Codex CLI as well as bare models — making it useful for comparing *agent products*, not just models.
+**Terminal-Bench** (Stanford and the Laude Institute, 2025) tests agents in a sandboxed command-line environment: compile a codebase, configure a server, train a small model, fix a broken environment. Each task ships with a Docker container and a test script that checks the final state. **Terminal-Bench 2.0** (November 2025) contains 89 hard tasks, each manually validated, and is run through the Harbor harness, which can plug in agents such as Claude Code or Codex CLI as well as bare models — making it useful for comparing *agent products*, not just models.
 
 **SWE-Lancer** (OpenAI, February 2025) grounds coding evaluation in money: over 1,400 real freelance software tasks from Upwork, worth about $1 million in actual payouts. Implementation tasks are graded by engineer-written end-to-end tests; "manager" tasks ask the model to pick the best submitted proposal, graded against the original hiring manager's choice. The headline metric is dollars earned.
 
@@ -124,7 +124,7 @@ As agents get more capable, the interesting question shifts from "can it do the 
 Two reasoning benchmarks appear in nearly every model announcement and are relevant to agents because reasoning is the engine of planning ([reasoning and planning](reasoning-and-planning.html)):
 
 - **Humanity's Last Exam (HLE)** (Center for AI Safety and Scale AI, 2025): about 2,500 expert-written, closed-ended questions across a very wide range of academic subjects, designed to be at the frontier of human knowledge. Frontier models scored in single digits at launch; scores have risen substantially since, especially with tools enabled — so always check whether a reported HLE score used search or code tools.
-- **ARC-AGI** (François Chollet, 2019 onward): abstract grid puzzles that require inferring a transformation rule from a few examples, designed to measure skill acquisition rather than memorized knowledge. ARC-AGI-2 (2025) raised the difficulty; **ARC-AGI-3** (launched March 2026) is interactive — agents must explore turn-based game environments with no instructions or stated goals, which makes it explicitly an agent benchmark. At launch, humans could solve all environments while frontier AI systems scored near zero.
+- **ARC-AGI** (François Chollet, 2019 onward): abstract grid puzzles that require inferring a transformation rule from a few examples, designed to measure skill acquisition rather than memorized knowledge. ARC-AGI-2 (2025) raised the difficulty; **ARC-AGI-3** (launched March 2026) is interactive — agents must explore turn-based game environments with no instructions or stated goals, which makes it explicitly an agent benchmark. At launch, humans could solve all environments while frontier AI systems scored below 1%.
 
 ## Safety and security
 
@@ -176,7 +176,7 @@ When top systems score near the ceiling, a benchmark stops discriminating. The l
 
 ### Contamination
 
-**Contamination** means benchmark tasks — or their solutions — appeared in the model's training data. SWE-bench fixes are public on GitHub, so a contaminated model can score by recall rather than skill. Countermeasures include private held-out sets (SWE-bench Pro), post-cutoff tasks, copyleft or proprietary sources, and canary strings that let crawlers exclude the data. Contamination is exactly why OpenAI stopped reporting SWE-bench Verified in 2026.
+**Contamination** means benchmark tasks — or their solutions — appeared in the model's training data. SWE-bench fixes are public on GitHub, so a contaminated model can score by recall rather than skill. Countermeasures include private held-out sets (SWE-bench Pro), post-cutoff tasks, copyleft or proprietary sources, and canary strings that let crawlers exclude the data. Contamination, together with flawed tests, is why OpenAI stopped reporting SWE-bench Verified in 2026.
 
 ### Harness and scaffold sensitivity
 
@@ -188,7 +188,7 @@ A system that tries 50 times and picks the best answer, or burns $40 of tokens p
 
 ### Noisy and broken tasks
 
-Benchmarks are software, and they have bugs — hence SWE-bench Verified and OSWorld-Verified. A 2025 audit (Zhu et al., *Establishing Best Practices for Building Rigorous Agentic Benchmarks*) found issues across popular agent benchmarks — for example, insufficient test coverage in SWE-bench Verified and a τ-bench grading flaw that counted empty responses as successes on some tasks — and estimated such issues can distort measured performance by up to 100% in relative terms. The authors proposed an **Agentic Benchmark Checklist** for builders.
+Benchmarks are software, and they have bugs — hence SWE-bench Verified and OSWorld-Verified, and the 2026 audits that found broken tasks in both SWE-bench Verified and SWE-bench Pro. A 2025 audit (Zhu et al., *Establishing Best Practices for Building Rigorous Agentic Benchmarks*) found issues across popular agent benchmarks — for example, insufficient test coverage in SWE-bench Verified and a τ-bench grading flaw that counted empty responses as successes on some tasks — and estimated such issues can distort measured performance by up to 100% in relative terms. The authors proposed an **Agentic Benchmark Checklist** for builders.
 
 ### Variance
 
@@ -237,7 +237,7 @@ Internal benchmarks let you answer "should we switch to the new model?" in a day
 - Coding benchmarks grade with tests or rubrics; tool-use benchmarks with answers or environment state; web and computer-use benchmarks with functional checks in self-hosted or live environments.
 - Long-horizon measures (METR time horizons, Vending-Bench, GDPval) shift the question from "can it do the task?" to "how long, how valuable and how consistently?"
 - Safety benchmarks report paired numbers — AgentDojo's utility and attack success rate must be read together.
-- Benchmarks mislead through **saturation, contamination, scaffold sensitivity, unreported cost, broken tasks, variance** and **Goodhart's law**. SWE-bench Verified's creation and later retirement by some labs illustrate the whole life cycle.
+- Benchmarks mislead through **saturation, contamination, scaffold sensitivity, unreported cost, broken tasks, variance** and **Goodhart's law**. SWE-bench Verified's creation and later retirement by some labs (and the broken tasks later found in its successor, SWE-bench Pro) illustrate the whole life cycle.
 - Read leaderboards by asking: which variant, which system, how many attempts, what budget, who ran it, how much variance, and does it resemble my work?
 - Public benchmarks shortlist; **internal benchmarks built from your own real tasks** decide.
 
@@ -253,53 +253,53 @@ Internal benchmarks let you answer "should we switch to the new model?" in a day
 
 ```quiz
 Q: Why was SWE-bench Verified created?
-- [ ] To add JavaScript and front-end tasks to SWE-bench
-- [x] Because many original SWE-bench tasks were underspecified or had tests that rejected valid fixes, so human annotators screened for solvable, fairly-graded tasks
-- [ ] To make the benchmark larger and more diverse
-- [ ] To prevent agents from using the shell
-E: OpenAI and the SWE-bench authors had professional developers screen tasks; the 500-task Verified subset removes problems that made the original underestimate agent capability.
+- [ ] To add JavaScript repositories and screenshot-based front-end issues to SWE-bench
+- [x] Many original tasks were underspecified or had tests that rejected valid fixes
+- [ ] The original tasks had leaked into training data, so fresh issues were collected
+- [ ] The full 2,294-task set was too expensive to run, so a random 500 were sampled
+E: OpenAI and the SWE-bench authors had professional developers screen tasks for clear issue text and fair tests; the 500-task Verified subset removed problems that made the original underestimate agents. It was a quality fix, not a contamination fix (that motivation came later, with SWE-bench Pro), and the 500 tasks were selected by screening, not sampled for cost.
 
-Q: Two leaderboard entries use the same model. One scores 15 points higher. What is the most likely explanation to check first?
-- [ ] The benchmark is broken
-- [x] Different scaffolds, tool sets, attempt counts or budgets — benchmark scores measure the whole system, not just the model
-- [ ] The higher score must be contaminated
-- [ ] Random variance always explains 15 points
-E: Harness and scaffold choices — tools, prompting, retries, best-of-k selection, step limits — routinely move agent scores by large amounts.
+Q: Two leaderboard entries use the same model. One scores 15 points higher. What should you check first?
+- [ ] Whether the higher entry trained on the test set, since 15 points implies contamination
+- [ ] Whether both ran on the same day, since run-to-run noise often reaches 15 points
+- [x] Whether the scaffolds, tools, attempt counts or step budgets differ between entries
+- [ ] Whether the grader changed version, since benchmark updates often shift scores a lot
+E: A benchmark score measures the whole system. Tools, prompting, retries, best-of-k selection and step limits routinely move agent scores by large amounts. Run-to-run noise on a few hundred tasks is a few points, not 15, and contamination is a serious accusation you can't infer from a gap alone.
 
 Q: An agent defense reduces AgentDojo attack success rate to nearly zero. What else must you check before calling it a success?
-- [ ] Its score on HumanEval
-- [x] Its utility — whether the agent still completes the benign user tasks
-- [ ] Whether it was run on Ubuntu
-- [ ] Its BrowseComp accuracy
-E: A defense that blocks injections by making the agent refuse or fail everything has zero practical value. AgentDojo reports utility and attack success together for this reason.
+- [ ] Its success on adaptive attacks written after the defense was designed
+- [x] Its utility: whether the agent still completes the benign user tasks
+- [ ] Its false-positive rate on the injection detector's labeled test set
+- [ ] Whether attack success stays low across all four AgentDojo task suites
+E: A defense that blocks injections by making the agent refuse or fail everything has no practical value, so AgentDojo reports utility and attack success together. Adaptive attacks and per-suite breakdowns are worthwhile follow-ups, but they don't catch the "blocks everything by breaking everything" failure.
 
 Q: What distinguishes τ²-bench's telecom domain from the original τ-bench domains?
-- [ ] It uses real customers instead of simulated users
-- [ ] It removes the policy document
-- [x] Dual control: the simulated user also acts on their own device, so the agent must guide the user rather than doing everything itself
-- [ ] It grades by exact string match on the agent's last message
-E: In τ²-bench's dual-control setting both parties have tools acting on shared state, and agents perform notably worse when they must coordinate a user.
+- [ ] The agent faces real customers on a live support line rather than an LLM user
+- [ ] The agent has no written policy and must infer the rules from past conversations
+- [x] The simulated user has tools too, so the agent must guide them to act on a device
+- [ ] Grading checks the agent's final message text rather than the final database state
+E: In τ²-bench's dual-control setting both parties act on shared state, and agents do notably worse when they must coordinate a user. The user is still an LLM simulation, the policy is still provided, and grading is still state-based.
 
 Q: METR reports that models' 50% time horizon has been doubling roughly every seven months. What is the best interpretation?
-- [ ] Models will complete any month-long task within seven months
-- [x] The length of (mostly software) tasks, measured in human time, that models complete half the time has grown exponentially — with caveats about task messiness and extrapolation
-- [ ] Models now work for seven months without stopping
-- [ ] Benchmark scores double every seven months
-E: The time horizon is a task-length measure at a given reliability level on METR's task suite. It's a trend, and METR emphasizes uncertainty about external validity and extrapolation.
+- [ ] Models' success rate on METR's fixed task suite has doubled every seven months
+- [x] The human-time length of tasks models finish half the time has grown exponentially
+- [ ] Models can now work autonomously for twice as long before needing a human restart
+- [ ] The time a model needs to finish a fixed task has halved every seven months or so
+E: The time horizon is the length of task (measured by how long skilled humans take) that a model completes with 50% reliability. It is not a success rate, an autonomous run time, or the model's own speed. METR stresses the suite is mostly software and that extrapolation is uncertain.
 
 Q: You need to choose a coding model for your company's large private TypeScript monorepo. What's the best approach?
-- [ ] Pick the top model on SWE-bench Verified
-- [ ] Average each model's rank across all public benchmarks
-- [x] Use public benchmarks to shortlist, then evaluate the finalists on an internal benchmark built from your own past PRs and tickets
-- [ ] Pick the model with the highest HumanEval score
-E: Public benchmarks sample distributions (often popular Python repos) that may not match yours. An internal benchmark from your own tasks is uncontaminated and predictive of your workload.
+- [ ] Pick the leader on SWE-bench Pro, since its held-out split resists contamination
+- [ ] Average each model's rank across many public benchmarks to cancel out their biases
+- [x] Shortlist with public benchmarks, then compare finalists on tasks from your own PRs
+- [ ] Pick the leader on SWE-bench Multimodal, since it is the JavaScript-ecosystem variant
+E: Public benchmarks sample distributions that may not match yours, and averaging ranks just mixes several mismatched distributions. An internal benchmark built from your own past PRs and tickets is uncontaminated and predicts performance on your workload.
 
 Q: Which practice best protects a benchmark from contamination?
-- [ ] Publishing all tasks and solutions on GitHub for transparency
-- [x] Keeping a private held-out split and sourcing tasks the model couldn't have trained on
-- [ ] Making the tasks shorter
-- [ ] Using an LLM judge instead of tests
-E: Private held-out sets (like SWE-bench Pro's) and post-cutoff or proprietary task sources reduce the chance the model memorized tasks or solutions.
+- [ ] Publishing all tasks and reference solutions openly so anyone can audit them
+- [x] Keeping a private held-out split and using tasks made after models' cutoffs
+- [ ] Grading with an LLM judge so memorized patches can't match the hidden tests
+- [ ] Rotating the order of tasks and renaming variables in each benchmark release
+E: Private held-out sets (like SWE-bench Pro's) and post-cutoff or proprietary sources reduce the chance a model memorized tasks or solutions. Open publication aids auditing but feeds training data; an LLM judge doesn't stop recall; cosmetic rewrites leave the underlying problem recognizable.
 ```
 
 ## Further Reading

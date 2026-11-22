@@ -184,6 +184,30 @@
   }
   $$(".prose .quiz").forEach(function (q) { initQuiz(q); });
 
+  // ---------- glossary tooltips ----------
+  var tip = null, tipFor = null, tipHide;
+  function showTip(d) {
+    clearTimeout(tipHide);
+    if (!tip) { tip = document.createElement("div"); tip.className = "gt-pop"; tip.setAttribute("role", "tooltip"); document.body.appendChild(tip);
+      tip.addEventListener("mouseenter", function () { clearTimeout(tipHide); }); tip.addEventListener("mouseleave", hideTip); }
+    tipFor = d;
+    tip.innerHTML = "<strong>" + escHtml(d.dataset.t) + "</strong><p>" + escHtml(d.dataset.d) + '</p><div class="gt-links"><a href="glossary.html#' + d.dataset.a + '">Glossary</a>' + (d.dataset.l ? ' · <a href="' + d.dataset.l + '.html">' + escHtml((COURSE.lessons[d.dataset.l] || {}).t || "Lesson") + " →</a>" : "") + "</div>";
+    tip.style.display = "block";
+    var r = d.getBoundingClientRect(), tw = Math.min(320, innerWidth - 24), left = Math.min(Math.max(12, r.left + r.width / 2 - tw / 2), innerWidth - tw - 12);
+    tip.style.width = tw + "px"; tip.style.left = left + scrollX + "px";
+    var th = tip.offsetHeight, top = r.top - th - 10 > 70 ? r.top - th - 10 : r.bottom + 10;
+    tip.style.top = top + scrollY + "px";
+  }
+  function hideTip() { clearTimeout(tipHide); tipHide = setTimeout(function () { if (tip) tip.style.display = "none"; tipFor = null; }, 180); }
+  $$("dfn.gt").forEach(function (d) {
+    d.addEventListener("mouseenter", function () { showTip(d); });
+    d.addEventListener("mouseleave", hideTip);
+    d.addEventListener("focus", function () { showTip(d); });
+    d.addEventListener("blur", hideTip);
+    d.addEventListener("click", function (e) { e.preventDefault(); if (tipFor === d && tip && tip.style.display === "block") hideTip(); else showTip(d); });
+  });
+  addEventListener("scroll", function () { if (tip && tip.style.display === "block" && tipFor && !tip.matches(":hover")) { tip.style.display = "none"; tipFor = null; } }, { passive: true });
+
   // ---------- mermaid ----------
   var mermaidLoading = null;
   function loadMermaid() {

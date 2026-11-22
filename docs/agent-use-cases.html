@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 26 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 23 of 37</span>
+      <span>Lesson 23 of 38</span>
       <span class="lesson-status" data-status-for="agent-use-cases"></span>
     </div>
   </header>
@@ -191,7 +193,7 @@
 <p><strong>Today:</strong> Agents search and synthesize literature (<a href="research-agents.html">deep research agents</a>), write and run analysis code, generate hypotheses, and in some labs, design and run experiments through lab automation. Notable examples:</p>
 <ul>
 <li><strong>Coscientist</strong> (Boiko et al., <em>Nature</em>, 2023) used an LLM-driven system to plan and execute chemistry experiments on automated lab hardware.</li>
-<li>Google&#39;s <strong>AI co-scientist</strong> (2025) is a multi-agent system built on Gemini that generates, debates, ranks and refines research hypotheses in a tournament-like process, with collaborators reporting early laboratory validation of some hypotheses.</li>
+<li>Google&#39;s <strong>AI co-scientist</strong> (2025) is a <dfn class="gt" tabindex="0" data-t="Multi-agent system" data-d="A system of multiple LLM agents, each with its own prompt, tools or context, that collaborate through messages, a shared state or an orchestrator." data-l="multi-agent-systems" data-a="multi-agent-system">multi-agent system</dfn> built on Gemini that generates, debates, ranks and refines research hypotheses in a tournament-like process, with collaborators reporting early laboratory validation of some hypotheses.</li>
 <li><strong>The AI Scientist</strong> (Sakana AI, 2024) attempted end-to-end automated machine-learning research, from idea to experiment to written paper, illustrating both the promise and the quality problems.</li>
 <li><strong>Self-driving labs</strong> combine robotics with models that choose the next experiment, especially in materials science and chemistry.</li>
 </ul>
@@ -207,10 +209,10 @@
 <p><strong>Key risks:</strong> Silent semantic errors (wrong joins, double counting) presented confidently, and decisions made on them. Mitigations: semantic layers, showing the query alongside the answer, and sanity checks against known figures.</p>
 <h2 id="it-operations-and-sre"><a class="anchor" href="#it-operations-and-sre" aria-hidden="true">#</a>IT Operations and SRE</h2>
 <p><strong>Today:</strong> Agents triage incidents by querying logs, metrics and traces; correlate alerts with recent deployments; propose root-cause hypotheses; draft incident timelines and postmortems; answer internal IT tickets (password resets, access requests); and execute well-defined runbooks.</p>
-<p><strong>Why it works:</strong> Investigation is tool-heavy and time-critical, and observability systems have APIs. Many IT tickets are repetitive.</p>
+<p><strong>Why it works:</strong> Investigation is tool-heavy and time-critical, and <dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">observability</dfn> systems have APIs. Many IT tickets are repetitive.</p>
 <p><strong>Why it&#39;s hard:</strong> Production systems are complex and interdependent; actions such as restarts, rollbacks or config changes can make outages worse.</p>
 <p><strong>Maturity: Scaling for investigation and IT helpdesk; emerging for autonomous remediation, which is generally limited to pre-approved, reversible runbook steps.</strong></p>
-<p><strong>Key risks:</strong> An agent taking a destructive production action, credential exposure, and prompt injection via log content. Keep write actions behind approvals (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</p>
+<p><strong>Key risks:</strong> An agent taking a destructive production action, credential exposure, and <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> via log content. Keep write actions behind approvals (see <a href="human-in-the-loop.html">human-in-the-loop</a>).</p>
 <h2 id="cybersecurity"><a class="anchor" href="#cybersecurity" aria-hidden="true">#</a>Cybersecurity</h2>
 <p><strong>Today:</strong> In security operations centers (SOCs), agents triage alerts: enriching them with threat intelligence, checking related activity, classifying likely false positives, and drafting investigation summaries for analysts. Agents also analyze phishing emails, review code for vulnerabilities, and assist penetration testers. In vulnerability research, Google&#39;s <strong>Big Sleep</strong> agent found a previously unknown exploitable bug in SQLite in 2024, and DARPA&#39;s AI Cyber Challenge (concluding in 2025) showcased autonomous systems that find and patch vulnerabilities.</p>
 <p><strong>Why it works:</strong> SOC analysts face overwhelming alert volumes, most of them benign, and triage follows repeatable investigation steps.</p>
@@ -228,7 +230,7 @@
 <p><strong>Why it works:</strong> Huge demand for delegating life admin; broad tool access through browsers and connectors.</p>
 <p><strong>Why it&#39;s hard:</strong> Tasks are diverse and the long tail is endless; personal preferences are implicit; many actions (booking, buying, sending) are irreversible; and these agents combine <strong>private data, untrusted content and the ability to act</strong>, the riskiest combination for prompt injection.</p>
 <p><strong>Maturity: Emerging.</strong> Useful for research and drafting; end-to-end autonomous transactions still need confirmation and supervision.</p>
-<p><strong>Key risks:</strong> Data exfiltration via prompt injection, unwanted purchases or messages, and privacy. Confirmation gates for consequential actions are essential.</p>
+<p><strong>Key risks:</strong> <dfn class="gt" tabindex="0" data-t="Data exfiltration" data-d="Unauthorized transfer of data out of a system, for example an injected agent embedding secrets in a URL, image link or outbound request." data-l="agent-security" data-a="data-exfiltration">Data exfiltration</dfn> via prompt injection, unwanted purchases or messages, and privacy. Confirmation gates for consequential actions are essential.</p>
 <h2 id="embodied-agents-and-robotics"><a class="anchor" href="#embodied-agents-and-robotics" aria-hidden="true">#</a>Embodied Agents and Robotics</h2>
 <p><strong>Today:</strong> <strong>Vision-language-action (VLA) models</strong> extend language models to output robot actions: Google DeepMind&#39;s RT-2 (2023) showed web knowledge transferring to robot control; open models such as OpenVLA (2024) and Physical Intelligence&#39;s π0 (2024) pushed general-purpose manipulation; and Gemini Robotics (2025) brought frontier multimodal models into robot control. Language models also serve as high-level planners that break instructions into skills a robot can execute.</p>
 <p><strong>Why it&#39;s hard:</strong> The physical world is unforgiving: actions are irreversible, data is scarce and expensive to collect, environments vary endlessly, and safety around people is paramount.</p>
@@ -362,7 +364,7 @@
 <tr>
 <td><strong>Tool access</strong></td>
 <td>Data trapped in PDFs, phone calls, legacy GUIs</td>
-<td>Clean APIs or MCP servers</td>
+<td>Clean APIs or <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> servers</td>
 </tr>
 <tr>
 <td><strong>Error tolerance</strong></td>
@@ -574,7 +576,7 @@
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

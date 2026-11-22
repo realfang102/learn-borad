@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 30 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 17 of 37</span>
+      <span>Lesson 17 of 38</span>
       <span class="lesson-status" data-status-for="human-in-the-loop"></span>
     </div>
   </header>
@@ -140,16 +142,16 @@
   </section>
   <article class="prose">
 <p>An agent is about to run <code>DROP TABLE customers</code> on what it believes is a staging database. Or email a draft contract to the client instead of the internal legal team. Or spend $4,000 on cloud GPUs to &quot;speed up the tests.&quot; In each case the model is not malicious; it is confidently wrong in a way that a human would catch in two seconds, if a human were asked. The question this lesson answers is: <strong>when should the human be asked, and how should the asking feel?</strong></p>
-<p>Ask too rarely and the agent occasionally does something expensive and irreversible. Ask too often and people stop reading the prompts and click &quot;approve&quot; on everything, which is worse than not asking, because it creates the illusion of oversight. Good <strong>human-in-the-loop (HITL)</strong> design sits between these failures. It is part safety engineering, part interface design, and part human psychology.</p>
-<p>We&#39;ll cover levels of oversight, approval gates and how to choose where they go, interrupts and resumable execution, clarifying questions and escalation, the UX of plans, progress, steering and undo, background agents, permission modes, trust calibration, efficient review, and feedback capture, with a working approval gate in an agent loop.</p>
+<p>Ask too rarely and the agent occasionally does something expensive and irreversible. Ask too often and people stop reading the prompts and click &quot;approve&quot; on everything, which is worse than not asking, because it creates the illusion of oversight. Good <strong><dfn class="gt" tabindex="0" data-t="Human-in-the-loop" data-d="A design in which a human must review or approve certain agent actions or outputs before they take effect." data-a="human-in-the-loop">human-in-the-loop</dfn> (HITL)</strong> design sits between these failures. It is part safety engineering, part interface design, and part human psychology.</p>
+<p>We&#39;ll cover levels of oversight, approval gates and how to choose where they go, interrupts and resumable execution, clarifying questions and escalation, the UX of plans, progress, steering and undo, background agents, permission modes, trust calibration, efficient review, and feedback capture, with a working <dfn class="gt" tabindex="0" data-t="Approval gate" data-d="A checkpoint where the harness pauses before a consequential or irreversible action, such as a payment, deletion or external email, and waits for human confirmation." data-a="approval-gate">approval gate</dfn> in an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>.</p>
 <h2 id="levels-of-oversight"><a class="anchor" href="#levels-of-oversight" aria-hidden="true">#</a>Levels of Oversight</h2>
 <p>Human factors research has studied this for decades. Sheridan and Verplank (1978) proposed a ladder of <strong>levels of automation</strong>, from &quot;the computer offers no assistance&quot; to &quot;the computer acts entirely autonomously, ignoring the human.&quot; Parasuraman, Sheridan and Wickens (2000) refined it: automation can be applied at different levels to different <em>stages</em> of a task (gathering information, analyzing it, deciding, acting). For agents, a practical simplification has three positions:</p>
 <ul>
 <li><strong>Human-in-the-loop</strong>: the agent proposes; a human must approve before the action happens. Maximum control, maximum friction.</li>
-<li><strong>Human-on-the-loop</strong>: the agent acts on its own while a human monitors and can intervene, pause or roll back. The human supervises rather than approves.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Human-on-the-loop" data-d="A design in which the agent acts autonomously while a human monitors and can intervene or stop it, rather than approving each step." data-a="human-on-the-loop">Human-on-the-loop</dfn></strong>: the agent acts on its own while a human monitors and can intervene, pause or roll back. The human supervises rather than approves.</li>
 <li><strong>Human-out-of-the-loop</strong>: the agent acts autonomously; humans review outcomes after the fact, if at all.</li>
 </ul>
-<p>The most important idea from the human factors literature is that <strong>this is not one setting for the whole agent</strong>. A coding agent can read any file without asking (out of the loop), edit files while you watch (on the loop) and require approval to push to <code>main</code> (in the loop), all in the same session. Oversight should be set <strong>per action</strong>, based on what the action can do. See <a href="what-is-an-agent.html">What Is an AI Agent?</a> for the broader autonomy spectrum.</p>
+<p>The most important idea from the human factors literature is that <strong>this is not one setting for the whole agent</strong>. A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> can read any file without asking (out of the loop), edit files while you watch (on the loop) and require approval to push to <code>main</code> (in the loop), all in the same session. Oversight should be set <strong>per action</strong>, based on what the action can do. See <a href="what-is-an-agent.html">What Is an AI Agent?</a> for the broader autonomy spectrum.</p>
 <h2 id="approval-gates-where-to-put-them"><a class="anchor" href="#approval-gates-where-to-put-them" aria-hidden="true">#</a>Approval Gates: Where to Put Them</h2>
 <p>An <strong>approval gate</strong> is a point where the agent&#39;s proposed action is paused until a human approves, edits or rejects it. The question is which actions deserve one. Two dimensions matter most:</p>
 <ul>
@@ -181,7 +183,7 @@
 <li><strong>External visibility</strong>: anything other people see (emails, posts, PR comments, customer replies).</li>
 <li><strong>Spending money</strong> or consuming scarce resources.</li>
 <li><strong>Security-relevant changes</strong>: credentials, permissions, firewall rules.</li>
-<li><strong>Untrusted input in context</strong>: if the agent has just read a web page or an inbound email, its next action might be the result of a <strong>prompt injection</strong> (<a href="agent-security.html">Agent Security</a>). Gating consequential actions after untrusted input is a key defense.</li>
+<li><strong>Untrusted input in context</strong>: if the agent has just read a web page or an inbound email, its next action might be the result of a <strong><dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn></strong> (<a href="agent-security.html">Agent Security</a>). Gating consequential actions after untrusted input is a key defense.</li>
 <li><strong>Novelty</strong>: the first time an agent does something in a new environment, a human should see it.</li>
 </ul>
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Gate the action, not the agent</div><div class="callout-body"><p>Approval should attach to specific, typed actions with clear consequences. That is a strong reason to expose consequential operations as <strong>dedicated tools</strong> (<code>send_email</code>, <code>deploy</code>) rather than letting the agent do everything through a generic shell, where <code>curl -X POST</code> looks the same as <code>ls</code>. A dedicated tool gives the harness a hook to intercept, render and gate. See <a href="designing-tools.html">Designing Tools</a>.</p>
@@ -293,7 +295,7 @@ MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
 <li><strong>Instruct when to ask</strong>: ask when an ambiguity would change the outcome materially <em>and</em> cannot be resolved by looking (reading the repo, checking the docs). Do not ask what you can find out.</li>
 <li><strong>Batch questions</strong>: one message with three questions beats three interruptions.</li>
 <li><strong>Offer defaults</strong>: &quot;I&#39;ll assume remote branches merged more than 30 days ago unless you say otherwise.&quot; The human can just say &quot;go.&quot;</li>
-<li><strong>Structured elicitation</strong>: protocols now support it directly. The Model Context Protocol lets a server request structured input from the user mid-operation via <strong>elicitation</strong>, with a schema for the expected answer (<a href="protocols-mcp-a2a.html">Protocols: MCP &amp; A2A</a>).</li>
+<li><strong>Structured elicitation</strong>: protocols now support it directly. The <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">Model Context Protocol</dfn> lets a server request structured input from the user mid-operation via <strong>elicitation</strong>, with a schema for the expected answer (<a href="protocols-mcp-a2a.html">Protocols: MCP &amp; A2A</a>).</li>
 </ul>
 <p>There is a tension: for <strong>background</strong> tasks, every question stalls progress until the human returns. A good compromise is to ask early (during planning, while the human is present), then proceed autonomously with documented assumptions.</p>
 <h2 id="escalation-and-handoff-to-humans"><a class="anchor" href="#escalation-and-handoff-to-humans" aria-hidden="true">#</a>Escalation and Handoff to Humans</h2>
@@ -437,7 +439,7 @@ Done. 1 item needs your decision: admin/refund.py uses legacy_charge().</code></
 <li><strong>Approval with edits.</strong> Extend <code>ask_human</code> so the human can choose &quot;edit&quot;: they modify the JSON arguments, the edited call is executed, and the tool result tells the agent its arguments were changed and how.</li>
 <li><strong>Make it resumable.</strong> Change the loop so that instead of calling <code>input()</code>, it saves <code>messages</code> and the pending tool calls to a JSON file and exits. Write a <code>resume(decision)</code> function that loads the file, appends the right <code>tool_result</code> and continues. Test by approving in a separate process.</li>
 <li><strong>Fight approval fatigue.</strong> Log 50 approval decisions from a test run. Propose policy changes: which gates could be removed or turned into session-level permissions, and which ungated actions should become gated? Justify each with the data.</li>
-<li><strong>Design challenge.</strong> Design the HITL experience for a background agent that reconciles monthly invoices against payments and can email vendors about discrepancies. Specify: what it asks up front, what it does autonomously, what it gates, what it notifies on, what the review artifact looks like, and how feedback is captured.</li>
+<li><strong>Design challenge.</strong> Design the HITL experience for a <dfn class="gt" tabindex="0" data-t="Background agent" data-d="An agent that runs asynchronously, often in a cloud sandbox, on a delegated task and reports back with results such as a pull request, rather than working interactively." data-l="deployment" data-a="background-agent">background agent</dfn> that reconciles monthly invoices against payments and can email vendors about discrepancies. Specify: what it asks up front, what it does autonomously, what it gates, what it notifies on, what the review artifact looks like, and how feedback is captured.</li>
 </ol>
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="human-in-the-loop" data-total="7">
@@ -572,7 +574,7 @@ Done. 1 item needs your decision: admin/refund.py uses legacy_charge().</code></
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

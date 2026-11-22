@@ -112,7 +112,7 @@ OTel's **GenAI semantic conventions** standardize the names of spans and attribu
 | Agents and sessions | `gen_ai.agent.name`, `gen_ai.agent.id`, `gen_ai.conversation.id` |
 | Content (opt-in) | `gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions` |
 
-You rarely have to write all of this by hand. Instrumentation libraries (such as **OpenLLMetry** and **OpenInference**) patch popular SDKs and frameworks to emit spans automatically, and many agent frameworks have built-in tracing. Recent versions of the Anthropic SDKs also emit OpenTelemetry spans for each API request once you register a tracer provider, recording token usage and identifiers by default and prompts and responses only if you opt into a content mode. Your own agent and tool spans then nest those request spans underneath them. (If you use automatic instrumentation, don't also hand-create duplicate model-call spans.)
+You rarely have to write all of this by hand. Instrumentation libraries (such as **OpenLLMetry** and **OpenInference**) patch popular SDKs and frameworks to emit spans automatically, and many agent frameworks have built-in tracing. Recent versions of the Anthropic SDKs also emit OpenTelemetry spans for each API request once you register a tracer provider (a beta feature as of 2026, so pin the SDK version), recording token usage and identifiers by default and prompts and responses only if you opt into a content mode. Your own agent and tool spans then nest those request spans underneath them. (If you use automatic instrumentation, don't also hand-create duplicate model-call spans.)
 
 ## Observability tools
 
@@ -419,53 +419,53 @@ Agent traces are among the most sensitive data you'll store. They contain everyt
 
 ```quiz
 Q: Why is a flat application log usually insufficient for debugging agents?
-- [ ] Logs can't store text longer than a few kilobytes
-- [x] Agent runs are long, nested and non-deterministic, and failures are often semantic; you need the full causal tree of model and tool calls for the specific run that failed
-- [ ] Agents never throw exceptions, so nothing gets logged
-- [ ] Logs are not supported in Python async code
-E: Traces preserve structure (parent/child spans), group everything for one run, and capture the content and context that explain silent, semantic failures.
+- [ ] Agent failures usually raise no exception, so the log has no error line to search for
+- [x] It loses the per-run tree of model and tool calls and the context each step actually saw
+- [ ] Log volume from agents is so high that sampling discards most of the failing runs
+- [ ] Logs record timestamps but not token counts, so cost problems can't be diagnosed
+E: Traces preserve parent/child structure, group everything for one run, and capture the content that explains silent, semantic failures. Missing error lines and missing token counts are real annoyances, but adding them to a flat log still leaves interleaved lines with no causal chain.
 
 Q: A trace shows the agent gave a wrong answer at step 18. Where should you focus first?
-- [ ] Step 18, since that's where the wrong answer appeared
-- [x] The first step where behavior diverged from what a competent human would do given the same context
-- [ ] The slowest span in the trace
-- [ ] The most expensive model call
-E: Later errors are usually consequences of an earlier mistake, such as a bad retrieval or a misread tool result. Fixing the root cause often fixes the cascade.
+- [ ] Step 18, since the model call that produced the wrong answer holds the bug
+- [x] The first step where behavior diverged from what a competent human would do
+- [ ] The last tool call before step 18, since it fed the final answer its facts
+- [ ] Any step that errored, since tool errors are the most common root cause
+E: Later errors are usually consequences of an earlier mistake, such as a bad retrieval or a misread result. The last tool call and errored steps are good places to look, but the root cause can be a silent, successful-looking step much earlier.
 
 Q: At the failing step, the model had all needed facts clearly in context, the instructions were unambiguous, the tools worked, and it still chose wrongly. How would you classify this?
-- [ ] Prompt issue
-- [ ] Tool issue
-- [ ] Context issue
-- [x] Model capability issue
-E: When the inputs were complete and clear, the remaining explanation is the model's capability — fix by decomposing the task, adding verification, raising effort or using a stronger model.
+- [ ] Prompt issue, since a clearer instruction or example would have prevented it
+- [ ] Context issue, since too much surrounding text may have distracted the model
+- [ ] Tool issue, since a better-designed tool could have made the right choice obvious
+- [x] Model capability issue, since inputs were complete and the model still failed
+E: When the inputs were complete and clear, the remaining explanation is capability: decompose the task, add verification, raise effort or use a stronger model. The other options are tempting because they're usually the culprit, which is why you rule them out first; here the scenario already has.
 
 Q: Which metric is often the earliest warning sign that a prompt change confused the agent, even before success rate visibly drops?
-- [ ] Number of active users
-- [x] A rising p95 of steps per task
-- [ ] Average output tokens of the final answer
-- [ ] The number of tools defined
-E: A confused agent flails — more searches, repeated calls, retries — which shows up in step-count tails before aggregate success metrics move.
+- [ ] A falling cache-read share, since a changed prompt invalidates the cached prefix
+- [x] A rising p95 of steps per task, since a confused agent flails with extra calls
+- [ ] A rising refusal share, since ambiguous instructions push the model to decline
+- [ ] A rising p50 of output tokens in the final answer, since confusion adds hedging
+E: A confused agent flails (more searches, repeated calls, retries), which shows up in step-count tails before aggregate success moves. A cache-share drop right after any prompt edit is expected and says nothing about confusion; refusals and answer length are much weaker signals.
 
 Q: What's the main advantage of emitting OpenTelemetry spans with GenAI semantic conventions rather than a vendor's proprietary format?
-- [ ] OTel spans are automatically encrypted
-- [ ] OTel makes model calls faster
-- [x] Vendor neutrality and interoperability: any compatible backend can ingest and understand the spans, and context propagates across services
-- [ ] OTel automatically redacts PII
-E: OTel standardizes the data model and transport; GenAI conventions standardize attribute names so tools agree on what a model call or tool span is. Redaction is still your job.
+- [ ] Spans become smaller, because OTLP compresses GenAI attributes into a fixed schema
+- [x] Any compatible backend understands the spans, and trace context crosses services
+- [ ] Prompt content is redacted automatically, since the conventions mark it opt-in
+- [ ] Backends can compute cost per call, since the conventions include a price field
+E: OTel standardizes the data model, transport and context propagation; GenAI conventions standardize attribute names so tools agree on what a model or tool span is. Content attributes being opt-in is not redaction: once you opt in, scrubbing PII is still your job, and there is no standard price attribute.
 
 Q: Where should PII redaction for traces happen?
-- [ ] In the observability vendor's UI, when displaying traces
-- [ ] Only in the data warehouse, during monthly cleanup
-- [x] In your process, before spans are exported
-- [ ] It isn't necessary if the vendor is SOC 2 certified
-E: Redacting at the source means the sensitive data never leaves your boundary. Downstream redaction still leaves copies in transit, in collectors and in vendor storage.
+- [ ] In the OTel collector, so every service shares one central set of redaction rules
+- [ ] In the vendor's ingestion pipeline, using its managed PII-detection feature
+- [x] In your own process, before spans are exported anywhere outside it
+- [ ] At query time in the trace UI, so engineers with access can still see raw data
+E: Redacting at the source means sensitive data never leaves your boundary. A central collector is convenient but data has already travelled to it; vendor-side or query-time redaction leaves raw copies in transit and in storage.
 
 Q: You want to test a prompt fix against the exact situation that caused a production failure. What's the best approach?
-- [ ] Re-send the original user message to production and see if it fails again
-- [x] Replay: rebuild the recorded history up to the failing step, mock tools with recorded results, and re-run the model several times with the new prompt
-- [ ] Ask the model whether the new prompt would have helped
-- [ ] Re-run the whole eval suite once
-E: Non-determinism means a fresh run may take a different path. Forking from the recorded state isolates the decision you're fixing; multiple samples tell you whether the fix is reliable.
+- [ ] Re-send the original user message to a staging agent with the new prompt, then compare
+- [x] Rebuild the history up to the failing step, mock tools from the trace, re-run several times
+- [ ] Add the failing input to the eval suite and re-run the full suite once with the new prompt
+- [ ] Replay the full trace with live tools in production, since it gives the most faithful result
+E: Non-determinism means a fresh run may take a different path and never reach the failing state. Forking from the recorded state isolates the decision you're fixing, and multiple samples show whether the fix is reliable. Replaying against production tools risks real side effects.
 ```
 
 ## Further Reading

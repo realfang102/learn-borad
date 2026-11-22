@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 34 min</span>
       <span>✅ 8-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 13 of 37</span>
+      <span>Lesson 13 of 38</span>
       <span class="lesson-status" data-status-for="context-engineering"></span>
     </div>
   </header>
@@ -139,11 +141,11 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="prompting-for-agents.html">Prompt Engineering for Agents</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="memory.html">Memory Systems</a></p>
   </section>
   <article class="prose">
-<p>Watch a capable agent fail on a long task and the cause is rarely &quot;the model isn&#39;t smart enough.&quot; More often the model is smart enough but is looking at the wrong things. The original goal is buried under 80,000 tokens of old grep output. Three near-identical tool descriptions blur together. A stale plan from an hour ago contradicts the current one. The one critical constraint sits in the middle of a giant system prompt where attention is weakest.</p>
-<p><strong>Context engineering</strong> is the discipline of deciding what goes into the model&#39;s context window at each step of an agent&#39;s run, and just as importantly what stays out. Anthropic&#39;s framing is that the job is to find <em>the smallest possible set of high-signal tokens that maximize the likelihood of the desired outcome</em>. For a chatbot that&#39;s mostly prompt writing. For an agent that loops through dozens or hundreds of model calls, each assembling a fresh context from instructions, tools, history, tool results, memory and retrieved documents, it&#39;s a systems design problem, and it largely decides whether long tasks succeed and what they cost.</p>
-<p>This lesson covers why context is a scarce resource, what goes into it, and the toolkit practitioners use to keep it sharp: right-altitude prompts, just-in-time loading, compaction, context editing, external notes, sub-agents, and designing for the KV cache.</p>
+<p>Watch a capable agent fail on a long task and the cause is rarely &quot;the model isn&#39;t smart enough.&quot; More often the model is smart enough but is looking at the wrong things. The original goal is buried under 80,000 tokens of old grep output. Three near-identical tool descriptions blur together. A stale plan from an hour ago contradicts the current one. The one critical constraint sits in the middle of a giant <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> where attention is weakest.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Context engineering" data-d="The discipline of curating the smallest high-signal set of tokens (instructions, tools, examples, history, retrieved data) for each model call, across the many turns of an agent run." data-a="context-engineering">Context engineering</dfn></strong> is the discipline of deciding what goes into the model&#39;s <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> at each step of an agent&#39;s run, and just as importantly what stays out. Anthropic&#39;s framing is that the job is to find <em>the smallest possible set of high-signal tokens that maximize the likelihood of the desired outcome</em>. For a chatbot that&#39;s mostly prompt writing. For an agent that loops through dozens or hundreds of model calls, each assembling a fresh context from instructions, tools, history, tool results, memory and retrieved documents, it&#39;s a systems design problem, and it largely decides whether long tasks succeed and what they cost.</p>
+<p>This lesson covers why context is a scarce resource, what goes into it, and the toolkit practitioners use to keep it sharp: right-altitude prompts, just-in-time loading, <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-a="compaction">compaction</dfn>, <dfn class="gt" tabindex="0" data-t="Context editing" data-d="Selectively removing stale content from the context, such as old tool results or thinking blocks, while keeping the rest of the conversation intact." data-a="context-editing">context editing</dfn>, external notes, sub-agents, and designing for the <dfn class="gt" tabindex="0" data-t="KV cache" data-d="Stored attention keys and values for tokens already processed, so they need not be recomputed. Reusing it across requests is the mechanism behind prompt caching." data-l="cost-and-latency" data-a="kv-cache">KV cache</dfn>.</p>
 <h2 id="from-prompt-engineering-to-context-engineering"><a class="anchor" href="#from-prompt-engineering-to-context-engineering" aria-hidden="true">#</a>From prompt engineering to context engineering</h2>
-<p><strong>Prompt engineering</strong> focused on wording a single instruction well: clear task, good examples, the right format. It still matters (see <a href="prompting-for-agents.html">prompting for agents</a>), but agents changed the problem in three ways:</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Prompt engineering" data-d="The practice of writing and iterating on instructions, examples and structure to get reliable model behavior. In agents it is a subset of context engineering." data-l="prompting-for-agents" data-a="prompt-engineering">Prompt engineering</dfn></strong> focused on wording a single instruction well: clear task, good examples, the right format. It still matters (see <a href="prompting-for-agents.html">prompting for agents</a>), but agents changed the problem in three ways:</p>
 <ol>
 <li><strong>The context is assembled, not written.</strong> Most tokens in an agent&#39;s context come from tool results, retrieved documents and history, not from anything a human typed.</li>
 <li><strong>The context evolves.</strong> Every turn appends more. Something you didn&#39;t think about at design time (a 30K-token log file, a looping error) will eventually dominate.</li>
@@ -155,15 +157,15 @@
 <h2 id="context-is-a-finite-attention-budget"><a class="anchor" href="#context-is-a-finite-attention-budget" aria-hidden="true">#</a>Context is a finite attention budget</h2>
 <p>Why not just use the whole million-token window? Because more context is not free, even when it fits.</p>
 <ul>
-<li><strong>Attention is spread thin.</strong> In a transformer every token attends to every other token, so n tokens create n² pairwise relationships. As context grows, the model&#39;s capacity to track any particular relationship is stretched. Models also see far fewer very long sequences during training than short ones.</li>
-<li><strong>Lost in the middle.</strong> Liu et al. (2023) showed that models use information at the <em>beginning</em> and <em>end</em> of a long context much better than information in the <em>middle</em>, a U-shaped curve.</li>
-<li><strong>Context rot.</strong> Chroma&#39;s 2025 study of 18 models found that performance degrades as input length grows, <strong>even on simple tasks</strong> and well before the window is full. Distractors (content similar to the answer but wrong) hurt more as context grows, and the structure of the surrounding text changes results.</li>
+<li><strong>Attention is spread thin.</strong> In a <dfn class="gt" tabindex="0" data-t="Transformer" data-d="The neural network architecture (Vaswani et al., 2017) behind modern LLMs, built on self-attention layers that let every token draw information from every earlier token." data-l="llm-fundamentals" data-a="transformer">transformer</dfn> every token attends to every other token, so n tokens create n² pairwise relationships. As context grows, the model&#39;s capacity to track any particular relationship is stretched. Models also see far fewer very long sequences during training than short ones.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Lost in the middle" data-d="The finding (Liu et al., 2023) that models use information at the beginning and end of a long context better than information in the middle." data-a="lost-in-the-middle">Lost in the middle</dfn>.</strong> Liu et al. (2023) showed that models use information at the <em>beginning</em> and <em>end</em> of a long context much better than information in the <em>middle</em>, a U-shaped curve.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Context rot" data-d="The degradation of a model's recall and reasoning as its context grows longer, even well within the advertised window limit." data-a="context-rot">Context rot</dfn>.</strong> Chroma&#39;s 2025 study of 18 models found that performance degrades as input length grows, <strong>even on simple tasks</strong> and well before the window is full. Distractors (content similar to the answer but wrong) hurt more as context grows, and the structure of the surrounding text changes results.</li>
 <li><strong>Effective vs. advertised length.</strong> Benchmarks like RULER found that many models&#39; <em>effective</em> context, where performance stays strong, is far shorter than their advertised maximum. Frontier models have improved a lot, but the degradation hasn&#39;t disappeared.</li>
 <li><strong>Cost and latency.</strong> Input tokens are billed on every call, and prefill time grows with context length. An agent re-sending 150K tokens 100 times processes 15M input tokens per task (caching changes the price, not the attention problem).</li>
 </ul>
 <p>The consequence: <strong>every token you add should earn its place</strong>. Irrelevant tokens aren&#39;t neutral. They&#39;re distractors that consume attention and money.</p>
 <h2 id="anatomy-of-an-agents-context"><a class="anchor" href="#anatomy-of-an-agents-context" aria-hidden="true">#</a>Anatomy of an agent&#39;s context</h2>
-<p>A typical request in an agent loop contains:</p>
+<p>A typical request in an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> contains:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -183,7 +185,7 @@
 <td><strong>Tool definitions</strong></td>
 <td>0.5–30K+</td>
 <td>Rarely (ideally never mid-session)</td>
-<td>Names, descriptions, schemas; grows fast with MCP servers</td>
+<td>Names, descriptions, schemas; grows fast with <dfn class="gt" tabindex="0" data-t="Model Context Protocol" data-d="An open protocol (introduced by Anthropic in 2024) that standardizes how applications expose tools, resources and prompts to LLM clients, so any compliant agent can use any compliant server." data-l="protocols-mcp-a2a" data-a="model-context-protocol">MCP</dfn> servers</td>
 </tr>
 <tr>
 <td><strong>Examples</strong></td>
@@ -213,7 +215,7 @@
 <td><strong>Retrieved documents</strong></td>
 <td>0–100K</td>
 <td>Per query</td>
-<td>RAG results, file contents</td>
+<td><dfn class="gt" tabindex="0" data-t="Retrieval-augmented generation" data-d="Retrieving relevant documents from an external corpus at query time and placing them in the prompt so the model answers from them (Lewis et al., 2020)." data-l="rag-and-retrieval" data-a="retrieval-augmented-generation">RAG</dfn> results, file contents</td>
 </tr>
 <tr>
 <td><strong>Current instruction / state</strong></td>
@@ -252,7 +254,7 @@ Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annu
 <ul>
 <li><strong>Minimal, non-overlapping tool set.</strong> Anthropic&#39;s test: <em>if a human engineer can&#39;t say definitively which tool should be used in a given situation, an agent can&#39;t be expected to do better.</em> Three tools that all &quot;search&quot; invite wrong choices.</li>
 <li><strong>Token-efficient results.</strong> Tools should return what the agent needs, not raw dumps: paginate, truncate with a note (&quot;showing 50 of 2,314 lines; use offset to see more&quot;), and offer a <code>response_format: &quot;concise&quot; | &quot;detailed&quot;</code> option. See <a href="designing-tools.html">designing tools</a>.</li>
-<li><strong>Scale with discovery, not preloading.</strong> With dozens of MCP servers, tool definitions alone can consume tens of thousands of tokens. <strong>Tool search</strong> (the model searches a tool catalog and loads only matching definitions) keeps the fixed cost small.</li>
+<li><strong>Scale with discovery, not preloading.</strong> With dozens of MCP servers, tool definitions alone can consume tens of thousands of tokens. <strong><dfn class="gt" tabindex="0" data-t="Tool search" data-d="Loading tool definitions on demand, by letting the model search a catalog, instead of placing hundreds of definitions in every prompt." data-l="designing-tools" data-a="tool-search">Tool search</dfn></strong> (the model searches a tool catalog and loads only matching definitions) keeps the fixed cost small.</li>
 <li><strong>Keep bulky intermediate data out.</strong> <strong>Programmatic tool calling</strong> lets the model write a script that calls tools and filters their outputs in a sandbox, so only the final result enters context, not every intermediate row.</li>
 </ul>
 <p><strong>Examples</strong> are powerful and easy to overdo. Rather than stuffing in every edge case, curate a few <strong>diverse, canonical</strong> examples that show the expected behavior. Manus adds a warning from production: <strong>don&#39;t get few-shotted by your own history</strong>. When the context is full of near-identical action-observation pairs (reviewing resume 1, resume 2, resume 3...), the model starts imitating the pattern, drifting and over-generalizing. Introducing small structured variation (different phrasing and ordering in serialized results) breaks the rut.</p>
@@ -261,7 +263,7 @@ Right:     &quot;Refund rules: monthly plans are refundable within 14 days, annu
 <p>This mirrors how people work. You don&#39;t memorize a codebase; you know where things are and open files as needed. Metadata carries signal too: a file at <code>tests/integration/test_billing.py</code> tells you something before you open it, and so do file sizes, names and timestamps.</p>
 <p>Claude Code takes a <strong>hybrid</strong> approach. CLAUDE.md files are loaded up front (small, always relevant), while <code>glob</code>, <code>grep</code> and ranged file reads pull in everything else on demand. The model can <code>head</code> a huge log file instead of loading it whole. The trade-off is speed: runtime exploration takes more steps than having the data preloaded, so preload what is small and almost always needed, and let the agent fetch the rest.</p>
 <h3 id="progressive-disclosure-with-agent-skills"><a class="anchor" href="#progressive-disclosure-with-agent-skills" aria-hidden="true">#</a>Progressive disclosure with Agent Skills</h3>
-<p><strong>Agent Skills</strong> apply this idea to <em>instructions and procedures</em>. A skill is a folder containing a <code>SKILL.md</code> (and optionally scripts and reference files). Disclosure happens in layers:</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Agent Skills" data-d="Packaged folders of instructions, scripts and resources that an agent discovers by short description and loads only when relevant, a form of progressive disclosure for procedural knowledge." data-a="agent-skills">Agent Skills</dfn></strong> apply this idea to <em>instructions and procedures</em>. A skill is a folder containing a <code>SKILL.md</code> (and optionally scripts and reference files). Disclosure happens in layers:</p>
 <ol>
 <li><strong>Always in context:</strong> just each skill&#39;s name and one-line description, a few dozen tokens per skill.</li>
 <li><strong>Loaded when relevant:</strong> the full <code>SKILL.md</code> body, when the model decides the task calls for it.</li>
@@ -321,13 +323,13 @@ messages = []
 <aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Prefer <strong>restorable</strong> compression. If a tool result can be re-fetched from a path or URL, you can drop its content and keep the reference, so nothing is truly lost. Manus applies this deliberately: drop a web page&#39;s content but keep its URL; drop a file&#39;s contents but keep its path.</p>
 </div></aside>
 <h3 id="structured-note-taking-and-recitation"><a class="anchor" href="#structured-note-taking-and-recitation" aria-hidden="true">#</a>Structured note-taking and recitation</h3>
-<p><strong>Structured note-taking</strong> (sometimes called agentic memory) means the agent regularly writes notes to storage <em>outside</em> the context window (a <code>NOTES.md</code>, a progress file, a todo list, the memory tool) and reads them back later. Notes survive compaction, context resets and even new sessions.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Structured note-taking" data-d="Having an agent write progress notes, to-do lists or state files outside the context window and re-read them later, preserving continuity across compactions or sessions." data-a="structured-note-taking">Structured note-taking</dfn></strong> (sometimes called agentic memory) means the agent regularly writes notes to storage <em>outside</em> the context window (a <code>NOTES.md</code>, a progress file, a todo list, the memory tool) and reads them back later. Notes survive compaction, context resets and even new sessions.</p>
 <ul>
 <li>Anthropic gave an example of Claude playing Pokémon: across thousands of game steps it kept precise running notes, such as tallies of training progress, maps of explored regions, and which strategies worked against which opponents, which let it continue coherently after context resets.</li>
 <li>Anthropic&#39;s guidance on long-running coding harnesses uses an initializer session to create a progress file and a feature checklist, then has each later session read them first, work on one feature, commit to git and update the progress file.</li>
 <li><strong>Recitation</strong>: Manus observed that its agent, over a typical task of around 50 tool calls, would rewrite a <code>todo.md</code> file as it worked, checking off items. Rewriting the plan pushes the global goal into the most recent part of the context, where attention is strongest, countering lost-in-the-middle drift. Todo-list tools in coding agents do the same (see <a href="reasoning-and-planning.html">reasoning and planning</a>).</li>
 </ul>
-<p>See <a href="memory.html">memory</a> for the cross-session side of this. Within a long task, notes are <em>external working memory</em>.</p>
+<p>See <a href="memory.html">memory</a> for the cross-session side of this. Within a long task, notes are <em>external <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn></em>.</p>
 <h3 id="sub-agent-context-isolation"><a class="anchor" href="#sub-agent-context-isolation" aria-hidden="true">#</a>Sub-agent context isolation</h3>
 <p>A <strong>sub-agent</strong> gets a fresh, clean context window for a focused subtask: &quot;search the codebase for every caller of <code>parse_config</code> and report which pass a path vs. a dict.&quot; It might burn 40K tokens exploring, then return a condensed summary of perhaps 1–2K tokens. The lead agent&#39;s context only ever sees the summary.</p>
 <figure class="diagram"><pre class="mermaid">sequenceDiagram
@@ -390,7 +392,7 @@ messages = []
 </tbody></table>
 </div>
 <h2 id="designing-for-the-kv-cache"><a class="anchor" href="#designing-for-the-kv-cache" aria-hidden="true">#</a>Designing for the KV cache</h2>
-<p>When a model processes a prompt, it computes key/value tensors for every token (the <strong>KV cache</strong>). If the next request starts with <strong>exactly the same prefix</strong>, a provider can reuse that work: <strong>prompt caching</strong>. For agents this matters enormously, because each step re-sends everything before it with a little appended.</p>
+<p>When a model processes a prompt, it computes key/value tensors for every token (the <strong>KV cache</strong>). If the next request starts with <strong>exactly the same prefix</strong>, a provider can reuse that work: <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn></strong>. For agents this matters enormously, because each step re-sends everything before it with a little appended.</p>
 <p>Manus called KV-cache hit rate <em>the single most important metric</em> for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time, but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.</p>
 <p>Caching is a <strong>prefix match</strong>: change one byte early and everything after it is recomputed. Render order is tools, then system, then messages. That gives a set of design rules:</p>
 <ol>
@@ -438,7 +440,7 @@ TOOLS = <span class="hljs-built_in">sorted</span>(load_tool_definitions(), key=<
 </ul>
 <p>Error recovery is a sign of genuinely agentic behavior. Context that hides errors trains the model, within the session, to repeat them.</p>
 <h2 id="putting-it-together-a-context-budget"><a class="anchor" href="#putting-it-together-a-context-budget" aria-hidden="true">#</a>Putting it together: a context budget</h2>
-<p>Here&#39;s an illustrative budget for a coding agent on a 200K-token window. The numbers are an example, not a standard:</p>
+<p>Here&#39;s an illustrative budget for a <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> on a 200K-token window. The numbers are an example, not a standard:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">text</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-text">Fixed prefix (cached)                       ~18K
   System prompt (right altitude)              4K
   Tool definitions (12 tools, concise)        6K
@@ -462,7 +464,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
 <li><strong>Context engineering</strong> is choosing, at every step, the smallest set of high-signal tokens for the model. For agents it has largely replaced &quot;prompt engineering&quot; as the core discipline.</li>
 <li>Context is a <strong>finite attention budget</strong>. Lost-in-the-middle and <strong>context rot</strong> mean that more tokens can mean worse answers, well before the window is full.</li>
 <li>Write system prompts at the <strong>right altitude</strong>: concrete guidance with reasons, not brittle if-else rules or vague platitudes. Keep tool sets minimal and unambiguous.</li>
-<li>Prefer <strong>just-in-time loading</strong> and <strong>progressive disclosure</strong> (references, search tools, Agent Skills) over preloading everything.</li>
+<li>Prefer <strong>just-in-time loading</strong> and <strong><dfn class="gt" tabindex="0" data-t="Just-in-time retrieval" data-d="Keeping lightweight references (file paths, URLs, IDs) in context and letting the agent load full content with tools only when needed, instead of pre-loading everything." data-a="just-in-time-retrieval">progressive disclosure</dfn></strong> (references, search tools, Agent Skills) over preloading everything.</li>
 <li>For long horizons, combine <strong>tool result clearing</strong>, <strong>compaction</strong>, <strong>structured notes and recitation</strong>, and <strong>sub-agent isolation</strong>.</li>
 <li><strong>Design for the KV cache</strong>: stable prefix, append-only history, deterministic serialization, mask rather than remove tools, inject dynamic content late.</li>
 <li><strong>Keep errors in context</strong> so the model can learn from them within the session. Measure, budget and evaluate every context change.</li>
@@ -622,7 +624,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

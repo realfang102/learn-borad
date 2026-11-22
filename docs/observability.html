@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 40 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 28 of 37</span>
+      <span>Lesson 29 of 38</span>
       <span class="lesson-status" data-status-for="observability"></span>
     </div>
   </header>
@@ -140,8 +142,8 @@
   </section>
   <article class="prose">
 <p>A user reports that your research agent &quot;gave a confidently wrong answer about our Q3 revenue.&quot; Your application log has exactly one relevant line: <code>request completed in 94s, status=200</code>. The agent took 31 steps, made 12 tool calls and spent $1.90 — and you have no idea which of those steps went wrong. Was the search tool returning a stale document? Did the agent misread a table? Did the context get truncated at step 20, dropping the key fact? Without a record of what happened inside the run, debugging is guesswork.</p>
-<p><strong>Observability</strong> is the ability to answer arbitrary questions about what your system did, from the data it emits — without shipping new code to find out. For traditional services, that means logs, metrics and traces. For agents, the <strong>trace</strong> — a structured, step-by-step record of every model call, tool call and decision in a run — becomes the central artifact. It&#39;s what you debug from, what you build evals from, and what you monitor in production.</p>
-<p>In this lesson you&#39;ll learn the data model (traces, spans, sessions), what to capture, the OpenTelemetry GenAI conventions that are becoming the industry standard, a repeatable debugging workflow, the metrics worth putting on a dashboard, and how to handle privacy. You&#39;ll also write a minimal tracer for an agent loop.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-a="observability">Observability</dfn></strong> is the ability to answer arbitrary questions about what your system did, from the data it emits — without shipping new code to find out. For traditional services, that means logs, metrics and traces. For agents, the <strong>trace</strong> — a structured, step-by-step record of every model call, tool call and decision in a run — becomes the central artifact. It&#39;s what you debug from, what you build evals from, and what you monitor in production.</p>
+<p>In this lesson you&#39;ll learn the data model (traces, spans, sessions), what to capture, the <dfn class="gt" tabindex="0" data-t="OpenTelemetry" data-d="A vendor-neutral open standard for traces, metrics and logs. Its GenAI semantic conventions define standard attributes for recording LLM and agent operations." data-a="opentelemetry">OpenTelemetry</dfn> GenAI conventions that are becoming the industry standard, a repeatable debugging workflow, the metrics worth putting on a dashboard, and how to handle privacy. You&#39;ll also write a minimal tracer for an <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>.</p>
 <h2 id="why-agents-need-observability"><a class="anchor" href="#why-agents-need-observability" aria-hidden="true">#</a>Why agents need observability</h2>
 <p>Agents break the assumptions that make ordinary logging good enough:</p>
 <ul>
@@ -157,7 +159,7 @@
 <h2 id="traces-spans-and-sessions"><a class="anchor" href="#traces-spans-and-sessions" aria-hidden="true">#</a>Traces, spans and sessions</h2>
 <p>Observability for agents borrows the data model of distributed tracing, pioneered for microservices (Google&#39;s Dapper paper, later standardized by OpenTelemetry).</p>
 <ul>
-<li>A <strong>span</strong> is one timed unit of work with a name, a start and end time, a status (ok/error), and key-value <strong>attributes</strong>. In an agent: one model call, one tool execution, one retrieval, one guardrail check.</li>
+<li>A <strong>span</strong> is one timed unit of work with a name, a start and end time, a status (ok/error), and key-value <strong>attributes</strong>. In an agent: one model call, one tool execution, one retrieval, one <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> check.</li>
 <li>Spans nest: each span has a <strong>parent</strong>. The agent run is the root span; model calls and tool calls are its children; a sub-agent&#39;s run is a child span with its own children.</li>
 <li>A <strong>trace</strong> is the full tree of spans for one end-to-end operation — typically one agent run in response to one user request — linked by a shared <strong>trace ID</strong>.</li>
 <li>A <strong>session</strong> (also called a <strong>thread</strong> or <strong>conversation</strong>) groups multiple traces that belong together: every turn of a multi-turn chat, or all the runs of a long-lived task. Sessions let you see how context accumulated and where a conversation went sideways.</li>
@@ -190,7 +192,7 @@
 <tr>
 <td>LLM call</td>
 <td>One model API request</td>
-<td>Model, parameters, messages in/out, tokens, stop reason, latency</td>
+<td>Model, parameters, messages in/out, tokens, <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-l="the-agent-loop" data-a="stop-reason">stop reason</dfn>, latency</td>
 </tr>
 <tr>
 <td>Tool call</td>
@@ -231,12 +233,12 @@
 </thead>
 <tbody><tr>
 <td><strong>Inputs to the model</strong></td>
-<td>System prompt, full message list (or a reference to it), tool definitions</td>
+<td><dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">System prompt</dfn>, full message list (or a reference to it), tool definitions</td>
 <td>The model&#39;s behavior is a function of exactly this. &quot;What did it see?&quot; is the first debugging question</td>
 </tr>
 <tr>
 <td><strong>Model parameters</strong></td>
-<td>Model ID, <code>max_tokens</code>, effort/thinking settings, tool choice, structured-output schema</td>
+<td>Model ID, <code>max_tokens</code>, effort/thinking settings, <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Some APIs also allow forcing a specific tool, though newer models may restrict this." data-l="tool-use" data-a="tool-choice">tool choice</dfn>, structured-output schema</td>
 <td>Behavior changes with these; misconfigurations hide here</td>
 </tr>
 <tr>
@@ -338,7 +340,7 @@
 </tr>
 </tbody></table>
 </div>
-<p>You rarely have to write all of this by hand. Instrumentation libraries (such as <strong>OpenLLMetry</strong> and <strong>OpenInference</strong>) patch popular SDKs and frameworks to emit spans automatically, and many agent frameworks have built-in tracing. Recent versions of the Anthropic SDKs also emit OpenTelemetry spans for each API request once you register a tracer provider, recording token usage and identifiers by default and prompts and responses only if you opt into a content mode. Your own agent and tool spans then nest those request spans underneath them. (If you use automatic instrumentation, don&#39;t also hand-create duplicate model-call spans.)</p>
+<p>You rarely have to write all of this by hand. Instrumentation libraries (such as <strong>OpenLLMetry</strong> and <strong>OpenInference</strong>) patch popular SDKs and frameworks to emit spans automatically, and many agent frameworks have built-in tracing. Recent versions of the Anthropic SDKs also emit OpenTelemetry spans for each API request once you register a tracer provider (a beta feature as of 2026, so pin the SDK version), recording token usage and identifiers by default and prompts and responses only if you opt into a content mode. Your own agent and tool spans then nest those request spans underneath them. (If you use automatic instrumentation, don&#39;t also hand-create duplicate model-call spans.)</p>
 <h2 id="observability-tools"><a class="anchor" href="#observability-tools" aria-hidden="true">#</a>Observability tools</h2>
 <p>The market moves fast; as of 2026 the commonly used options fall into a few groups:</p>
 <div class="table-wrap"><table>
@@ -573,7 +575,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <tr>
 <td><strong>Context</strong></td>
 <td>The needed fact wasn&#39;t in context, was truncated, was buried in noise, or was stale (bad retrieval)</td>
-<td>Better retrieval, <a href="context-engineering.html">context engineering</a>, compaction, memory</td>
+<td>Better retrieval, <a href="context-engineering.html">context engineering</a>, <dfn class="gt" tabindex="0" data-t="Compaction" data-d="Summarizing or condensing an agent's conversation history when it nears the context limit, then continuing with the summary in place of the full history." data-l="context-engineering" data-a="compaction">compaction</dfn>, memory</td>
 </tr>
 <tr>
 <td><strong>Model capability</strong></td>
@@ -624,7 +626,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <td>Broken integrations, schema mismatches, API outages</td>
 </tr>
 <tr>
-<td><strong>Cost per task</strong></td>
+<td><strong><dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">Cost per task</dfn></strong></td>
 <td>Sum of span costs per root span; mean and p95</td>
 <td>Runaway runs, cache misses, context bloat</td>
 </tr>
@@ -641,7 +643,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <tr>
 <td><strong>Token and cache stats</strong></td>
 <td>Input/output tokens per task; cache-read share</td>
-<td>Context growth; broken prompt caching (<a href="cost-and-latency.html">cost and latency</a>)</td>
+<td>Context growth; broken <dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn> (<a href="cost-and-latency.html">cost and latency</a>)</td>
 </tr>
 <tr>
 <td><strong>Escalation and feedback rates</strong></td>
@@ -659,7 +661,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>&quot;Success rate&quot; from implicit signals is easy to misread. A drop in thumbs-down might mean users are happier — or that a UI change hid the button. Pair implicit signals with sampled LLM-judge scores and periodic human review.</p>
 </div></aside>
 <h2 id="online-evaluation-and-alerting"><a class="anchor" href="#online-evaluation-and-alerting" aria-hidden="true">#</a>Online evaluation and alerting</h2>
-<p><strong>Online evaluation</strong> applies graders to production traffic. Common patterns:</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Online evaluation" data-d="Measuring agent quality on live production traffic via sampling, user feedback, guardrail triggers and A/B tests, complementing offline evals." data-a="online-evaluation">Online evaluation</dfn></strong> applies graders to production traffic. Common patterns:</p>
 <ul>
 <li><strong>Sampled judging.</strong> Asynchronously run <a href="evaluating-agents.html">LLM-judge</a> rubrics on a sample of completed traces (for instance, a few percent, plus all traces with negative feedback), and chart pass rates by version.</li>
 <li><strong>Rule-based checks on every trace.</strong> Cheap code checks: did the run hit the step limit? Did it call the same tool with identical arguments three times (a loop)? Did the final answer contain a forbidden pattern?</li>
@@ -690,7 +692,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
 <ol>
 <li><strong>Read a trace.</strong> Use the JSONL tracer above with any small agent and two tools. Make one tool fail on certain inputs. Run ten tasks, then use <code>print_trace</code> to find a run where the agent retried a failing call. Which step was the <em>first</em> bad decision?</li>
-<li><strong>Add loop detection.</strong> Write a function that scans <code>traces.jsonl</code> and flags any trace where the same tool was called with identical arguments three or more times, or where steps exceeded 15. Print the offending trace IDs with their total cost.</li>
+<li><strong>Add <dfn class="gt" tabindex="0" data-t="Loop detection" data-d="Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating." data-l="reliability" data-a="loop-detection">loop detection</dfn>.</strong> Write a function that scans <code>traces.jsonl</code> and flags any trace where the same tool was called with identical arguments three or more times, or where steps exceeded 15. Print the offending trace IDs with their total cost.</li>
 <li><strong>Build a mini dashboard.</strong> From the JSONL file, compute per agent version: success rate (from an <code>outcome</code> attribute you add), p50/p95 steps, tool error rate per tool, mean and p95 cost, and p95 latency. Output a table; bonus: chart it.</li>
 <li><strong>Port to OpenTelemetry.</strong> Replace the JSONL tracer with OTel spans using GenAI attribute names, export to a local backend (e.g., run Jaeger or Phoenix in Docker), and confirm your agent, chat and tool spans nest correctly. Add a tool that runs in a separate HTTP service and propagate the trace context so its spans join the same trace.</li>
 <li><strong>Replay a failure (harder).</strong> Extend the tracer to record full message history on each <code>chat</code> span (redacted). Write a <code>replay(trace_id, step, new_system_prompt)</code> function that rebuilds the conversation up to that step, mocks tools from recorded results, and re-runs the model five times with the new prompt. Use it to test a fix for a failure you found in exercise 1, then turn it into an eval case.</li>
@@ -701,78 +703,78 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>Why is a flat application log usually insufficient for debugging agents?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Logs can&#39;t store text longer than a few kilobytes</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agent runs are long, nested and non-deterministic, and failures are often semantic; you need the full causal tree of model and tool calls for the specific run that failed</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Logs are not supported in Python async code</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Agents never throw exceptions, so nothing gets logged</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agent failures usually raise no exception, so the log has no error line to search for</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It loses the per-run tree of model and tool calls and the context each step actually saw</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Logs record timestamps but not token counts, so cost problems can&#39;t be diagnosed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Log volume from agents is so high that sampling discards most of the failing runs</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Traces preserve structure (parent/child spans), group everything for one run, and capture the content and context that explain silent, semantic failures.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Traces preserve parent/child structure, group everything for one run, and capture the content that explains silent, semantic failures. Missing error lines and missing token counts are real annoyances, but adding them to a flat log still leaves interleaved lines with no causal chain.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A trace shows the agent gave a wrong answer at step 18. Where should you focus first?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The first step where behavior diverged from what a competent human would do given the same context</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The most expensive model call</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The slowest span in the trace</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Step 18, since that&#39;s where the wrong answer appeared</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The first step where behavior diverged from what a competent human would do</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Any step that errored, since tool errors are the most common root cause</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The last tool call before step 18, since it fed the final answer its facts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Step 18, since the model call that produced the wrong answer holds the bug</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Later errors are usually consequences of an earlier mistake, such as a bad retrieval or a misread tool result. Fixing the root cause often fixes the cascade.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Later errors are usually consequences of an earlier mistake, such as a bad retrieval or a misread result. The last tool call and errored steps are good places to look, but the root cause can be a silent, successful-looking step much earlier.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>At the failing step, the model had all needed facts clearly in context, the instructions were unambiguous, the tools worked, and it still chose wrongly. How would you classify this?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Model capability issue</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Context issue</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Tool issue</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt issue</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Model capability issue, since inputs were complete and the model still failed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tool issue, since a better-designed tool could have made the right choice obvious</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Context issue, since too much surrounding text may have distracted the model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt issue, since a clearer instruction or example would have prevented it</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> When the inputs were complete and clear, the remaining explanation is the model&#39;s capability — fix by decomposing the task, adding verification, raising effort or using a stronger model.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> When the inputs were complete and clear, the remaining explanation is capability: decompose the task, add verification, raise effort or use a stronger model. The other options are tempting because they&#39;re usually the culprit, which is why you rule them out first; here the scenario already has.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Which metric is often the earliest warning sign that a prompt change confused the agent, even before success rate visibly drops?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Average output tokens of the final answer</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Number of active users</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of tools defined</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rising p95 of steps per task</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A rising refusal share, since ambiguous instructions push the model to decline</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A falling cache-read share, since a changed prompt invalidates the cached prefix</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A rising p50 of output tokens in the final answer, since confusion adds hedging</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rising p95 of steps per task, since a confused agent flails with extra calls</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A confused agent flails — more searches, repeated calls, retries — which shows up in step-count tails before aggregate success metrics move.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A confused agent flails (more searches, repeated calls, retries), which shows up in step-count tails before aggregate success moves. A cache-share drop right after any prompt edit is expected and says nothing about confusion; refusals and answer length are much weaker signals.</div>
 </div>
 
-<div class="quiz-q" data-correct="1">
+<div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>What&#39;s the main advantage of emitting OpenTelemetry spans with GenAI semantic conventions rather than a vendor&#39;s proprietary format?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>OTel makes model calls faster</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Vendor neutrality and interoperability: any compatible backend can ingest and understand the spans, and context propagates across services</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>OTel spans are automatically encrypted</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>OTel automatically redacts PII</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Any compatible backend understands the spans, and trace context crosses services</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Prompt content is redacted automatically, since the conventions mark it opt-in</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Spans become smaller, because OTLP compresses GenAI attributes into a fixed schema</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Backends can compute cost per call, since the conventions include a price field</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> OTel standardizes the data model and transport; GenAI conventions standardize attribute names so tools agree on what a model call or tool span is. Redaction is still your job.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> OTel standardizes the data model, transport and context propagation; GenAI conventions standardize attribute names so tools agree on what a model or tool span is. Content attributes being opt-in is not redaction: once you opt in, scrubbing PII is still your job, and there is no standard price attribute.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Where should PII redaction for traces happen?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>In your process, before spans are exported</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only in the data warehouse, during monthly cleanup</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In the observability vendor&#39;s UI, when displaying traces</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It isn&#39;t necessary if the vendor is SOC 2 certified</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>In your own process, before spans are exported anywhere outside it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In the vendor&#39;s ingestion pipeline, using its managed PII-detection feature</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In the OTel collector, so every service shares one central set of redaction rules</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>At query time in the trace UI, so engineers with access can still see raw data</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Redacting at the source means the sensitive data never leaves your boundary. Downstream redaction still leaves copies in transit, in collectors and in vendor storage.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Redacting at the source means sensitive data never leaves your boundary. A central collector is convenient but data has already travelled to it; vendor-side or query-time redaction leaves raw copies in transit and in storage.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">7</span><div>You want to test a prompt fix against the exact situation that caused a production failure. What&#39;s the best approach?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Re-send the original user message to production and see if it fails again</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ask the model whether the new prompt would have helped</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Replay: rebuild the recorded history up to the failing step, mock tools with recorded results, and re-run the model several times with the new prompt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Re-run the whole eval suite once</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Re-send the original user message to a staging agent with the new prompt, then compare</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add the failing input to the eval suite and re-run the full suite once with the new prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Rebuild the history up to the failing step, mock tools from the trace, re-run several times</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Replay the full trace with live tools in production, since it gives the most faithful result</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Non-determinism means a fresh run may take a different path. Forking from the recorded state isolates the decision you&#39;re fixing; multiple samples tell you whether the fix is reliable.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Non-determinism means a fresh run may take a different path and never reach the failing state. Forking from the recorded state isolates the decision you&#39;re fixing, and multiple samples show whether the fix is reliable. Replaying against production tools risks real side effects.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -827,7 +829,7 @@ otel = trace.get_tracer(<span class="hljs-string">&quot;support-agent&quot;</spa
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

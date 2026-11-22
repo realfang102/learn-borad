@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 38 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 31 of 37</span>
+      <span>Lesson 32 of 38</span>
       <span class="lesson-status" data-status-for="deployment"></span>
     </div>
   </header>
@@ -246,7 +248,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
     W --&gt; OBS[&quot;Traces, metrics, audit log&quot;]</pre></figure>
 <p>Two components are easy to overlook. An <strong>LLM gateway</strong> is an internal service every model call passes through, centralizing retries, fallbacks, per-tenant metering, spend caps and logging. An <strong>egress proxy</strong> is the only path to the outside world for workers and sandboxes. It enforces a host allowlist and injects credentials (see below).</p>
 <h2 id="sandboxing-tool-execution"><a class="anchor" href="#sandboxing-tool-execution" aria-hidden="true">#</a>Sandboxing Tool Execution</h2>
-<p>Treat code your agent wrote or cloned as <strong>untrusted</strong>: prompt injection, a malicious dependency or plain model error can produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox limits the damage (threat model: <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>). From weakest to strongest:</p>
+<p>Treat code your agent wrote or cloned as <strong>untrusted</strong>: <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn>, a malicious dependency or plain model error can produce code that deletes files, mines cryptocurrency or exfiltrates data. The sandbox limits the damage (threat model: <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>). From weakest to strongest:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -296,13 +298,13 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <p>Keep workers <strong>stateless</strong> and put state in durable stores, so any worker can serve any session and a crash loses nothing:</p>
 <ul>
 <li><strong>Sessions / conversations</strong> go in a database (often Postgres with JSONB), stored append-only and keyed by session ID, with the pinned agent version.</li>
-<li><strong>Checkpoints</strong> for durable execution go in the same database or in your durable execution engine (Temporal, DBOS and similar; see <a href="reliability.html">reliability</a>).</li>
+<li><strong>Checkpoints</strong> for <dfn class="gt" tabindex="0" data-t="Durable execution" data-d="Running long workflows so that each step's result is persisted and the run can resume after crashes or restarts without redoing completed work." data-a="durable-execution">durable execution</dfn> go in the same database or in your durable execution engine (Temporal, DBOS and similar; see <a href="reliability.html">reliability</a>).</li>
 <li><strong>Large artifacts</strong> (files, screenshots, tool outputs over a few KB) go in blob storage, with only a reference kept in history.</li>
-<li><strong>Long-term memory</strong> goes in a store namespaced per user and per tenant (see <a href="memory.html">memory</a>).</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Long-term memory" data-d="Information persisted outside the context window, in files, databases or vector stores, and retrieved into context when relevant across sessions." data-l="memory" data-a="long-term-memory">Long-term memory</dfn></strong> goes in a store namespaced per user and per tenant (see <a href="memory.html">memory</a>).</li>
 </ul>
 <p>Give every store a <strong>retention policy</strong>: conversation logs are among the most sensitive data you hold.</p>
 <h3 id="secrets-management"><a class="anchor" href="#secrets-management" aria-hidden="true">#</a>Secrets management</h3>
-<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Secrets never enter the model&#39;s context</div><div class="callout-body"><p>Anything in the context window can be echoed into a response, written into a log or trace, or exfiltrated by a prompt injection. An agent should be able to <em>use</em> a credential without ever <em>seeing</em> it.</p>
+<aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Secrets never enter the model&#39;s context</div><div class="callout-body"><p>Anything in the <dfn class="gt" tabindex="0" data-t="Context window" data-d="The maximum number of tokens a model can consider in one request, including the system prompt, tools, conversation history and its own output." data-l="llm-fundamentals" data-a="context-window">context window</dfn> can be echoed into a response, written into a log or trace, or exfiltrated by a prompt injection. An agent should be able to <em>use</em> a credential without ever <em>seeing</em> it.</p>
 </div></aside>
 <p>Three practices make that possible:</p>
 <ol>
@@ -327,13 +329,13 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <ul>
 <li><strong>Admission control.</strong> Cap concurrent runs globally and per tenant, and queue the rest. Backpressure beats a thundering herd of 429s.</li>
 <li><strong>Token-bucket quotas</strong> per user and tenant, metered in tokens or dollars, not just requests.</li>
-<li><strong>Priority lanes.</strong> Reserve headroom for interactive traffic; background work takes the rest (or uses the Batch API).</li>
+<li><strong>Priority lanes.</strong> Reserve headroom for interactive traffic; background work takes the rest (or uses the <dfn class="gt" tabindex="0" data-t="Batch API" data-d="An asynchronous API mode that processes large sets of requests within a time window (often up to 24 hours) at a substantial discount, suited to offline evals and bulk jobs." data-l="cost-and-latency" data-a="batch-api">Batch API</dfn>).</li>
 <li><strong>Daily spend caps</strong> per tenant and agent, enforced in the LLM gateway, with alerts at 50% and 80%.</li>
 <li><strong>Headroom monitoring.</strong> Watch the <code>x-ratelimit-remaining-*</code> headers, and request limit increases <em>before</em> launch.</li>
 </ul>
 <h2 id="versioning-releases-and-rollbacks"><a class="anchor" href="#versioning-releases-and-rollbacks" aria-hidden="true">#</a>Versioning, Releases and Rollbacks</h2>
 <h3 id="what-a-version-is"><a class="anchor" href="#what-a-version-is" aria-hidden="true">#</a>What a version is</h3>
-<p>An agent&#39;s behavior depends on much more than its code. A <strong>version</strong> must capture everything that can change behavior: model ID and parameters (effort, <code>max_tokens</code>), system prompt, tool definitions <em>and</em> tool implementations, harness logic, retrieval configuration and budgets. Manage all of it as <strong>config-as-code</strong>, reviewed and versioned in git:</p>
+<p>An agent&#39;s behavior depends on much more than its code. A <strong>version</strong> must capture everything that can change behavior: model ID and parameters (effort, <code>max_tokens</code>), <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, tool definitions <em>and</em> tool implementations, harness logic, retrieval configuration and budgets. Manage all of it as <strong>config-as-code</strong>, reviewed and versioned in git:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">yaml</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-yaml"><span class="hljs-comment"># agents/support-triage/v14.yaml: every field is part of the version</span>
 <span class="hljs-attr">agent:</span> <span class="hljs-string">support-triage</span>
 <span class="hljs-attr">version:</span> <span class="hljs-number">14</span>
@@ -353,7 +355,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <h3 id="shadow-canary-rollback"><a class="anchor" href="#shadow-canary-rollback" aria-hidden="true">#</a>Shadow, canary, rollback</h3>
 <ul>
 <li><strong>Shadow deployment.</strong> Run the new version on a copy of live traffic, hidden from users, and compare outcomes, cost and latency with production. Shadow agents need <strong>stubbed or read-only side-effecting tools</strong>, or every customer gets two emails. Shadows roughly double spend, so keep them short.</li>
-<li><strong>Canary release.</strong> Route a small share of <em>new</em> sessions (1%, then 5%, 25%, 100%) to the new version. At each stage, compare success rate, escalation rate, cost per task, p95 latency and guardrail triggers against the baseline, and roll back automatically on regression.</li>
+<li><strong>Canary release.</strong> Route a small share of <em>new</em> sessions (1%, then 5%, 25%, 100%) to the new version. At each stage, compare success rate, escalation rate, <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">cost per task</dfn>, p95 latency and <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> triggers against the baseline, and roll back automatically on regression.</li>
 <li><strong>Rollback</strong> should be one command that points new sessions back at the previous config. That only works if old prompts and tool versions stay deployable, and if tool and schema changes stay backward-compatible for at least one release.</li>
 </ul>
 <h3 id="cicd-with-eval-gates"><a class="anchor" href="#cicd-with-eval-gates" aria-hidden="true">#</a>CI/CD with eval gates</h3>
@@ -398,7 +400,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <td>529 rate &gt; 5% for 10 min</td>
 </tr>
 <tr>
-<td>p50 / p95 task latency, TTFT</td>
+<td>p50 / p95 task latency, <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-l="cost-and-latency" data-a="time-to-first-token">TTFT</dfn></td>
 <td>p95 over the SLO for 15 min</td>
 </tr>
 <tr>
@@ -446,7 +448,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </tr>
 <tr>
 <td>Tool outage</td>
-<td>Trip the tool&#39;s circuit breaker / feature flag; switch the agent to degraded mode (drafts only, read-only)</td>
+<td>Trip the tool&#39;s <dfn class="gt" tabindex="0" data-t="Circuit breaker" data-d="A reliability pattern that stops calling a failing dependency for a cool-down period after repeated errors, preventing cascading failures and wasted spend." data-l="reliability" data-a="circuit-breaker">circuit breaker</dfn> / feature flag; switch the agent to degraded mode (drafts only, read-only)</td>
 </tr>
 <tr>
 <td>Suspected prompt injection or data exposure</td>
@@ -454,7 +456,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </tr>
 <tr>
 <td>Runaway or looping agents</td>
-<td>Kill the runs; lower the step budget; add the trace to the eval set</td>
+<td>Kill the runs; lower the <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">step budget</dfn>; add the trace to the eval set</td>
 </tr>
 </tbody></table>
 </div>
@@ -470,11 +472,11 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 </thead>
 <tbody><tr>
 <td><strong>Claude Managed Agents</strong> (Anthropic)</td>
-<td>Runs the agent loop on Anthropic&#39;s infrastructure with a container per session. Agent configs are versioned objects that sessions pin to, and credentials live in vaults. Also offers scheduled deployments, webhooks, and an option to run tool execution in your own sandboxes</td>
+<td>Runs the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn> on Anthropic&#39;s infrastructure with a container per session. Agent configs are versioned objects that sessions pin to, and credentials live in vaults. Also offers scheduled deployments, webhooks, and an option to run tool execution in your own sandboxes</td>
 </tr>
 <tr>
 <td><strong>Amazon Bedrock AgentCore</strong> (AWS)</td>
-<td>Modular services for running agents built with any framework: runtime, memory, gateway for tools, identity, and observability</td>
+<td>Modular services for running agents built with any framework: runtime, memory, gateway for tools, identity, and <dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">observability</dfn></td>
 </tr>
 <tr>
 <td><strong>Vertex AI Agent Engine</strong> (Google Cloud)</td>
@@ -539,12 +541,12 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
 <li>Enforce tenant isolation in infrastructure and data layers, not in prompts, and add per-tenant quotas and spend caps.</li>
 <li>An agent version is model + prompt + tools + harness + config. Version it as code, pin model IDs, and keep in-flight sessions on their original version.</li>
 <li>Ship through eval-gated CI, shadow runs with stubbed side effects, and canaries with automatic rollback.</li>
-<li>Monitor success, cost, latency, cache hit rate and steps per task. Keep kill switches and incident playbooks ready, and turn every incident into a regression eval.</li>
+<li>Monitor success, cost, latency, cache hit rate and steps per task. Keep kill switches and incident playbooks ready, and turn every incident into a <dfn class="gt" tabindex="0" data-t="Regression eval" data-d="An eval of tasks the system already handles, run on every change to catch breakage. It should stay near 100%; capability evals, by contrast, measure progress on hard tasks." data-l="evaluating-agents" data-a="regression-eval">regression eval</dfn>.</li>
 </ul>
 <h2 id="exercises"><a class="anchor" href="#exercises" aria-hidden="true">#</a>Exercises</h2>
 <ol>
 <li><strong>Pick the shape.</strong> For each agent, choose a deployment shape and justify it: (a) an FAQ bot answering in under 5 seconds; (b) a nightly agent that reconciles invoices; (c) an agent that fixes failing CI builds; (d) a research agent that takes 10–20 minutes per report.</li>
-<li><strong>Secret audit.</strong> Take an agent you&#39;ve built and list every credential it uses. For each one, record where it lives, whether it ever enters the context or the sandbox, its scope and its lifetime. Redesign anything that fails the &quot;never in context, short-lived, least privilege&quot; test.</li>
+<li><strong>Secret audit.</strong> Take an agent you&#39;ve built and list every credential it uses. For each one, record where it lives, whether it ever enters the context or the sandbox, its scope and its lifetime. Redesign anything that fails the &quot;never in context, short-lived, <dfn class="gt" tabindex="0" data-t="Least privilege" data-d="Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise." data-l="agent-security" data-a="least-privilege">least privilege</dfn>&quot; test.</li>
 <li><strong>Config as code.</strong> Write a versioned YAML config for an agent and a loader that hashes the resolved config, prompt file contents included. Stamp the hash on every trace and confirm that a one-word prompt change alters it.</li>
 <li><strong>Eval gate.</strong> Build a CI job that runs 20 eval cases against the PR branch and against main, and fails if success drops by more than one case or mean cost per task rises by more than 15%. Run it twice on the same commit and discuss what the noise means for your thresholds.</li>
 <li><strong>Game day.</strong> Simulate a &quot;spend spike from one tenant&quot; incident in staging. Practice detection (which alert fires?), mitigation (which kill switch?) and recovery, then write the postmortem and regression eval.</li>
@@ -675,7 +677,7 @@ client = anthropic.AsyncAnthropic()  <span class="hljs-comment"># key comes from
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

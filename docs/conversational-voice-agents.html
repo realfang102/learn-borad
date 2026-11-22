@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 30 min</span>
       <span>✅ 7-question quiz</span>
       
-      <span>Lesson 22 of 37</span>
+      <span>Lesson 22 of 38</span>
       <span class="lesson-status" data-status-for="conversational-voice-agents"></span>
     </div>
   </header>
@@ -144,7 +146,7 @@
 <h2 id="anatomy-of-a-customer-support-agent"><a class="anchor" href="#anatomy-of-a-customer-support-agent" aria-hidden="true">#</a>Anatomy of a Customer-Support Agent</h2>
 <p>A support agent is the <a href="the-agent-loop.html">agent loop</a> wrapped in a business process. Its components:</p>
 <ul>
-<li><strong>Policies and SOPs.</strong> The company&#39;s rules: refund windows, exceptions, eligibility, what requires a supervisor. These go into the system prompt or a retrievable knowledge base. Writing policies an agent can follow is real work: human SOPs are full of ambiguity that experienced staff resolve with judgment.</li>
+<li><strong>Policies and SOPs.</strong> The company&#39;s rules: refund windows, exceptions, eligibility, what requires a supervisor. These go into the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn> or a retrievable knowledge base. Writing policies an agent can follow is real work: human SOPs are full of ambiguity that experienced staff resolve with judgment.</li>
 <li><strong>Knowledge.</strong> Help-center articles, product docs, past resolutions, usually behind retrieval (see <a href="rag-and-retrieval.html">RAG and retrieval</a>).</li>
 <li><strong>Tools.</strong> Read access to the CRM, orders, billing, shipping; write actions such as issuing refunds, changing addresses, rebooking flights, creating tickets.</li>
 <li><strong>Authentication.</strong> Verifying the person is who they claim to be before revealing or changing account data.</li>
@@ -154,7 +156,7 @@
 <aside class="callout callout-key"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🔑</span>Policy lives in two places</div><div class="callout-body"><p>Tell the model the policy in its prompt, and <strong>enforce</strong> the policy in code. The prompt shapes conversation; the tool layer guarantees that a refund over the limit, or an action on an unauthenticated account, simply cannot happen. Assume the model will sometimes be persuaded or confused, and make that harmless.</p>
 </div></aside>
 <h3 id="tools-permissions-and-authentication"><a class="anchor" href="#tools-permissions-and-authentication" aria-hidden="true">#</a>Tools, permissions and authentication</h3>
-<p>Design support tools around <strong>least privilege</strong> (see <a href="designing-tools.html">designing tools</a>):</p>
+<p>Design support tools around <strong><dfn class="gt" tabindex="0" data-t="Least privilege" data-d="Granting an agent only the minimum tools, permissions, data and credentials needed for its task, limiting the damage of mistakes or compromise." data-l="agent-security" data-a="least-privilege">least privilege</dfn></strong> (see <a href="designing-tools.html">designing tools</a>):</p>
 <ul>
 <li>Scope every tool to the authenticated customer. <code>get_order(order_id)</code> should verify that the order belongs to the session&#39;s verified customer ID; the model should never pass a customer ID it heard in conversation.</li>
 <li>Make write tools narrow and policy-aware: <code>issue_refund(order_id, reason)</code> that enforces limits server-side, not <code>update_database(sql)</code>.</li>
@@ -241,12 +243,12 @@ runner = client.beta.messages.tool_runner(
 <li><strong>Stay on task.</strong> Politely decline off-topic requests and resist attempts to make the agent say off-brand things (see <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a>).</li>
 </ul>
 <h2 id="evaluating-support-agents-τ-bench-and-τ²-bench"><a class="anchor" href="#evaluating-support-agents-τ-bench-and-τ²-bench" aria-hidden="true">#</a>Evaluating Support Agents: τ-bench and τ²-bench</h2>
-<p>How do you test an agent whose job is to follow policy while talking to unpredictable humans? <strong>τ-bench</strong> (Yao et al., Sierra, 2024) introduced a now-standard recipe:</p>
+<p>How do you test an agent whose job is to follow policy while talking to unpredictable humans? <strong><dfn class="gt" tabindex="0" data-t="τ-bench" data-d="A benchmark (Yao et al., 2024) of tool-agent-user interaction in domains like airline and retail, with a simulated user and domain policies; it introduced the pass^k metric. τ²-bench adds dual-control environments." data-l="benchmarks" data-a="τ-bench">τ-bench</dfn></strong> (Yao et al., Sierra, 2024) introduced a now-standard recipe:</p>
 <ul>
 <li><strong>Domains</strong> with realistic databases, tools and written policies: retail (returns, exchanges, address changes) and airline (bookings, changes, cancellations, baggage).</li>
-<li>A <strong>simulated user</strong>: an LLM given a persona and a hidden goal (&quot;you want to exchange the blue shoes for size 10, but only if it costs nothing extra&quot;) that converses with the agent naturally, revealing information gradually.</li>
+<li>A <strong><dfn class="gt" tabindex="0" data-t="Simulated user" data-d="An LLM playing the user's role in multi-turn evals, as in τ-bench, so conversational agents can be tested at scale." data-l="evaluating-agents" data-a="simulated-user">simulated user</dfn></strong>: an LLM given a persona and a hidden goal (&quot;you want to exchange the blue shoes for size 10, but only if it costs nothing extra&quot;) that converses with the agent naturally, revealing information gradually.</li>
 <li><strong>Outcome-based grading</strong>: after the conversation, the final database state is compared with the expected state. Did the right exchange happen, with nothing else changed? Required information conveyed to the user is checked too.</li>
-<li><strong>pass^k</strong>: the probability that the agent succeeds on <em>all</em> k independent trials of the same task. Where pass@k rewards succeeding at least once, pass^k measures <strong>consistency</strong>, which is what a business with millions of conversations needs.</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="pass^k" data-d="The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%." data-l="evaluating-agents" data-a="passk">pass^k</dfn></strong>: the probability that the agent succeeds on <em>all</em> k independent trials of the same task. Where <dfn class="gt" tabindex="0" data-t="pass@k" data-d="The probability that at least one of k sampled attempts solves a task (Chen et al., 2021). It rewards capability: a 50% per-attempt success rate gives pass@3 of 87.5%." data-l="evaluating-agents" data-a="passk">pass@k</dfn> rewards succeeding at least once, pass^k measures <strong>consistency</strong>, which is what a business with millions of conversations needs.</li>
 </ul>
 <p>The original paper found that even strong function-calling agents of 2024 solved under half of the tasks, and that reliability collapsed as k grew: in retail, pass^8 fell below 25%. An agent that handles a refund correctly 70% of the time handles it correctly eight times in a row far less often. (The interactive pass@k vs. pass^k widget in <a href="evaluating-agents.html">evaluating agents</a> makes this visceral.)</p>
 <p><strong>τ²-bench</strong> (2025) added a <strong>dual-control</strong> setting with a telecom troubleshooting domain: the <em>user</em> also has tools and must take actions on their own device (&quot;toggle airplane mode&quot;, &quot;check APN settings&quot;) under the agent&#39;s guidance. Agents performed markedly worse when they had to guide a user through actions rather than act alone, a realistic picture of tech support, where much of the work is coaching a person.</p>
@@ -266,16 +268,16 @@ runner = client.beta.messages.tool_runner(
     V -. &quot;user speaks over agent&quot; .-&gt; B[&quot;Barge-in: stop TTS, flush&quot;]
     B -.-&gt; O</pre></figure>
 <ul>
-<li><strong>VAD (voice activity detection)</strong> detects speech versus silence or noise (Silero VAD is a common open-source choice).</li>
+<li><strong><dfn class="gt" tabindex="0" data-t="Voice activity detection" data-d="Detecting when a user starts and stops speaking; together with turn-detection models it decides when a voice agent should respond." data-a="voice-activity-detection">VAD</dfn> (voice activity detection)</strong> detects speech versus silence or noise (Silero VAD is a common open-source choice).</li>
 <li><strong>STT (speech-to-text / ASR)</strong> transcribes audio, ideally streaming partial transcripts as the user speaks.</li>
 <li><strong>Endpointing / turn detection</strong> decides when the user has finished their turn.</li>
 <li><strong>LLM</strong> generates the response and calls tools.</li>
 <li><strong>TTS (text-to-speech)</strong> turns the response into audio, ideally streaming from the first words.</li>
 </ul>
-<p>Strengths: you can choose best-in-class components, inspect the text at every stage, use any text LLM with full tool calling, and apply text guardrails and logging. Weaknesses: latency adds up across stages, and paralinguistic information (tone, hesitation, emotion, laughter) is lost in transcription.</p>
+<p>Strengths: you can choose best-in-class components, inspect the text at every stage, use any text LLM with full tool calling, and apply text <dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrails</dfn> and logging. Weaknesses: latency adds up across stages, and paralinguistic information (tone, hesitation, emotion, laughter) is lost in transcription.</p>
 <h3 id="speech-to-speech-realtime-models"><a class="anchor" href="#speech-to-speech-realtime-models" aria-hidden="true">#</a>Speech-to-speech (realtime) models</h3>
 <p><strong>Speech-to-speech</strong> models take audio in and produce audio out directly, with a single model handling understanding and generation. OpenAI&#39;s Realtime API (launched October 2024, with the <code>gpt-realtime</code> model in 2025) and Google&#39;s Gemini Live API are prominent examples, and research systems such as Kyutai&#39;s Moshi explored <strong>full-duplex</strong> models that listen and speak simultaneously.</p>
-<p>Strengths: lower latency, more natural prosody, and awareness of tone and interruptions. Weaknesses: less control and observability (you can transcribe, but the model reasons over audio), typically weaker tool-calling and instruction-following than the best text models, fewer choices of voice and vendor, and harder guardrails because there is no text checkpoint before speech.</p>
+<p>Strengths: lower latency, more natural prosody, and awareness of tone and interruptions. Weaknesses: less control and <dfn class="gt" tabindex="0" data-t="Observability" data-d="The ability to understand what an agent did and why, from traces, logs, metrics and evaluations of production runs." data-l="observability" data-a="observability">observability</dfn> (you can transcribe, but the model reasons over audio), typically weaker tool-calling and instruction-following than the best text models, fewer choices of voice and vendor, and harder guardrails because there is no text checkpoint before speech.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -338,7 +340,7 @@ runner = client.beta.messages.tool_runner(
 <td>Streaming STT keeps this small</td>
 </tr>
 <tr>
-<td>LLM time to first token</td>
+<td>LLM <dfn class="gt" tabindex="0" data-t="Time to first token" data-d="Latency from sending a request until the first output token arrives. It dominates perceived responsiveness in chat and voice agents." data-l="cost-and-latency" data-a="time-to-first-token">time to first token</dfn></td>
 <td>200–1,000 ms</td>
 <td>Model size, prompt length, thinking effort, cache hits</td>
 </tr>
@@ -393,7 +395,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <p>You rarely build this plumbing from scratch:</p>
 <ul>
 <li><strong>LiveKit Agents</strong>: an open-source framework on LiveKit&#39;s WebRTC infrastructure, with plugins for STT, LLM, TTS and realtime models, turn detection, and telephony via SIP.</li>
-<li><strong>Pipecat</strong>: an open-source Python framework (originated at Daily) that models a voice agent as a pipeline of frame processors, with many vendor integrations.</li>
+<li><strong>Pipecat</strong>: an open-source Python framework (originated at Daily) that models a <dfn class="gt" tabindex="0" data-t="Voice agent" data-d="A conversational agent that listens and speaks in real time, either via a cascade of speech-to-text, LLM and text-to-speech, or via a native speech-to-speech model." data-a="voice-agent">voice agent</dfn> as a pipeline of frame processors, with many vendor integrations.</li>
 <li>Hosted platforms (for example Vapi and Retell) trade control for speed of setup.</li>
 </ul>
 <p>APIs evolve quickly; check current documentation.</p>
@@ -411,7 +413,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
 <li><strong>AI disclosure.</strong> Several laws require telling people they are interacting with an AI, for example California&#39;s bot-disclosure law in certain contexts and the EU AI Act&#39;s transparency obligations. In the US, the FCC ruled in February 2024 that AI-generated voices in robocalls count as &quot;artificial&quot; under the TCPA, so outbound AI calls need prior consent.</li>
 <li><strong>Payment data (PCI DSS).</strong> Card numbers must not end up in transcripts, LLM prompts, or logs. Use DTMF masking, secure payment handoffs (pause recording and route card entry to a PCI-compliant IVR or payment page) and redaction.</li>
 <li><strong>Privacy and retention.</strong> Minimize data passed to models, redact PII in logs, set retention periods, and know where data is processed.</li>
-<li><strong>Content guardrails.</strong> Topic restrictions, refusal of harmful requests, no medical, legal or financial advice beyond policy, and protection against prompt injection and jailbreaks from users (see <a href="agent-security.html">agent security</a>).</li>
+<li><strong>Content guardrails.</strong> Topic restrictions, refusal of harmful requests, no medical, legal or financial advice beyond policy, and protection against <dfn class="gt" tabindex="0" data-t="Prompt injection" data-d="An attack in which text crafted by an attacker is interpreted by the model as instructions, overriding the developer's or user's intent." data-l="agent-security" data-a="prompt-injection">prompt injection</dfn> and jailbreaks from users (see <a href="agent-security.html">agent security</a>).</li>
 <li><strong>Vulnerable customers.</strong> Detect distress, mentions of self-harm, or confusion, and route to humans.</li>
 </ul>
 <h2 id="testing-with-simulated-callers"><a class="anchor" href="#testing-with-simulated-callers" aria-hidden="true">#</a>Testing With Simulated Callers</h2>
@@ -618,7 +620,7 @@ Agent: &quot;Sure, store credit instead. That&#x27;s $42.10 as store credit to y
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

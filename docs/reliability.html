@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 38 min</span>
       <span>✅ 6-question quiz</span>
       
-      <span>Lesson 29 of 37</span>
+      <span>Lesson 30 of 38</span>
       <span class="lesson-status" data-status-for="reliability"></span>
     </div>
   </header>
@@ -140,12 +142,12 @@
   </section>
   <article class="prose">
 <p>Picture a refund agent working through a customer&#39;s case. It has read the order history, checked the return policy, confirmed the item arrived back at the warehouse, and at step 31 of 40 it calls <code>issue_refund</code>. The payment goes through. Before the agent records the result, Kubernetes evicts its pod during a routine deploy. The job queue sees an unfinished task and hands it to a fresh worker, which starts over from step 1, reaches step 31 again, and refunds the customer a second time.</p>
-<p>Nothing in that story is a model failure. The bug sits in the <strong>harness</strong>, the ordinary software around the model, and that is where most production agent incidents happen. This lesson builds a failure taxonomy and then works through the defenses layer by layer: retries, timeouts, idempotency, circuit breakers, fallbacks, validation, loop guards, budgets, and finally <strong>durable execution</strong>, which lets an agent resume after a crash without repeating its side effects.</p>
+<p>Nothing in that story is a model failure. The bug sits in the <strong>harness</strong>, the ordinary software around the model, and that is where most production agent incidents happen. This lesson builds a failure taxonomy and then works through the defenses layer by layer: retries, timeouts, <dfn class="gt" tabindex="0" data-t="Idempotency" data-d="The property that repeating an operation has the same effect as doing it once. Idempotent tools make retries after timeouts safe." data-a="idempotency">idempotency</dfn>, circuit breakers, fallbacks, validation, loop guards, budgets, and finally <strong><dfn class="gt" tabindex="0" data-t="Durable execution" data-d="Running long workflows so that each step's result is persisted and the run can resume after crashes or restarts without redoing completed work." data-l="deployment" data-a="durable-execution">durable execution</dfn></strong>, which lets an agent resume after a crash without repeating its side effects.</p>
 <h2 id="why-agents-fail-differently"><a class="anchor" href="#why-agents-fail-differently" aria-hidden="true">#</a>Why Agents Fail Differently</h2>
 <p>Unlike a millisecond-long stateless web request, an agent run is:</p>
 <ul>
 <li><strong>Long.</strong> Over an hour-long run, a network blip, rate limit, deploy or OOM-kill is likely.</li>
-<li><strong>Stateful.</strong> The conversation history <em>is</em> the agent&#39;s working memory. Lose it and you lose the progress and the money spent.</li>
+<li><strong>Stateful.</strong> The conversation history <em>is</em> the agent&#39;s <dfn class="gt" tabindex="0" data-t="Short-term memory" data-d="Information an agent holds within its current context window, chiefly the conversation and recent tool results. It is lost when the context is reset or compacted." data-l="memory" data-a="short-term-memory">working memory</dfn>. Lose it and you lose the progress and the money spent.</li>
 <li><strong>Side-effecting.</strong> Re-running a refund is not harmless.</li>
 <li><strong>Nondeterministic.</strong> A re-run step may choose different tools or arguments, so naive replay can take a different path.</li>
 </ul>
@@ -185,7 +187,7 @@
 <tr>
 <td>Loops &amp; repetition</td>
 <td>Same search 9 times; A→B→A→B</td>
-<td>Loop detector; step budget</td>
+<td>Loop detector; <dfn class="gt" tabindex="0" data-t="Step budget" data-d="A hard limit on iterations, tokens, time or money for an agent run, the harness's safety net against runaway loops and costs." data-l="the-agent-loop" data-a="step-budget">step budget</dfn></td>
 </tr>
 <tr>
 <td>Context overflow</td>
@@ -195,7 +197,7 @@
 <tr>
 <td>Premature termination</td>
 <td><code>max_tokens</code> mid-tool-call; &quot;done&quot; too early; <code>refusal</code></td>
-<td>Handle every stop reason; verify</td>
+<td>Handle every <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-l="the-agent-loop" data-a="stop-reason">stop reason</dfn>; verify</td>
 </tr>
 <tr>
 <td>Wrong-but-confident</td>
@@ -250,7 +252,7 @@
 </div>
 <p>A 429 caused by your organization&#39;s monthly <strong>spend cap</strong> has no <code>retry-after</code> header, and its error details name <code>enforced_spend_limit_reached</code>. Waiting won&#39;t clear it, so alert instead of retrying.</p>
 <h3 id="backoff-jitter-and-one-layer-only"><a class="anchor" href="#backoff-jitter-and-one-layer-only" aria-hidden="true">#</a>Backoff, jitter, and one layer only</h3>
-<p><strong>Exponential backoff</strong> doubles the wait after each failure (1 s, 2 s, 4 s…) up to a cap, which gives a struggling service room to recover. Backoff alone has a flaw: a thousand agents that failed together wait the same amount of time, retry together, and knock the service over again. This is the <strong>thundering herd</strong>. <strong>Jitter</strong> randomizes the delay to break that synchronization. &quot;Full jitter&quot; draws it uniformly from <code>[0, min(cap, base × 2^attempt)]</code>.</p>
+<p><strong><dfn class="gt" tabindex="0" data-t="Exponential backoff" data-d="Retrying failed requests with waits that grow exponentially (usually with random jitter), to ride out rate limits and transient errors without hammering the service." data-a="exponential-backoff">Exponential backoff</dfn></strong> doubles the wait after each failure (1 s, 2 s, 4 s…) up to a cap, which gives a struggling service room to recover. Backoff alone has a flaw: a thousand agents that failed together wait the same amount of time, retry together, and knock the service over again. This is the <strong>thundering herd</strong>. <strong>Jitter</strong> randomizes the delay to break that synchronization. &quot;Full jitter&quot; draws it uniformly from <code>[0, min(cap, base × 2^attempt)]</code>.</p>
 <p>The Anthropic Python SDK already retries connection errors, 408, 409, 429 and ≥500 with exponential backoff (default <code>max_retries=2</code>). Problems start when teams add a wrapper around it, then a job-queue retry around that. Three layers of three attempts each make 27 attempts, and a multi-minute stall shows up as one &quot;slow call.&quot; <strong>Give each boundary exactly one retry owner.</strong></p>
 <h3 id="a-retry-wrapper-with-typed-exceptions"><a class="anchor" href="#a-retry-wrapper-with-typed-exceptions" aria-hidden="true">#</a>A retry wrapper with typed exceptions</h3>
 <p>Here we disable SDK retries so this wrapper is the single owner, and add full jitter, <code>retry-after</code> handling and a total time budget:</p>
@@ -324,12 +326,12 @@ db.execute(<span class="hljs-string">&quot;CREATE TABLE IF NOT EXISTS effects (k
                (json.dumps(result), key))
     <span class="hljs-keyword">return</span> json.dumps(result)</code></pre></div>
 <p>The decision that matters is <strong>what goes into the key</strong>. This key covers <code>(run, action, order_id)</code> and deliberately leaves out the amount, which encodes the business rule &quot;one refund per order per run.&quot; Keys built from <code>tool_use_id</code> are too narrow, because a resumed model emits new IDs. Keys built from a fresh random UUID per call are useless, because every retry looks new.</p>
-<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Classify every tool as <strong>read-only</strong>, <strong>naturally idempotent</strong>, or <strong>unsafe</strong>, and record the label next to the tool definition so the harness can enforce it. Unsafe tools need an idempotency key, and often a <a href="human-in-the-loop.html">human approval</a> gate as well.</p>
+<aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Classify every tool as <strong>read-only</strong>, <strong>naturally idempotent</strong>, or <strong>unsafe</strong>, and record the label next to the <dfn class="gt" tabindex="0" data-t="Tool definition" data-d="The name, natural-language description and input JSON Schema that tell a model what a tool does and how to call it. Its quality largely determines whether the tool is used correctly." data-l="designing-tools" data-a="tool-definition">tool definition</dfn> so the harness can enforce it. Unsafe tools need an idempotency key, and often a <a href="human-in-the-loop.html">human approval</a> gate as well.</p>
 </div></aside>
 <h2 id="containing-failure-breakers-fallbacks-degradation"><a class="anchor" href="#containing-failure-breakers-fallbacks-degradation" aria-hidden="true">#</a>Containing Failure: Breakers, Fallbacks, Degradation</h2>
 <p>Retries handle short blips. When a dependency is down for minutes, retries make things worse: every agent hammers the failing service and burns its budget waiting.</p>
 <h3 id="circuit-breakers"><a class="anchor" href="#circuit-breakers" aria-hidden="true">#</a>Circuit breakers</h3>
-<p>A <strong>circuit breaker</strong> tracks a dependency&#39;s recent failures. Once failures pass a threshold it <strong>opens</strong>, and calls fail immediately for a cooldown period. After the cooldown, one probe request is allowed through:</p>
+<p>A <strong><dfn class="gt" tabindex="0" data-t="Circuit breaker" data-d="A reliability pattern that stops calling a failing dependency for a cool-down period after repeated errors, preventing cascading failures and wasted spend." data-a="circuit-breaker">circuit breaker</dfn></strong> tracks a dependency&#39;s recent failures. Once failures pass a threshold it <strong>opens</strong>, and calls fail immediately for a cooldown period. After the cooldown, one probe request is allowed through:</p>
 <figure class="diagram"><pre class="mermaid">stateDiagram-v2
     [*] --&gt; Closed
     Closed --&gt; Open: failures exceed threshold
@@ -354,10 +356,10 @@ db.execute(<span class="hljs-string">&quot;CREATE TABLE IF NOT EXISTS effects (k
 <ol>
 <li><strong>Ground-truth checks</strong>: run the tests, re-read the record after the write, query the balance after the transfer.</li>
 <li><strong>Invariant validators in code</strong>: totals sum correctly, every claim cites a retrieved source, the output parses against its schema.</li>
-<li><strong>A separate verifier pass</strong>, ideally with a different prompt or model. This is the evaluator-optimizer pattern from <a href="workflow-patterns.html">workflow patterns</a>.</li>
+<li><strong>A separate verifier pass</strong>, ideally with a different prompt or model. This is the <dfn class="gt" tabindex="0" data-t="Evaluator-optimizer" data-d="A loop in which one LLM generates a response and another evaluates it with feedback, iterating until the evaluator is satisfied or a limit is reached." data-l="workflow-patterns" data-a="evaluator-optimizer">evaluator-optimizer</dfn> pattern from <a href="workflow-patterns.html">workflow patterns</a>.</li>
 <li><strong>Self-reflection</strong> (&quot;double-check your answer&quot;). It&#39;s cheap, but models often confirm their own mistakes.</li>
 </ol>
-<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Watch for agents that &quot;verify&quot; by changing the check. A coding agent stuck on a failing test may edit the test. Keep verification artifacts out of the agent&#39;s write scope, or diff them before accepting the result.</p>
+<aside class="callout callout-warning"><div class="callout-title"><span class="callout-icon" aria-hidden="true">⚠️</span>Warning</div><div class="callout-body"><p>Watch for agents that &quot;verify&quot; by changing the check. A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> stuck on a failing test may edit the test. Keep verification artifacts out of the agent&#39;s write scope, or diff them before accepting the result.</p>
 </div></aside>
 <h2 id="guarding-the-loop-stop-reasons-repetition-budgets"><a class="anchor" href="#guarding-the-loop-stop-reasons-repetition-budgets" aria-hidden="true">#</a>Guarding the Loop: Stop Reasons, Repetition, Budgets</h2>
 <p><strong>Handle every stop reason.</strong> Many premature terminations happen because the harness ignores a <code>stop_reason</code> it didn&#39;t expect:</p>
@@ -382,7 +384,7 @@ db.execute(<span class="hljs-string">&quot;CREATE TABLE IF NOT EXISTS effects (k
 </tr>
 <tr>
 <td><code>pause_turn</code></td>
-<td>A server-side tool loop paused; send the conversation back as-is</td>
+<td>A <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server-side tool</dfn> loop paused; send the conversation back as-is</td>
 </tr>
 <tr>
 <td><code>refusal</code></td>
@@ -516,7 +518,7 @@ CKPT = Path(<span class="hljs-string">&quot;checkpoints&quot;</span>)
 <h2 id="testing-reliability"><a class="anchor" href="#testing-reliability" aria-hidden="true">#</a>Testing Reliability</h2>
 <p>Untested reliability features fail the first time production needs them. From cheapest to most realistic:</p>
 <ul>
-<li><strong>Recorded fixtures.</strong> Record real API responses once (VCR-style) and replay them in unit tests, so harness logic (stop reasons, resume, budgets, loop detection) is deterministic and free to test. The model itself is your <a href="evaluating-agents.html">eval suite</a>&#39;s job.</li>
+<li><strong>Recorded fixtures.</strong> Record real API responses once (VCR-style) and replay them in unit tests, so harness logic (stop reasons, resume, budgets, <dfn class="gt" tabindex="0" data-t="Loop detection" data-d="Harness logic that notices an agent repeating the same actions or making no progress and intervenes, for example by stopping, nudging or escalating." data-a="loop-detection">loop detection</dfn>) is deterministic and free to test. The model itself is your <a href="evaluating-agents.html">eval suite</a>&#39;s job.</li>
 <li><strong>Fault injection.</strong> Wrap tools in a decorator that randomly raises connection errors, times out, or returns truncated JSON, and use a mock HTTP transport to serve 429s and 529s with <code>retry-after</code>. Run the evals with faults on: success should degrade gracefully, not collapse.</li>
 <li><strong>Chaos experiments.</strong> Kill the worker (<code>kill -9</code>) at random steps while tasks run against sandboxed copies of real systems. Then assert that every task reaches a terminal state, that the side-effect ledger shows <strong>exactly one</strong> execution per intent, and that outcomes match uninterrupted runs.</li>
 </ul>
@@ -664,7 +666,7 @@ CKPT = Path(<span class="hljs-string">&quot;checkpoints&quot;</span>)
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>

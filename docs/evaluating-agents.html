@@ -29,7 +29,7 @@
 </header>
 <div class="mobile-nav" hidden>
   <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
-  <a href="progress.html">Progress</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
+  <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
 <aside class="sidebar" aria-label="Course navigation">
@@ -82,6 +82,7 @@
       <summary><span class="side-mod-icon">🛠️</span><span class="side-mod-title"><small>Module 5</small>Building Agents</span><span class="side-mod-count" data-module-count="building"></span></summary>
       <ol>
         <li><a href="build-agent-from-scratch.html" data-slug="build-agent-from-scratch"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Build an Agent From Scratch</span></a></li>
+        <li><a href="agent-frameworks.html" data-slug="agent-frameworks"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Frameworks &amp; SDKs Compared</span></a></li>
         <li><a href="sdk-hands-on.html" data-slug="sdk-hands-on"><span class="side-check"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m5 12 5 5 9-10"/></svg></span><span>Hands-On with Agent SDKs</span></a></li>
       </ol>
     </details>
@@ -115,6 +116,7 @@
     <div class="side-extra">
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
+      <a href="review.html">🧠 Course review</a>
       <a href="flashcards.html">🃏 Flashcards</a>
       <a href="exam.html">🎓 Practice exam</a>
     </div>
@@ -130,7 +132,7 @@
       <span>⏱ 45 min</span>
       <span>✅ 7-question quiz</span>
       <span>🧪 Interactive</span>
-      <span>Lesson 26 of 37</span>
+      <span>Lesson 27 of 38</span>
       <span class="lesson-status" data-status-for="evaluating-agents"></span>
     </div>
   </header>
@@ -139,14 +141,14 @@
     <p class="prereqs"><strong>Builds on:</strong> <a href="the-agent-loop.html">The Agent Loop</a>, <a href="tool-use.html">Tool Use &amp; Function Calling</a>, <a href="structured-outputs.html">Structured Outputs &amp; Control Flow</a></p>
   </section>
   <article class="prose">
-<p>Imagine you&#39;ve built a customer-support agent. You change one sentence in the system prompt, try five conversations by hand, and they all look better. You ship. Two days later, refunds are being issued twice for the same order, because the new wording made the agent retry a tool call it used to trust. Nobody noticed, because &quot;try five conversations by hand&quot; is not a measurement — it&#39;s a vibe.</p>
+<p>Imagine you&#39;ve built a customer-support agent. You change one sentence in the <dfn class="gt" tabindex="0" data-t="System prompt" data-d="Instructions placed before the conversation that set the agent's role, goals, constraints, tool guidance and output format. It is the highest-leverage piece of prompt text in an agent." data-l="prompting-for-agents" data-a="system-prompt">system prompt</dfn>, try five conversations by hand, and they all look better. You ship. Two days later, refunds are being issued twice for the same order, because the new wording made the agent retry a tool call it used to trust. Nobody noticed, because &quot;try five conversations by hand&quot; is not a measurement — it&#39;s a vibe.</p>
 <p><strong>Evals</strong> (evaluations) are how you replace vibes with evidence. For a plain LLM call, an eval can be as simple as &quot;does the output match the expected label?&quot; For an agent, which takes dozens of actions in a changing environment, chooses its own path, and behaves differently every time you run it, evaluation becomes its own engineering discipline. Teams that are good at agents are, almost without exception, teams that are good at evals: the eval suite is what lets them upgrade models, rewrite prompts and add tools without fear.</p>
-<p>In this lesson you&#39;ll learn the vocabulary of agent evals, the main types of graders and their failure modes, how to build an eval set from real failures, how to reason about statistics and reliability (pass@k vs pass^k), and how to write a small but honest eval harness in Python.</p>
+<p>In this lesson you&#39;ll learn the vocabulary of agent evals, the main types of graders and their failure modes, how to build an eval set from real failures, how to reason about statistics and reliability (<dfn class="gt" tabindex="0" data-t="pass@k" data-d="The probability that at least one of k sampled attempts solves a task (Chen et al., 2021). It rewards capability: a 50% per-attempt success rate gives pass@3 of 87.5%." data-a="passk">pass@k</dfn> vs <dfn class="gt" tabindex="0" data-t="pass^k" data-d="The probability that all k independent attempts succeed, introduced with τ-bench to measure consistency. A 90% per-attempt rate gives pass^8 of about 43%." data-a="passk">pass^k</dfn>), and how to write a small but honest eval harness in Python.</p>
 <h2 id="why-agent-evals-are-hard"><a class="anchor" href="#why-agent-evals-are-hard" aria-hidden="true">#</a>Why agent evals are hard</h2>
-<p>Classic software testing assumes determinism: same input, same output, one right answer. Agents violate every part of that.</p>
+<p>Classic software testing assumes <dfn class="gt" tabindex="0" data-t="Determinism" data-d="Producing the same output for the same input. LLM calls are generally nondeterministic, so agents need evals over repeated runs and idempotent tools." data-l="reliability" data-a="determinism">determinism</dfn>: same input, same output, one right answer. Agents violate every part of that.</p>
 <ul>
 <li><strong>Non-determinism.</strong> Sampling, tool latency, retrieved content and even the model&#39;s own earlier phrasing differ between runs. The same task can pass on Monday and fail on Tuesday with no code change. A single run tells you little.</li>
-<li><strong>Long trajectories.</strong> A coding agent might take 60 steps. A failure at step 7 (misreading a file) may only surface at step 55 (tests fail). Errors compound: if each step is 98% reliable, a 50-step task succeeds end-to-end only about 36% of the time (0.98⁵⁰ ≈ 0.36). See <a href="when-to-use-agents.html">when to use agents</a> for the compounding-errors intuition.</li>
+<li><strong>Long trajectories.</strong> A <dfn class="gt" tabindex="0" data-t="Coding agent" data-d="An agent that reads, writes and runs code in a repository, using tools such as file editing, search, a shell and tests to complete software tasks." data-l="coding-agents" data-a="coding-agent">coding agent</dfn> might take 60 steps. A failure at step 7 (misreading a file) may only surface at step 55 (tests fail). Errors compound: if each step is 98% reliable, a 50-step task succeeds end-to-end only about 36% of the time (0.98⁵⁰ ≈ 0.36). See <a href="when-to-use-agents.html">when to use agents</a> for the compounding-errors intuition.</li>
 <li><strong>Many valid paths.</strong> There are a hundred correct ways to fix a bug or book a flight. An eval that demands one exact sequence of tool calls will punish creative but correct solutions — and sometimes the model&#39;s &quot;unexpected&quot; path is <em>better</em> than the one you imagined.</li>
 <li><strong>Environment state.</strong> Agents act on the world: files, databases, browsers, APIs. Grading requires inspecting that world afterward, and every trial needs a clean, isolated copy of it, or trials contaminate each other.</li>
 <li><strong>Ambiguous success and cost.</strong> &quot;Write a helpful reply to this angry customer&quot; has no exact-match answer, and 200 tasks × 5 trials × 40 steps is tens of thousands of model calls — budget pressure tempts you into samples too small to mean anything.</li>
@@ -175,7 +177,7 @@
 </tr>
 <tr>
 <td><strong>Transcript</strong> (or <strong>trajectory</strong>)</td>
-<td>The complete record of a trial: every message, model output, tool call, tool result and stop reason</td>
+<td>The complete record of a trial: every message, model output, tool call, tool result and <dfn class="gt" tabindex="0" data-t="Stop reason" data-d="A field on each model response saying why generation ended, for example end_turn, tool_use, max_tokens, pause_turn, refusal or stop_sequence. The agent loop branches on it." data-l="the-agent-loop" data-a="stop-reason">stop reason</dfn></td>
 <td>The 14-message conversation including <code>get_order</code> and <code>issue_refund</code> calls</td>
 </tr>
 <tr>
@@ -186,7 +188,7 @@
 <tr>
 <td><strong>Grader</strong> (or <strong>scorer</strong>)</td>
 <td>Logic that scores some aspect of the transcript or outcome</td>
-<td>&quot;Exactly one refund row exists&quot; (code); &quot;Reply is empathetic and accurate&quot; (LLM judge)</td>
+<td>&quot;Exactly one refund row exists&quot; (code); &quot;Reply is empathetic and accurate&quot; (<dfn class="gt" tabindex="0" data-t="LLM-as-a-judge" data-d="Using a language model with a rubric to grade outputs that lack a simple programmatic check. Judges must be validated against human labels and watched for biases." data-a="llm-as-a-judge">LLM judge</dfn>)</td>
 </tr>
 <tr>
 <td><strong>Eval suite</strong></td>
@@ -217,7 +219,7 @@
 <h3 id="code-based-graders"><a class="anchor" href="#code-based-graders" aria-hidden="true">#</a>Code-based graders</h3>
 <p><strong>Code-based graders</strong> are deterministic programs. They&#39;re fast, cheap, reproducible and impossible to sweet-talk. Common forms:</p>
 <ul>
-<li><strong>Unit or integration tests</strong> — the backbone of coding evals. SWE-bench grades a patch by running the repository&#39;s tests (see <a href="benchmarks.html">benchmarks</a>).</li>
+<li><strong>Unit or integration tests</strong> — the backbone of coding evals. <dfn class="gt" tabindex="0" data-t="SWE-bench" data-d="A benchmark (Jimenez et al., 2023) of real GitHub issues from Python repositories; an agent must produce a patch that makes the hidden tests pass. SWE-bench Verified is a human-validated subset of 500 tasks." data-l="benchmarks" data-a="swe-bench">SWE-bench</dfn> grades a patch by running the repository&#39;s tests (see <a href="benchmarks.html">benchmarks</a>).</li>
 <li><strong>State checks</strong> — query the environment after the trial: does the database row exist? Was the file created with the right contents? Was the email <em>not</em> sent? This is the gold standard for agents that act on systems.</li>
 <li><strong>String, regex and schema checks</strong> — does the output parse as JSON? Does it contain the order ID? Does it avoid leaking the internal ticket number?</li>
 <li><strong>Tool-call assertions</strong> — was <code>issue_refund</code> called at most once? Was <code>delete_account</code> never called?</li>
@@ -266,7 +268,7 @@
 <td>Use a judge from a different model or family where feasible; validate against humans</td>
 </tr>
 <tr>
-<td><strong>Leniency / sycophancy</strong></td>
+<td><strong>Leniency / <dfn class="gt" tabindex="0" data-t="Sycophancy" data-d="A model's tendency to tell users what they want to hear, agreeing with mistaken claims or abandoning correct answers under pushback." data-l="agent-safety-alignment" data-a="sycophancy">sycophancy</dfn></strong></td>
 <td>Judges lean toward &quot;pass,&quot; especially when the output sounds confident</td>
 <td>Binary criteria, require citing evidence, include known-bad examples in calibration</td>
 </tr>
@@ -288,14 +290,14 @@
 <aside class="callout callout-tip"><div class="callout-title"><span class="callout-icon" aria-hidden="true">💡</span>Rule of thumb</div><div class="callout-body"><p>Use code graders wherever correctness is objectively checkable, LLM judges for the subjective remainder, and humans to calibrate the judges and to spot-check periodically. A suite that is 100% LLM-judged usually has untested assumptions hiding in it.</p>
 </div></aside>
 <h3 id="human-review"><a class="anchor" href="#human-review" aria-hidden="true">#</a>Human review</h3>
-<p><strong>Human graders</strong> remain the ground truth for subjective quality and for high-stakes expert domains (legal, medical, financial). They&#39;re slow, expensive and inconsistent with each other, so write a labeling guide, measure inter-annotator agreement, and spend human time where it has the most leverage: calibrating judges and doing error analysis.</p>
+<p><strong>Human graders</strong> remain the ground truth for subjective quality and for high-stakes expert domains (legal, medical, financial). They&#39;re slow, expensive and inconsistent with each other, so write a labeling guide, measure inter-annotator agreement, and spend human time where it has the most leverage: calibrating judges and doing <dfn class="gt" tabindex="0" data-t="Error analysis" data-d="Systematically reading failing traces, labeling failure modes and counting them, to decide what to fix next. Usually the highest-value eval activity." data-a="error-analysis">error analysis</dfn>.</p>
 <h2 id="what-to-grade-outcome-trajectory-step"><a class="anchor" href="#what-to-grade-outcome-trajectory-step" aria-hidden="true">#</a>What to grade: outcome, trajectory, step</h2>
 <p>You can evaluate an agent at three granularities, and each catches different bugs.</p>
 <p><strong>Outcome evals</strong> check the end state: tests pass, the refund exists, the report answers the question. They&#39;re robust to the many-valid-paths problem and are the closest proxy for user value. Default to outcome evals.</p>
 <p><strong>Trajectory evals</strong> check <em>how</em> the agent got there:</p>
 <ul>
 <li><strong>Policy compliance</strong>: did it verify identity before changing the account? Did it ask for confirmation before an irreversible action (<a href="human-in-the-loop.html">human-in-the-loop</a>)?</li>
-<li><strong>Efficiency</strong>: number of steps, tokens, redundant tool calls, cost per task (<a href="cost-and-latency.html">cost and latency</a>).</li>
+<li><strong>Efficiency</strong>: number of steps, tokens, redundant tool calls, <dfn class="gt" tabindex="0" data-t="Cost per task" data-d="The total spend to complete one task end-to-end, including all model calls, retries and tools. More meaningful for agents than cost per call." data-l="cost-and-latency" data-a="cost-per-task">cost per task</dfn> (<a href="cost-and-latency.html">cost and latency</a>).</li>
 <li><strong>Safety</strong>: did it ever touch files outside the workspace, or call a forbidden tool?</li>
 </ul>
 <p>Trajectory checks should encode <em>constraints</em> (&quot;never X,&quot; &quot;Y before Z,&quot; &quot;at most N calls&quot;), not a single golden path. &quot;The agent must call <code>search</code> then <code>read</code> then <code>answer</code>&quot; is brittle; &quot;the agent must not answer without reading at least one source&quot; is robust.</p>
@@ -350,7 +352,7 @@ Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quo
 <ul>
 <li><strong>pass@1</strong>: the probability a single trial succeeds — the average success rate across trials.</li>
 <li><strong>pass@k</strong>: the probability that <em>at least one</em> of k trials succeeds. Introduced for code generation (Chen et al., 2021, with HumanEval), it measures what an agent <em>can</em> do if you get to pick the best attempt — appropriate when you have a verifier (run the tests, keep the passing patch) or a human selects among drafts.</li>
-<li><strong>pass^k</strong> (&quot;pass hat k&quot;): the probability that <em>all</em> k trials succeed. Popularized by τ-bench (2024) for customer-service agents, it measures <strong>consistency</strong> — appropriate when every user interaction must go right, because each customer only gets one try.</li>
+<li><strong>pass^k</strong> (&quot;pass hat k&quot;): the probability that <em>all</em> k trials succeed. Popularized by <dfn class="gt" tabindex="0" data-t="τ-bench" data-d="A benchmark (Yao et al., 2024) of tool-agent-user interaction in domains like airline and retail, with a simulated user and domain policies; it introduced the pass^k metric. τ²-bench adds dual-control environments." data-l="benchmarks" data-a="τ-bench">τ-bench</dfn> (2024) for customer-service agents, it measures <strong>consistency</strong> — appropriate when every user interaction must go right, because each customer only gets one try.</li>
 </ul>
 <p>If a task&#39;s per-trial success probability is p, and trials are independent:</p>
 <ul>
@@ -388,10 +390,10 @@ Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quo
 <aside class="callout callout-example"><div class="callout-title"><span class="callout-icon" aria-hidden="true">🧪</span>From transcripts to an eval</div><div class="callout-body"><p>A team reads 80 failed support conversations. Open coding yields notes like &quot;refunded full amount for partial damage,&quot; &quot;refunded shipping when policy excludes it,&quot; &quot;promised refund before checking eligibility.&quot; Axial coding groups 31 of 80 into <strong>refund-amount errors</strong>. They write 25 tasks covering partial damage, shipping, discounts and multi-item orders, each graded by a state check on the refunds table. Baseline: 56% pass. After adding a <code>calculate_refund</code> tool that encodes the policy, 92% — and the tasks join the regression suite.</p>
 </div></aside>
 <h3 id="simulated-users"><a class="anchor" href="#simulated-users" aria-hidden="true">#</a>Simulated users</h3>
-<p>Conversational agents need a counterpart. A <strong>simulated user</strong> is an LLM instructed to play a customer with a hidden goal and persona (&quot;You want to change your flight to Friday but only if it&#39;s under $100 extra; you don&#39;t know your booking reference&quot;). τ-bench and τ²-bench use this approach, grading by comparing the final database state against the expected one.</p>
+<p>Conversational agents need a counterpart. A <strong><dfn class="gt" tabindex="0" data-t="Simulated user" data-d="An LLM playing the user's role in multi-turn evals, as in τ-bench, so conversational agents can be tested at scale." data-a="simulated-user">simulated user</dfn></strong> is an LLM instructed to play a customer with a hidden goal and persona (&quot;You want to change your flight to Friday but only if it&#39;s under $100 extra; you don&#39;t know your booking reference&quot;). τ-bench and τ²-bench use this approach, grading by comparing the final database state against the expected one.</p>
 <p>Simulators have failure modes of their own — too cooperative, leaking information a real user wouldn&#39;t volunteer, forgetting their goal — so validate them by reading their transcripts too. See <a href="conversational-voice-agents.html">conversational and voice agents</a>.</p>
 <h3 id="environment-and-sandbox-based-evals"><a class="anchor" href="#environment-and-sandbox-based-evals" aria-hidden="true">#</a>Environment and sandbox-based evals</h3>
-<p>For agents that act — coding, computer use, data analysis — the most faithful eval runs the agent in a real but <strong>isolated environment</strong>: a container with the repository checked out, a seeded database, a self-hosted web app. Key practices:</p>
+<p>For agents that act — coding, <dfn class="gt" tabindex="0" data-t="Computer use" data-d="A capability in which a model operates a graphical computer by viewing screenshots and issuing mouse and keyboard actions." data-l="computer-use-agents" data-a="computer-use">computer use</dfn>, data analysis — the most faithful eval runs the agent in a real but <strong>isolated environment</strong>: a container with the repository checked out, a seeded database, a self-hosted web app. Key practices:</p>
 <ul>
 <li><strong>Fresh state per trial</strong>, so leftovers from trial 2 can&#39;t make trial 3 pass.</li>
 <li><strong>Hide the grader.</strong> Visible, editable tests invite agents to edit the tests; copy grading tests in <em>after</em> the agent finishes.</li>
@@ -400,7 +402,7 @@ Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quo
 </ul>
 <p>See <a href="guardrails-and-sandboxing.html">guardrails and sandboxing</a> for the isolation technology itself.</p>
 <h2 id="online-evals-and-ab-testing"><a class="anchor" href="#online-evals-and-ab-testing" aria-hidden="true">#</a>Online evals and A/B testing</h2>
-<p><strong>Offline evals</strong> run your fixed suite before deploy. <strong>Online evals</strong> measure the agent on live traffic, catching what your suite didn&#39;t anticipate: run rubric judges asynchronously on a sample of production transcripts; track implicit signals (escalations, user rephrasings, abandonment, thumbs down); and <strong>A/B test</strong> new versions on a slice of traffic, comparing a primary metric (resolution rate) plus <strong>guardrail metrics</strong> that must not regress (cost per task, safety flags). Shadow mode and canaries reduce rollout risk (<a href="deployment.html">deployment</a>). Capturing and querying those transcripts is the subject of <a href="observability.html">observability</a> — and production failures feed straight back into error analysis and new offline tasks.</p>
+<p><strong>Offline evals</strong> run your fixed suite before deploy. <strong>Online evals</strong> measure the agent on live traffic, catching what your suite didn&#39;t anticipate: run rubric judges asynchronously on a sample of production transcripts; track implicit signals (escalations, user rephrasings, abandonment, thumbs down); and <strong>A/B test</strong> new versions on a slice of traffic, comparing a primary metric (resolution rate) plus <strong><dfn class="gt" tabindex="0" data-t="Guardrail" data-d="A check that runs alongside or around the model, such as input or output classifiers, policy rules or schema validation, to block unsafe, off-topic or malformed behavior." data-l="guardrails-and-sandboxing" data-a="guardrail">guardrail</dfn> metrics</strong> that must not regress (cost per task, safety flags). Shadow mode and canaries reduce rollout risk (<a href="deployment.html">deployment</a>). Capturing and querying those transcripts is the subject of <a href="observability.html">observability</a> — and production failures feed straight back into error analysis and new offline tasks.</p>
 <h2 id="statistics-is-that-improvement-real"><a class="anchor" href="#statistics-is-that-improvement-real" aria-hidden="true">#</a>Statistics: is that improvement real?</h2>
 <p>Your new prompt scores 74% versus the old 70% on 50 tasks. Ship it? Almost certainly you can&#39;t tell yet.</p>
 <h3 id="confidence-intervals"><a class="anchor" href="#confidence-intervals" aria-hidden="true">#</a>Confidence intervals</h3>
@@ -452,7 +454,7 @@ Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quo
 <p>Two habits make the loop work: <strong>write the eval before the fix</strong> (it should fail at baseline, proving it detects the problem), and <strong>read transcripts after every run</strong> — a jump from 60% to 85% might be a real improvement or a broken grader.</p>
 <h2 id="pitfalls"><a class="anchor" href="#pitfalls" aria-hidden="true">#</a>Pitfalls</h2>
 <ul>
-<li><strong>Grader hacking.</strong> Agents optimize for whatever passes. Coding agents have been observed special-casing test inputs, deleting failing tests, or weakening assertions. LLM judges can be swayed by confident claims of success. Guard with hidden tests, state checks and judges that see ground truth. This is the eval-time cousin of reward hacking in RL (<a href="training-agents.html">training agents</a>).</li>
+<li><strong>Grader hacking.</strong> Agents optimize for whatever passes. Coding agents have been observed special-casing test inputs, deleting failing tests, or weakening assertions. LLM judges can be swayed by confident claims of success. Guard with hidden tests, state checks and judges that see ground truth. This is the eval-time cousin of <dfn class="gt" tabindex="0" data-t="Reward hacking" data-d="An agent achieving high reward by exploiting flaws in the reward signal or tests, such as special-casing tests, instead of doing the intended task." data-l="agent-safety-alignment" data-a="reward-hacking">reward hacking</dfn> in RL (<a href="training-agents.html">training agents</a>).</li>
 <li><strong>Ambiguous tasks.</strong> If two experts would disagree on whether a transcript passes, the task is broken, not the agent. A good test: could a competent human, given only the task prompt, succeed and know they&#39;ve succeeded? Ambiguous tasks put a ceiling on scores and add noise. SWE-bench Verified exists largely to remove underspecified tasks from SWE-bench (see <a href="benchmarks.html">benchmarks</a>).</li>
 <li><strong>Overfitting to the eval.</strong> Iterating against the same 50 tasks for months tunes your prompt to those tasks. Keep a held-out set you rarely look at, and refresh the suite with new production failures.</li>
 <li><strong>Contamination.</strong> Public benchmark tasks (and solutions) may be in training data; internal evals built from your own data are far less exposed.</li>
@@ -469,7 +471,7 @@ Result:   model called search_transactions({&quot;query&quot;: &quot;flights&quo
 <li>Grades the <strong>reply</strong> with an LLM judge that sees ground truth, using structured output.</li>
 <li>Runs k trials per task and reports pass@1, pass@k and pass^k.</li>
 </ol>
-<p>First, the environment and the agent loop:</p>
+<p>First, the environment and the <dfn class="gt" tabindex="0" data-t="Agent loop" data-d="The core cycle of an agent: call the model, execute any tools it requests, feed the results back, and repeat until the model produces a final answer or a stopping condition (step, time or cost budget) is hit." data-l="the-agent-loop" data-a="agent-loop">agent loop</dfn>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> json
 <span class="hljs-keyword">import</span> anthropic
 
@@ -635,78 +637,78 @@ tasks = [
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>A booking agent&#39;s final message says &quot;Your flight is booked!&quot; but the reservations table is empty. Which grading approach would have caught this most reliably?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An LLM judge scoring the final message for helpfulness</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Measuring the latency of the final response</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Counting how many tool calls the agent made</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A code grader that checks the environment&#39;s reservations table after the trial</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An LLM judge scoring the final message against a booking-confirmation rubric</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A regex check that the final message contains a confirmation number</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A trajectory check that a booking tool was called before the final message</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A code grader that queries the reservations table after the trial ends</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The outcome (environment state) is ground truth; the transcript is only the agent&#39;s account. A state check catches false claims of success that a judge reading only the reply might accept.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The outcome (environment state) is ground truth; the transcript is only the agent&#39;s account. A judge reading only the reply accepts a confident claim, a regex is fooled by an invented confirmation number, and a tool-call check passes even when the booking call returned an error.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
-  <div class="quiz-question"><span class="quiz-num">2</span><div>Your support agent has pass@1 = 0.85. Every customer gets exactly one conversation, and many customers return several times a month. Which metric best reflects their experience of reliability?</div></div>
+  <div class="quiz-question"><span class="quiz-num">2</span><div>Your support agent has pass@1 = 0.85. Customers come back several times a month, and each conversation must go right. Which metric best reflects their experience?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>pass^k, because it measures the probability that every one of k attempts succeeds</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>pass@k, because it shows the agent can solve the task</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>pass@1 alone is sufficient</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>BLEU score against reference replies</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>pass^k, since it is the chance that all k of a customer&#39;s attempts succeed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>pass@k, since it shows how often the agent can solve each customer&#39;s task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Mean steps per task, since faster resolutions are what customers notice</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>pass@1, since each conversation is independent and gets a single attempt</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> pass@k assumes you can pick the best of k attempts, which customers can&#39;t. pass^k measures consistency across repeated interactions and falls quickly as k grows (0.85^5 ≈ 0.44).</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> pass@k assumes someone picks the best of k attempts, which customers can&#39;t. pass@1 describes one conversation but hides how quickly repeated interactions accumulate failures: pass^k falls fast as k grows (0.85^5 ≈ 0.44).</div>
+</div>
+
+<div class="quiz-q" data-correct="2">
+  <div class="quiz-question"><span class="quiz-num">3</span><div>In a pairwise LLM-judge comparison, response A wins when shown first but B wins when the order is swapped. What is the best interpretation and handling?</div></div>
+  <div class="quiz-options" role="group">
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Verbosity bias; truncate both responses to the same length and re-run once</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Judge randomness; re-run the original ordering a few times and take the majority</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Position bias; run both orders and count inconsistent verdicts as a tie</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Self-preference; switch to a judge from a different model family and re-run</span></button>
+  </div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A verdict that flips with order is the signature of position bias. The standard mitigation is to evaluate both orderings and count a win only when it is consistent. Re-running one ordering just repeats the bias; a different judge family addresses self-preference, a different problem.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
-  <div class="quiz-question"><span class="quiz-num">3</span><div>In a pairwise LLM-judge comparison, response A wins when shown first but B wins when the order is swapped. What is the best interpretation and handling?</div></div>
-  <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A is better, because the first verdict counts</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>This reflects position bias; treat inconsistent verdicts across orderings as a tie</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Average the two verdicts&#39; confidence scores</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The judge model is broken and should be replaced</span></button>
-  </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Judges show position bias. Evaluating both orderings and only counting consistent wins is the standard mitigation.</div>
-</div>
-
-<div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Your judge agrees with human labels 92% of the time. 90% of the labeled transcripts are passes. What should you check next?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Whether the judge uses a 1–10 scale</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Nothing — 92% agreement is excellent</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Whether the judge&#39;s reasoning is long enough</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The judge&#39;s true negative rate: how many of the human-labeled failures it actually catches</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Its agreement on a fresh labeled set, to make sure 92% wasn&#39;t a lucky sample</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Its true negative rate: how many human-labeled failures it actually catches</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Its true positive rate: how many human-labeled passes it correctly accepts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Whether a stronger judge model raises raw agreement above 95 percent</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With imbalanced labels, a judge that always says &quot;pass&quot; would score 90%. Measure how often it catches real failures (and use chance-corrected metrics like Cohen&#39;s kappa).</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With 90% passes, a judge that always says &quot;pass&quot; scores 90% agreement and catches no failures. The rare class is where it can hide, so check the true negative rate (or Cohen&#39;s kappa). Its true positive rate is almost certainly high already; more raw agreement on the same skewed set proves little.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Version B scores 76% vs version A&#39;s 72% on a 50-task suite. What&#39;s the most defensible conclusion?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A is better because it&#39;s the baseline</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>B is 4 points better; ship it</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The difference is within the noise for n=50 (CI roughly ±12 points); run a paired comparison with more tasks before deciding</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Rerun A until it also scores 76%</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>B is better; a 4-point gain is meaningful when both use the same 50 tasks</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A is better; a new version must clear a margin before replacing the baseline</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It&#39;s within noise at n=50; use a paired comparison on more tasks first</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>B is better if you rerun both with 5 trials per task and B still leads</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> At n=50 the 95% CI on each score is around ±12 points. A paired analysis on the same tasks (and more tasks) is needed to detect a 4-point difference.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> At n=50 the 95% CI on each score is about ±12 points. Extra trials shrink within-task noise but not between-task uncertainty, which dominates; you need more tasks and a paired, per-task analysis to detect a 4-point difference.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which trajectory check is most robust to the &quot;many valid paths&quot; problem?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent must use exactly 6 steps</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent&#39;s tool calls must match a recorded golden transcript</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent must never call issue_refund before get_order has returned for that order</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent&#39;s tool calls must match one of three recorded golden transcripts</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent must finish in the same number of steps as the reference solution</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The agent must never call issue_refund before get_order returns for that order</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The agent must call search, then read_page, then answer, in that order</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constraints (&quot;never X before Y&quot;, &quot;at most N&quot;, &quot;never call Z&quot;) allow any valid path while catching policy violations. Golden-path matching penalizes correct alternative strategies.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Constraints (&quot;never X before Y&quot;, &quot;at most N calls&quot;) allow any valid path while catching policy violations. Even several golden transcripts still penalize a correct fourth strategy, and step-count matching punishes efficient or careful alternatives.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Where do the highest-value new eval tasks usually come from?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Error analysis of real transcripts: categorizing and counting how the agent actually fails</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Popular public benchmarks</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Asking the agent to generate tasks it finds hard</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Brainstorming edge cases in a meeting</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Error analysis of real transcripts: categorizing and counting actual failures</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Public benchmarks in your domain, since experts have already validated them</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Model-generated hard cases, since they scale cheaply to thousands of tasks</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A team brainstorm of edge cases, since it covers failures not yet seen in prod</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Error analysis grounds the suite in real failure modes, weighted by frequency. Synthetic and brainstormed cases help, but should supplement observed failures, not replace them.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Error analysis grounds the suite in real failure modes, weighted by frequency. Brainstormed and synthetic cases are useful supplements, and public benchmarks help shortlist models, but none tells you how <em>your</em> agent actually fails.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -773,7 +775,7 @@ tasks = [
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
       <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
-      <div><h4>Practice</h4><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
+      <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
   </div>
