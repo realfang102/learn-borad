@@ -447,4 +447,4 @@ E: Long tasks fill context with stale logs and file contents, so constraints sta
 - [OpenHands: An Open Platform for AI Software Developers as Generalist Agents (Wang et al., 2024)](https://arxiv.org/abs/2407.16741) — architecture of a leading open-source coding agent.
 - [Aider repository map](https://aider.chat/docs/repomap.html) — how tree-sitter and graph ranking produce a compact codebase map.
 - [AGENTS.md](https://agents.md/) — the vendor-neutral format for project instructions to agents.
-- [Terminal-Bench](https://tbench.ai/) — hard command-line tasks for agents, with leaderboard.
+- [Terminal-Bench](https://www.tbench.ai/) — hard command-line tasks for agents, with leaderboard.

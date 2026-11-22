@@ -459,7 +459,7 @@ E: A cost jump with unchanged quality after a deploy usually means a cache-break
 - [gVisor](https://gvisor.dev/): the user-space application kernel for container sandboxing; its architecture guide explains the security model.
 - [Claude Managed Agents overview](https://platform.claude.com/docs/en/managed-agents/overview): Anthropic's managed runtime, covering versioned agents, sessions, containers and vaults.
 - [Amazon Bedrock AgentCore](https://aws.amazon.com/bedrock/agentcore/): AWS's managed services for running and operating agents.
-- [Vertex AI Agent Engine](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview): Google Cloud's managed agent runtime.
+- [Vertex AI Agent Engine](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/overview): Google Cloud's managed agent runtime.
 - [Introducing AgentKit (OpenAI)](https://openai.com/index/introducing-agentkit/): OpenAI's agent building and deployment toolkit.
 - [Google SRE Book](https://sre.google/sre-book/table-of-contents/): SLOs, alerting, incident response and postmortems, all of which apply directly to agents.
 - [Claude API rate limits](https://platform.claude.com/docs/en/api/rate-limits): how RPM, ITPM and OTPM limits work and which headers report them.

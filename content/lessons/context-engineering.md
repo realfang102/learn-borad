@@ -428,6 +428,6 @@ E: Clearing trades a cache rebuild for a smaller context, so a minimum amount en
 - [Equipping agents for the real world with Agent Skills (Anthropic)](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills): progressive disclosure for instructions and procedures.
 - [Effective harnesses for long-running agents (Anthropic)](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): progress files, feature lists and git as external memory across sessions.
 - [How we built our multi-agent research system (Anthropic)](https://www.anthropic.com/engineering/multi-agent-research-system): sub-agent context isolation in practice, including its token costs.
-- [Don't Build Multi-Agents (Cognition)](https://cognition.ai/blog/dont-build-multi-agents): the counterargument on context sharing.
+- [Don't Build Multi-Agents (Cognition)](https://cognition.com/blog/dont-build-multi-agents): the counterargument on context sharing.
 - [Context editing (Claude docs)](https://platform.claude.com/docs/en/build-with-claude/context-editing): configuration for clearing tool results and thinking blocks.
 - [Prompt caching (Claude docs)](https://platform.claude.com/docs/en/build-with-claude/prompt-caching): prefix matching, breakpoints and verifying cache hits.

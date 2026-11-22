@@ -507,4 +507,4 @@ E: Native thinking happens before the constrained output, so a long reasoning fi
 - [OpenAI: Introducing Structured Outputs in the API](https://openai.com/index/introducing-structured-outputs-in-the-api/) — another provider's explanation of JSON mode vs schema-constrained outputs.
 - [Instructor documentation](https://python.useinstructor.com/) — Pydantic-first structured outputs with validation-driven retries across many providers.
 - [Outlines on GitHub](https://github.com/dottxt-ai/outlines) — constrained generation for open-weight models with JSON Schema, regex and grammars.
-- [Pydantic documentation](https://docs.pydantic.dev/) — models, field descriptions, validators and JSON Schema generation.
+- [Pydantic documentation](https://pydantic.dev/docs/) — models, field descriptions, validators and JSON Schema generation.

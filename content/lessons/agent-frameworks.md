@@ -333,7 +333,7 @@ E: Frameworks run in your process; managed platforms run the agent or its infras
 - [LangGraph documentation](https://docs.langchain.com/oss/python/langgraph/overview): durable execution, persistence and human-in-the-loop.
 - [Claude Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview): how the SDK relates to the CLI, the client SDKs and Managed Agents.
 - [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/): agents, handoffs, guardrails, sessions and tracing.
-- [Google Agent Development Kit](https://google.github.io/adk-docs/): workflow agents, multi-agent hierarchies, evaluation and deployment.
+- [Google Agent Development Kit](https://adk.dev/): workflow agents, multi-agent hierarchies, evaluation and deployment.
 - [Introducing Microsoft Agent Framework](https://azure.microsoft.com/en-us/blog/introducing-microsoft-agent-framework/): the rationale for unifying AutoGen and Semantic Kernel.
 - [DSPy](https://dspy.ai/): signatures, modules and optimizers for programming rather than prompting.
 - [Executable Code Actions Elicit Better LLM Agents (CodeAct)](https://arxiv.org/abs/2402.01030): the research behind code-as-action agents like smolagents.

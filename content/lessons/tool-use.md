@@ -607,7 +607,7 @@ E: Hitting the token limit can cut a tool call's arguments off mid-generation, a
 - [Anthropic: Tool use overview](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview) — the official reference for client, server and Anthropic-defined tools.
 - [Anthropic: Advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use) — tool search, programmatic tool calling and tool-use examples for larger tool sets.
 - [OpenAI: Function calling guide](https://platform.openai.com/docs/guides/function-calling) — the same handshake in OpenAI's APIs, including strict mode and parallel calls.
-- [Google: Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling) — function declarations, calling modes and automatic function calling.
+- [Google: Gemini function calling](https://aistudio.google.com/docs/function-calling) — function declarations, calling modes and automatic function calling.
 - [Schick et al., Toolformer: Language Models Can Teach Themselves to Use Tools](https://arxiv.org/abs/2302.04761) — influential early work on training models to decide when to call APIs.
 - [Patil et al., Gorilla: Large Language Model Connected with Massive APIs](https://arxiv.org/abs/2305.15334) — training models to call real APIs from documentation; origin of the Berkeley Function Calling Leaderboard.
 - [Yao et al., τ-bench: A Benchmark for Tool-Agent-User Interaction in Real-World Domains](https://arxiv.org/abs/2406.12045) — evaluates multi-turn tool use with policies and simulated users.

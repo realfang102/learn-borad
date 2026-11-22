@@ -439,7 +439,7 @@ E: Swarm-style handoffs move ownership of the interaction; supervisor-style dele
 ## Further Reading
 
 - [How we built our multi-agent research system (Anthropic)](https://www.anthropic.com/engineering/multi-agent-research-system) — the most detailed public account of a production orchestrator-subagent system, with lessons on prompting and evaluation.
-- [Don't Build Multi-Agents (Cognition)](https://cognition.ai/blog/dont-build-multi-agents) — the essential counterpoint on context sharing and conflicting decisions.
+- [Don't Build Multi-Agents (Cognition)](https://cognition.com/blog/dont-build-multi-agents) — the essential counterpoint on context sharing and conflicting decisions.
 - [Why Do Multi-Agent LLM Systems Fail? (Cemri et al., 2025)](https://arxiv.org/abs/2503.13657) — the MAST failure taxonomy.
 - [Improving Factuality and Reasoning through Multiagent Debate (Du et al., 2023)](https://arxiv.org/abs/2305.14325) — the debate topology and its benefits.
 - [Generative Agents: Interactive Simulacra of Human Behavior (Park et al., 2023)](https://arxiv.org/abs/2304.03442) — memory, reflection and planning in a simulated town.
