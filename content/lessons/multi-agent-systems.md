@@ -349,6 +349,40 @@ If you answer yes to 2 through 5, start with the simplest topology, **orchestrat
 4. **Add verification.** Add a `verify_citations` step after synthesis: a separate agent that fetches each cited URL (web fetch tool) and flags claims the source does not support. Measure how many claims get flagged.
 5. **Failure hunt.** Deliberately induce three MAST failure modes in the example (for instance: remove `boundaries` from the schema, drop the subagent's "Gaps" instruction, raise `max_rounds` with no stopping guidance). Describe each failure as observed in traces and the design fix.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** For each task, ask two questions: do the parts mostly *read* the world or *write* a shared artifact, and would one part's small choices constrain another's? **Sketch:** (a) **Multi-agent**: 12 products are independent and read-heavy. One subagent per product (or per group of three), each filling the same comparison schema, and the lead writes the analysis. (b) **Single agent**: refactoring is write-heavy and tightly coupled (interfaces, call sites, tests must agree). At most, spawn read-only subagents to find callers or review the diff. (c) **Mostly parallel, and possibly just a workflow**: each report can be classified independently, so fan out in batches. But duplicate detection and priority across all 200 need one consolidated view, so a lead (or a plain code step) merges and dedupes. A fixed fan-out workflow may be cheaper than agents here. (d) **Single writer, with research helpers**: a chapter needs one voice, consistent terminology and a coherent argument. Parallel section-writers would produce Cognition's Flappy Bird problem. Subagents can gather sources and check facts.
+2. **Hint:** Fill in the five rows of the lesson's brief table (objective with its *why*, output format, tool and source guidance, boundaries, effort and stopping), then make the second brief's boundaries the mirror image of the first's. **Sketch:** Brief 1: *Objective*: identify companies operating or building lithium-ion EV battery recycling plants in North America and Europe, their process (hydrometallurgical, pyrometallurgical, direct recycling), announced capacity and status, for an investor deciding whether to enter the market. *Output*: a table (company, region, process, announced capacity, status, source URL), then at most 5 caveat bullets; mark unverified figures. *Tools*: prefer company filings, press releases and government reports over aggregators; 8 to 15 searches. *Boundaries*: do NOT cover regulation, policy or market economics (another subagent does); exclude lead-acid and consumer-electronics batteries. *Stopping*: stop at 10 or more companies or 15 searches, and list gaps. Brief 2 covers what Brief 1 excludes: regulation (for example, the EU Battery Regulation's recycling and recycled-content requirements, and US incentives) and economics (feedstock supply, metal prices), with the boundary "do NOT list or profile individual companies; another subagent covers that."
+3. **Hint:** Give `run_subagent` a shared list to append a record to, and accumulate usage across `pause_turn` continuations, since one subagent can make several API calls. `usage.server_tool_use.web_search_requests` counts searches. **Sketch:** With three questions (a single fact, a two-way comparison, a broad survey), `LEAD_SYSTEM`'s scaling rule predicts about 1, 2 to 4, and up to 6 subagents. Check the log against that; over-spawning on the simple question is the classic failure. Per round, wall-clock is roughly the *slowest* subagent's time, not the sum, which you can confirm from the `seconds` field. Also compare briefs within a round for overlap.
+
+    ```python
+    import time
+
+    async def run_subagent(brief: dict, log: list[dict]) -> str:
+        t0 = time.perf_counter()
+        rec = {"brief": brief, "searches": 0, "input_tokens": 0, "output_tokens": 0}
+        messages = [{"role": "user", "content": "\n".join(f"{k.upper()}: {v}" for k, v in brief.items())}]
+        for _ in range(5):
+            resp = await client.messages.create(model=WORKER_MODEL, max_tokens=16000, tools=[WEB_SEARCH],
+                                                system=SUBAGENT_SYSTEM, messages=messages)
+            rec["input_tokens"] += resp.usage.input_tokens
+            rec["output_tokens"] += resp.usage.output_tokens
+            if resp.usage.server_tool_use:
+                rec["searches"] += resp.usage.server_tool_use.web_search_requests
+            if resp.stop_reason != "pause_turn":
+                break
+            messages.append({"role": "assistant", "content": resp.content})
+        rec["seconds"] = round(time.perf_counter() - t0, 1)
+        log.append(rec)
+        return "".join(b.text for b in resp.content if b.type == "text")
+    ```
+
+4. **Hint:** First turn the final answer into a list of (claim, URL) pairs with a structured-output call, then verify each pair independently and in parallel, so one verifier's context holds one page. **Sketch:** For each pair, a verifier call with the web fetch tool (`{"type": "web_fetch_20260209", "name": "web_fetch"}`) fetches the URL and returns a structured verdict: `supported`, `unsupported` or `unreachable`, plus the deciding quote from the page. Requiring a quote keeps the verifier grounded instead of offering an opinion. Report flagged claims as a fraction of all claims, and keep `unreachable` (paywalls, 404s) separate from `unsupported`, since they need different fixes. The verifier reads untrusted pages, so tell it to treat page content as data, and give it no other tools.
+5. **Hint:** Change one thing at a time, run the same questions before and after, and read the logged briefs and per-round transcripts rather than only the final answer. **Sketch:** (1) *Without `boundaries`*: briefs overlap, two subagents cover the same angle and one angle is missing, and the answer is lopsided. In MAST terms that's a specification failure (repeated work, roles not followed). Fix: make boundaries required again and have the lead assign named, non-overlapping angles. (2) *Without "Gaps:"*: subagents present partial findings as complete, and the lead writes confident claims on thin evidence. That's information withholding plus incomplete verification. Fix: a required `open_questions` field in a structured payload, and a lead instruction to state uncertainty. (3) *`max_rounds` raised with no stopping guidance*: the lead keeps delegating near-duplicate follow-ups, cost climbs, and quality plateaus. That's unawareness of termination conditions plus step repetition. Fix: explicit "done when" criteria in `LEAD_SYSTEM`, and token and round budgets that the lead can see.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

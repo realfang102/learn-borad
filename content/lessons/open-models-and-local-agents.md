@@ -484,6 +484,37 @@ Downloading weights from the internet and running them on your GPUs is a supply-
 4. **Hybrid split.** In an agent you've built, move one high-volume, narrow step to a local model behind a tool, as in the hybrid sketch. Compare cost per successful task and end-to-end success against the all-frontier version.
 5. **Design a supply-chain policy.** Write a one-page policy for your team covering where weights may be downloaded from, allowed file formats, `trust_remote_code`, revision pinning, license review, and the evals a model must pass before production. Which items could you enforce automatically in CI?
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Use a parser mismatch, not just "parsing off", for the instructive case: for example, serve a Qwen-style model with a parser meant for another family. Then compare the raw response's `content` with its `tool_calls`. **Sketch:** With the right parser you get `tool_calls` and the loop finishes. With the wrong parser the request still returns HTTP 200, `tool_calls` is empty and `content` contains the literal `<tool_call>{...}</tool_call>` text, so the sketch prints it as the "answer". (Disabling auto tool choice entirely may instead make the server reject the request, which is the easier, loud failure.) Detect it in production with: an alert when the tool-call rate drops sharply after a deploy; a check that flags responses whose `content` contains tool-call markers or function-call-shaped JSON; a startup smoke test that sends a known prompt and asserts a parsed `tool_calls` entry; and logging of raw generated text for a sample of requests.
+2. **Hint:** Plug `num_hidden_layers`, `num_key_value_heads` and `head_dim` into the lesson's formula, and budget the GPU as weights plus overhead plus KV, exactly as in the worked example. **Sketch:** For a typical 8B GQA configuration (36 layers, 8 KV heads, head dimension 128): KV per token = 2 × 36 × 8 × 128 × 2 bytes = 147,456 bytes ≈ 0.15 MB, so one 16K session (16,384 tokens) needs about 2.4 GB. With 4-bit weights (about 5 GB including scales) and about 4 GB overhead: 24 − 5 − 4 = 15 GB of KV, so about 6 concurrent sessions (15 / 2.4). With 8-bit weights (about 9 GB): 24 − 9 − 4 = 11 GB, about 4 sessions. An FP8 KV cache roughly doubles both. The server's startup log usually reports less: vLLM, for example, reserves only a fraction of GPU memory by default (`--gpu-memory-utilization`) and logs its KV cache size in tokens and a maximum concurrency for your `--max-model-len`, after subtracting activation workspace and CUDA graphs.
+3. **Hint:** Score each response in three layers: did a tool call come back at all, does it parse, and does it name a real tool with arguments that validate against that tool's schema? **Sketch:** Run the 50 prompts in four configurations (constrained decoding on or off, at two quantization levels such as a GGUF `Q8_0` and `Q4_K_M`), ideally several times each. Expect constrained decoding to push validity close to 100% at both bit widths, while unconstrained validity drops more at 4 bits. Check tool selection and argument accuracy separately, because constrained decoding does not fix those. With 50 prompts, a 90% rate has a 95% interval of about ±8 points (1.96 × √(0.9 × 0.1 / 50)), so small differences between configurations are noise.
+
+    ```python
+    import json
+
+    from jsonschema import Draft202012Validator
+
+    SCHEMAS = {t["function"]["name"]: t["function"]["parameters"] for t in TOOLS}
+
+    def call_is_valid(call) -> bool:
+        schema = SCHEMAS.get(call.function.name)
+        if schema is None:
+            return False  # invented tool name
+        try:
+            args = json.loads(call.function.arguments)
+        except json.JSONDecodeError:
+            return False
+        return Draft202012Validator(schema).is_valid(args)
+
+    # validity = mean over prompts of: bool(msg.tool_calls) and all(call_is_valid(c) for c in msg.tool_calls)
+    ```
+4. **Hint:** Pick a step that is narrow, high-volume and easy to grade (classification, extraction, redaction), keep its interface identical, and run the same eval set through both versions. **Sketch:** Wrap the local model behind a tool as `bulk_classify` does, with a JSON Schema constraint and an "unsure" escape hatch that sends hard items back to the frontier model. Compute cost per successful task = (API spend + GPU cost for the period, including idle time) / number of successful tasks, and compare end-to-end success with several runs per task. Typical outcome: big savings when volume keeps the GPU busy, a small accuracy loss that the escalation path recovers, and no saving at low volume, where idle GPU hours dominate. Also check that steps per task did not rise, which eats into the saving.
+5. **Hint:** Write each rule so a script could check it, then mark which ones still need human judgment. **Sketch:** The policy covers: approved sources (the publisher's official organization or named, vetted quantizers, mirrored internally); allowed formats (safetensors or GGUF, with pickle `.bin`/`.pt` rejected); `trust_remote_code` banned unless an exception is reviewed and the revision pinned; every artifact pinned by commit hash with checksums recorded; license recorded per artifact and checked against an allowlist; and required evals before production (task success on your suite, tool-call validity, prompt-injection and refusal checks, run on the exact quantized build and server configuration). CI can enforce file-format checks, checksum and pin verification, a `trust_remote_code` scan of configs and code, the license allowlist and the eval gate. Humans still review custom licenses, new quantizer sources, chat-template changes and exception requests.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

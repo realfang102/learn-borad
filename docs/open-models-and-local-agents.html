@@ -660,6 +660,40 @@ TOOLS = [{
 <li><strong>Hybrid split.</strong> In an agent you&#39;ve built, move one high-volume, narrow step to a local model behind a tool, as in the hybrid sketch. Compare cost per successful task and end-to-end success against the all-frontier version.</li>
 <li><strong>Design a supply-chain policy.</strong> Write a one-page policy for your team covering where weights may be downloaded from, allowed file formats, <code>trust_remote_code</code>, revision pinning, license review, and the evals a model must pass before production. Which items could you enforce automatically in CI?</li>
 </ol>
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+<ol>
+<li><p><strong>Hint:</strong> Use a parser mismatch, not just &quot;parsing off&quot;, for the instructive case: for example, serve a Qwen-style model with a parser meant for another family. Then compare the raw response&#39;s <code>content</code> with its <code>tool_calls</code>. <strong>Sketch:</strong> With the right parser you get <code>tool_calls</code> and the loop finishes. With the wrong parser the request still returns HTTP 200, <code>tool_calls</code> is empty and <code>content</code> contains the literal <code>&lt;tool_call&gt;{...}&lt;/tool_call&gt;</code> text, so the sketch prints it as the &quot;answer&quot;. (Disabling auto <dfn class="gt" tabindex="0" data-t="Tool choice" data-d="A request setting that controls whether the model may call tools (auto) or must not (none). Older APIs also allowed forcing a tool (any or a named tool); the latest Claude models reject forced tool choice, so steer with instructions or strict tools." data-l="tool-use" data-a="tool-choice">tool choice</dfn> entirely may instead make the server reject the request, which is the easier, loud failure.) Detect it in production with: an alert when the tool-call rate drops sharply after a deploy; a check that flags responses whose <code>content</code> contains tool-call markers or function-call-shaped JSON; a startup smoke test that sends a known prompt and asserts a parsed <code>tool_calls</code> entry; and logging of raw generated text for a sample of requests.</p>
+</li>
+<li><p><strong>Hint:</strong> Plug <code>num_hidden_layers</code>, <code>num_key_value_heads</code> and <code>head_dim</code> into the lesson&#39;s formula, and budget the GPU as weights plus overhead plus KV, exactly as in the worked example. <strong>Sketch:</strong> For a typical 8B GQA configuration (36 layers, 8 KV heads, head dimension 128): KV per token = 2 × 36 × 8 × 128 × 2 bytes = 147,456 bytes ≈ 0.15 MB, so one 16K session (16,384 tokens) needs about 2.4 GB. With 4-bit weights (about 5 GB including scales) and about 4 GB overhead: 24 − 5 − 4 = 15 GB of KV, so about 6 concurrent sessions (15 / 2.4). With 8-bit weights (about 9 GB): 24 − 9 − 4 = 11 GB, about 4 sessions. An FP8 KV cache roughly doubles both. The server&#39;s startup log usually reports less: vLLM, for example, reserves only a fraction of GPU memory by default (<code>--gpu-memory-utilization</code>) and logs its KV cache size in tokens and a maximum concurrency for your <code>--max-model-len</code>, after subtracting activation workspace and CUDA graphs.</p>
+</li>
+<li><p><strong>Hint:</strong> Score each response in three layers: did a tool call come back at all, does it parse, and does it name a real tool with arguments that validate against that tool&#39;s schema? <strong>Sketch:</strong> Run the 50 prompts in four configurations (constrained decoding on or off, at two quantization levels such as a GGUF <code>Q8_0</code> and <code>Q4_K_M</code>), ideally several times each. Expect constrained decoding to push validity close to 100% at both bit widths, while unconstrained validity drops more at 4 bits. Check tool selection and argument accuracy separately, because constrained decoding does not fix those. With 50 prompts, a 90% rate has a 95% interval of about ±8 points (1.96 × √(0.9 × 0.1 / 50)), so small differences between configurations are noise.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre tabindex="0"><code class="hljs language-python"><span class="hljs-keyword">import</span> json
+
+<span class="hljs-keyword">from</span> jsonschema <span class="hljs-keyword">import</span> Draft202012Validator
+
+SCHEMAS = {t[<span class="hljs-string">&quot;function&quot;</span>][<span class="hljs-string">&quot;name&quot;</span>]: t[<span class="hljs-string">&quot;function&quot;</span>][<span class="hljs-string">&quot;parameters&quot;</span>] <span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> TOOLS}
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">call_is_valid</span>(<span class="hljs-params">call</span>) -&gt; <span class="hljs-built_in">bool</span>:
+    schema = SCHEMAS.get(call.function.name)
+    <span class="hljs-keyword">if</span> schema <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>  <span class="hljs-comment"># invented tool name</span>
+    <span class="hljs-keyword">try</span>:
+        args = json.loads(call.function.arguments)
+    <span class="hljs-keyword">except</span> json.JSONDecodeError:
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span>
+    <span class="hljs-keyword">return</span> Draft202012Validator(schema).is_valid(args)
+
+<span class="hljs-comment"># validity = mean over prompts of: bool(msg.tool_calls) and all(call_is_valid(c) for c in msg.tool_calls)</span></code></pre></div>
+</li>
+<li><p><strong>Hint:</strong> Pick a step that is narrow, high-volume and easy to grade (classification, extraction, redaction), keep its interface identical, and run the same eval set through both versions. <strong>Sketch:</strong> Wrap the local model behind a tool as <code>bulk_classify</code> does, with a JSON Schema constraint and an &quot;unsure&quot; escape hatch that sends hard items back to the frontier model. Compute cost per successful task = (API spend + GPU cost for the period, including idle time) / number of successful tasks, and compare end-to-end success with several runs per task. Typical outcome: big savings when volume keeps the GPU busy, a small accuracy loss that the escalation path recovers, and no saving at low volume, where idle GPU hours dominate. Also check that steps per task did not rise, which eats into the saving.</p>
+</li>
+<li><p><strong>Hint:</strong> Write each rule so a script could check it, then mark which ones still need human judgment. <strong>Sketch:</strong> The policy covers: approved sources (the publisher&#39;s official organization or named, vetted quantizers, mirrored internally); allowed formats (safetensors or GGUF, with pickle <code>.bin</code>/<code>.pt</code> rejected); <code>trust_remote_code</code> banned unless an exception is reviewed and the revision pinned; every artifact pinned by commit hash with checksums recorded; license recorded per artifact and checked against an allowlist; and required evals before production (task success on your suite, tool-call validity, prompt-injection and refusal checks, run on the exact quantized build and server configuration). CI can enforce file-format checks, checksum and pin verification, a <code>trust_remote_code</code> scan of configs and code, the license allowlist and the eval gate. Humans still review custom licenses, new quantizer sources, chat-template changes and exception requests.</p>
+</li>
+</ol>
+</details>
+
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true" tabindex="-1">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="open-models-and-local-agents" data-total="7">
 

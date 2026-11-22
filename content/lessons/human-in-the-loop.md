@@ -314,6 +314,50 @@ Every human interaction with an agent is a data point. Capture it:
 4. **Fight approval fatigue.** Log 50 approval decisions from a test run. Propose policy changes: which gates could be removed or turned into session-level permissions, and which ungated actions should become gated? Justify each with the data.
 5. **Design challenge.** Design the HITL experience for a background agent that reconciles monthly invoices against payments and can email vendors about discrepancies. Specify: what it asks up front, what it does autonomously, what it gates, what it notifies on, what the review artifact looks like, and how feedback is captured.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Score each action on the two axes separately (how bad if wrong? how hard to undo?), then add the push factors: external visibility, money, security. **Sketch:** *Reading a CRM record*: low impact, nothing to reverse, so autonomous (logged, since it touches customer data). *Updating a CRM field*: low to moderate impact and reversible through field history, so act and monitor. *Posting in a public Slack channel*: hard to reverse (people have read it), so act and notify if the channel is internal, approve if it includes customers or partners. *$20 refund*: low impact but money can't be recalled, so act and notify, with a cap enforced in the tool. *$2,000 refund*: high impact and irreversible, so approve. *Rotating an API key*: security-relevant and can break every service using the old key, so approve, ideally scheduled with whoever owns those services. *Creating a draft PR*: low impact and trivially reversible, so autonomous.
+2. **Hint:** Return a three-way decision (approve, edit, decline) plus the final arguments, compute which keys changed, and say so in the tool result. Otherwise the agent believes its original call ran and may "correct" it back. **Sketch:** On "edit", parse the new JSON (re-prompt if it doesn't parse or fails the tool's `input_schema`), execute with the edited arguments, and make the tool result read `"Note: the user edited your arguments before running. Changed: {'to': ('alex@client.com', 'legal@ourcompany.com')}. Result: ..."`. Log both the original and the edited arguments; edits are some of the most valuable feedback you'll get.
+
+    ```python
+    def ask_human(name: str, args: dict) -> tuple[str, dict, str]:
+        print(f"\nThe agent wants to run {name}:\n{json.dumps(args, indent=2)}")
+        reply = input("[y] approve / [e] edit / anything else = feedback for the agent: ").strip()
+        if reply.lower() == "y":
+            return "approve", args, ""
+        if reply.lower() == "e":
+            return "edit", json.loads(input("New arguments (JSON): ")), ""
+        return "decline", args, reply or "No reason given."
+
+    def describe_edit(old: dict, new: dict) -> str:
+        changed = {k: (old.get(k), new.get(k)) for k in old.keys() | new.keys() if old.get(k) != new.get(k)}
+        return f"Note: the user edited your arguments before running. Changed (old, new): {changed}."
+    ```
+
+3. **Hint:** `resp.content` holds SDK objects, not dicts, so convert each block with `.to_dict()` before saving, or `json.dump` will fail. Also save the results of any non-gated calls from the same turn, since *all* results must go back in one user message. **Sketch:** In `run`, when a turn contains a gated call, execute the auto-approved calls, then write `{"messages", "pending", "results"}` to disk and exit with "awaiting approval". `resume` (below) loads the file, re-validates, appends one user message with every result, and re-enters the loop. That means refactoring `run` into `run_from(messages)`, which takes an existing list. Test it by running the agent in one process, then calling `resume({"approved": True, "feedback": ""})` from another.
+
+    ```python
+    def resume(decision: dict, path: str = "agent_state.json") -> str:
+        with open(path) as f:
+            state = json.load(f)
+        results = state["results"]                     # results already produced this turn
+        for call in state["pending"]:                  # saved earlier with block.to_dict()
+            if decision["approved"]:                   # re-validate preconditions here first
+                content, is_error = execute(call["name"], call["input"]), False
+            else:
+                content, is_error = f"The user declined this action. Feedback: {decision['feedback']}", True
+            results.append({"type": "tool_result", "tool_use_id": call["id"],
+                            "content": content, "is_error": is_error})
+        state["messages"].append({"role": "user", "content": results})
+        return run_from(state["messages"])
+    ```
+
+4. **Hint:** Group the 50 decisions by tool and argument pattern, then compute, for each group, the approval rate, the edit rate and the median time to approve. A long payload approved in two seconds wasn't read. **Sketch:** Use three kinds of rules. *Remove or convert to a session permission*: groups that are always approved, never edited, and low-impact (e.g. running the test suite). *Keep, and improve the agent*: groups with declines or edits; the feedback tells you what to fix in the prompt or tool. *Add a gate*: ungated actions that later caused rollbacks or corrections. Be careful with small samples: 30 approvals out of 30 doesn't mean the decline rate is zero. By the "rule of three", the 95% upper bound is about 3/30 = 10%, so ungate only where a 1-in-10 mistake would be cheap, and keep collecting data. A strong answer ties each change to a number in the log.
+5. **Hint:** Walk through the run in time order (kickoff while the human is present, the unattended run, the review), and remember that invoices and vendor emails are *untrusted input*: an invoice saying "our bank details have changed" is a classic fraud and prompt-injection vector. **Sketch:** *Up front*: the period, data sources, the tolerance below which differences are ignored (rounding, FX), which vendors may be contacted, the sender identity and tone, and who reviews. *Autonomous*: reading invoices and payments, matching, computing discrepancies, drafting vendor emails. *Gated*: sending any vendor email, approved as one batch in a review queue; the agent has no payment or bank-detail tools at all. *Escalate, don't email*: suspected fraud, changed bank details, discrepancies above a set amount. *Notify*: on completion (one summary), on blockers (missing data access) and on escalations, not on every step. *Review artifact*: a reconciliation report with counts, a discrepancy table ranked by amount with links to the exact invoice line and payment record, the draft emails, and a list of assumptions made. *Feedback*: approve, edit or reject per draft; diff edits against the drafts to improve templates; turn rejections into eval cases; save per-vendor preferences as memory; adjust the tolerance and gates using approval statistics.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

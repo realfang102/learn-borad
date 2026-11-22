@@ -414,6 +414,75 @@ In practice, a modern agent usually stacks several: a reasoning model with adapt
 4. **Replanning trigger.** Add a `replan_needed` signal to the todo-list agent: when a tool returns an error twice in a row on the same step, inject a message asking the model to revise the plan before continuing. Compare behavior on a task where step 2 is impossible as written.
 5. **LLM-Modulo mini-project (hard).** Write a Blocksworld plan validator (check preconditions, apply effects, test the goal). Have a model propose plans, validate them, and feed the first violated precondition back as a critique, up to five rounds. Then rename the actions to nonsense words and compare success rates.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Use problems with a tempting wrong answer, like the bat-and-ball and apples examples in this lesson, and a small model such as `claude-haiku-5-5` with thinking left off so the prompt is the only variable. Read `usage.output_tokens` for cost. **Sketch:** Score each answer right or wrong and sum output tokens per condition. Expect "Let's think step by step" to fix some of the intuitive-trap errors while using several times more output tokens per answer; on problems the model already gets right directly, it only adds cost. Run each prompt a few times, since five problems × one run is very noisy. The conclusion to draw: CoT buys accuracy with tokens, which is the trade reasoning models now make internally.
+2. **Hint:** Factor the voting into a helper, compute agreement over *all* samples drawn (5, then 10), and keep "UNSURE" as a distinct return value. To measure, you need questions with known answers. **Sketch:** Label each question by whether the plurality answer (before any UNSURE decision) was right. Compare the UNSURE rate on wrong-plurality questions with the rate on right-plurality ones. A useful gate fires on most wrong answers and few right ones. Note the bar after resampling is 6 of 10 votes.
+
+    ```python
+    import collections
+
+    def vote(answers: list[str], total: int) -> tuple[str | None, float]:
+        if not answers:
+            return None, 0.0
+        answer, count = collections.Counter(answers).most_common(1)[0]
+        return answer, count / total
+
+    def self_consistency_or_unsure(question: str, n: int = 5, threshold: float = 0.6):
+        answers = [a for a in (solve_once(question) for _ in range(n)) if a is not None]
+        answer, agreement = vote(answers, n)
+        if agreement < threshold:  # low agreement: draw n more samples
+            answers += [a for a in (solve_once(question) for _ in range(n)) if a is not None]
+            answer, agreement = vote(answers, 2 * n)
+        return (answer if agreement >= threshold else "UNSURE"), agreement
+    ```
+
+3. **Hint:** Change only `output_config={"effort": ...}`, time each call with `time.perf_counter()`, and run each task more than once per level so the differences aren't noise. **Sketch:** Plot three lines (accuracy, mean output tokens, mean latency) against effort. Typically tokens and latency rise steeply with effort while accuracy rises on hard tasks and flattens (or occasionally dips, from overthinking) on easy ones. Pin the *lowest* level whose accuracy is within noise of the best and that fits your latency and cost budget. If the task mix splits cleanly into easy and hard types, pin different levels per route rather than varying effort per request.
+4. **Hint:** Track consecutive failing turns per in-progress plan item, and when the count reaches two, add a text block *after* the `tool_result` blocks asking for `update_plan`. (This assumes your real tools return `is_error` results, as in [tool use](tool-use.html).) **Sketch:** A good impossible step for the INI-to-TOML task is "write the TOML file with Python's `tomllib`": `tomllib` can only read TOML, so every attempt to use it for writing fails. Without the trigger, the agent tends to keep trying variations or quietly switch approaches without updating its plan. With it, it calls `update_plan` explicitly, e.g. adding a TOML-writing dependency or generating the file another way, or marks the step blocked and explains, which makes the change visible to a reviewer.
+
+    ```python
+    errors_on_step: dict[str, int] = {}  # consecutive failing turns per plan step
+
+    # inside the loop, after building `results` (with is_error set on failures):
+    step = next((i["step"] for i in plan if i["status"] == "in_progress"), "(no plan)")
+    failed = any(r.get("is_error") for r in results)
+    errors_on_step[step] = errors_on_step.get(step, 0) + 1 if failed else 0
+    content = list(results)  # tool_result blocks first, then any text
+    if errors_on_step[step] >= 2:
+        content.append({"type": "text", "text": (
+            f"[Harness] The step '{step}' has failed twice in a row. Before trying again, "
+            "call update_plan to revise the remaining steps or mark this one blocked.")})
+        errors_on_step[step] = 0
+    messages.append({"role": "user", "content": content})
+    ```
+
+5. **Hint:** Use the classic four actions: `pickup(x)` from the table, `putdown(x)`, `stack(x, y)` and `unstack(x, y)`. Track what each block sits on plus what the hand holds; a block is clear if nothing sits on it. **Sketch:** The validator below returns the first violated precondition, or the unmet goal, or `None` for a valid plan; feed its message back as the critique each round. Ask the model for plans as structured output (a list of `[op, x, y]` items) so parsing never fails. For the mystery variant, rename the actions in the prompt (e.g. `pickup` → `zorp`) and map the names back before validating, so the logic is identical. Expect noticeably lower first-try and final success with nonsense names, which is the PlanBench pattern; the validator loop recovers some of the gap, but only because the *verifier* is sound, which is the LLM-Modulo point.
+
+    ```python
+    def first_violation(plan: list[tuple], on: dict[str, str], goal: dict[str, str]) -> str | None:
+        """on/goal map each block to what it sits on ("table" or a block); plan items are (op, x[, y])."""
+        on, holding = dict(on), None
+        clear = lambda b: b in on and b not in on.values()
+        for i, (op, x, *rest) in enumerate(plan, 1):
+            below = rest[0] if rest else "table"
+            if op in ("pickup", "unstack"):
+                if holding or on.get(x) != below or not clear(x):
+                    return f"Step {i} {op}({x}): needs an empty hand and {x} clear and on {below}."
+                holding = x
+                del on[x]
+            elif op in ("putdown", "stack"):
+                if holding != x or (below != "table" and not clear(below)):
+                    return f"Step {i} {op}({x}): needs {x} in hand and {below} clear."
+                on[x], holding = below, None
+            else:
+                return f"Step {i}: unknown action '{op}'."
+        missing = [f"{b} on {s}" for b, s in goal.items() if on.get(b) != s]
+        return f"Goal not met: {', '.join(missing)}." if missing else None
+    ```
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz

@@ -583,6 +583,53 @@ Whatever you choose, keep tool logic in plain functions (as `repo_tools.py` does
 4. **Durable LangGraph.** Replace `InMemorySaver` with a SQLite checkpointer, kill the process while it waits for approval, restart, and resume the same `thread_id`.
 5. **Port a framework.** Implement the spec in a fifth framework from [Frameworks & SDKs Compared](agent-frameworks.html), such as Pydantic AI or Google ADK, and add a column to the comparison table.
 
+<details class="solutions">
+<summary>Hints and solution sketches</summary>
+
+1. **Hint:** Make the bug small and unambiguous, and fix everything except the framework: same report, same repo, and, where you can, the same model (route the OpenAI Agents SDK to Claude through an adapter, or note that its default model differs). Run each version a few times, because single runs vary. **Sketch:** A minimal repo is one file, for example `repo/uploads.py` with `def upload(path, url):` that opens the file and returns `requests.post(url, files={"file": f})` with no `timeout`. A good ticket cites `uploads.py` with the line number, explains that `requests` waits indefinitely without a timeout, and proposes `timeout=(connect, read)` plus retry handling. Count steps from the printed tool calls; read cost from `message.usage` (Tool Runner), `ResultMessage.total_cost_usd` (Claude Agent SDK), the run's usage or trace (OpenAI) and `usage_metadata` on AI messages (LangGraph). Expect similar tickets with different step counts: the Agent SDK version may delegate to the subagent, and the OpenAI version adds a handoff turn.
+2. **Hint:** Register a second `HookMatcher` with `matcher="mcp__tickets__file_ticket"`, read the arguments from `input_data["tool_input"]`, and write the deny reason as an instruction for fixing the ticket. **Sketch:** Hooks run before the permission flow, so a denied ticket never reaches the human's `can_use_tool` prompt. Make the reason say that resubmitting with evidence is allowed, which distinguishes it from the human decline ("Do not retry"). To test, temporarily remove "citing file paths and line numbers" from `SYSTEM`, so a high-severity ticket without references is likely, and check the transcript for a denied call followed by a revised one.
+
+    ```python
+    import re
+
+    FILE_LINE = re.compile(r"[\w./-]+\.\w+:\d+")  # e.g. uploads.py:3
+
+    async def require_evidence(input_data, tool_use_id, context):
+        args = input_data["tool_input"]
+        if args.get("severity") == "high" and not FILE_LINE.search(args.get("body", "")):
+            return {"hookSpecificOutput": {
+                "hookEventName": input_data["hook_event_name"],
+                "permissionDecision": "deny",
+                "permissionDecisionReason": "High-severity tickets need a file:line reference in the body "
+                                            "(e.g. uploads.py:3). Add the evidence and call file_ticket again.",
+            }}
+        return {}
+
+    # hooks={"PreToolUse": [HookMatcher(matcher="Read", hooks=[block_secret_files]),
+    #                       HookMatcher(matcher="mcp__tickets__file_ticket", hooks=[require_evidence])], ...}
+    ```
+3. **Hint:** Two processes need the same agent definitions (the state refers to agents and tools that must exist again on load) and the same `SQLiteSession`; only the run state and the pending approvals travel through the file. **Sketch:** Process 1 runs until `result.interruptions` is non-empty, writes `result.to_state().to_json()` to `state.json` (together with each pending item's name and arguments, so an approver can see them without loading the state) and exits. Process 2 builds the same `investigator` and `ticket_writer`, opens `SQLiteSession("triage-42", "sessions.db")`, restores the state with the SDK's `RunState` deserializer (check the human-in-the-loop docs for the exact helper in your version), calls `approve` or `reject` on each pending item, and calls `Runner.run(investigator, state, session=session, max_turns=20)`. Verify that exactly one ticket appears in `tickets.jsonl` and that a rejected ticket is not retried. This is how approvals that wait hours, or go through a web UI, are built.
+4. **Hint:** Install `langgraph-checkpoint-sqlite`, compile the graph with a `SqliteSaver`, and on start-up check `graph.get_state(config).next`: it is non-empty if this thread is paused mid-run. **Sketch:** Run once, kill the process at the approval prompt, then start it again. The second process finds the paused thread and resumes with `Command(resume=...)`. Because `file_ticket` re-executes from the top on resume and its side effect comes after `interrupt()`, exactly one ticket is filed; that is the warning box from the lesson put to the test.
+
+    ```python
+    import sys
+
+    from langgraph.checkpoint.sqlite import SqliteSaver
+
+    config = {"configurable": {"thread_id": "triage-42"}, "recursion_limit": 40}
+    with SqliteSaver.from_conn_string("checkpoints.db") as checkpointer:
+        graph = builder.compile(checkpointer=checkpointer)
+        if graph.get_state(config).next:  # paused run found for this thread: resume it
+            answer = input("Resume: approve the pending ticket? [y / or type a reason] ").strip()
+            result = graph.invoke(Command(resume="approve" if answer.lower() == "y" else answer), config)
+        else:
+            result = graph.invoke({"messages": [{"role": "user", "content": sys.argv[1]}]}, config)
+        print(result.get("__interrupt__") or result["messages"][-1].text)
+    ```
+5. **Hint:** Reuse `repo_tools.py` unchanged and fill the new column row by row as you build: where the loop lives, how tools are declared, how errors, approvals and bounds are handled, and what tracing you get. **Sketch:** In Pydantic AI, an `Agent` with a Claude model, `instructions` and the three tools as typed functions; approval through its human-in-the-loop (deferred tool) support, bounds through its usage limits, tracing through OpenTelemetry or Logfire. In Google ADK, an `LlmAgent` with the tools; approval through its tool-confirmation support or a `before_tool_callback`, sessions through its session service, and the local dev UI for traces. Check the current docs for the exact names, since both evolve quickly. A strong answer fills every row with what you actually observed (including line count) and names one thing that was easier and one that was harder than in the four versions in this lesson.
+
+</details>
+
 ## Check Your Understanding
 
 ```quiz
