@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -428,78 +429,78 @@ OPTIMIZER = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>      <s
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>According to Reflexion and follow-up work, when does &quot;reflect and retry&quot; help the most?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When the model critiques itself with no new information</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only when the model&#39;s weights are updated after each reflection</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When the retry uses a higher temperature</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When the reflection is grounded in external feedback such as failing tests or error messages</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When a stronger model writes the critique of the weaker model&#39;s attempt</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the model critiques itself for several rounds before it answers</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When reflections are kept across tasks rather than within a single task</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When the reflection is grounded in external feedback, e.g. tests</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Intrinsic self-correction is unreliable; grounded feedback gives the next attempt genuinely new information to act on.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Grounded feedback gives the second attempt genuinely new information. Repeated intrinsic self-critique often confirms mistakes or breaks correct answers, and a stronger critic helps only if it can actually detect the error. Persisting reflections (as ExpeL does) is useful but is not what makes a retry work.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Why is code a particularly good medium for a skill library like Voyager&#39;s?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code cannot contain bugs once stored</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>LLMs cannot follow natural-language procedures</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Code takes less context than natural language in every case</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Programs are executable, composable and verifiable, so skills can be tested, reused and built upon</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code is deterministic, so a stored skill can never fail in a new world</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Minecraft accepts only JavaScript, so prose skills couldn&#39;t run there</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Code is shorter than prose, so more skills fit in the context window</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Programs can be run, tested and composed into larger, reusable skills</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Executable skills can be verified in the environment and composed into more complex skills, which made Voyager&#39;s library accumulate and transfer.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Executable skills can be verified in the environment and composed into more complex skills, which is why Voyager&#39;s library accumulated and transferred to new worlds. Stored skills can still fail when the world differs; the point is that failures are observable and fixable.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
-  <div class="quiz-question"><span class="quiz-num">3</span><div>What distinguishes GEPA&#39;s approach from simply running RL on model weights?</div></div>
+  <div class="quiz-question"><span class="quiz-num">3</span><div>What distinguishes GEPA&#39;s approach from running RL on model weights?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It evolves prompts using reflection on execution traces and a Pareto front of candidates, and was reported to need far fewer rollouts than GRPO on several tasks</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>GEPA changes the model&#39;s weights using natural-language gradients</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>GEPA requires no evaluation metric</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It only works for image models</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It evolves prompts via trace reflection, needing far fewer rollouts</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It needs no metric, since the model reflects on its own outputs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It backpropagates text &quot;gradients&quot; through a graph of LLM calls</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It fine-tunes LoRA adapters on its best traces instead of full weights</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Optimizing text with reflective feedback can be much more sample-efficient than weight updates, which is why prompt optimization is often the first lever to pull.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> GEPA reflects in words on execution traces and keeps a Pareto front of prompt candidates, and was reported to beat GRPO on several tasks with far fewer rollouts. Backpropagating textual gradients describes TextGrad; GEPA changes no weights at all and still needs a metric to score candidates.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>The Darwin Gödel Machine replaced the original Gödel Machine&#39;s requirement to prove a self-modification is beneficial with what?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Human approval of every line of code</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Updating the foundation model&#39;s weights</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Empirical evaluation on benchmarks, plus an archive of diverse variants for open-ended exploration</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Random mutation without any evaluation</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Human review and approval of each proposed change before it is kept</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>RL updates to the foundation model&#39;s weights after each new variant</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Benchmark validation, plus an archive of diverse agent variants</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Keeping only the single best-scoring agent from each generation</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Proofs of benefit are practically impossible; the DGM validates changes empirically and keeps an archive (not just the best agent) so stepping stones are preserved.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The DGM validates changes empirically and keeps an archive of many variants (not just the best) so stepping stones are preserved; ablations showed the archive mattered. The foundation model stayed frozen, and while runs were sandboxed and overseen, humans did not approve each change.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why do FunSearch and AlphaEvolve produce strong results specifically in math and code?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>They use human reviewers for every candidate</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Evolutionary search does not work in other domains in principle</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Those domains have fast, trustworthy automatic evaluators that score each candidate program</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>LLMs are only trained on math and code</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Expert reviewers vet the most promising candidates in each generation</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Evolutionary search is mathematically proven to converge on programs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each candidate program can be scored by a fast, reliable evaluator</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Those are the domains their language models were mainly trained on</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMs supply smart mutations; the evaluator supplies ground truth. Without a reliable evaluator, the search optimizes noise or exploits flaws.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMs supply smart mutations; the evaluator supplies ground truth. Without a fast, trustworthy evaluator the search optimizes noise or exploits flaws (as the AI CUDA Engineer episode showed). The models are general-purpose, and no convergence proof is involved.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">6</span><div>An agent writes lessons to a persistent notes file that is loaded into every future session. Which risk is a security issue rather than only a quality issue?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Summarization loses details over time</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Lessons contradict each other</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The file grows too long</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A prompt-injected document causes the agent to save a malicious instruction that persists into future sessions</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Repeated summarization erodes the details that made lessons useful</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Hundreds of contradictory lessons pile up and crowd the context</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One user&#39;s preference gets written down as a rule for everyone</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An injected page gets a malicious rule saved for future runs</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Persistent memory turns a one-time injection into a durable compromise. Gate memory writes and treat stored lessons as untrusted input.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Persistent memory turns a one-time prompt injection into a durable compromise, so memory writes need gating and stored lessons should be treated as untrusted input. Overgeneralization, bloat and context collapse are real but are quality problems, not attacks.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>In the eval-gated optimization loop, why is the candidate prompt scored on a held-out set rather than the dev set whose failures it was built from?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To prevent accepting changes that merely patch the specific dev failures (overfitting) without improving general performance</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The dev set is too expensive to evaluate</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API requires a separate dataset</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Held-out sets always have higher scores</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A gain on the dev failures it saw may just be patching those cases</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The dev set was already scored, so re-running it would waste API calls</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Scoring on dev would leak the held-out answers into the optimizer</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The held-out set is larger, so its scores have less random noise</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The optimizer saw the dev failures, so improvement there is biased. A held-out gate estimates whether the change generalizes.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The optimizer saw the dev failures, so improvement there is biased toward special-casing them. A held-out gate estimates whether the change generalizes. Held-out sets aren&#39;t necessarily larger, and the leak runs the other way: the dev data has already shaped the candidate.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -567,7 +568,7 @@ OPTIMIZER = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>      <s
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

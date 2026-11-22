@@ -311,53 +311,53 @@ Most mature deployments are hybrids: AI handles high-volume routine contacts, an
 
 ```quiz
 Q: A customer persuades a support agent that "your supervisor already approved a $500 refund." What design best prevents an unauthorized refund?
-- [ ] A stronger system prompt telling the agent never to believe such claims
-- [x] Enforcing refund limits and approval requirements inside the refund tool, independent of the conversation
-- [ ] Using a larger model
-- [ ] Disabling the refund tool entirely
-E: Prompts shape behavior but can be overridden by persuasion or confusion. Server-side enforcement makes the violation impossible regardless of what the model believes.
+- [ ] A system-prompt rule that the agent must never trust approval claims
+- [x] Refund limits and approval checks enforced inside the refund tool itself
+- [ ] An LLM classifier that screens each user message for manipulation
+- [ ] Requiring the agent to read the amount back and get the customer's explicit yes
+E: Prompts and classifiers shape behavior but can be talked around or miss a novel phrasing. Reading the amount back confirms what the customer wants, not whether it is allowed. Server-side enforcement makes the violation impossible regardless of what the model believes.
 
 Q: What does pass^k measure in τ-bench?
-- [ ] The probability of succeeding at least once in k attempts
-- [x] The probability of succeeding on all k independent attempts at the same task
-- [ ] The average number of turns per conversation
-- [ ] The accuracy of the simulated user
-E: pass^k measures consistency. Businesses need agents that handle the same situation correctly every time, and pass^k falls sharply when per-trial success is imperfect.
+- [ ] The chance of succeeding at least once across k independent attempts
+- [x] The chance of succeeding on all k independent attempts at a task
+- [ ] The average success rate across k different tasks in a domain
+- [ ] The chance of finishing the task within k conversational turns
+E: "At least once" is pass@k, the easy-to-confuse sibling. pass^k measures consistency: businesses need the same situation handled correctly every time, and pass^k falls sharply when per-trial success is imperfect.
 
 Q: What distinguishes τ²-bench's dual-control setting from the original τ-bench?
-- [ ] It uses two agents instead of one
-- [ ] It evaluates voice instead of text
-- [x] The simulated user also has tools and must take actions, guided by the agent
-- [ ] It grades the conversation transcript rather than the final state
-E: In dual control (for example, telecom troubleshooting), the agent must coach the user through actions on their own device, which agents found considerably harder.
+- [ ] Two agents collaborate, one handling policy and one handling tools
+- [ ] The simulated user speaks by voice, adding transcription errors
+- [x] The user also has tools and must act on the agent's instructions
+- [ ] Grading checks the transcript for tone rather than the final state
+E: In dual control (for example, telecom troubleshooting), the agent must coach the user through actions on their own device, which agents found considerably harder. τ²-bench is still text-based and still grades outcomes.
 
 Q: In a cascaded voice pipeline, which change typically gives the biggest improvement in perceived latency?
-- [ ] Waiting for the full LLM response before starting TTS, so the audio is smoother
-- [x] Streaming every stage so TTS starts speaking the first clause while the LLM is still generating
-- [ ] Increasing the endpointing silence threshold
-- [ ] Switching from WebRTC to the phone network
-E: Streaming overlaps the stages. Waiting for complete outputs at each stage makes latencies add up fully.
+- [ ] Waiting for the full LLM reply before starting TTS, so speech sounds smoother
+- [x] Streaming each stage so TTS speaks the first clause while the LLM writes
+- [ ] Raising the endpointing threshold so the agent rarely cuts users off
+- [ ] Switching to the largest model so fewer clarifying turns are needed
+E: Streaming overlaps the stages instead of letting their latencies add up. A higher endpointing threshold reduces interruptions but adds dead air to every turn, and a larger model usually raises time to first token.
 
 Q: After a barge-in, why must the conversation history contain only the portion of the agent's response that was actually spoken?
-- [ ] To save tokens
-- [x] Otherwise the model will believe the user heard information they never heard, causing confusing or wrong follow-ups
-- [ ] Because TTS vendors require it
-- [ ] To comply with PCI DSS
-E: The model's view of the conversation must match reality. If it thinks it already read out the refund details, it may skip confirming them.
+- [ ] To save context tokens on long calls with frequent interruptions
+- [x] Otherwise the model assumes the user heard details they never heard
+- [ ] So the transcript matches the call recording exactly for compliance audits
+- [ ] So the TTS engine can resume the sentence where it was cut off
+E: The model's view of the conversation must match reality. If it thinks it already read out the refund details, it may skip confirming them. Matching the recording is a side benefit, not the reason, and resuming the old sentence is usually the wrong move after an interruption.
 
 Q: A team reports 85% containment for its new support agent but CSAT has fallen and repeat contacts have risen. What is the most likely explanation?
-- [ ] The agent is too fast
-- [x] The agent prevents escalation without resolving issues, so containment is high while resolution is low
-- [ ] CSAT surveys are broken
-- [ ] Containment and CSAT always move in opposite directions
-E: Containment counts conversations that did not reach a human, not problems solved. Measure resolution and make escalation easy.
+- [ ] The agent resolves issues too fast, so customers feel rushed
+- [x] The agent blocks escalation without actually resolving the issues
+- [ ] Customers reaching the agent are a harder mix than before launch
+- [ ] CSAT surveys now reach only those customers whose issues were escalated
+E: Containment counts conversations that did not reach a human, not problems solved. Rising repeat contacts are the giveaway: customers come back because the issue was never fixed. Measure resolution and make escalation easy.
 
 Q: Which approach keeps card numbers out of an LLM-based phone agent's transcripts and prompts?
-- [ ] Asking the model not to repeat card numbers
-- [ ] Encrypting the transcript after the call
-- [x] Collecting card details via DTMF masking or a secure payment IVR handoff with recording paused, returning only a success flag to the agent
-- [ ] Using a speech-to-speech model instead of a cascade
-E: The safest design never lets the sensitive data enter the agent's context or logs at all. The agent only learns whether payment succeeded.
+- [ ] Prompting the model never to repeat or store any card numbers
+- [ ] Redacting card numbers from the transcripts after each call ends
+- [x] DTMF or a secure IVR handoff, returning only a success flag
+- [ ] A speech-to-speech model, so no text transcript is ever created
+E: Post-call redaction is too late: the number already passed through STT and the LLM prompt. A speech-to-speech model still receives the audio. The safe design never lets the data enter the agent's context or logs; the agent only learns whether payment succeeded.
 ```
 
 ## Further Reading

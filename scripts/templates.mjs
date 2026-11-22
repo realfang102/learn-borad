@@ -10,6 +10,7 @@ const NAV = [
   ["curriculum.html", "Curriculum"],
   ["paths.html", "Paths"],
   ["lab.html", "Lab"],
+  ["projects.html", "Projects"],
   ["glossary.html", "Glossary"],
   ["papers.html", "Reading List"],
   ["cheatsheet.html", "Cheat Sheet"],
@@ -65,7 +66,7 @@ ${body}
     <div class="footer-brand"><a class="brand" href="index.html">${ICON.logo}<span>${SITE_NAME}</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>
@@ -108,6 +109,7 @@ function sidebar(site, current) {
       })
       .join("\n")}
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -267,6 +269,7 @@ export function homePage(site) {
 <section class="section">
   <div class="section-head"><h2>Built for learning that sticks</h2></div>
   <div class="feature-grid">
+    <a class="feature" href="projects.html"><span>🏗️</span><h3>12 hands-on projects</h3><p>Graded builds from your first tool call to a red-teamed, evaluated, production-ready agent.</p></a>
     <a class="feature" href="lab.html"><span>🧪</span><h3>Interactive lab</h3><p>Step through agent traces, watch a context window fill up, simulate prompt injection, compute pass^k and costs.</p></a>
     <a class="feature" href="curriculum.html"><span>✅</span><h3>Quizzes in every lesson</h3><p>${quizCount} questions with explanations that test understanding, not trivia.</p></a>
     <a class="feature" href="flashcards.html"><span>🃏</span><h3>Spaced-repetition flashcards</h3><p>Drill ${glossary.length} key terms with a Leitner-box system that focuses on what you miss.</p></a>
@@ -413,18 +416,17 @@ ${site.papers
 }
 
 // ---------- cheat sheet ----------
-export function cheatsheetPage(site) {
-  const c = site.cheatsheet;
+export function cheatsheetPage(site, c = site.cheatsheet, page = "cheatsheet", eyebrow = "Reference", printable = true) {
   const body = `<div class="layout-lesson">
 ${sidebar(site, null)}
 <main id="main" class="lesson">
-  <header class="lesson-header"><p class="eyebrow">Reference</p><h1>${esc(c.title || "Cheat Sheet")}</h1><p class="lead">${esc(c.description || "")}</p>
-  <div class="lesson-meta"><button type="button" class="btn btn-ghost print-btn">🖨️ Print / save as PDF</button></div></header>
+  <header class="lesson-header"><p class="eyebrow">${eyebrow}</p><h1>${esc(c.title || "Cheat Sheet")}</h1><p class="lead">${esc(c.description || "")}</p>
+  <div class="lesson-meta">${printable ? '<button type="button" class="btn btn-ghost print-btn">🖨️ Print / save as PDF</button>' : ""}</div></header>
   <article class="prose cheatsheet">${c.html}</article>
 </main>
 ${toc(c.headings)}
 </div>`;
-  return layout({ title: c.title || "Cheat Sheet", description: c.description || "", body, page: "cheatsheet", bodyAttrs: `data-mermaid="${c.hasMermaid ? 1 : 0}"` });
+  return layout({ title: c.title || "Cheat Sheet", description: c.description || "", body, page, bodyAttrs: `data-mermaid="${c.hasMermaid ? 1 : 0}"` });
 }
 
 // ---------- lab ----------

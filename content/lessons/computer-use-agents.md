@@ -84,7 +84,7 @@ Browsers are the most common deployment because most business software is web-ba
 - **Playwright** (and Puppeteer, Selenium before it) is the automation layer: launch a browser, navigate, take screenshots, query elements and dispatch clicks and keystrokes. Almost every browser agent sits on one of these.
 - **browser-use** is a popular open-source Python library that wraps Playwright for LLM agents: it extracts interactive elements, highlights and indexes them, and exposes actions the model calls by index. It is a good way to see a complete browser-agent harness.
 - **Hosted browser infrastructure** (Browserbase is a well-known example, alongside others) runs fleets of headless browsers in the cloud with session recording, persistent logins, proxies and live view for debugging. Browserbase also maintains **Stagehand**, a framework mixing deterministic Playwright code with natural-language steps such as `act("click the login button")`.
-- **Agentic browsers** put the agent inside the user's own browser: Anthropic's Claude for Chrome extension, OpenAI's ChatGPT Atlas, Perplexity's Comet. They can use the user's logged-in sessions, which is powerful and raises the stakes for safety.
+- **Agentic browsers** put the agent inside the user's own browser: Anthropic's Claude in Chrome extension (first previewed as "Claude for Chrome" in August 2025), Perplexity's Comet and OpenAI's ChatGPT Atlas. They can use the user's logged-in sessions, which is powerful and raises the stakes for safety.
 
 The most robust production pattern is **hybrid automation**: deterministic scripts for the stable, high-volume parts of a flow (log in, navigate to the report page) and the model only for what varies (find the right row, handle an unexpected dialog). This is the [workflow-patterns](workflow-patterns.html) principle that you should use the least autonomy that works.
 
@@ -100,7 +100,7 @@ The field moved from research demos to products in about two years. Key mileston
 | Jul 2025 | **ChatGPT agent** | Operator merged with deep research into ChatGPT's agent mode, with its own virtual computer |
 | Oct 2025 | **Gemini 2.5 Computer Use** model | API model optimized for browsers, with promise on mobile UIs; Google said versions of it powered Project Mariner |
 
-Anthropic's computer-use capability has continued to evolve with each model generation, and agentic browsers (Claude for Chrome, ChatGPT Atlas, Comet) brought computer use into everyday browsing during 2025.
+Anthropic's computer-use capability has continued to evolve with each model generation, and agentic browsers and extensions (Claude in Chrome, Comet, ChatGPT Atlas) brought computer use into everyday browsing during 2025.
 
 Progress has been fast. When Anthropic launched computer use in October 2024, Claude scored 14.9% on OSWorld's screenshot-only setting, against a human baseline of about 72%. By late 2025, frontier models were reporting OSWorld results above 60%. Treat any specific number as a moving target and check current leaderboards.
 
@@ -246,46 +246,46 @@ A sensible path: start with APIs and MCP for systems that offer them, use a GUI 
 
 ```quiz
 Q: What is "grounding" in the context of computer-use agents?
-- [ ] Connecting the agent to a database of facts
-- [x] Mapping an intended action like "click Submit" to the correct on-screen element or coordinates
-- [ ] Electrically isolating the VM the agent runs in
-- [ ] Ensuring the agent's answer is supported by citations
-E: Grounding is linking the model's intent to a concrete UI target. It is the core perception challenge, addressed with better vision models, set-of-marks overlays and structured element references.
+- [ ] Anchoring the agent's final answer to cited, retrieved web sources
+- [x] Mapping "click Submit" to the right element or coordinates on screen
+- [ ] Restricting the agent to the sites on a pre-approved allowlist
+- [ ] Giving the model the page's DOM instead of a screenshot
+E: In GUI agents, grounding means linking intent to a concrete UI target (an element or coordinates). "Grounded in sources" is the RAG sense of the word, a different idea. Feeding the DOM is one *strategy* for grounding, alongside pixels, accessibility trees and set-of-marks, not the definition of it.
 
 Q: Why does set-of-marks prompting improve web agents?
-- [ ] It removes the need for screenshots
-- [ ] It compresses the DOM to fewer tokens
-- [x] It lets the model choose a labeled element by number instead of predicting exact pixel coordinates
-- [ ] It blocks prompt injection by hiding page text
-E: Numbered overlays turn a hard coordinate-regression problem into an easier selection problem while keeping the visual context.
+- [ ] It replaces the screenshot with a compact text list of interactive elements
+- [x] The model picks a numbered element rather than guessing pixel coordinates
+- [ ] It lets the model read element IDs from the DOM and skip vision entirely
+- [ ] Its numbered labels cover hidden text, which blocks most injected instructions
+E: Numbered overlays turn a hard coordinate-prediction problem into an easier selection problem. The screenshot is kept, not replaced: the marks are drawn on it, so the model still sees the visual layout. Marks do nothing against prompt injection.
 
 Q: A company needs to create 5,000 records per day in a SaaS CRM that has a documented REST API. What is the best approach?
-- [ ] A computer-use agent that fills in the web form for each record
-- [x] Call the API directly (or via an MCP server), using an agent only where judgment is needed
-- [ ] A browser agent with set-of-marks perception
-- [ ] Ask employees to supervise a GUI agent for each record
-E: When an API exists, it is faster, cheaper, more reliable and easier to secure. GUI agents are for the long tail of systems without good programmatic access.
+- [ ] A browser agent filling the web form, since it needs no integration work
+- [x] Call the API directly, using a model only where judgment is needed
+- [ ] A computer-use agent with set-of-marks perception for reliable clicking
+- [ ] A GUI agent run in batches overnight, so its latency does not matter
+E: When an API exists, it is faster, cheaper, more reliable and easier to secure. Running a GUI agent overnight fixes latency but not cost, per-step error compounding or security exposure at 5,000 records a day. GUI agents are for the long tail of systems without good programmatic access.
 
 Q: A browser agent reading a product review page suddenly tries to open the user's webmail. What is the most likely cause, and which control most directly limits the damage?
-- [ ] A grounding error; use a higher screenshot resolution
-- [ ] Latency; increase the step budget
-- [x] Indirect prompt injection from page content; a domain allowlist plus confirmation gates in the harness
-- [ ] A CAPTCHA; hand control to the user
-E: On-screen text is untrusted input. Harness-level controls (allowlists, confirmations, isolated accounts) hold even if the model is manipulated.
+- [ ] A grounding error; raise the screenshot resolution so clicks land correctly
+- [ ] A stale page snapshot misled it; re-observe the page before every action
+- [x] Injected instructions in page text; a domain allowlist and confirmation gates
+- [ ] Model hallucination; add a system-prompt rule never to open the user's webmail
+E: A deliberate jump to an unrelated, sensitive site is the signature of indirect prompt injection, not a misclick. A system-prompt rule is exactly what injected text tries to override; harness-level controls (allowlists, confirmations, isolated accounts) hold even if the model is manipulated.
 
 Q: Why is Mind2Web's headline metric less directly comparable to real-world task success than OSWorld's?
-- [ ] Mind2Web uses only desktop applications
-- [x] Mind2Web evaluates step-level predictions on recorded pages offline, while OSWorld checks the final state after live execution
-- [ ] Mind2Web has fewer tasks than OSWorld
-- [ ] OSWorld uses human judges for every task
-E: Offline step accuracy does not capture recovery, compounding errors or live page dynamics. Execution-based benchmarks are closer to deployment conditions.
+- [ ] Mind2Web is graded by an LLM judge, whose verdicts drift as judge models change
+- [x] Mind2Web scores single steps on recorded pages; OSWorld checks live end states
+- [ ] Mind2Web runs on live websites, so pages change between evaluation runs
+- [ ] Mind2Web has far fewer tasks than OSWorld, so its scores are statistically noisy
+E: Mind2Web is offline: it compares each predicted step with a human demonstration on recorded pages, so it misses recovery, compounding errors and live page dynamics. Live sites that drift describe WebVoyager, not Mind2Web, and Mind2Web actually has more tasks (2,350) than OSWorld (369).
 
 Q: Where should the rule "require human approval before any purchase" be enforced?
-- [ ] Only in the system prompt, so the model asks before buying
-- [x] In the harness, which inspects each proposed action before executing it
-- [ ] In the benchmark's evaluation script
-- [ ] In the screenshot preprocessing step
-E: Prompts can be overridden by injection or ignored by mistake. A harness gate on pending actions enforces the policy regardless of what the model decides.
+- [ ] In the system prompt, as a firm rule the model is instructed to follow
+- [x] In the harness, which inspects each proposed action before running it
+- [ ] In the model's fine-tuning, so the habit survives prompt injection
+- [ ] In the site's own checkout flow, which already asks for confirmation
+E: Prompts can be overridden by injection or ignored by mistake, and training only makes compliance more likely, never certain. A site's confirmation dialog is clicked by the same agent. A harness gate on pending actions enforces the policy regardless of what the model decides.
 ```
 
 ## Further Reading

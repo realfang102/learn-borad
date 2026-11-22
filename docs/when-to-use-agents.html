@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -391,12 +392,12 @@ A single call for a comparable classification-style task: ~5,000 in + 1,000 out 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>A team must extract the same six fields from 2 million PDFs a month. Which approach best fits?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A deep-research agent</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A single structured-output call per document, possibly inside a simple workflow</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A multi-agent system with a reviewer agent for each document</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An autonomous agent per document that decides how to read it</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A cheap-model agent per document, to keep the per-file cost low</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>One structured-output call per document, in a simple workflow</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A workflow plus a reviewer agent that double-checks every file</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An agent per document that decides how best to read each one</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The task is well-defined, extremely high-volume and low-value per item. The lowest rung that works (one call with structured output) wins on cost, latency and predictability.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The task is well-defined, extremely high-volume and low-value per item. The lowest rung that works (one call with structured output) wins on cost, latency and predictability. A cheaper model doesn&#39;t fix the problem with the agent options: they add steps and unpredictability the task doesn&#39;t need.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
@@ -404,65 +405,65 @@ A single call for a comparable classification-style task: ~5,000 in + 1,000 out 
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>About 36%</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>About 95%</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>About 5%</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Well under 10%</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 75%</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> 0.95^20 ≈ 0.36. Per-step reliability that sounds high still compounds into frequent failure over long tasks.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> 0.95^20 ≈ 0.36. 75% is a common guess from treating the failures as adding up linearly, but per-step reliability multiplies, so even 95% per step compounds into frequent failure over long tasks.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Which change most directly improves an agent&#39;s end-to-end success without changing the model?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Giving it feedback signals (tests, validators) and actionable errors so it can detect and fix mistakes</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Removing the step limit so it has more chances</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Splitting it into several agents</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Adding more tools that overlap with existing ones</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Adding tests and validators so it can spot and fix its own mistakes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Splitting the task across several agents that each do fewer steps</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Adding more specialized tools so it always has the exact one it needs</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Removing the step limit so the agent gets more chances to finish</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Detection and recovery reduce the effective per-step failure rate, for example from 5% to 1% with 80% recovery, which turns about 36% success into about 82% over 20 steps.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Detection and recovery reduce the effective per-step failure rate, for example from 5% to 1% with 80% recovery, which turns about 36% success into about 82% over 20 steps. Splitting across agents adds coordination failures, extra overlapping tools lengthen trajectories, and removing the step limit just lets failures run longer.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>According to Anthropic&#39;s framing, when do agents tend to be the right choice over workflows?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When latency must be minimized</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Whenever a task involves more than one LLM call</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>For open-ended problems where the required steps can&#39;t be predicted or hard-coded</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Whenever the highest-capability model is available</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When the task has many branches that you can list in advance</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When a task needs several LLM calls and a few different tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When the steps needed can&#39;t be predicted or hard-coded in advance</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When the task is high-stakes and so needs the most capable model</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows offer predictability for well-defined tasks; agents fit when flexibility and model-driven decisions are needed because the path depends on what&#39;s discovered.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Workflows can make many calls, use many tools and handle many known branches. Agents fit when the path itself depends on what&#39;s discovered, so it can&#39;t be written down ahead of time. High stakes argue for <em>more</em> control, not less.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why do an agent&#39;s input-token costs grow faster than linearly with the number of steps?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The full, growing transcript is resent on every call, so total input scales roughly with the square of the step count</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tool definitions double in size each step</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Providers charge a premium for later steps</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Output tokens are counted as input on the next step only</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The growing transcript is resent each call, so the total is ~quadratic</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Each step&#39;s thinking tokens are billed again as input on every call</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Providers charge a higher input rate once a context passes a size limit</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tool definitions are re-added to the prompt once per tool call made</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Each call includes everything so far. Summing a context that grows linearly gives roughly quadratic total input, which prompt caching mitigates.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Each call includes everything so far. Summing a context that grows linearly gives roughly quadratic total input, which prompt caching mitigates. Tool definitions are sent once per request, not once per call made, and their size doesn&#39;t grow with steps.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which proposal shows the &quot;autonomy without feedback&quot; anti-pattern?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A support agent that needs approval for refunds over $500</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An agent that rewrites marketing pages and publishes them directly, with no checks or metrics on whether the changes are correct</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A coding agent that runs tests after each change</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A research agent whose report is reviewed by an analyst</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A support agent that must get approval for refunds of over $500</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An agent that rewrites marketing pages and publishes them unchecked</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A coding agent that runs the full test suite after each edit it makes</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A research agent whose final report is checked by a human analyst</span></button>
   </div>
   <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> With no signal to detect mistakes and no review before an irreversible publish, errors compound silently. The other options include tests, review or approval gates.</div>
 </div>
 
-<div class="quiz-q" data-correct="3">
+<div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>A support product handles 80% of tickets with simple lookups and 20% with messy investigations. What is usually the best architecture?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A fixed workflow for all tickets</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An autonomous agent for all tickets, for consistency</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A multi-agent system where every ticket is handled by several agents</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A cheap router or workflow for the common cases, with an agent reserved for the complex long tail</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A cheap router or workflow for common cases, an agent for the rest</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>One agent for all tickets, so every customer gets consistent handling</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>An agent for all tickets, run on a small model to keep costs down</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A fixed workflow with a branch added for each investigation type</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mixing rungs puts each part of the problem on the lowest rung that handles it, keeping cost and latency low for common cases while still covering the hard ones.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Mixing rungs puts each part of the problem on the lowest rung that handles it, keeping cost and latency low for common cases while still covering the hard ones. Messy investigations are exactly the cases you can&#39;t enumerate as branches in advance.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -514,7 +515,7 @@ A single call for a comparable classification-style task: ~5,000 in + 1,000 out 
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

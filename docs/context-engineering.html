@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -393,7 +394,7 @@ messages = []
 </div>
 <h2 id="designing-for-the-kv-cache"><a class="anchor" href="#designing-for-the-kv-cache" aria-hidden="true">#</a>Designing for the KV cache</h2>
 <p>When a model processes a prompt, it computes key/value tensors for every token (the <strong>KV cache</strong>). If the next request starts with <strong>exactly the same prefix</strong>, a provider can reuse that work: <strong><dfn class="gt" tabindex="0" data-t="Prompt caching" data-d="Reusing the processed state of an identical prompt prefix across requests, so cached tokens are billed at a fraction of the normal input price and processed faster." data-l="cost-and-latency" data-a="prompt-caching">prompt caching</dfn></strong>. For agents this matters enormously, because each step re-sends everything before it with a little appended.</p>
-<p>Manus called KV-cache hit rate <em>the single most important metric</em> for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time, but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.</p>
+<p>Manus called KV-cache hit rate <em>the single most important metric</em> for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time (on current Claude models in 2026, a cache read costs about 5% of the base input price, and a 5-minute cache write 1.25×), but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.</p>
 <p>Caching is a <strong>prefix match</strong>: change one byte early and everything after it is recomputed. Render order is tools, then system, then messages. That gives a set of design rules:</p>
 <ol>
 <li><strong>Keep the prefix stable.</strong> No timestamps, request IDs or per-user fields at the top of the system prompt. A line like <code>Current time: 14:03:27</code> invalidates the cache on every call. If you need the date, put it later, at day granularity.</li>
@@ -480,92 +481,92 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="context-engineering" data-total="8">
 
-<div class="quiz-q" data-correct="1">
+<div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>A team upgrades to a model with a 1M-token window and starts putting the entire codebase in every request. Quality on multi-step tasks drops. What&#39;s the most likely explanation?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model can&#39;t read code in long contexts</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Context rot and attention dilution: irrelevant tokens act as distractors, and performance degrades with length even when everything fits</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Prompt caching doesn&#39;t work above 200K tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API silently truncates the middle of long prompts</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The prompt now exceeds the cache limit, so each call reprocesses everything</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Code is tokenized less efficiently, so it overflows the window in practice</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The provider quietly truncates the middle of prompts beyond a set length</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Irrelevant tokens act as distractors, and quality degrades as length grows</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Fitting in the window isn&#39;t the same as being used well. Studies of lost-in-the-middle and context rot show degradation with length, especially with similar-but-irrelevant content.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Fitting in the window isn&#39;t the same as being used well: lost-in-the-middle and context-rot studies show degradation with length, especially with similar-but-irrelevant content. A cache miss would raise cost and latency, not lower quality.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Which system prompt instruction is at the &quot;right altitude&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>&quot;If message contains &#39;cancel&#39; and plan is &#39;pro&#39; and tenure &lt; 90 days, output template C3.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Never do anything wrong.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;Be helpful and accurate.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;Offer retention discounts only to customers who cite price as the reason for cancelling; we&#39;ve found discounts don&#39;t retain customers leaving for other reasons. If unsure why they&#39;re leaving, ask.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>&quot;If message contains &#39;cancel&#39;, plan is &#39;pro&#39; and tenure &lt; 90 days, use template C3.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Follow the retention playbook carefully, and use good judgment on edge cases.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;Act as a world-class retention specialist and always put the customer first.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;Offer discounts only if price is why they&#39;re leaving; ask if unsure. Discounts don&#39;t retain others.&quot;</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The right altitude gives concrete guidance and the reasoning behind it, so the model can generalize to cases the author didn&#39;t anticipate, without hard-coding brittle logic.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The right altitude gives concrete guidance plus the reason behind it, so the model can generalize to cases the author didn&#39;t anticipate. The template rule is too low (brittle if-else logic); the persona and &quot;use good judgment&quot; lines are too high, since they assume context the model doesn&#39;t have.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>How do Agent Skills implement progressive disclosure?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Only each skill&#39;s name and description sit in context; the full SKILL.md and its referenced files are loaded when the task calls for them</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>They load every skill&#39;s full instructions but hide them from the user</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They compress all skill instructions into a single embedding</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They run each skill in a separate model</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Only names and descriptions stay in context; bodies and files load on demand</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>All skill bodies load once, then get summarized to keep the prefix cached</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each skill&#39;s body is embedded, and the closest matches are retrieved per turn</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Each skill runs in its own sub-agent that returns a short result to the lead</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Layered loading means hundreds of skills cost only a few tokens each until one is needed, which keeps the fixed context small.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Layered loading means hundreds of skills cost a few dozen tokens each until one is needed: the model itself reads the full SKILL.md, and any referenced files, when the task calls for it. That&#39;s model-directed loading, not embedding retrieval or summarization.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Your agent&#39;s cache_read_input_tokens is zero on every request despite cache_control markers. Which of these is the most likely culprit?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tools are sorted by name</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The system prompt starts with &quot;Current time: {now}&quot; rendered to the second</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The latest user message changes every turn</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The conversation history is append-only</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The tools array is sorted alphabetically by name before every request</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The system prompt begins with &quot;Current time: {now}&quot; accurate to the second</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A mode-switch reminder is appended as a system message at the very end</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The newest tool result is appended to the end of the history each turn</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is a prefix match. A per-request timestamp at the top changes the first bytes of every prompt and invalidates everything after it. A changing final message is expected and harmless.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is a prefix match, and render order is tools, then system, then messages. A per-request timestamp near the front changes early bytes on every call and invalidates everything after it. Appending at the end, and sorting deterministically, are exactly what keeps the prefix stable.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why does Manus recommend masking tools instead of removing them from the tool list as the agent&#39;s state changes?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Removing tools is not supported by any API</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tool definitions sit at the front of the prompt, so changing them invalidates the KV cache, and earlier turns would reference tools that no longer exist, confusing the model</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Masked tools cost fewer tokens than removed ones</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Masking makes tool calls faster to execute</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Fewer listed tools make selection noisier, since the model loses contrasts</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Editing the list breaks the cache, and old turns cite tools that vanished</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Removal forces the provider to recompile the tool schemas on every turn</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Masked tools are still billed, but at the cheaper cached-input token rate</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A stable tool list preserves the cached prefix and a coherent history. Constraining which tools may be selected achieves the same behavioral goal without those costs.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tool definitions render at the very front, so changing them invalidates the KV cache, and earlier turns would reference tools that no longer exist, confusing the model. Constraining which tools may be selected gets the behavioral effect without those costs.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">6</span><div>When is a sub-agent most clearly the right context-engineering choice?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When two agents must make tightly coupled edits to the same files</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the lead agent&#39;s context is empty</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When a subtask is read-heavy and separable, like exploring a codebase to answer a specific question, so a condensed summary is all the lead needs</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When you want to reduce total token usage</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When two parts of a feature need coordinated edits to the same set of files</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When the lead agent&#39;s own context is still small and has lots of room</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When a read-heavy subtask can be handed off and only its summary is needed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When you want to cut total token usage across the whole task&#39;s run</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Sub-agents isolate exploration noise and return compact results. They usually increase total tokens, and they&#39;re risky for tightly coupled write work where shared context matters.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Sub-agents isolate exploration noise and return compact results. Cutting total tokens is the tempting wrong answer: each sub-agent pays for its own context, so totals usually go up. They&#39;re also risky for tightly coupled write work, where shared context matters.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>A teammate proposes deleting failed tool calls from the history so the transcript stays &quot;clean.&quot; What&#39;s the strongest argument against it?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Seeing failures and their error messages helps the model avoid repeating them, and rewriting history also invalidates the prompt cache</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API rejects histories without errors</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Failed calls are needed for billing</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Deleting messages increases output tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model learns from visible failures, and edits break the prompt cache</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Leaving failures in lets you skip is_error flags on later tool results</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Failed calls hold the tool_use IDs needed to match later tool results</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Deleting turns makes the model re-plan from scratch on the next request</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors are evidence. Keeping them in context lets the model adapt within the session, and append-only history keeps caching effective.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors are evidence: seeing a failed action and its message makes the model less likely to repeat it, and append-only history keeps caching effective. A deleted turn doesn&#39;t trigger a fresh plan; the model simply loses information it needed.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">8</span><div>Why does the context-editing config include clear_at_least?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To keep a minimum number of tool results</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It sets the maximum context size</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each clearing invalidates the prompt cache from the edit point, so clearing only a few tokens can cost more than it saves</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>To guarantee every tool result is cleared at least once</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To set how many of the most recent tool results are kept untouched</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To cap the context size, clearing whatever is needed to stay under it</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each clear rebuilds the cache, so tiny clears can cost more than they save</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>To make sure no tool result stays in context longer than a set token span</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Clearing trades a cache rebuild for a smaller context. A minimum clearing amount makes sure each edit is worth that cost, which is why clearing should happen in large, infrequent batches.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Clearing trades a cache rebuild for a smaller context, so a minimum amount ensures each edit is worth that cost; batch it into large, infrequent clears. The number of recent results kept is the separate keep setting, and the trigger, not clear_at_least, decides when clearing starts.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -623,7 +624,7 @@ Triggers: clear tool results at 100K input tokens (≥20K at a time);
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

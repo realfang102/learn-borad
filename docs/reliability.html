@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -546,67 +547,67 @@ CKPT = Path(<span class="hljs-string">&quot;checkpoints&quot;</span>)
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">1</span><div>An agent&#39;s Messages API call fails with a 400 invalid_request_error. What should the harness do?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Fail fast without retrying, log the request, and fix what produced it</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch to a fallback model and retry immediately</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Wait for the retry-after header&#39;s duration, then retry</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Retry with exponential backoff, since API errors are usually transient</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Fail fast without retrying, log the request, and fix whatever produced it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch to a fallback model and resend, since the primary may reject this input</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Back off for the retry-after duration, then resend the identical request</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Retry once after a short delay, since a 400 can follow a brief API-side glitch</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A 400 means the request itself is wrong, and waiting won&#39;t change it. Retry 429s (except spend-cap 429s), 5xx errors including 529, and connection errors.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A 400 means the request itself is wrong, so resending it (to the same model or after any wait) gets the same answer, and a 400 carries no retry-after. Retry 429s (except spend-cap 429s), 5xx errors including 529, and connection errors.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Why add jitter to exponential backoff?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API&#39;s rate limiter requires it</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It spreads out retries from many clients that failed together, avoiding synchronized retry storms</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It reduces the total number of retries needed</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It makes each individual retry more likely to succeed</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It lets a client skip the remaining backoff when a retry-after header arrives</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It desynchronizes clients that failed together so they don&#39;t retry in lockstep</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It lowers the number of attempts each client needs before a request succeeds</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It gives the overloaded service a longer average pause before each retry</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without jitter, clients that failed at the same moment also retry at the same moment and can overload the service again: the thundering herd.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without jitter, clients that failed at the same moment retry at the same moment and can overload the service again: the thundering herd. Full jitter actually shortens the average wait; its value is spreading retries out, not lengthening or reducing them.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">3</span><div>A refund tool&#39;s idempotency key is the model&#39;s tool_use_id. What goes wrong after a crash and resume?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Nothing, because tool_use_ids are stable across resumes</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The key is too long for most payment providers</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The resumed model may emit the same logical refund under a new tool_use_id, so the ledger sees a new key and refunds again</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API rejects reused tool_use_ids</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Nothing, because the resumed run replays the same tool_use_id from the checkpoint</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API rejects the resumed request because the tool_use_id was already used</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A re-planned refund arrives under a new tool_use_id, so the ledger refunds again</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The key collides across runs, so a second customer&#39;s refund is wrongly skipped</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Model output is nondeterministic and a re-planned call gets a fresh ID. Keys should identify the business intent (run + action + order) so a logically repeated action is recognized.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> If the crash came before the assistant turn was saved, the model is called again and a re-planned call gets a fresh ID. Keys should identify the business intent (run + action + order) so a logically repeated action is recognized. tool_use_ids are unique, so collisions aren&#39;t the problem.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Your agent runs on a durable execution engine such as Temporal. Which statement is true?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Completed steps replay from recorded results, but a step can still execute more than once, so side-effecting tools still need idempotency</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tools no longer need idempotency because each activity runs exactly once</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Durable execution makes the model&#39;s generations deterministic</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflow code may call the model API directly because replay handles it</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Completed steps replay from the journal, but a step can still run more than once</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tools no longer need idempotency, since the engine records each completed activity</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Model generations become deterministic, since the engine fixes the random seed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflow code may call the model API directly, since replay reuses the response</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A worker can die after acting and before recording, so steps are at-least-once. Model calls belong in recorded steps, not in deterministic workflow code.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A worker can die after acting but before recording, so steps are at-least-once and side-effecting tools still need idempotency. Model calls belong in recorded activities, not in deterministic workflow code, and nothing makes the model itself deterministic.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">5</span><div>A response has stop_reason &quot;max_tokens&quot; and ends with a tool_use block. What&#39;s the safest handling?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Add an assistant message that prefills the rest of the call</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Mark the run successful</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Don&#39;t execute it, because its input may be truncated; retry with a larger max_tokens or treat the attempt as failed</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Execute the tool, since the model clearly intended it</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Send a user message saying &quot;continue&quot; so the model finishes the tool call input</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Run the tool, but return is_error so the model double-checks the arguments</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Don&#39;t run it, since its input may be cut off; retry with a higher limit or fail</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Run the tool if its input passes schema validation, since that shows it&#39;s complete</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The output was cut off, so the tool input may be incomplete, and running half-formed arguments is dangerous. Assistant prefill is rejected on current models anyway.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The output was cut off, so the tool input may be incomplete. A truncated input can still be schema-valid (a cut-short path or amount), and running it even with an error flag still executes the side effect.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which defense is strongest against wrong-but-confident results?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Checking against ground truth, such as running tests or re-reading a record after writing it</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Raising effort so the model thinks longer</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Asking the model to double-check its answer</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Lowering max_tokens to keep answers focused</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Checking against ground truth, such as re-reading the record after a write</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Raising the effort setting so the model reasons longer before answering</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Asking the model to re-check its own answer before it reports the result</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Having the same model grade its output against a detailed rubric afterward</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Self-reflection reuses the same judgment that made the mistake. Ground-truth checks are independent of the model.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Self-reflection and self-grading reuse the same judgment that made the mistake, and more reasoning still can&#39;t see facts it doesn&#39;t have. Ground-truth checks are independent of the model.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -665,7 +666,7 @@ CKPT = Path(<span class="hljs-string">&quot;checkpoints&quot;</span>)
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

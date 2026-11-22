@@ -318,6 +318,8 @@ def run_agent(task: str) -> str:
             return "[The model declined this request.]"
         if response.stop_reason == "max_tokens":
             return "[Stopped: response hit max_tokens before finishing.]"
+        if response.stop_reason != "tool_use":        # e.g. stop_sequence: nothing to run
+            return f"[Stopped: unexpected stop_reason {response.stop_reason!r}.]"
 
         results = []                                  # stop_reason == "tool_use"
         for block in response.content:
@@ -340,7 +342,7 @@ Here's what each piece does:
 
 - **The `for` loop with `MAX_STEPS`** is the termination guarantee. The model gets at most 20 calls.
 - **`messages.append(... response.content)`** keeps the model's turn exactly as returned, including any thinking blocks.
-- **The stop-reason branches** cover every outcome. Anything that isn't a terminal state falls through to tool execution.
+- **The stop-reason branches** cover every outcome. Only a `tool_use` turn reaches tool execution; anything unexpected stops informatively instead of sending an empty result message.
 - **`safe_path`** is a harness-enforced permission, so the model can't read `/etc/passwd` however it's prompted.
 - **`try/except`** turns failures into `is_error` observations the model can learn from within the run.
 - **One user message with every result** keeps parallel tool calls correctly paired.
@@ -382,53 +384,53 @@ Here's what each piece does:
 
 ```quiz
 Q: The model returns three tool_use blocks in one response. How should the harness send the results back?
-- [ ] Three separate user messages, one per result, in any order
-- [x] One user message containing three tool_result blocks, each with the matching tool_use_id
-- [ ] One assistant message containing the three outputs
-- [ ] Only the first result; the model will re-request the others
-E: Results for one assistant turn go back together in a single user message, each paired with its tool_use_id. Splitting or omitting them breaks the pairing and causes errors or confusion.
+- [ ] Three user messages, one per result, in the order the calls appeared
+- [x] One user message, three tool_result blocks, each with its tool_use_id
+- [ ] One user message with a single tool_result that combines all outputs
+- [ ] One assistant message that lists all three outputs after the calls
+E: Results for one assistant turn go back together in a single user message, one tool_result per call, each paired with its tool_use_id. Separate messages break the pairing (and discourage parallel calls); a single combined result leaves two ids unanswered; and tool results are input to the model, so they never go in an assistant message.
 
 Q: A tool raises FileNotFoundError. What is usually the best harness behavior?
-- [ ] Crash the run so a developer can investigate
-- [ ] Silently retry the same call five times
-- [x] Return the error as a tool_result with is_error true and an actionable message, so the model can adapt
-- [ ] Remove the tool from the tool list
-E: Errors are observations. A clear, actionable error lets the model fix its call (for example, use the right filename). Infrastructure blips are different; the harness should retry those itself.
+- [ ] Retry the same call with exponential backoff until it succeeds
+- [ ] Stop the run and report the exception so a developer can debug it
+- [x] Return it as an is_error tool_result with an actionable message
+- [ ] Drop the failed call and send only the results of calls that worked
+E: Errors are observations. A clear, actionable error lets the model fix its call, for example by using the right filename. Backoff retries suit transient infrastructure errors, not a wrong path that will fail every time. Dropping the result leaves a tool_use unanswered, which the API rejects.
 
-Q: Which of these belongs in the harness rather than only in the system prompt?
-- [ ] The agent's tone of voice
-- [x] A hard limit on spending and a rule forbidding writes outside the project directory
-- [ ] A description of the user's goal
-- [ ] Hints about which tool to try first
-E: Anything that must hold regardless of what the model does (budgets, permissions, safety boundaries) should be enforced in code. Prompts steer; code guarantees.
+Q: Which of these belongs in the harness as code rather than only in the system prompt?
+- [ ] Guidance on which tool to try first for each common kind of task
+- [x] A spending cap, and a ban on writes outside the project directory
+- [ ] The agent's tone of voice and how much detail it puts in answers
+- [ ] A description of the user's goal and what a good result looks like
+E: Anything that must hold regardless of what the model does (budgets, permissions, safety boundaries) should be enforced in code. Tool hints, tone and goals steer behavior, so they belong in the prompt. Prompts steer; code guarantees.
 
 Q: The response has stop_reason "max_tokens" and its last block is a partially generated tool call. What should the loop do?
-- [ ] Execute the partial tool call
-- [ ] Treat it as end_turn and return the text
-- [x] Treat the turn as incomplete: don't run the truncated call; raise the limit or stop and report
-- [ ] Remove the tool_use block and continue
-E: max_tokens means the output was cut off. A truncated tool call is unreliable, so the loop should raise max_tokens and retry, or stop informatively.
+- [ ] Run the call if its input parses as JSON, since the arguments may be done
+- [ ] Treat the turn as end_turn and return whatever text the model produced
+- [x] Treat it as incomplete: don't run it; raise the cap, or stop and report
+- [ ] Delete the partial tool_use block, then continue the loop as normal
+E: max_tokens means the output was cut off, so even input that happens to parse may be missing fields or content. The loop should raise max_tokens and retry, or stop informatively. Returning the text as final hides an unfinished turn.
 
 Q: Why must the assistant's content be appended to the transcript exactly as returned?
-- [ ] The API bills less for unmodified content
-- [x] Tool_use ids must match their results, and thinking blocks must be passed back intact for the model to continue reasoning coherently
-- [ ] Modified messages are rejected by rate limiting
-- [ ] It makes the transcript shorter
-E: The pairing between tool_use and tool_result depends on the ids, and current models rely on their own thinking blocks being returned unchanged across tool calls.
+- [ ] Prompt caching only works when every assistant message is byte-identical
+- [x] Tool_use ids must match results, and thinking blocks must stay intact
+- [ ] The API rejects any assistant turn whose text differs from what it sent
+- [ ] Edited text makes the model lose track of which user it is talking to
+E: The pairing between tool_use and tool_result depends on the ids, and current models rely on their own thinking blocks being returned unchanged across tool calls. Caching benefits from a stable prefix, but that's a cost effect, not the reason the content must be preserved.
 
 Q: Which observation format is likely to help the agent most?
-- [ ] An empty string when a search finds nothing
-- [ ] The full 3 MB raw log
-- [x] "No matches for 'invoice_v3' in src/ (searched 214 files)"
-- [ ] A numeric status code with no explanation
-E: Explicit, concise, informative observations prevent misreadings and wasted steps. Empty strings and opaque codes invite confusion; giant dumps waste context.
+- [ ] An empty string, which is the cheapest thing to send
+- [ ] The full 3 MB raw log, so nothing is missing
+- [x] "No matches for 'invoice_v3' in src/ (214 files)"
+- [ ] {"status": 4}, a compact machine-readable code
+E: Explicit, concise, informative observations prevent misreadings and wasted steps. Empty strings and opaque codes invite confusion, however cheap or compact they are, and giant dumps waste context and dilute attention.
 
 Q: An agent keeps calling search_files with the same arguments. What is the most robust response?
-- [ ] Increase max_tokens
-- [ ] Remove the system prompt
-- [x] Detect the repetition in the harness and either stop or tell the model it's repeating itself, alongside a step limit
-- [ ] Switch to a smaller model
-E: Loop detection plus hard budgets keeps a stuck agent from burning time and money, and a nudge often gets it to change strategy.
+- [ ] Raise max_tokens so the model has room to plan its way out of the loop
+- [ ] Add "never repeat a tool call" to the system prompt and rerun the task
+- [x] Detect repeats in the harness and stop or nudge, plus a step limit
+- [ ] Switch to a larger model, which is less likely to get stuck in loops
+E: A prompt rule or a stronger model may reduce looping, but neither guarantees it stops. Loop detection plus hard budgets in the harness keeps a stuck agent from burning time and money, and a nudge often gets it to change strategy.
 ```
 
 ## Further Reading

@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -470,6 +471,8 @@ TOOLS = [
             <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;[The model declined this request.]&quot;</span>
         <span class="hljs-keyword">if</span> response.stop_reason == <span class="hljs-string">&quot;max_tokens&quot;</span>:
             <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;[Stopped: response hit max_tokens before finishing.]&quot;</span>
+        <span class="hljs-keyword">if</span> response.stop_reason != <span class="hljs-string">&quot;tool_use&quot;</span>:        <span class="hljs-comment"># e.g. stop_sequence: nothing to run</span>
+            <span class="hljs-keyword">return</span> <span class="hljs-string">f&quot;[Stopped: unexpected stop_reason <span class="hljs-subst">{response.stop_reason!r}</span>.]&quot;</span>
 
         results = []                                  <span class="hljs-comment"># stop_reason == &quot;tool_use&quot;</span>
         <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> response.content:
@@ -490,7 +493,7 @@ TOOLS = [
 <ul>
 <li><strong>The <code>for</code> loop with <code>MAX_STEPS</code></strong> is the termination guarantee. The model gets at most 20 calls.</li>
 <li><strong><code>messages.append(... response.content)</code></strong> keeps the model&#39;s turn exactly as returned, including any thinking blocks.</li>
-<li><strong>The stop-reason branches</strong> cover every outcome. Anything that isn&#39;t a terminal state falls through to tool execution.</li>
+<li><strong>The stop-reason branches</strong> cover every outcome. Only a <code>tool_use</code> turn reaches tool execution; anything unexpected stops informatively instead of sending an empty result message.</li>
 <li><strong><code>safe_path</code></strong> is a harness-enforced permission, so the model can&#39;t read <code>/etc/passwd</code> however it&#39;s prompted.</li>
 <li><strong><code>try/except</code></strong> turns failures into <code>is_error</code> observations the model can learn from within the run.</li>
 <li><strong>One user message with every result</strong> keeps <dfn class="gt" tabindex="0" data-t="Parallel tool calls" data-d="Multiple independent tool calls emitted in a single model turn and executed concurrently, with all results returned together in the next message." data-l="tool-use" data-a="parallel-tool-calls">parallel tool calls</dfn> correctly paired.</li>
@@ -567,78 +570,78 @@ TOOLS = [
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>The model returns three tool_use blocks in one response. How should the harness send the results back?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One assistant message containing the three outputs</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Three separate user messages, one per result, in any order</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Only the first result; the model will re-request the others</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>One user message containing three tool_result blocks, each with the matching tool_use_id</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One user message with a single tool_result that combines all outputs</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Three user messages, one per result, in the order the calls appeared</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One assistant message that lists all three outputs after the calls</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>One user message, three tool_result blocks, each with its tool_use_id</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Results for one assistant turn go back together in a single user message, each paired with its tool_use_id. Splitting or omitting them breaks the pairing and causes errors or confusion.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Results for one assistant turn go back together in a single user message, one tool_result per call, each paired with its tool_use_id. Separate messages break the pairing (and discourage parallel calls); a single combined result leaves two ids unanswered; and tool results are input to the model, so they never go in an assistant message.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A tool raises FileNotFoundError. What is usually the best harness behavior?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Return the error as a tool_result with is_error true and an actionable message, so the model can adapt</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Remove the tool from the tool list</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Silently retry the same call five times</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Crash the run so a developer can investigate</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Return it as an is_error tool_result with an actionable message</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Drop the failed call and send only the results of calls that worked</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Stop the run and report the exception so a developer can debug it</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Retry the same call with exponential backoff until it succeeds</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors are observations. A clear, actionable error lets the model fix its call (for example, use the right filename). Infrastructure blips are different; the harness should retry those itself.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors are observations. A clear, actionable error lets the model fix its call, for example by using the right filename. Backoff retries suit transient infrastructure errors, not a wrong path that will fail every time. Dropping the result leaves a tool_use unanswered, which the API rejects.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
-  <div class="quiz-question"><span class="quiz-num">3</span><div>Which of these belongs in the harness rather than only in the system prompt?</div></div>
+  <div class="quiz-question"><span class="quiz-num">3</span><div>Which of these belongs in the harness as code rather than only in the system prompt?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent&#39;s tone of voice</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A description of the user&#39;s goal</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A hard limit on spending and a rule forbidding writes outside the project directory</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Hints about which tool to try first</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent&#39;s tone of voice and how much detail it puts in answers</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Guidance on which tool to try first for each common kind of task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A spending cap, and a ban on writes outside the project directory</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A description of the user&#39;s goal and what a good result looks like</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anything that must hold regardless of what the model does (budgets, permissions, safety boundaries) should be enforced in code. Prompts steer; code guarantees.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anything that must hold regardless of what the model does (budgets, permissions, safety boundaries) should be enforced in code. Tool hints, tone and goals steer behavior, so they belong in the prompt. Prompts steer; code guarantees.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>The response has stop_reason &quot;max_tokens&quot; and its last block is a partially generated tool call. What should the loop do?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Treat it as end_turn and return the text</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Treat the turn as incomplete: don&#39;t run the truncated call; raise the limit or stop and report</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Remove the tool_use block and continue</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Execute the partial tool call</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Treat the turn as end_turn and return whatever text the model produced</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Treat it as incomplete: don&#39;t run it; raise the cap, or stop and report</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Delete the partial tool_use block, then continue the loop as normal</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Run the call if its input parses as JSON, since the arguments may be done</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> max_tokens means the output was cut off. A truncated tool call is unreliable, so the loop should raise max_tokens and retry, or stop informatively.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> max_tokens means the output was cut off, so even input that happens to parse may be missing fields or content. The loop should raise max_tokens and retry, or stop informatively. Returning the text as final hides an unfinished turn.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why must the assistant&#39;s content be appended to the transcript exactly as returned?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool_use ids must match their results, and thinking blocks must be passed back intact for the model to continue reasoning coherently</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API bills less for unmodified content</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Modified messages are rejected by rate limiting</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It makes the transcript shorter</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool_use ids must match results, and thinking blocks must stay intact</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Prompt caching only works when every assistant message is byte-identical</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API rejects any assistant turn whose text differs from what it sent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Edited text makes the model lose track of which user it is talking to</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The pairing between tool_use and tool_result depends on the ids, and current models rely on their own thinking blocks being returned unchanged across tool calls.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The pairing between tool_use and tool_result depends on the ids, and current models rely on their own thinking blocks being returned unchanged across tool calls. Caching benefits from a stable prefix, but that&#39;s a cost effect, not the reason the content must be preserved.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which observation format is likely to help the agent most?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An empty string when a search finds nothing</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;No matches for &#39;invoice_v3&#39; in src/ (searched 214 files)&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The full 3 MB raw log</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A numeric status code with no explanation</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An empty string, which is the cheapest thing to send</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;No matches for &#39;invoice_v3&#39; in src/ (214 files)&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The full 3 MB raw log, so nothing is missing</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>{&quot;status&quot;: 4}, a compact machine-readable code</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Explicit, concise, informative observations prevent misreadings and wasted steps. Empty strings and opaque codes invite confusion; giant dumps waste context.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Explicit, concise, informative observations prevent misreadings and wasted steps. Empty strings and opaque codes invite confusion, however cheap or compact they are, and giant dumps waste context and dilute attention.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>An agent keeps calling search_files with the same arguments. What is the most robust response?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Detect the repetition in the harness and either stop or tell the model it&#39;s repeating itself, alongside a step limit</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch to a smaller model</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Increase max_tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Remove the system prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Detect repeats in the harness and stop or nudge, plus a step limit</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Switch to a larger model, which is less likely to get stuck in loops</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Raise max_tokens so the model has room to plan its way out of the loop</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add &quot;never repeat a tool call&quot; to the system prompt and rerun the task</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Loop detection plus hard budgets keeps a stuck agent from burning time and money, and a nudge often gets it to change strategy.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt rule or a stronger model may reduce looping, but neither guarantees it stops. Loop detection plus hard budgets in the harness keeps a stuck agent from burning time and money, and a nudge often gets it to change strategy.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -692,7 +695,7 @@ TOOLS = [
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

@@ -331,53 +331,53 @@ A lessons-learned file can use the same discipline: candidate lessons are propos
 
 ```quiz
 Q: According to Reflexion and follow-up work, when does "reflect and retry" help the most?
-- [ ] When the model critiques itself with no new information
-- [x] When the reflection is grounded in external feedback such as failing tests or error messages
-- [ ] Only when the model's weights are updated after each reflection
-- [ ] When the retry uses a higher temperature
-E: Intrinsic self-correction is unreliable; grounded feedback gives the next attempt genuinely new information to act on.
+- [ ] When a stronger model writes the critique of the weaker model's attempt
+- [x] When the reflection is grounded in external feedback, e.g. tests
+- [ ] When the model critiques itself for several rounds before it answers
+- [ ] When reflections are kept across tasks rather than within a single task
+E: Grounded feedback gives the second attempt genuinely new information. Repeated intrinsic self-critique often confirms mistakes or breaks correct answers, and a stronger critic helps only if it can actually detect the error. Persisting reflections (as ExpeL does) is useful but is not what makes a retry work.
 
 Q: Why is code a particularly good medium for a skill library like Voyager's?
-- [ ] Code takes less context than natural language in every case
-- [x] Programs are executable, composable and verifiable, so skills can be tested, reused and built upon
-- [ ] LLMs cannot follow natural-language procedures
-- [ ] Code cannot contain bugs once stored
-E: Executable skills can be verified in the environment and composed into more complex skills, which made Voyager's library accumulate and transfer.
+- [ ] Code is shorter than prose, so more skills fit in the context window
+- [x] Programs can be run, tested and composed into larger, reusable skills
+- [ ] Minecraft accepts only JavaScript, so prose skills couldn't run there
+- [ ] Code is deterministic, so a stored skill can never fail in a new world
+E: Executable skills can be verified in the environment and composed into more complex skills, which is why Voyager's library accumulated and transferred to new worlds. Stored skills can still fail when the world differs; the point is that failures are observable and fixable.
 
-Q: What distinguishes GEPA's approach from simply running RL on model weights?
-- [ ] GEPA requires no evaluation metric
-- [ ] GEPA changes the model's weights using natural-language gradients
-- [x] It evolves prompts using reflection on execution traces and a Pareto front of candidates, and was reported to need far fewer rollouts than GRPO on several tasks
-- [ ] It only works for image models
-E: Optimizing text with reflective feedback can be much more sample-efficient than weight updates, which is why prompt optimization is often the first lever to pull.
+Q: What distinguishes GEPA's approach from running RL on model weights?
+- [ ] It backpropagates text "gradients" through a graph of LLM calls
+- [x] It evolves prompts via trace reflection, needing far fewer rollouts
+- [ ] It fine-tunes LoRA adapters on its best traces instead of full weights
+- [ ] It needs no metric, since the model reflects on its own outputs
+E: GEPA reflects in words on execution traces and keeps a Pareto front of prompt candidates, and was reported to beat GRPO on several tasks with far fewer rollouts. Backpropagating textual gradients describes TextGrad; GEPA changes no weights at all and still needs a metric to score candidates.
 
 Q: The Darwin Gödel Machine replaced the original Gödel Machine's requirement to prove a self-modification is beneficial with what?
-- [ ] Human approval of every line of code
-- [x] Empirical evaluation on benchmarks, plus an archive of diverse variants for open-ended exploration
-- [ ] Random mutation without any evaluation
-- [ ] Updating the foundation model's weights
-E: Proofs of benefit are practically impossible; the DGM validates changes empirically and keeps an archive (not just the best agent) so stepping stones are preserved.
+- [ ] Human review and approval of each proposed change before it is kept
+- [x] Benchmark validation, plus an archive of diverse agent variants
+- [ ] Keeping only the single best-scoring agent from each generation
+- [ ] RL updates to the foundation model's weights after each new variant
+E: The DGM validates changes empirically and keeps an archive of many variants (not just the best) so stepping stones are preserved; ablations showed the archive mattered. The foundation model stayed frozen, and while runs were sandboxed and overseen, humans did not approve each change.
 
 Q: Why do FunSearch and AlphaEvolve produce strong results specifically in math and code?
-- [ ] LLMs are only trained on math and code
-- [x] Those domains have fast, trustworthy automatic evaluators that score each candidate program
-- [ ] Evolutionary search does not work in other domains in principle
-- [ ] They use human reviewers for every candidate
-E: LLMs supply smart mutations; the evaluator supplies ground truth. Without a reliable evaluator, the search optimizes noise or exploits flaws.
+- [ ] Those are the domains their language models were mainly trained on
+- [x] Each candidate program can be scored by a fast, reliable evaluator
+- [ ] Evolutionary search is mathematically proven to converge on programs
+- [ ] Expert reviewers vet the most promising candidates in each generation
+E: LLMs supply smart mutations; the evaluator supplies ground truth. Without a fast, trustworthy evaluator the search optimizes noise or exploits flaws (as the AI CUDA Engineer episode showed). The models are general-purpose, and no convergence proof is involved.
 
 Q: An agent writes lessons to a persistent notes file that is loaded into every future session. Which risk is a security issue rather than only a quality issue?
-- [ ] The file grows too long
-- [ ] Lessons contradict each other
-- [x] A prompt-injected document causes the agent to save a malicious instruction that persists into future sessions
-- [ ] Summarization loses details over time
-E: Persistent memory turns a one-time injection into a durable compromise. Gate memory writes and treat stored lessons as untrusted input.
+- [ ] One user's preference gets written down as a rule for everyone
+- [ ] Hundreds of contradictory lessons pile up and crowd the context
+- [x] An injected page gets a malicious rule saved for future runs
+- [ ] Repeated summarization erodes the details that made lessons useful
+E: Persistent memory turns a one-time prompt injection into a durable compromise, so memory writes need gating and stored lessons should be treated as untrusted input. Overgeneralization, bloat and context collapse are real but are quality problems, not attacks.
 
 Q: In the eval-gated optimization loop, why is the candidate prompt scored on a held-out set rather than the dev set whose failures it was built from?
-- [ ] The dev set is too expensive to evaluate
-- [x] To prevent accepting changes that merely patch the specific dev failures (overfitting) without improving general performance
-- [ ] Held-out sets always have higher scores
-- [ ] The API requires a separate dataset
-E: The optimizer saw the dev failures, so improvement there is biased. A held-out gate estimates whether the change generalizes.
+- [ ] The dev set was already scored, so re-running it would waste API calls
+- [x] A gain on the dev failures it saw may just be patching those cases
+- [ ] The held-out set is larger, so its scores have less random noise
+- [ ] Scoring on dev would leak the held-out answers into the optimizer
+E: The optimizer saw the dev failures, so improvement there is biased toward special-casing them. A held-out gate estimates whether the change generalizes. Held-out sets aren't necessarily larger, and the leak runs the other way: the dev data has already shaped the candidate.
 ```
 
 ## Further Reading

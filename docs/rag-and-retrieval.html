@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -299,7 +300,7 @@ client = anthropic.Anthropic()
 
 <span class="tr-thought">Thought:</span> First find which CVE and which service was patched.
 <span class="tr-action">Action:</span> search_docs({&quot;query&quot;: &quot;libxml CVE patch last week&quot;})
-<span class="tr-observation">Observation:</span> [sec-2291#0] &quot;Patched CVE-2026-1234 in libxml2 in the doc-render service (v3.8.1).&quot;
+<span class="tr-observation">Observation:</span> [sec-2291#0] &quot;Patched CVE-2026-NNNN in libxml2 in the doc-render service (v3.8.1).&quot;
 <span class="tr-thought">Thought:</span> Now which customers use doc-render, and which version are they on?
 <span class="tr-action">Action:</span> search_docs({&quot;query&quot;: &quot;doc-render service enterprise customers deployment versions&quot;})
 <span class="tr-observation">Observation:</span> [ops-88#2] &quot;Self-hosted doc-render: Globex (v3.7), Initech (v3.8.1), Umbrella (v3.6).&quot;
@@ -500,89 +501,89 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">1</span><div>A user searches for error code &quot;E4012&quot; and dense retrieval returns chunks about unrelated errors. What&#39;s the most likely fix?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Use a larger embedding dimension</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Increase chunk size so more text is embedded</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Lower the similarity threshold</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add keyword (BM25) search and fuse it with dense results (hybrid search)</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Switch to a larger embedding model with more dimensions</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Rewrite the query with an LLM so it describes the error in words</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Shrink chunks so the error code dominates each chunk&#39;s vector</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add BM25 keyword search and fuse it with the dense results</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Embeddings capture topical similarity and handle rare exact tokens like error codes poorly. BM25 matches them exactly, and hybrid search with RRF gets the benefits of both.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Embeddings capture topical similarity and handle rare exact tokens like error codes poorly, whatever their size. BM25 matches the token exactly, and hybrid search with RRF keeps the benefits of both. Rewriting the query into prose moves it further from the exact identifier the user typed.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Why does reranking with a cross-encoder improve results over the initial bi-encoder retrieval?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It removes duplicate chunks</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It uses a larger vector index</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It re-embeds documents with more dimensions</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It reads the query and each candidate together, so attention can compare them directly, which is too slow for the whole corpus but affordable on a shortlist</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It scores whole documents rather than isolated chunks, adding context</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It re-embeds the shortlist with a larger, more accurate bi-encoder</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It combines keyword and vector scores, which a bi-encoder can&#39;t</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It reads query and passage together, so attention compares them</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Bi-encoders embed queries and documents separately for speed. Cross-encoders process the pair jointly for accuracy, so the standard pattern is a cheap wide retrieval followed by a precise rerank of the top candidates.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Bi-encoders embed queries and documents separately so documents can be pre-computed. A cross-encoder processes each pair jointly, which is far more accurate but too slow for the whole corpus, so it runs on a shortlist. Combining keyword and vector scores is hybrid search, a different technique.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>What problem does contextual retrieval address?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Chunks that lose meaning when separated from their document (e.g., &quot;revenue grew 3%&quot; without the company or quarter)</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Slow approximate nearest-neighbor search</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Queries that are too long to embed</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt injection in retrieved documents</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Chunks that lose meaning once they&#39;re cut out of their document</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Long documents whose single embedding averages away the details</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Short user queries that lack the context needed to match a chunk</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Retrieved chunks that arrive with no source metadata to cite</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Prepending a short, document-aware context to each chunk before embedding and BM25 indexing makes the chunk retrievable by the terms a user would actually search for.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> &quot;Revenue grew 3%&quot; means little without the company and quarter. Prepending a short, document-aware context to each chunk before embedding and BM25 indexing makes it retrievable by the terms a user would actually search for. Short queries are what query rewriting and HyDE address.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Why does HyDE embed a hypothetical answer instead of the question?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Questions can&#39;t be embedded by most models</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A plausible answer passage tends to be closer in embedding space to real answer passages than the question is, even if its details are wrong</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It reduces the number of retrieval calls to zero</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The hypothetical answer is shown to the user as the final answer</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Generating text first makes the model&#39;s own knowledge available as a source</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A fake answer passage sits closer to real answers in embedding space</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Embedding a longer text gives a more stable vector than a short question</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The hypothetical answer is a cheap draft that retrieval then fact-checks</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> HyDE uses the fake answer only as a search probe. Its embedding resembles the style and content of real answer passages, so retrieval improves; the fabricated facts are discarded.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> HyDE uses the fake answer only as a search probe: its embedding resembles real answer passages more than the question does, so retrieval improves. Its fabricated details are discarded, not checked or used as a source, and length alone isn&#39;t the point.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Why do many coding agents use grep/glob/read instead of a vector index over the codebase?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code search depends on exact identifiers, the files change constantly during the task, and iterative exact search needs no index to maintain or keep fresh</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Vector databases are prohibited in developer tools</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>grep uses fewer tokens per question than any retrieval method</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Embedding models can&#39;t process source code</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Code search hinges on exact identifiers, and files change mid-task</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agentic search uses fewer tokens per question than a vector lookup</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Vector indexes can&#39;t respect the repository&#39;s directory structure</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Embedding models handle source code poorly compared with prose</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactness, freshness and zero infrastructure favor agentic search for code. It typically uses more tool calls than one vector lookup, but the agent can iterate and follow references.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exactness, freshness and zero infrastructure favor agentic search for code. It&#39;s tempting to think it&#39;s cheaper, but it usually uses more tool calls and tokens than one vector lookup; its advantage is that the agent can iterate and follow references against the current files.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Your knowledge base is a 60-page policy manual that rarely changes, queried thousands of times a day. Which approach is likely simplest and most effective?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Put the whole manual in the prompt and use prompt caching</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Build GraphRAG over the manual</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Fine-tune a model on the manual</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Build a vector database with semantic chunking</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Put the whole manual in the prompt and rely on prompt caching</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Hybrid search with reranking, so each query sees only what it needs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Fine-tune a model on the manual so no context tokens are spent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Build GraphRAG so cross-references between sections are captured</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The manual is small and stable, well within a context window. Long context with caching avoids retrieval misses and pipeline complexity, and makes repeated reads cheap.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The manual is small and stable, well within a context window. Long context with caching avoids retrieval misses and pipeline complexity, and makes repeated reads cheap. Hybrid search would work but adds machinery and miss risk for no gain; fine-tuning is poor at injecting facts reliably.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Across three test queries, the first relevant result appears at ranks 2, 1 and 4. What&#39;s the MRR?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>0.25</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>0.33</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>2.33</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>0.50</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 0.58</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>0.25</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>0.58</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> MRR = (1/2 + 1/1 + 1/4) / 3 = 1.75 / 3 ≈ 0.583.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> MRR averages the reciprocal ranks: (1/2 + 1/1 + 1/4) / 3 = 1.75 / 3 ≈ 0.58. 2.33 is the mean rank (7/3), and 0.33 is its reciprocal; neither is MRR.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">8</span><div>An answer cites [doc-7#2], but the chunk doesn&#39;t support the claim. Which metric captures this failure?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Faithfulness / citation accuracy</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Recall@k</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Precision@k</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>MRR</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Faithfulness, since the answer isn&#39;t backed by its source</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Recall@k, since the right chunk evidently wasn&#39;t retrieved</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Answer relevance, since the response missed the question</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Precision@k, since an irrelevant chunk reached the prompt</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Retrieval may have been fine. The generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by its sources.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Retrieval may have been fine; the generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by the sources it cites. Retrieval metrics can&#39;t see this, and the answer may still address the question.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -645,7 +646,7 @@ messages = [{<span class="hljs-string">&quot;role&quot;</span>: <span class="hlj
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

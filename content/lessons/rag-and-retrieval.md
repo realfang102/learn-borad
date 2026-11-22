@@ -187,7 +187,7 @@ User: Which of our enterprise customers are affected by the CVE in libxml we pat
 
 Thought: First find which CVE and which service was patched.
 Action: search_docs({"query": "libxml CVE patch last week"})
-Observation: [sec-2291#0] "Patched CVE-2026-1234 in libxml2 in the doc-render service (v3.8.1)."
+Observation: [sec-2291#0] "Patched CVE-2026-NNNN in libxml2 in the doc-render service (v3.8.1)."
 Thought: Now which customers use doc-render, and which version are they on?
 Action: search_docs({"query": "doc-render service enterprise customers deployment versions"})
 Observation: [ops-88#2] "Self-hosted doc-render: Globex (v3.7), Initech (v3.8.1), Umbrella (v3.6)."
@@ -388,60 +388,60 @@ A good run searches for annual-plan refunds, finds `refund-policy#0`, and answer
 
 ```quiz
 Q: A user searches for error code "E4012" and dense retrieval returns chunks about unrelated errors. What's the most likely fix?
-- [ ] Use a larger embedding dimension
-- [x] Add keyword (BM25) search and fuse it with dense results (hybrid search)
-- [ ] Increase chunk size so more text is embedded
-- [ ] Lower the similarity threshold
-E: Embeddings capture topical similarity and handle rare exact tokens like error codes poorly. BM25 matches them exactly, and hybrid search with RRF gets the benefits of both.
+- [ ] Switch to a larger embedding model with more dimensions
+- [x] Add BM25 keyword search and fuse it with the dense results
+- [ ] Rewrite the query with an LLM so it describes the error in words
+- [ ] Shrink chunks so the error code dominates each chunk's vector
+E: Embeddings capture topical similarity and handle rare exact tokens like error codes poorly, whatever their size. BM25 matches the token exactly, and hybrid search with RRF keeps the benefits of both. Rewriting the query into prose moves it further from the exact identifier the user typed.
 
 Q: Why does reranking with a cross-encoder improve results over the initial bi-encoder retrieval?
-- [ ] It uses a larger vector index
-- [ ] It re-embeds documents with more dimensions
-- [x] It reads the query and each candidate together, so attention can compare them directly, which is too slow for the whole corpus but affordable on a shortlist
-- [ ] It removes duplicate chunks
-E: Bi-encoders embed queries and documents separately for speed. Cross-encoders process the pair jointly for accuracy, so the standard pattern is a cheap wide retrieval followed by a precise rerank of the top candidates.
+- [ ] It re-embeds the shortlist with a larger, more accurate bi-encoder
+- [ ] It combines keyword and vector scores, which a bi-encoder can't
+- [x] It reads query and passage together, so attention compares them
+- [ ] It scores whole documents rather than isolated chunks, adding context
+E: Bi-encoders embed queries and documents separately so documents can be pre-computed. A cross-encoder processes each pair jointly, which is far more accurate but too slow for the whole corpus, so it runs on a shortlist. Combining keyword and vector scores is hybrid search, a different technique.
 
 Q: What problem does contextual retrieval address?
-- [ ] Queries that are too long to embed
-- [x] Chunks that lose meaning when separated from their document (e.g., "revenue grew 3%" without the company or quarter)
-- [ ] Slow approximate nearest-neighbor search
-- [ ] Prompt injection in retrieved documents
-E: Prepending a short, document-aware context to each chunk before embedding and BM25 indexing makes the chunk retrievable by the terms a user would actually search for.
+- [ ] Short user queries that lack the context needed to match a chunk
+- [x] Chunks that lose meaning once they're cut out of their document
+- [ ] Long documents whose single embedding averages away the details
+- [ ] Retrieved chunks that arrive with no source metadata to cite
+E: "Revenue grew 3%" means little without the company and quarter. Prepending a short, document-aware context to each chunk before embedding and BM25 indexing makes it retrievable by the terms a user would actually search for. Short queries are what query rewriting and HyDE address.
 
 Q: Why does HyDE embed a hypothetical answer instead of the question?
-- [ ] The hypothetical answer is shown to the user as the final answer
-- [ ] Questions can't be embedded by most models
-- [x] A plausible answer passage tends to be closer in embedding space to real answer passages than the question is, even if its details are wrong
-- [ ] It reduces the number of retrieval calls to zero
-E: HyDE uses the fake answer only as a search probe. Its embedding resembles the style and content of real answer passages, so retrieval improves; the fabricated facts are discarded.
+- [ ] The hypothetical answer is a cheap draft that retrieval then fact-checks
+- [ ] Generating text first makes the model's own knowledge available as a source
+- [x] A fake answer passage sits closer to real answers in embedding space
+- [ ] Embedding a longer text gives a more stable vector than a short question
+E: HyDE uses the fake answer only as a search probe: its embedding resembles real answer passages more than the question does, so retrieval improves. Its fabricated details are discarded, not checked or used as a source, and length alone isn't the point.
 
 Q: Why do many coding agents use grep/glob/read instead of a vector index over the codebase?
-- [ ] Embedding models can't process source code
-- [x] Code search depends on exact identifiers, the files change constantly during the task, and iterative exact search needs no index to maintain or keep fresh
-- [ ] Vector databases are prohibited in developer tools
-- [ ] grep uses fewer tokens per question than any retrieval method
-E: Exactness, freshness and zero infrastructure favor agentic search for code. It typically uses more tool calls than one vector lookup, but the agent can iterate and follow references.
+- [ ] Embedding models handle source code poorly compared with prose
+- [x] Code search hinges on exact identifiers, and files change mid-task
+- [ ] Agentic search uses fewer tokens per question than a vector lookup
+- [ ] Vector indexes can't respect the repository's directory structure
+E: Exactness, freshness and zero infrastructure favor agentic search for code. It's tempting to think it's cheaper, but it usually uses more tool calls and tokens than one vector lookup; its advantage is that the agent can iterate and follow references against the current files.
 
 Q: Your knowledge base is a 60-page policy manual that rarely changes, queried thousands of times a day. Which approach is likely simplest and most effective?
-- [ ] Fine-tune a model on the manual
-- [ ] Build GraphRAG over the manual
-- [x] Put the whole manual in the prompt and use prompt caching
-- [ ] Build a vector database with semantic chunking
-E: The manual is small and stable, well within a context window. Long context with caching avoids retrieval misses and pipeline complexity, and makes repeated reads cheap.
+- [ ] Fine-tune a model on the manual so no context tokens are spent
+- [ ] Hybrid search with reranking, so each query sees only what it needs
+- [x] Put the whole manual in the prompt and rely on prompt caching
+- [ ] Build GraphRAG so cross-references between sections are captured
+E: The manual is small and stable, well within a context window. Long context with caching avoids retrieval misses and pipeline complexity, and makes repeated reads cheap. Hybrid search would work but adds machinery and miss risk for no gain; fine-tuning is poor at injecting facts reliably.
 
 Q: Across three test queries, the first relevant result appears at ranks 2, 1 and 4. What's the MRR?
+- [ ] 0.33
 - [ ] 0.25
-- [ ] 0.50
-- [x] About 0.58
+- [x] 0.58
 - [ ] 2.33
-E: MRR = (1/2 + 1/1 + 1/4) / 3 = 1.75 / 3 ≈ 0.583.
+E: MRR averages the reciprocal ranks: (1/2 + 1/1 + 1/4) / 3 = 1.75 / 3 ≈ 0.58. 2.33 is the mean rank (7/3), and 0.33 is its reciprocal; neither is MRR.
 
 Q: An answer cites [doc-7#2], but the chunk doesn't support the claim. Which metric captures this failure?
-- [ ] Recall@k
-- [ ] MRR
-- [x] Faithfulness / citation accuracy
-- [ ] Precision@k
-E: Retrieval may have been fine. The generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by its sources.
+- [ ] Recall@k, since the right chunk evidently wasn't retrieved
+- [ ] Precision@k, since an irrelevant chunk reached the prompt
+- [x] Faithfulness, since the answer isn't backed by its source
+- [ ] Answer relevance, since the response missed the question
+E: Retrieval may have been fine; the generation step made an unsupported claim. Faithfulness and citation-accuracy checks evaluate whether the answer is actually backed by the sources it cites. Retrieval metrics can't see this, and the answer may still address the question.
 ```
 
 ## Further Reading

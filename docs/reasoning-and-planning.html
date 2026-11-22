@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -542,89 +543,89 @@ response = client.messages.create(
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">1</span><div>Why does chain-of-thought prompting improve accuracy on multi-step problems?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It retrieves worked solutions from the training set at inference time</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It makes the model use a larger set of parameters for each token</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each generated token adds a forward pass, so writing intermediate steps gives the model more serial computation and a scratchpad to attend back to</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It disables sampling randomness so the model is deterministic</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It lowers sampling randomness, so each step is chosen more deterministically</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It routes the request through more of the model&#39;s layers for each token</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Each token is another forward pass, adding serial compute and a scratchpad</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It retrieves similar worked solutions from training data at inference time</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A transformer does a fixed amount of computation per token. Intermediate reasoning tokens let it break a dependent computation into steps, each conditioned on the previous ones in context.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A transformer does a fixed amount of computation per token. Intermediate reasoning tokens split a dependent computation into steps, each conditioned on the ones before it. Worked solutions in the training data explain why the <em>style</em> is available, but nothing is retrieved at inference time, and depth per token doesn&#39;t change.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">2</span><div>You run self-consistency with 7 samples and get answers {12: 3, 14: 2, 9: 2}. What&#39;s the best agent behavior?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Return 12 confidently, since it won the vote</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Average the answers and return 11.7</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Treat the low agreement (3/7) as a low-confidence signal: gather more information, sample more, or escalate</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Discard the result because self-consistency only works with 2 samples</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Return 12, since a plurality vote is exactly what the method prescribes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Return the mean of all seven answers, about 11.7, to smooth out the noise</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Treat 3/7 agreement as low confidence: sample more, gather info or escalate</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Re-run only the three chains that answered 12 to confirm that answer</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The majority answer is 12, but 43% agreement is weak. Agreement rate is a cheap uncertainty estimate, and acting on low-confidence answers is how agents compound errors.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> 12 wins the vote, but 43% agreement is weak, and the agreement rate is a cheap uncertainty estimate. Returning the plurality is tempting because it is the textbook rule, but acting on low-confidence answers is how agents compound errors. Averaging discrete answers produces a number no chain supported.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Which condition most strongly favors LATS (MCTS over agent trajectories) over plain ReAct?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The task requires sending emails to customers</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The environment can be reset or branched and gives a reliable reward signal, such as unit tests</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model has no tool access</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Latency must be under one second</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Each step has many plausible actions, such as replying to customers by email</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The environment can be reset or branched and has a reliable signal (tests)</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The task is long, so a single greedy trajectory is likely to drift off course</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model&#39;s own evaluation of partial progress is known to be well calibrated</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LATS explores many trajectories and backs up values from environment feedback. That requires an environment you can safely retry from a clean state and a trustworthy signal. Irreversible actions and tight latency budgets rule it out.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LATS explores many trajectories and backs up values from environment feedback, which needs an environment you can safely retry from a clean state and a trustworthy reward. Email replies are irreversible, and drift on long tasks is better addressed by planning and replanning than by expensive search.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>A plan-and-execute agent writes a 6-step plan; at step 2 the API it planned to use returns 404. What&#39;s the key architectural feature that should handle this?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Running the remaining steps in parallel</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A larger planner model</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A replanning step that revises the remaining plan given the new observation</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Self-consistency over the original plan</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Self-consistency over several drafted plans so the most common one is used</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A stronger planner model that anticipates failures when drafting the plan</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A replanning step that revises the remaining steps given the new result</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A retry policy on the executor that repeats step 2 until the API responds</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Plans are made before the agent sees the environment. Without replanning, a plan is a guess committed to too early. Surprises should trigger revision of the remaining steps.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Plans are made before the agent sees the environment; without replanning, a plan is a guess committed to too early. A better planner still can&#39;t foresee every surprise, and retrying a 404 just repeats a failure that calls for a different route.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>According to Huang et al. (2023), when does LLM self-critique most reliably improve reasoning?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When the critic is the same model at a higher sampling temperature</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When critique is grounded in external feedback such as test results or a verifier</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Always, as long as you run at least three critique rounds</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Never: reflection has been shown not to work</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>When a second, larger model critiques the reasoning instead of the original</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>When critique is grounded in external feedback such as tests or a verifier</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>When the model runs several critique rounds until it stops changing its answer</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>When the critique prompt tells the model its first answer may well be wrong</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Intrinsic self-correction, without external signals, often fails to help and can flip correct answers to wrong ones. Reflexion-style loops get their power from feedback outside the model.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Intrinsic self-correction, without an outside signal, often fails to help and can flip correct answers to wrong ones; telling the model it may be wrong makes that flipping worse. Reflexion-style loops get their power from feedback that comes from outside the model.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>What does the &quot;Mystery Blocksworld&quot; result suggest about LLM planning?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Classical planners fail on obfuscated domains too</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Performance that collapses when action names are obfuscated suggests reliance on familiar patterns rather than general planning ability</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Reasoning models fully solved the problem in 2024</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>LLMs can&#39;t handle more than four blocks</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Obfuscated names hurt classical planners about as much as they hurt LLMs</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A collapse when action names are obfuscated points to pattern matching</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Reasoning models closed the gap in 2024, so the critique no longer applies</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Models struggle mainly with the size of the state, since block counts grew</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The domain&#39;s logic is unchanged; only the names differ. A sound planner wouldn&#39;t care, so a large drop points to pattern retrieval. Reasoning models narrowed but didn&#39;t close the gap.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The domain&#39;s logic is unchanged and only the names differ, so a sound planner wouldn&#39;t care; a large drop points to retrieving familiar patterns rather than general planning. Reasoning models narrowed the gap on standard problems but still degraded on obfuscated and longer ones.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">7</span><div>In a manual tool loop with adaptive thinking, why must you append the full response.content (including thinking blocks) to the history?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Thinking blocks contain the tool results</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It&#39;s required only when effort is set to max</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API bills less when thinking blocks are present</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Interleaved thinking continues from prior thinking across tool calls; dropping or editing those blocks breaks that continuity and invalidates the cache</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The thinking blocks carry the tool_use IDs that the tool_result blocks reference</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The API needs them to verify that the effort level stayed the same across turns</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Thinking blocks are billed once, and resending them avoids paying for them again</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model&#39;s thinking continues across tool calls, so blocks must return intact</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Thinking between tool calls depends on the preserved reasoning from earlier in the turn. Passing blocks back unchanged keeps both the reasoning chain and the prompt cache intact.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Interleaved thinking builds on the reasoning from earlier in the turn; dropping or editing those blocks breaks that continuity and the prompt cache. Tool-use IDs live on the tool_use blocks, not the thinking blocks, and resent thinking is ordinary input, not a billing discount.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">8</span><div>A team selects agent runs whose visible reasoning &quot;looks safe&quot; and fine-tunes on them. What&#39;s the main risk?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Thinking will be disabled</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model&#39;s reasoning will get longer</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Nothing, since CoT is a faithful record of computation</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model may learn to produce clean-looking reasoning while the underlying behavior is unchanged, which weakens CoT as a monitoring signal</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The model&#39;s capability drops, since filtered data has fewer hard cases</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model learns to write longer reasoning, which raises cost per task</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Little, since filtering on visible reasoning reliably removes bad behavior</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It may learn clean-looking reasoning while its behavior stays the same</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> CoT faithfulness is imperfect already. Optimizing directly on how reasoning looks creates pressure to obscure it, which undermines one of the best monitoring tools available.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> CoT faithfulness is already imperfect. Optimizing on how reasoning looks creates pressure to obscure it rather than change the behavior, which undermines one of the best monitoring tools available. A capability drop is possible but secondary to losing the monitoring signal.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -686,7 +687,7 @@ response = client.messages.create(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

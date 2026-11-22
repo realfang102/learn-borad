@@ -277,6 +277,8 @@ def ask(question: str, max_steps: int = 10) -> str:
             raise RuntimeError("Output truncated; raise max_tokens.")
         elif response.stop_reason == "refusal":
             return "The model declined this request."  # never run its tool calls
+        else:  # e.g. stop_sequence; looping on with an assistant turn last would fail
+            raise RuntimeError(f"Unexpected stop_reason: {response.stop_reason}")
     raise RuntimeError(f"No final answer after {max_steps} steps.")
 
 print(ask("Is it warmer in Lisbon or Oslo right now, and by how many °F?"))
@@ -396,6 +398,7 @@ Since the model's training is built around these specific interfaces, they tend 
 Writing the loop by hand is the best way to learn it. In practice, the SDKs provide a **tool runner** that runs the loop for you. In the Python SDK (beta as of 2026), you decorate ordinary typed functions with `@beta_tool`; the schema is generated from the signature and docstring:
 
 ```python
+import ast
 import anthropic
 from anthropic import beta_tool
 
@@ -417,7 +420,7 @@ def calculate(expression: str) -> str:
     Args:
         expression: Arithmetic using numbers, + - * / ** and parentheses.
     """
-    return str(_eval(ast.parse(expression, mode="eval").body))  # from above
+    return str(_eval(ast.parse(expression, mode="eval").body))  # _eval from above
 
 runner = client.beta.messages.tool_runner(
     model="claude-opus-5-5",
@@ -490,53 +493,53 @@ Nearly everyone hits some of these. Most produce a 400 error; a few silently deg
 
 ```quiz
 Q: When a model "calls" get_weather, what actually happens?
-- [ ] The model sends an HTTP request to the weather service
-- [x] The model emits a structured tool_use request; the harness executes the function and returns the result as a new message
-- [ ] The API provider runs every tool you define on its own servers
-- [ ] The model generates a plausible weather report from its training data
-E: For client tools, the model only proposes a call. Your harness executes it and sends back a tool_result. (Server tools like web search are the exception: the provider executes those.)
+- [ ] The model sends an HTTP request straight to the weather service you described
+- [x] It emits a tool_use request; your harness runs it and returns the result
+- [ ] The provider runs every tool you define on its servers, mid-response
+- [ ] The model writes the call as text, and you parse it with a regex
+E: For client tools, the model only proposes a call. Your harness executes it and sends back a tool_result. Server tools like web search are the exception: the provider executes those. Regex-parsed text actions were the early, pre-function-calling approach; modern APIs return a parsed tool_use block.
 
 Q: The model returns three tool_use blocks in one response. How should you send the results?
-- [ ] Three separate user messages, one per result, in the order the calls finish
-- [x] One user message containing three tool_result blocks, each with the matching tool_use_id
-- [ ] Only the result of the first call; the model will ask again for the others
-- [ ] One tool_result block containing all three outputs concatenated
-E: All results for a turn go back in a single user message, one tool_result per tool_use_id, with the results placed before any text.
+- [ ] Three user messages, one per result, in the order the calls finish
+- [x] One user message, three tool_result blocks, each with its tool_use_id
+- [ ] One tool_result block holding all three outputs, joined in order
+- [ ] One user message with a short text note first, then all three of the results
+E: All results for a turn go back in a single user message, one tool_result per tool_use_id, with the results placed before any text. Text before the results is a 400 error, and one combined block leaves two ids unanswered.
 
 Q: Your database tool throws a timeout exception. What is the best way to handle it?
-- [ ] Let the exception end the agent loop so a human can investigate
-- [ ] Return an empty string so the model isn't confused
-- [x] Return a tool_result with is_error true and a message like "Database timed out after 10s; try a narrower date range"
-- [ ] Retry silently forever until it succeeds
-E: An informative error result lets the model adapt — retry, narrow the query or try another approach. Crashing or returning nothing removes that option.
+- [ ] Let the exception end the loop so that a human can investigate it
+- [ ] Return an empty result so the model isn't distracted by the error
+- [x] Return is_error true with an actionable note, e.g. "narrow the dates"
+- [ ] Retry it in the harness until it works, hiding the failure from the model
+E: An informative error result lets the model adapt: retry, narrow the query or try another approach. Crashing or returning nothing removes that option. Silent retries suit transient API errors, but a query that times out every time needs the model to change it.
 
 Q: Why does the tool_result go in a message with role "user"?
-- [ ] Because the user must approve every tool result
-- [x] From the model's perspective it is new information arriving from outside, and the API alternates assistant and user turns
-- [ ] Because tool results are written by the end user
-- [ ] It's an arbitrary convention with no meaning
-E: The conversation alternates between the model (assistant) and everything outside it (user). Tool output is external input, so it arrives in a user turn.
+- [ ] Because a human user has to approve every tool result before it's sent
+- [x] Tool output is new outside information, and turns alternate with the model
+- [ ] Because the API only accepts structured content blocks in user messages
+- [ ] Because the end user's credentials were used to run the tool on their behalf
+E: The conversation alternates between the model (assistant) and everything outside it (user). Tool output is external input, so it arrives in a user turn. Assistant messages carry structured blocks too (tool_use, thinking), so it isn't about block types.
 
 Q: What does "strict": true on a tool guarantee?
-- [ ] That the tool will be called on every turn
-- [ ] That the tool's output is valid JSON
-- [x] That the model's arguments for that tool conform to its JSON Schema, via constrained decoding
-- [ ] That the arguments are semantically correct, e.g. a date is in the future
-E: Strict mode constrains generation so arguments match the schema's structure and types. It says nothing about whether the values make sense; validate semantics yourself.
+- [ ] The model will call that tool at least once before ending its turn
+- [ ] The tool's output will be valid JSON when it's sent back as a result
+- [x] The model's arguments for the tool will conform to its JSON Schema
+- [ ] The arguments will be semantically valid, e.g. a date in the future
+E: Strict mode constrains generation so arguments match the schema's structure and types. It doesn't force a call, says nothing about your tool's output, and can't check whether the values make sense; validate semantics yourself.
 
 Q: Which of these is a server tool, executed by the provider rather than your harness?
 - [ ] The Anthropic-defined bash tool
 - [ ] A get_weather function you wrote
-- [x] Web search
-- [ ] The text editor tool
-E: Web search, web fetch and code execution run on the provider's infrastructure. Bash and the text editor are Anthropic-defined but client-executed: you run them in your own sandbox.
+- [x] The provider's web search tool
+- [ ] The Anthropic-defined text editor
+E: Web search, web fetch and code execution run on the provider's infrastructure. Bash and the text editor are tempting because Anthropic defines them, but they're client-executed: you run them in your own sandbox.
 
 Q: A response comes back with stop_reason "max_tokens" and a tool_use block at the end. What should you do?
-- [ ] Execute the tool call; the arguments are probably complete
-- [x] Don't execute it; the arguments may be truncated, so retry with a higher max_tokens
-- [ ] Send a tool_result with is_error true and continue
-- [ ] Switch tool_choice to none
-E: Hitting the token limit can cut a tool call's arguments off mid-generation. Running a possibly-partial call is risky; retry the turn with more room.
+- [ ] Run it if the input parses, since the arguments are probably complete
+- [x] Don't run it; the arguments may be cut off, so retry with more tokens
+- [ ] Send an is_error tool_result for that call, then carry on with the loop
+- [ ] Set tool_choice to none and ask the model to finish without tools
+E: Hitting the token limit can cut a tool call's arguments off mid-generation, and input that happens to parse can still be missing fields. Running a possibly-partial call is risky; retry the turn with more room rather than papering over it.
 ```
 
 ## Further Reading

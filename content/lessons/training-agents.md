@@ -427,53 +427,53 @@ Training without rigorous evaluation is how teams ship regressions. Treat a trai
 
 ```quiz
 Q: Why does pure SFT on expert trajectories tend to produce brittle agents?
-- [ ] SFT cannot represent tool calls in its loss function
-- [x] The model only sees states that experts visited, so after its own mistake it lands in unfamiliar states it never learned to recover from
-- [ ] SFT always overwrites the knowledge learned in pretraining
-- [ ] Expert trajectories are too short to contain useful information
-E: This is the compounding-error (exposure bias) problem of imitation learning. RL lets the model experience and learn from the consequences of its own actions, including recovery.
+- [ ] Its loss is computed on tool outputs, so it learns to predict environments
+- [x] After its own mistake, it reaches states no expert demo covered
+- [ ] It overwrites pretraining knowledge, so the agent forgets general skills
+- [ ] Expert demos are too short to teach multi-step tool-calling formats
+E: This is the compounding-error (exposure bias) problem of imitation learning: the model never saw how to recover from states experts didn't visit. Loss is normally masked off tool outputs, and SFT teaches tool-call formats well. Forgetting general skills can happen with narrow data, but it isn't what makes agents brittle mid-task.
 
 Q: What is the key structural difference between GRPO and PPO as used in RLHF?
-- [ ] GRPO does not use a reward signal
-- [ ] GRPO trains on human preference pairs offline
-- [x] GRPO computes advantages by comparing a group of sampled responses to the same prompt, removing the need for a learned value (critic) model
-- [ ] GRPO updates only the reward model, not the policy
-E: GRPO's baseline is the group mean reward. Dropping the critic saves memory and avoids training an unstable value network, which fits binary verifiable rewards well.
+- [ ] GRPO learns offline from fixed preference pairs instead of fresh samples
+- [ ] GRPO drops the KL penalty, which is what stops PPO from collapsing
+- [x] GRPO's baseline is the group's mean reward, so no critic is needed
+- [ ] GRPO trains the reward model and policy jointly in one network
+E: GRPO samples several responses per prompt and uses their mean reward as the baseline, removing the value network. Learning offline from fixed pairs describes DPO. Many GRPO recipes keep a KL term (some drop it), but that's not the structural difference.
 
 Q: In GRPO, a prompt where all 8 sampled responses get reward 1.0 contributes what learning signal?
-- [ ] The strongest possible signal, since all answers are correct
-- [x] Essentially none, because every advantage is zero relative to the group mean
-- [ ] A negative signal that discourages overconfidence
-- [ ] It depends only on the KL penalty
-E: Advantages are relative within a group. Uniform success (or uniform failure) gives zero advantage, which is why recipes like DAPO filter such prompts and why task difficulty calibration matters.
+- [ ] A strong positive signal, since every sampled answer was correct
+- [x] Essentially none: every advantage is zero relative to the group mean
+- [ ] A small negative signal that discourages overconfident answers
+- [ ] Only the KL term's pull, which then moves the policy to the reference
+E: Advantages are relative within a group, so uniform success (or uniform failure) gives zero advantage. That's why recipes like DAPO filter such prompts and why calibrating task difficulty matters. The KL term (if present) does not become a meaningful learning signal on its own.
 
 Q: What made Toolformer's training data "self-supervised"?
-- [ ] Humans labeled where tools should be used, then the model imitated them
-- [ ] It used RL with a reward model trained on tool preferences
-- [x] A candidate API call was kept only if inserting it and its result lowered the model's loss on the following tokens
-- [ ] It distilled tool calls from GPT-4 trajectories
-E: Usefulness was defined by the model's own language-modeling loss: a call is worth keeping if it helps predict the upcoming text.
+- [ ] Human annotators marked where tools belonged and the model imitated them
+- [ ] An RL reward model scored each call's usefulness during fine-tuning
+- [x] A call was kept only if it and its result cut the loss on later tokens
+- [ ] It distilled tool calls from a stronger model's successful trajectories
+E: Usefulness was defined by the model's own language-modeling loss: a call is worth keeping if it helps predict the upcoming text. No human labels, reward model or teacher model were involved — distillation is the FireAct/AgentTuning recipe.
 
 Q: An RL-trained coding agent's reward jumps sharply in one training run. Which is the most important first step?
-- [ ] Increase the learning rate to capitalize on the progress
-- [ ] Immediately release the checkpoint
-- [x] Read a sample of high-reward trajectories to check whether the agent is modifying tests or otherwise gaming the verifier
-- [ ] Switch from outcome rewards to DPO
-E: Sudden reward jumps are a classic symptom of reward hacking. Audit trajectories and verify against independent checks before trusting the curve.
+- [ ] Raise the learning rate to make the most of the new progress
+- [ ] Run the public benchmark to confirm the jump is real capability
+- [x] Read high-reward trajectories to check for gamed or edited tests
+- [ ] Add process rewards so the curve becomes smoother and more stable
+E: Sudden reward jumps are a classic symptom of reward hacking. A public benchmark may share the same exploitable weakness (or be contaminated), and process rewards add a new thing to hack. Read the trajectories and verify against independent checks first.
 
 Q: Which situation most clearly justifies fine-tuning your own agent model?
-- [ ] The agent fails because a tool's description is ambiguous
-- [ ] You want the agent to reason better in general
-- [x] A frontier model already succeeds on a narrow, high-volume task with an automatic verifier, but serving cost is too high
-- [ ] You have no eval set but want to see if training helps
-E: Distilling verified trajectories from a strong model into a cheaper one is a well-trodden path. The other cases are better solved with tool/prompt fixes, or require evals first.
+- [ ] The agent keeps misusing a tool whose description is ambiguous
+- [ ] You want better general reasoning across every task your agent does
+- [x] A frontier model works on a narrow, high-volume task but costs too much
+- [ ] You have no eval set yet, but want to see whether training helps
+E: Distilling a strong model's verified trajectories into a cheaper model is a well-trodden path. An ambiguous tool description is fixed by editing it; general reasoning is where frontier labs' budgets win; and without an eval set you can't tell whether training helped.
 
 Q: What does QLoRA add on top of LoRA?
-- [ ] It trains all weights in 4-bit precision
-- [x] It quantizes the frozen base model to 4-bit while training LoRA adapters on top, cutting memory enough to fine-tune very large models on a single GPU
-- [ ] It replaces low-rank adapters with full-rank ones
-- [ ] It removes the need for a training dataset
-E: The base weights stay frozen and quantized (NF4); only the small adapters are trained, plus paged optimizers handle memory spikes.
+- [ ] It trains every weight in 4-bit, so no adapter matrices are needed
+- [x] It stores the frozen base in 4-bit while training adapters on top
+- [ ] It raises the adapter rank to full, recovering full fine-tuning
+- [ ] It quantizes the adapters to 4-bit so they can be hot-swapped
+E: The frozen base weights are quantized (NF4); the small LoRA adapters are trained in higher precision, with paged optimizers to absorb memory spikes. That's how the paper fine-tuned a 65B model on one 48 GB GPU. Quantizing the trainable adapters instead would save little memory and hurt training.
 ```
 
 ## Further Reading

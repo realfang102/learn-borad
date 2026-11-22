@@ -369,46 +369,46 @@ Track reliability metrics beside quality: success rate, recovery rate under faul
 
 ```quiz
 Q: An agent's Messages API call fails with a 400 invalid_request_error. What should the harness do?
-- [ ] Retry with exponential backoff, since API errors are usually transient
-- [ ] Switch to a fallback model and retry immediately
-- [x] Fail fast without retrying, log the request, and fix what produced it
-- [ ] Wait for the retry-after header's duration, then retry
-E: A 400 means the request itself is wrong, and waiting won't change it. Retry 429s (except spend-cap 429s), 5xx errors including 529, and connection errors.
+- [ ] Retry once after a short delay, since a 400 can follow a brief API-side glitch
+- [ ] Switch to a fallback model and resend, since the primary may reject this input
+- [x] Fail fast without retrying, log the request, and fix whatever produced it
+- [ ] Back off for the retry-after duration, then resend the identical request
+E: A 400 means the request itself is wrong, so resending it (to the same model or after any wait) gets the same answer, and a 400 carries no retry-after. Retry 429s (except spend-cap 429s), 5xx errors including 529, and connection errors.
 
 Q: Why add jitter to exponential backoff?
-- [ ] It makes each individual retry more likely to succeed
-- [x] It spreads out retries from many clients that failed together, avoiding synchronized retry storms
-- [ ] The API's rate limiter requires it
-- [ ] It reduces the total number of retries needed
-E: Without jitter, clients that failed at the same moment also retry at the same moment and can overload the service again: the thundering herd.
+- [ ] It gives the overloaded service a longer average pause before each retry
+- [x] It desynchronizes clients that failed together so they don't retry in lockstep
+- [ ] It lets a client skip the remaining backoff when a retry-after header arrives
+- [ ] It lowers the number of attempts each client needs before a request succeeds
+E: Without jitter, clients that failed at the same moment retry at the same moment and can overload the service again: the thundering herd. Full jitter actually shortens the average wait; its value is spreading retries out, not lengthening or reducing them.
 
 Q: A refund tool's idempotency key is the model's tool_use_id. What goes wrong after a crash and resume?
-- [ ] Nothing, because tool_use_ids are stable across resumes
-- [x] The resumed model may emit the same logical refund under a new tool_use_id, so the ledger sees a new key and refunds again
-- [ ] The API rejects reused tool_use_ids
-- [ ] The key is too long for most payment providers
-E: Model output is nondeterministic and a re-planned call gets a fresh ID. Keys should identify the business intent (run + action + order) so a logically repeated action is recognized.
+- [ ] Nothing, because the resumed run replays the same tool_use_id from the checkpoint
+- [x] A re-planned refund arrives under a new tool_use_id, so the ledger refunds again
+- [ ] The key collides across runs, so a second customer's refund is wrongly skipped
+- [ ] The API rejects the resumed request because the tool_use_id was already used
+E: If the crash came before the assistant turn was saved, the model is called again and a re-planned call gets a fresh ID. Keys should identify the business intent (run + action + order) so a logically repeated action is recognized. tool_use_ids are unique, so collisions aren't the problem.
 
 Q: Your agent runs on a durable execution engine such as Temporal. Which statement is true?
-- [ ] Tools no longer need idempotency because each activity runs exactly once
-- [x] Completed steps replay from recorded results, but a step can still execute more than once, so side-effecting tools still need idempotency
-- [ ] Workflow code may call the model API directly because replay handles it
-- [ ] Durable execution makes the model's generations deterministic
-E: A worker can die after acting and before recording, so steps are at-least-once. Model calls belong in recorded steps, not in deterministic workflow code.
+- [ ] Tools no longer need idempotency, since the engine records each completed activity
+- [x] Completed steps replay from the journal, but a step can still run more than once
+- [ ] Workflow code may call the model API directly, since replay reuses the response
+- [ ] Model generations become deterministic, since the engine fixes the random seed
+E: A worker can die after acting but before recording, so steps are at-least-once and side-effecting tools still need idempotency. Model calls belong in recorded activities, not in deterministic workflow code, and nothing makes the model itself deterministic.
 
 Q: A response has stop_reason "max_tokens" and ends with a tool_use block. What's the safest handling?
-- [ ] Execute the tool, since the model clearly intended it
-- [x] Don't execute it, because its input may be truncated; retry with a larger max_tokens or treat the attempt as failed
-- [ ] Add an assistant message that prefills the rest of the call
-- [ ] Mark the run successful
-E: The output was cut off, so the tool input may be incomplete, and running half-formed arguments is dangerous. Assistant prefill is rejected on current models anyway.
+- [ ] Run the tool if its input passes schema validation, since that shows it's complete
+- [x] Don't run it, since its input may be cut off; retry with a higher limit or fail
+- [ ] Send a user message saying "continue" so the model finishes the tool call input
+- [ ] Run the tool, but return is_error so the model double-checks the arguments
+E: The output was cut off, so the tool input may be incomplete. A truncated input can still be schema-valid (a cut-short path or amount), and running it even with an error flag still executes the side effect.
 
 Q: Which defense is strongest against wrong-but-confident results?
-- [ ] Asking the model to double-check its answer
-- [ ] Raising effort so the model thinks longer
-- [x] Checking against ground truth, such as running tests or re-reading a record after writing it
-- [ ] Lowering max_tokens to keep answers focused
-E: Self-reflection reuses the same judgment that made the mistake. Ground-truth checks are independent of the model.
+- [ ] Asking the model to re-check its own answer before it reports the result
+- [ ] Raising the effort setting so the model reasons longer before answering
+- [x] Checking against ground truth, such as re-reading the record after a write
+- [ ] Having the same model grade its output against a detailed rubric afterward
+E: Self-reflection and self-grading reuse the same judgment that made the mistake, and more reasoning still can't see facts it doesn't have. Ground-truth checks are independent of the model.
 ```
 
 ## Further Reading

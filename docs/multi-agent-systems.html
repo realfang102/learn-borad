@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -460,12 +461,12 @@ citing sources from the reports. Never fabricate a source.&quot;&quot;&quot;</sp
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What is the most important benefit subagents provide in a research system?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>They reduce total token usage compared with a single agent</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Context isolation: each digests large amounts of material in its own window and returns a condensed result, keeping the lead&#39;s context clean</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They eliminate the need for tools</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They use a different, smarter model than the lead</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>They let the lead skip planning, since each subagent plans its part</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Each digests material in its own window and returns a short summary</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They can use a smarter model than the lead for the hard parts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They cut total token usage by splitting the work into smaller calls</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Subagents act as context compressors and run in parallel. They usually increase total tokens; the benefit is effective context capacity and speed.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Subagents act as context compressors and can run in parallel. It is tempting to think splitting work saves tokens, but multi-agent systems usually use far more tokens in total; the benefit is effective context capacity and speed. In typical designs the lead uses the strongest model, not the subagents.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
@@ -476,62 +477,62 @@ citing sources from the reports. Never fabricate a source.&quot;&quot;&quot;</sp
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>About 1.5×</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>About 100×</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anthropic reported agents use about 4× chat tokens and its multi-agent system about 15×, which is why multi-agent designs need high-value tasks to be economical.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Anthropic reported agents use about 4× chat tokens (the tempting answer, but that figure is for single agents) and its multi-agent system about 15×, which is why multi-agent designs need high-value tasks to be economical.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>In Cognition&#39;s Flappy Bird example, why did the parallel subagents produce incompatible parts?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The orchestrator used the wrong topology</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Each made implicit decisions (style, assumptions) the other could not see, and the decisions conflicted</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The subagents ran out of context</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model was not capable enough to draw sprites</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The combiner agent was too weak a model to reconcile the parts</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Each made unseen style choices that conflicted with the other&#39;s</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The two subagents ran out of context before finishing their parts</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Their briefs had no output format, so results couldn&#39;t be merged</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> &quot;Actions carry implicit decisions, and conflicting decisions carry bad results.&quot; Tightly coupled creative or write tasks suffer when split across isolated contexts.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> &quot;Actions carry implicit decisions, and conflicting decisions carry bad results.&quot; A better output format would not help: the problem is the many small choices each subagent made in isolation. Tightly coupled creative or write tasks suffer when split across isolated contexts.</div>
 </div>
 
-<div class="quiz-q" data-correct="2">
+<div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Which rule best reconciles &quot;Don&#39;t Build Multi-Agents&quot; with Anthropic&#39;s multi-agent research system?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Use multi-agent only with peer-to-peer topologies</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Always use exactly one agent</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Parallelize read-heavy, independent work across subagents; keep decisions that must be consistent (writes) in a single agent</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Use multi-agent for coding and single-agent for research</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Prefer peer-to-peer topologies so no agent becomes a bottleneck</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Use multi-agent setups for coding and a single agent for research</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Share every subagent&#39;s full trace with all the others in real time</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Parallelize reading across subagents; keep writing in one agent</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Research subtasks rarely conflict and benefit from isolation; coupled write tasks need one consistent context. Anthropic&#39;s lead agent, notably, does the synthesis itself.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Research subtasks rarely conflict and benefit from isolation; coupled write tasks need one consistent context. Anthropic&#39;s lead agent, notably, does the synthesis itself. Sharing every trace with everyone would erase the context-isolation benefit that makes subagents worth it.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>A subagent returns a thorough report on exactly the same angle another subagent covered, while an important angle is missing. Which brief element was most likely missing?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool guidance</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Boundaries (what is out of scope and what other subagents cover)</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Output format</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Model selection</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool and source guidance</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Boundaries and scope</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Output format and length</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Effort and stopping rule</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without explicit boundaries, subagents cannot know how work is divided, which leads to duplication and gaps.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Without explicit boundaries (what is out of scope, what other subagents cover), subagents cannot know how work is divided, which leads to duplication and gaps. A stopping rule controls how much each does, not which angle.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>According to the MAST study, what happened when the authors applied simple fixes such as better role prompts and changed topologies?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Only verification failures remained</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Improvements were modest, suggesting many failures stem from deeper system design issues</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Failures were eliminated</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Performance got worse in all cases</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Only failures from weaker underlying models remained afterward</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Gains were modest; many failures are rooted in system design</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Most failures disappeared once roles were clearly specified</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Scores fell, because longer role prompts crowded the context</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tactical fixes helped only somewhat. The authors argued for structural changes: clear roles, explicit protocols and robust verification.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tactical fixes helped only somewhat. The authors argued that many failures stem from system design rather than model weakness, and called for structural changes: clear roles, explicit protocols and robust verification.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">7</span><div>What distinguishes a handoff topology from orchestrator–subagents?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Handoffs cannot use tools</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Subagents talk directly to the user</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Handoffs use multiple models</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>In a handoff, control of the conversation transfers to the new agent; with subagents, the orchestrator delegates and gets a result back while keeping control</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A handoff needs a different model for each specialist agent</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A handoff shares no context at all with the receiving agent</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A handoff runs specialists in parallel and merges their answers</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A handoff passes control of the conversation to the new agent</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Swarm-style handoffs move ownership of the interaction; supervisor-style delegation treats subagents like function calls that return results.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Swarm-style handoffs move ownership of the interaction; supervisor-style delegation treats subagents like function calls that return results while the orchestrator keeps control. Handoffs usually carry context with them; what travels is a key design question.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -594,7 +595,7 @@ citing sources from the reports. Never fabricate a source.&quot;&quot;&quot;</sp
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

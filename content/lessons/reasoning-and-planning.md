@@ -418,60 +418,60 @@ In practice, a modern agent usually stacks several: a reasoning model with adapt
 
 ```quiz
 Q: Why does chain-of-thought prompting improve accuracy on multi-step problems?
-- [ ] It makes the model use a larger set of parameters for each token
-- [x] Each generated token adds a forward pass, so writing intermediate steps gives the model more serial computation and a scratchpad to attend back to
-- [ ] It disables sampling randomness so the model is deterministic
-- [ ] It retrieves worked solutions from the training set at inference time
-E: A transformer does a fixed amount of computation per token. Intermediate reasoning tokens let it break a dependent computation into steps, each conditioned on the previous ones in context.
+- [ ] It routes the request through more of the model's layers for each token
+- [x] Each token is another forward pass, adding serial compute and a scratchpad
+- [ ] It retrieves similar worked solutions from training data at inference time
+- [ ] It lowers sampling randomness, so each step is chosen more deterministically
+E: A transformer does a fixed amount of computation per token. Intermediate reasoning tokens split a dependent computation into steps, each conditioned on the ones before it. Worked solutions in the training data explain why the *style* is available, but nothing is retrieved at inference time, and depth per token doesn't change.
 
 Q: You run self-consistency with 7 samples and get answers {12: 3, 14: 2, 9: 2}. What's the best agent behavior?
-- [ ] Return 12 confidently, since it won the vote
-- [x] Treat the low agreement (3/7) as a low-confidence signal: gather more information, sample more, or escalate
-- [ ] Average the answers and return 11.7
-- [ ] Discard the result because self-consistency only works with 2 samples
-E: The majority answer is 12, but 43% agreement is weak. Agreement rate is a cheap uncertainty estimate, and acting on low-confidence answers is how agents compound errors.
+- [ ] Return 12, since a plurality vote is exactly what the method prescribes
+- [x] Treat 3/7 agreement as low confidence: sample more, gather info or escalate
+- [ ] Return the mean of all seven answers, about 11.7, to smooth out the noise
+- [ ] Re-run only the three chains that answered 12 to confirm that answer
+E: 12 wins the vote, but 43% agreement is weak, and the agreement rate is a cheap uncertainty estimate. Returning the plurality is tempting because it is the textbook rule, but acting on low-confidence answers is how agents compound errors. Averaging discrete answers produces a number no chain supported.
 
 Q: Which condition most strongly favors LATS (MCTS over agent trajectories) over plain ReAct?
-- [ ] The task requires sending emails to customers
-- [ ] Latency must be under one second
-- [x] The environment can be reset or branched and gives a reliable reward signal, such as unit tests
-- [ ] The model has no tool access
-E: LATS explores many trajectories and backs up values from environment feedback. That requires an environment you can safely retry from a clean state and a trustworthy signal. Irreversible actions and tight latency budgets rule it out.
+- [ ] Each step has many plausible actions, such as replying to customers by email
+- [ ] The model's own evaluation of partial progress is known to be well calibrated
+- [x] The environment can be reset or branched and has a reliable signal (tests)
+- [ ] The task is long, so a single greedy trajectory is likely to drift off course
+E: LATS explores many trajectories and backs up values from environment feedback, which needs an environment you can safely retry from a clean state and a trustworthy reward. Email replies are irreversible, and drift on long tasks is better addressed by planning and replanning than by expensive search.
 
 Q: A plan-and-execute agent writes a 6-step plan; at step 2 the API it planned to use returns 404. What's the key architectural feature that should handle this?
-- [ ] A larger planner model
-- [x] A replanning step that revises the remaining plan given the new observation
-- [ ] Self-consistency over the original plan
-- [ ] Running the remaining steps in parallel
-E: Plans are made before the agent sees the environment. Without replanning, a plan is a guess committed to too early. Surprises should trigger revision of the remaining steps.
+- [ ] A stronger planner model that anticipates failures when drafting the plan
+- [x] A replanning step that revises the remaining steps given the new result
+- [ ] A retry policy on the executor that repeats step 2 until the API responds
+- [ ] Self-consistency over several drafted plans so the most common one is used
+E: Plans are made before the agent sees the environment; without replanning, a plan is a guess committed to too early. A better planner still can't foresee every surprise, and retrying a 404 just repeats a failure that calls for a different route.
 
 Q: According to Huang et al. (2023), when does LLM self-critique most reliably improve reasoning?
-- [ ] Always, as long as you run at least three critique rounds
-- [ ] When the critic is the same model at a higher sampling temperature
-- [x] When critique is grounded in external feedback such as test results or a verifier
-- [ ] Never: reflection has been shown not to work
-E: Intrinsic self-correction, without external signals, often fails to help and can flip correct answers to wrong ones. Reflexion-style loops get their power from feedback outside the model.
+- [ ] When the model runs several critique rounds until it stops changing its answer
+- [ ] When a second, larger model critiques the reasoning instead of the original
+- [x] When critique is grounded in external feedback such as tests or a verifier
+- [ ] When the critique prompt tells the model its first answer may well be wrong
+E: Intrinsic self-correction, without an outside signal, often fails to help and can flip correct answers to wrong ones; telling the model it may be wrong makes that flipping worse. Reflexion-style loops get their power from feedback that comes from outside the model.
 
 Q: What does the "Mystery Blocksworld" result suggest about LLM planning?
-- [ ] LLMs can't handle more than four blocks
-- [x] Performance that collapses when action names are obfuscated suggests reliance on familiar patterns rather than general planning ability
-- [ ] Classical planners fail on obfuscated domains too
-- [ ] Reasoning models fully solved the problem in 2024
-E: The domain's logic is unchanged; only the names differ. A sound planner wouldn't care, so a large drop points to pattern retrieval. Reasoning models narrowed but didn't close the gap.
+- [ ] Models struggle mainly with the size of the state, since block counts grew
+- [x] A collapse when action names are obfuscated points to pattern matching
+- [ ] Obfuscated names hurt classical planners about as much as they hurt LLMs
+- [ ] Reasoning models closed the gap in 2024, so the critique no longer applies
+E: The domain's logic is unchanged and only the names differ, so a sound planner wouldn't care; a large drop points to retrieving familiar patterns rather than general planning. Reasoning models narrowed the gap on standard problems but still degraded on obfuscated and longer ones.
 
 Q: In a manual tool loop with adaptive thinking, why must you append the full response.content (including thinking blocks) to the history?
-- [ ] Thinking blocks contain the tool results
-- [x] Interleaved thinking continues from prior thinking across tool calls; dropping or editing those blocks breaks that continuity and invalidates the cache
-- [ ] The API bills less when thinking blocks are present
-- [ ] It's required only when effort is set to max
-E: Thinking between tool calls depends on the preserved reasoning from earlier in the turn. Passing blocks back unchanged keeps both the reasoning chain and the prompt cache intact.
+- [ ] The thinking blocks carry the tool_use IDs that the tool_result blocks reference
+- [x] The model's thinking continues across tool calls, so blocks must return intact
+- [ ] Thinking blocks are billed once, and resending them avoids paying for them again
+- [ ] The API needs them to verify that the effort level stayed the same across turns
+E: Interleaved thinking builds on the reasoning from earlier in the turn; dropping or editing those blocks breaks that continuity and the prompt cache. Tool-use IDs live on the tool_use blocks, not the thinking blocks, and resent thinking is ordinary input, not a billing discount.
 
 Q: A team selects agent runs whose visible reasoning "looks safe" and fine-tunes on them. What's the main risk?
-- [ ] The model's reasoning will get longer
-- [ ] Thinking will be disabled
-- [x] The model may learn to produce clean-looking reasoning while the underlying behavior is unchanged, which weakens CoT as a monitoring signal
-- [ ] Nothing, since CoT is a faithful record of computation
-E: CoT faithfulness is imperfect already. Optimizing directly on how reasoning looks creates pressure to obscure it, which undermines one of the best monitoring tools available.
+- [ ] The model learns to write longer reasoning, which raises cost per task
+- [ ] The model's capability drops, since filtered data has fewer hard cases
+- [x] It may learn clean-looking reasoning while its behavior stays the same
+- [ ] Little, since filtering on visible reasoning reliably removes bad behavior
+E: CoT faithfulness is already imperfect. Optimizing on how reasoning looks creates pressure to obscure it rather than change the behavior, which undermines one of the best monitoring tools available. A capability drop is possible but secondary to losing the monitoring signal.
 ```
 
 ## Further Reading

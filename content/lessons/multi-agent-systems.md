@@ -353,53 +353,53 @@ If you answer yes to 2 through 5, start with the simplest topology, **orchestrat
 
 ```quiz
 Q: What is the most important benefit subagents provide in a research system?
-- [ ] They use a different, smarter model than the lead
-- [x] Context isolation: each digests large amounts of material in its own window and returns a condensed result, keeping the lead's context clean
-- [ ] They eliminate the need for tools
-- [ ] They reduce total token usage compared with a single agent
-E: Subagents act as context compressors and run in parallel. They usually increase total tokens; the benefit is effective context capacity and speed.
+- [ ] They cut total token usage by splitting the work into smaller calls
+- [x] Each digests material in its own window and returns a short summary
+- [ ] They can use a smarter model than the lead for the hard parts
+- [ ] They let the lead skip planning, since each subagent plans its part
+E: Subagents act as context compressors and can run in parallel. It is tempting to think splitting work saves tokens, but multi-agent systems usually use far more tokens in total; the benefit is effective context capacity and speed. In typical designs the lead uses the strongest model, not the subagents.
 
 Q: Anthropic reported its multi-agent research system used roughly how many times the tokens of a chat interaction?
 - [ ] About 1.5×
 - [ ] About 4×
 - [x] About 15×
 - [ ] About 100×
-E: Anthropic reported agents use about 4× chat tokens and its multi-agent system about 15×, which is why multi-agent designs need high-value tasks to be economical.
+E: Anthropic reported agents use about 4× chat tokens (the tempting answer, but that figure is for single agents) and its multi-agent system about 15×, which is why multi-agent designs need high-value tasks to be economical.
 
 Q: In Cognition's Flappy Bird example, why did the parallel subagents produce incompatible parts?
-- [ ] The model was not capable enough to draw sprites
-- [ ] The subagents ran out of context
-- [x] Each made implicit decisions (style, assumptions) the other could not see, and the decisions conflicted
-- [ ] The orchestrator used the wrong topology
-E: "Actions carry implicit decisions, and conflicting decisions carry bad results." Tightly coupled creative or write tasks suffer when split across isolated contexts.
+- [ ] Their briefs had no output format, so results couldn't be merged
+- [ ] The two subagents ran out of context before finishing their parts
+- [x] Each made unseen style choices that conflicted with the other's
+- [ ] The combiner agent was too weak a model to reconcile the parts
+E: "Actions carry implicit decisions, and conflicting decisions carry bad results." A better output format would not help: the problem is the many small choices each subagent made in isolation. Tightly coupled creative or write tasks suffer when split across isolated contexts.
 
 Q: Which rule best reconciles "Don't Build Multi-Agents" with Anthropic's multi-agent research system?
-- [ ] Always use exactly one agent
-- [ ] Use multi-agent for coding and single-agent for research
-- [x] Parallelize read-heavy, independent work across subagents; keep decisions that must be consistent (writes) in a single agent
-- [ ] Use multi-agent only with peer-to-peer topologies
-E: Research subtasks rarely conflict and benefit from isolation; coupled write tasks need one consistent context. Anthropic's lead agent, notably, does the synthesis itself.
+- [ ] Use multi-agent setups for coding and a single agent for research
+- [x] Parallelize reading across subagents; keep writing in one agent
+- [ ] Share every subagent's full trace with all the others in real time
+- [ ] Prefer peer-to-peer topologies so no agent becomes a bottleneck
+E: Research subtasks rarely conflict and benefit from isolation; coupled write tasks need one consistent context. Anthropic's lead agent, notably, does the synthesis itself. Sharing every trace with everyone would erase the context-isolation benefit that makes subagents worth it.
 
 Q: A subagent returns a thorough report on exactly the same angle another subagent covered, while an important angle is missing. Which brief element was most likely missing?
-- [ ] Output format
-- [x] Boundaries (what is out of scope and what other subagents cover)
-- [ ] Tool guidance
-- [ ] Model selection
-E: Without explicit boundaries, subagents cannot know how work is divided, which leads to duplication and gaps.
+- [ ] Output format and length
+- [x] Boundaries and scope
+- [ ] Tool and source guidance
+- [ ] Effort and stopping rule
+E: Without explicit boundaries (what is out of scope, what other subagents cover), subagents cannot know how work is divided, which leads to duplication and gaps. A stopping rule controls how much each does, not which angle.
 
 Q: According to the MAST study, what happened when the authors applied simple fixes such as better role prompts and changed topologies?
-- [ ] Failures were eliminated
-- [x] Improvements were modest, suggesting many failures stem from deeper system design issues
-- [ ] Performance got worse in all cases
-- [ ] Only verification failures remained
-E: Tactical fixes helped only somewhat. The authors argued for structural changes: clear roles, explicit protocols and robust verification.
+- [ ] Most failures disappeared once roles were clearly specified
+- [x] Gains were modest; many failures are rooted in system design
+- [ ] Scores fell, because longer role prompts crowded the context
+- [ ] Only failures from weaker underlying models remained afterward
+E: Tactical fixes helped only somewhat. The authors argued that many failures stem from system design rather than model weakness, and called for structural changes: clear roles, explicit protocols and robust verification.
 
 Q: What distinguishes a handoff topology from orchestrator–subagents?
-- [ ] Handoffs use multiple models
-- [x] In a handoff, control of the conversation transfers to the new agent; with subagents, the orchestrator delegates and gets a result back while keeping control
-- [ ] Handoffs cannot use tools
-- [ ] Subagents talk directly to the user
-E: Swarm-style handoffs move ownership of the interaction; supervisor-style delegation treats subagents like function calls that return results.
+- [ ] A handoff runs specialists in parallel and merges their answers
+- [x] A handoff passes control of the conversation to the new agent
+- [ ] A handoff needs a different model for each specialist agent
+- [ ] A handoff shares no context at all with the receiving agent
+E: Swarm-style handoffs move ownership of the interaction; supervisor-style delegation treats subagents like function calls that return results while the orchestrator keeps control. Handoffs usually carry context with them; what travels is a key design question.
 ```
 
 ## Further Reading

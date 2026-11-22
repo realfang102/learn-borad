@@ -436,6 +436,7 @@ import anthropic
 client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY
 PROMPT_VERSION = "coding-agent/v14"  # tag this in your eval results too
 system_prompt = Path(f"prompts/{PROMPT_VERSION}.txt").read_text()
+issue_text = Path("issue.md").read_text()  # this run's task
 
 response = client.messages.create(
     model="claude-opus-5-5",
@@ -477,60 +478,60 @@ The tool loop around this call is covered in [tool use](tool-use.html) and [buil
 
 ```quiz
 Q: A prompt says "NEVER use markdown." The agent's replies go to an SMS gateway. What is the best improvement?
-- [ ] Repeat the rule in capitals at the start and end of the prompt
-- [x] Explain that replies are sent as SMS, which shows markdown symbols literally, so use plain text
-- [ ] Add three examples of plain-text replies
-- [ ] Move the rule into every tool description
-E: Giving the reason lets the model generalize — it will also avoid tables, long URLs and other things that render badly as SMS — and lets it weigh the rule sensibly. Repetition and capitals add emphasis without information.
+- [ ] Repeat the rule in capitals at both the start and end of the prompt
+- [x] Say replies go out as SMS, which shows markdown symbols literally
+- [ ] Add three short examples of good plain-text replies after the rule
+- [ ] Use structured output with a schema that has no markdown fields
+E: Giving the reason lets the model generalize (it will also avoid tables, long URLs and other things that render badly as SMS) and weigh the rule sensibly. Examples help pin a format but don't explain it, and a JSON schema constrains shape, not whether the text inside contains markdown. Repetition and capitals add emphasis without information.
 
 Q: Which instruction is pitched at the right altitude for a support agent handling refund requests?
-- [ ] "Handle refunds appropriately."
-- [ ] "STEP 1: apologize. STEP 2: look up order. STEP 3: if amount < 50, refund; else if amount < 200, offer credit; else..."
-- [x] "You may refund up to $200 without approval, because finance reviews larger amounts individually; check the order records before deciding, since customers sometimes confuse orders."
-- [ ] "CRITICAL: You MUST follow refund policy at all times."
-E: The right altitude states the goal, the bounds of authority and the reasons, while leaving the conversation to the model. The first is too vague, the second is a brittle script, and the fourth adds pressure without information.
+- [ ] "Handle refund requests appropriately and in line with company policy."
+- [ ] "STEP 1: apologize. STEP 2: look up order. STEP 3: if < $50, refund; else..."
+- [x] "Refund up to $200 yourself; finance reviews more. Check the order first."
+- [ ] "CRITICAL: You MUST always follow the refund policy, with no exceptions."
+E: The right altitude states the goal, the bounds of authority and the reasons, and leaves the conversation to the model. The first is too vague, the second is a brittle script that breaks on unscripted cases, and the fourth adds pressure without information.
 
 Q: Your agent prompt includes one detailed example trajectory: search_orders, then get_order, then issue_refund. What risk does this create?
-- [ ] None — examples always improve tool-calling accuracy
-- [x] The agent may copy the exact sequence, even calling issue_refund when the customer only wanted tracking info
-- [ ] The API rejects prompts that mention tool names
-- [ ] The example will be cached and slow down future requests
-E: Examples are the strongest signal in a prompt and agents tend to imitate trajectories. Use several varied examples labeled as illustrative, or describe the strategy instead.
+- [ ] Little risk: a single worked example reliably improves tool-calling accuracy
+- [x] The agent may copy the sequence, issuing refunds to people who only asked
+- [ ] The model may treat the example's tool names as the only tools allowed
+- [ ] The long example pushes the real instructions out of the model's view
+E: Examples are the strongest signal in a prompt, and agents tend to imitate trajectories, even calling issue_refund when the customer only wanted tracking info. Use several varied examples labeled as illustrative, or describe the strategy instead. One example of moderate length doesn't crowd out the rest of the prompt.
 
 Q: An agent runs unattended in CI and keeps ending its run with "Should I also update the tests?" What is the most effective prompt fix?
-- [ ] Add "Be thorough. Do NOT stop early." in capitals
-- [ ] Add "think step by step" to the system prompt
-- [x] State that the run is unattended and nobody can answer questions, give an ask-vs-act policy based on reversibility, and define done as including passing tests
-- [ ] Remove the agent's ability to output text
-E: The agent lacks operating facts and a definition of done. Telling it the situation and what completion means changes the right behavior directly; generic pressure language tends to cause other problems such as over-verification.
+- [ ] Add "Be thorough. Do NOT stop early or ask questions." in capitals
+- [ ] Add "think step by step before you end your turn" to the prompt
+- [x] Say nobody can answer in CI, and define done as including tests
+- [ ] Give it a list of questions it's allowed to ask and all others banned
+E: The agent lacks operating facts and a definition of done. Telling it the situation and what completion means changes the right behavior directly. Generic pressure language tends to cause other problems such as over-verification, and a whitelist of questions doesn't tell it what to do instead.
 
 Q: With a model that supports adaptive thinking, how should you get more careful reasoning on a hard agent task?
-- [ ] Add "think step by step" and require a <scratchpad> section in the output
-- [x] Configure thinking and raise the effort level, and tell the agent how its work will be verified
-- [ ] Add a JSON field called reasoning that must be at least 500 words
-- [ ] Lower max_tokens so the model is forced to be efficient
-E: Native thinking is controlled by configuration (thinking and effort), which is more reliable than prose. What prompts still add is task-specific knowledge such as how to verify success.
+- [ ] Add "think step by step" and require a <scratchpad> section first
+- [x] Raise the effort setting and tell it how its work will be verified
+- [ ] Add a required "reasoning" field to the JSON output it produces
+- [ ] Lower max_tokens so that the model is pushed to be more focused and direct
+E: Native thinking is controlled by configuration (thinking and effort), which is more reliable than prose. A reasoning field in the output duplicates what thinking blocks already provide and on some current Claude models can even trigger a refusal for reasoning extraction. What prompts still add is task-specific knowledge such as how to verify success.
 
 Q: Where should the fact "search_orders only covers orders from the last 18 months" live?
 - [x] In the search_orders tool description, as part of its contract
-- [ ] In the system prompt, so the model sees it first
-- [ ] In a few-shot example
-- [ ] Nowhere; the model will discover it from errors
-E: Limits on what a tool returns are part of the tool's contract. Keeping them in the description means they travel with the tool to any agent that uses it.
+- [ ] In the system prompt's policy section, so it's seen on every step
+- [ ] In the tool's error message, returned when old orders are missing
+- [ ] In a few-shot example showing a search for an older order failing
+E: Limits on what a tool returns are part of the tool's contract. Keeping them in the description means the model knows before calling, and the fact travels with the tool to any agent that uses it. An error message helps too, but the model only sees it after a wasted call (and an empty result may not look like an error at all).
 
 Q: For a multi-session coding task, why include a "Dead ends" section in the agent's progress file?
-- [ ] It is required by the version-control system
-- [x] A fresh context has no memory of failed approaches and would otherwise retry them
-- [ ] It reduces the cost of prompt caching
-- [ ] It lets the model skip running tests
-E: Progress files are the agent's memory across context resets. Recording what didn't work, and why, prevents a new session from repeating the same expensive mistakes.
+- [ ] It lets the reviewer see how hard the task was before approving it
+- [x] A fresh context has no memory of failed tries and would retry them
+- [ ] It gives the model negative examples, which improves later outputs
+- [ ] It keeps git history clean, since failed experiments are never committed
+E: Progress files are the agent's memory across context resets. Recording what didn't work, and why, prevents a new session from repeating the same expensive mistakes. Reviewers may find it useful, but that's a side benefit, not the reason.
 
 Q: A teammate's meta-prompting tool rewrote your system prompt and it "looks much better." What should happen before shipping it?
-- [ ] Nothing, model-written prompts are optimized by construction
-- [ ] Ship it to half of production traffic immediately
-- [x] Run it against your eval suite over multiple trials, compare with the current version, and read failing transcripts
-- [ ] Add capital letters to the most important rules
-E: A prompt is code; every change needs regression testing. Model-improved prompts often become longer and more emphatic, which can degrade behavior on capable models.
+- [ ] Have a second model review the new prompt and confirm it improved
+- [ ] Ship it to 5% of traffic and watch user complaints for a week
+- [x] Run both versions on your eval suite over several trials, and compare
+- [ ] Diff the two versions and check that no existing rule was dropped or changed
+E: A prompt is code; every change needs regression testing on realistic tasks before it reaches users. A model's opinion or a text diff can't tell you how behavior changed, and complaint rates are a slow, noisy signal. Model-improved prompts often become longer and more emphatic, which can degrade behavior on capable models.
 ```
 
 ## Further Reading
@@ -538,7 +539,7 @@ E: A prompt is code; every change needs regression testing. Model-improved promp
 - [Anthropic: Prompt engineering overview](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview) — official guide to clarity, examples, XML tags and model-specific best practices.
 - [Anthropic: Effective context engineering for AI agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) — source of the "right altitude" framing and advice on canonical examples.
 - [Anthropic: Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) — progress files, feature lists and incremental sessions for multi-context-window work.
-- [Anthropic: Building effective agents](https://www.anthropic.com/research/building-effective-agents) — when to use agents vs workflows, and why prompting the tool interface matters as much as the main prompt.
+- [Anthropic: Building effective agents](https://www.anthropic.com/engineering/building-effective-agents) — when to use agents vs workflows, and why prompting the tool interface matters as much as the main prompt.
 - [Anthropic: Claude Code best practices](https://www.anthropic.com/engineering/claude-code-best-practices) — practical prompting for a production coding agent, including project instruction files.
 - [OpenAI: GPT-4.1 prompting guide](https://cookbook.openai.com/examples/gpt4-1_prompting_guide) — a vendor's view of agentic reminders (persistence, tool use, planning); useful for comparing how advice shifts across model generations.
-- [Wei et al., Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — the paper behind "think step by step," useful history for understanding why native thinking replaced it.
+- [Wei et al., Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — the paper that introduced chain-of-thought prompting (the zero-shot "Let's think step by step" phrasing came from Kojima et al. later in 2022); useful history for understanding why native thinking replaced it.

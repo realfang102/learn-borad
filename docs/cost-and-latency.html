@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -503,11 +504,11 @@ first = <span class="hljs-literal">None</span>
         <span class="hljs-built_in">print</span>(text, end=<span class="hljs-string">&quot;&quot;</span>, flush=<span class="hljs-literal">True</span>)
     final = stream.get_final_message()
 total = time.perf_counter() - start
-<span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;\nfirst text <span class="hljs-subst">{first:<span class="hljs-number">.2</span>f}</span>s, total <span class="hljs-subst">{total:<span class="hljs-number">.2</span>f}</span>s, &quot;</span>
+<span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;\nfirst text <span class="hljs-subst">{first <span class="hljs-keyword">or</span> total:<span class="hljs-number">.2</span>f}</span>s, total <span class="hljs-subst">{total:<span class="hljs-number">.2</span>f}</span>s, &quot;</span>  <span class="hljs-comment"># first is None if no text streamed</span>
       <span class="hljs-string">f&quot;<span class="hljs-subst">{final.usage.output_tokens / total:<span class="hljs-number">.0</span>f}</span> output tok/s overall&quot;</span>)</code></pre></div>
 <p>For agent UIs, stream progress as well as the final answer (&quot;Searching orders… Found 3 matches… Drafting reply…&quot;). Users tolerate long tasks much better when they can see work happening. See <a href="conversational-voice-agents.html">conversational and voice agents</a> for the extreme case, where every few hundred milliseconds counts.</p>
 <h3 id="fast-mode"><a class="anchor" href="#fast-mode" aria-hidden="true">#</a>Fast mode</h3>
-<p><strong>Fast mode</strong> runs the <em>same</em> model with substantially faster output, at a premium. As of November 2026 it&#39;s available on Claude Opus 5.5 by setting <code>speed=&quot;fast&quot;</code> on a request, at 2× the standard price ($8 / $40 per MTok), with availability varying by platform. Because the model doesn&#39;t change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.</p>
+<p><strong>Fast mode</strong> runs the <em>same</em> model with substantially faster output, at a premium. As of November 2026 it&#39;s available on Claude Opus 5.5 (and a few other models) by setting <code>speed=&quot;fast&quot;</code> on a request; on Opus 5.5 it costs 2× the standard price ($8 / $40 per MTok), and availability varies by platform. Because the model doesn&#39;t change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.</p>
 <h3 id="tail-latency"><a class="anchor" href="#tail-latency" aria-hidden="true">#</a>Tail latency</h3>
 <p>Users feel the p95, not the mean, and agent tails are long: one slow tool, one backed-off retry, one long reasoning step. Find out why the slow tasks are slow before tuning. Remedies include tool timeouts, <strong>hedged requests</strong> (after a deadline, send a duplicate and take the first reply, which costs money and is only safe on idempotent paths), and rate-limit headroom so 429 retries don&#39;t land on interactive traffic.</p>
 <h2 id="measuring-what-matters"><a class="anchor" href="#measuring-what-matters" aria-hidden="true">#</a>Measuring What Matters</h2>
@@ -571,23 +572,23 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">1</span><div>An uncached 20-turn agent task costs $2.28. Roughly what happens to cost if the same kind of task takes 40 turns?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It more than triples, because each call re-sends a history that keeps growing</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It doubles, because there are twice as many calls</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It stays about the same, since output tokens dominate</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It halves, thanks to automatic batching</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It more than triples, since each call re-sends an ever-longer history</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It roughly doubles, since there are twice as many calls at the same size</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It roughly quadruples, since every input token&#39;s cost scales with N²</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It grows about 1.5×, since the fixed system prompt is most of each call</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Total input is roughly base × N + delta × N²/2, so the history term grows quadratically. In the worked example, 40 turns cost $7.61 against $2.28 for 20.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Total input is roughly base × N + delta × N²/2, so the history term grows quadratically. In the worked example 40 turns cost $7.61 against $2.28 for 20. It&#39;s not a full 4× because the base prompt and output grow only linearly, and the system prompt stops dominating once history piles up.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A system prompt starts with the current timestamp, followed by 10,000 tokens of stable instructions. What&#39;s the effect on caching?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The prefix differs on every request, so nothing after the timestamp (instructions and conversation) is ever read from cache</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only the timestamp is uncached; the instructions still hit</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Caching works, but with a shorter TTL</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API strips timestamps before matching</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The prefix changes every request, so nothing after the timestamp ever hits</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only the timestamp misses; the 10,000 instruction tokens after it still hit</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Caching still works, but entries expire on the 5-minute TTL more quickly</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Tool definitions and the conversation still hit, since only system misses</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is an exact prefix match in tools → system → messages order. A change at byte N invalidates everything after it. Move dynamic values after the cached prefix.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is an exact prefix match in tools → system → messages order. A change at byte N invalidates everything after it, which includes the instructions and the whole conversation; tools, which render before system, are the only part that can still hit. Move dynamic values after the cached prefix.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
@@ -598,51 +599,51 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>49,200 tokens</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>51,100 tokens</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> input_tokens is only the uncached remainder. The total prompt is the sum of all three fields, and this is a healthy loop signature: mostly reads, a small write, a small uncached tail.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> input_tokens is only the uncached remainder, and cache writes are counted separately too, so the total prompt is the sum of all three fields (49,200 forgets the write). This is a healthy loop signature: mostly reads, a small write, a small uncached tail.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
-  <div class="quiz-question"><span class="quiz-num">4</span><div>Config A costs $0.48 per attempt with a 90% success rate; config B costs $0.12 with 55%. Failures go to a human at $5 each. Which is cheaper per task, and why?</div></div>
+  <div class="quiz-question"><span class="quiz-num">4</span><div>Config A costs $0.48 per attempt with a 90% success rate; config B costs $0.12 with 55%. Failures go to a human at $5 each. Which is cheaper per task?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>B, because humans are cheaper than tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A, because B&#39;s extra failures add more in escalation cost than its token savings</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>B, because it&#39;s 4× cheaper per attempt</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>They&#39;re equal once retries are included</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>B, since at 4× cheaper per attempt it can retry each failure and still win</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A, since B&#39;s extra failures cost more in escalations than B saves in tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>B, since a $0.36 saving on every attempt outweighs the 35-point gap</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Neither; they come out about equal once escalation costs are included</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Expected cost is A: 0.48 + 0.10 × 5 = $0.98, B: 0.12 + 0.45 × 5 = $2.37. Price per token doesn&#39;t predict cost per completed task.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Expected cost is A: 0.48 + 0.10 × 5 = $0.98, B: 0.12 + 0.45 × 5 = $2.37. Retrying B helps only if failures are independent and detectable, and each retry still fails 45% of the time. Price per token doesn&#39;t predict cost per completed task.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Which workload fits the Batch API best?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A nightly run classifying yesterday&#39;s 50,000 tickets</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A voice agent with sub-second latency targets</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A live chat assistant where users wait for replies</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A coding agent that needs many tool-calling turns interactively</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A nightly job classifying yesterday&#39;s 50,000 tickets, one request per ticket</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A research agent&#39;s parallel subagent searches, so they all run at half price</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A coding agent&#39;s many tool-calling turns, run unattended while a developer is at lunch</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A chat assistant&#39;s replies, queued so that heavy traffic waits instead of failing</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Batches are asynchronous (up to 24 hours) and single-shot, at half price. They suit offline, no-one-waiting work.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Batches are asynchronous (most finish within an hour, up to 24 hours) and single-shot, at half price. They suit independent, offline requests. A multi-turn tool loop can&#39;t run inside a batch, and anything a user is waiting on doesn&#39;t belong there.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Users complain that your agent &quot;feels slow,&quot; but total task time is acceptable. Which change most directly helps?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Switching to the Batch API</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Adding more tools</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Streaming responses and progress updates so text appears quickly</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Raising max_tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Switching the route to a smaller model with higher output tokens per second</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Caching the system prompt so time to first token drops on every model call</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Streaming the answer and progress updates so text appears within seconds</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Lowering effort so that every turn of the agent uses fewer thinking tokens</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Streaming cuts time to first visible output, the wait users actually feel, even though total time barely changes.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The complaint is about felt latency, not total time. Streaming and progress updates cut time to first visible output directly. The other levers shorten real time, at some cost or quality risk, and still leave the user staring at a spinner until the answer is done.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Why is switching to a cheaper model midway through a long conversation often a false economy?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Caches are per model, so the whole history is re-processed at full input price, and earlier thinking may not carry over</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Cheaper models can&#39;t read tool results</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Cheaper models have smaller context windows</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API charges a model-switch fee</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Caches are per model, so the full history is re-billed at the uncached rate</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The cheaper model must re-run every earlier tool call to rebuild its own state</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The cheaper model&#39;s smaller context window forces an immediate compaction</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API bills a model-switch surcharge equal to one turn&#39;s full input cost</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The cold cache on a long history can cost more than the switch saves. Route at task boundaries, or delegate bounded subtasks to a cheaper subagent instead.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The cold cache on a long history can cost more than the switch saves, and earlier thinking may not carry over. No surcharge or tool re-run is involved. Route at task boundaries, or delegate bounded subtasks to a cheaper subagent instead.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -706,7 +707,7 @@ PRICES = {  <span class="hljs-comment"># $/MTok as of Nov 2026: input, output, c
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

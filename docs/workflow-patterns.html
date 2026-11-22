@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -623,12 +624,12 @@ final = runner.until_done()</code></pre></div>
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What is the defining difference between a workflow and an agent in Anthropic&#39;s framing?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents always involve multiple LLMs, workflows only one</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In a workflow, code defines the control flow; in an agent, the LLM dynamically decides its own steps</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Workflows use small models; agents use frontier models</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflows use tools; agents do not</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Agents coordinate several LLMs; workflows make a single call</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Who controls the path: predefined code, or the model itself</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Workflows use small, cheap models; agents need frontier ones</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Workflows call tools through code; agents call them natively</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can use tools and any model. The distinction is who controls the path: predefined code paths (workflow) versus the model directing its own process and tool usage (agent).</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can use tools and any model, and a workflow can involve many calls. The distinction is who controls the path: predefined code paths (workflow) versus the model directing its own process and tool usage (agent).</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
@@ -639,62 +640,62 @@ final = runner.until_done()</code></pre></div>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Voting</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Prompt chaining</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Routing separates concerns: each category gets its own specialized prompt, so optimizing one path no longer degrades the others.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Routing separates concerns: each category gets its own specialized prompt, so optimizing one path no longer degrades the others. An evaluator loop would polish answers but still from one overloaded prompt.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>How does orchestrator-workers differ from sectioning-style parallelization?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Orchestrator-workers runs sequentially; sectioning runs in parallel</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In orchestrator-workers the subtasks are decided by an LLM at runtime; in sectioning they are predefined in code</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Sectioning requires multiple models; orchestrator-workers uses one</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>There is no difference; they are synonyms</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Orchestrator-workers runs its subtasks one after another</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An LLM picks the subtasks at runtime instead of code</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Sectioning uses one model; workers each need a different model</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Orchestrator-workers skips the final aggregation step</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can fan out in parallel. The key difference is flexibility: the orchestrator determines how many subtasks there are and what they are based on the specific input.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both can fan out in parallel and both combine results at the end. The key difference is flexibility: the orchestrator decides how many subtasks there are and what each is, based on the specific input, whereas sectioning&#39;s split is fixed in code.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">4</span><div>You run three identical prompts in a voting setup and they almost always agree, even when wrong. What is the most likely fix?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Make the voters genuinely diverse, with different instructions, lenses, context or models</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Lower the vote threshold to 1 of 3</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add more identical voters</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Switch to prompt chaining</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Give each voter a different lens, context slice or model</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Have each voter re-read the others&#39; answers and then revote</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add more identical voters to strengthen the majority</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Raise the threshold so all three must agree to pass</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Correlated voters share failure modes, so adding more of them adds cost without confidence. Diversity in framing or model decorrelates their errors.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Correlated voters share failure modes, so adding more of them, or demanding unanimity, adds cost without adding information. Letting voters see each other&#39;s answers correlates them even further. Diversity in framing, context or model decorrelates their errors.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Which is the best signal that evaluator-optimizer will pay off for a task?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The inputs fall into several distinct categories</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Clear criteria exist, and written feedback would demonstrably improve a first draft</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of steps is unpredictable</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The task is latency-sensitive</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Inputs fall into several clearly distinct categories</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Written feedback against clear criteria improves drafts</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The number of steps needed is hard to predict in advance</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The task is latency-sensitive and must answer quickly</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Evaluator-optimizer works when evaluation criteria are clear and iterative refinement adds measurable value, much like a writer revising with an editor&#39;s notes.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Evaluator-optimizer works when criteria are clear and a critique demonstrably improves the next draft, like a writer revising with an editor&#39;s notes. Distinct categories point to routing, an unpredictable number of steps points to an agent, and latency sensitivity argues against extra rounds.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">6</span><div>What is a &quot;programmatic gate&quot; in prompt chaining?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A human approval step</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A special API parameter that blocks unsafe output</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A code check on an intermediate output that decides whether the chain continues, retries or stops</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rate limiter between API calls</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A pause where a human reviews and approves each step&#39;s output</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>An LLM judge that rewrites weak intermediate outputs</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Code that checks a step&#39;s output and continues or stops</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A rate limiter that spaces out the chain&#39;s API calls</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Gates are ordinary code (schema validation, keyword checks, tests) that verify intermediate results, catching errors before they compound through later steps.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Gates are ordinary code (schema validation, keyword checks, tests) that verify intermediate results and decide whether to continue, retry or stop, catching errors before they compound. An LLM judge can serve as a gate when code cannot check the property, but it judges rather than rewrites, and it is the fallback, not the definition.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">7</span><div>A team jumps straight to an autonomous multi-tool agent for a task that always follows the same four steps. What is the main problem?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The task requires voting</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Agents cannot call more than three tools</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>They pay extra latency, cost and unpredictability for flexibility the task does not need; a prompt chain would be simpler and more reliable</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Autonomous agents cannot run fixed sequences</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A fixed four-step task should be handled with voting</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The agent cannot be given more than a handful of tools</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It pays for flexibility the task doesn&#39;t need; chain it</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Autonomous agents are unable to follow a fixed sequence of steps</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> When the path is known in advance, encoding it in code is cheaper, faster, easier to test and less error-prone than letting the model rediscover it every run.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> An agent can follow the four steps, but it pays extra latency, cost and unpredictability to rediscover a path that is known in advance. Encoding the path as a prompt chain is cheaper, faster, easier to test and less error-prone.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -745,7 +746,7 @@ final = runner.until_done()</code></pre></div>
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

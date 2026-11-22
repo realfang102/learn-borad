@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -394,6 +395,8 @@ HANDLERS = {<span class="hljs-string">&quot;get_weather&quot;</span>: get_weathe
             <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">&quot;Output truncated; raise max_tokens.&quot;</span>)
         <span class="hljs-keyword">elif</span> response.stop_reason == <span class="hljs-string">&quot;refusal&quot;</span>:
             <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;The model declined this request.&quot;</span>  <span class="hljs-comment"># never run its tool calls</span>
+        <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># e.g. stop_sequence; looping on with an assistant turn last would fail</span>
+            <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;Unexpected stop_reason: <span class="hljs-subst">{response.stop_reason}</span>&quot;</span>)
     <span class="hljs-keyword">raise</span> RuntimeError(<span class="hljs-string">f&quot;No final answer after <span class="hljs-subst">{max_steps}</span> steps.&quot;</span>)
 
 <span class="hljs-built_in">print</span>(ask(<span class="hljs-string">&quot;Is it warmer in Lisbon or Oslo right now, and by how many °F?&quot;</span>))</code></pre></div>
@@ -509,7 +512,8 @@ Step 3  Model: Lisbon is warmer: 17 °C and sunny vs -3 °C and snowing in
 </div></aside>
 <h2 id="the-sdk-tool-runner"><a class="anchor" href="#the-sdk-tool-runner" aria-hidden="true">#</a>The SDK Tool Runner</h2>
 <p>Writing the loop by hand is the best way to learn it. In practice, the SDKs provide a <strong>tool runner</strong> that runs the loop for you. In the Python SDK (beta as of 2026), you decorate ordinary typed functions with <code>@beta_tool</code>; the schema is generated from the signature and docstring:</p>
-<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> anthropic
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> ast
+<span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> anthropic <span class="hljs-keyword">import</span> beta_tool
 
 client = anthropic.Anthropic()
@@ -530,7 +534,7 @@ client = anthropic.Anthropic()
     Args:
         expression: Arithmetic using numbers, + - * / ** and parentheses.
     &quot;&quot;&quot;</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(_<span class="hljs-built_in">eval</span>(ast.parse(expression, mode=<span class="hljs-string">&quot;eval&quot;</span>).body))  <span class="hljs-comment"># from above</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">str</span>(_<span class="hljs-built_in">eval</span>(ast.parse(expression, mode=<span class="hljs-string">&quot;eval&quot;</span>).body))  <span class="hljs-comment"># _eval from above</span>
 
 runner = client.beta.messages.tool_runner(
     model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
@@ -684,78 +688,78 @@ runner = client.beta.messages.tool_runner(
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>When a model &quot;calls&quot; get_weather, what actually happens?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The API provider runs every tool you define on its own servers</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model emits a structured tool_use request; the harness executes the function and returns the result as a new message</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model sends an HTTP request to the weather service</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model generates a plausible weather report from its training data</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The provider runs every tool you define on its servers, mid-response</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It emits a tool_use request; your harness runs it and returns the result</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model sends an HTTP request straight to the weather service you described</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model writes the call as text, and you parse it with a regex</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> For client tools, the model only proposes a call. Your harness executes it and sends back a tool_result. (Server tools like web search are the exception: the provider executes those.)</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> For client tools, the model only proposes a call. Your harness executes it and sends back a tool_result. Server tools like web search are the exception: the provider executes those. Regex-parsed text actions were the early, pre-function-calling approach; modern APIs return a parsed tool_use block.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">2</span><div>The model returns three tool_use blocks in one response. How should you send the results?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One tool_result block containing all three outputs concatenated</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Only the result of the first call; the model will ask again for the others</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One user message containing three tool_result blocks, each with the matching tool_use_id</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Three separate user messages, one per result, in the order the calls finish</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>One user message with a short text note first, then all three of the results</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>One tool_result block holding all three outputs, joined in order</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>One user message, three tool_result blocks, each with its tool_use_id</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Three user messages, one per result, in the order the calls finish</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> All results for a turn go back in a single user message, one tool_result per tool_use_id, with the results placed before any text.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> All results for a turn go back in a single user message, one tool_result per tool_use_id, with the results placed before any text. Text before the results is a 400 error, and one combined block leaves two ids unanswered.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Your database tool throws a timeout exception. What is the best way to handle it?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Let the exception end the agent loop so a human can investigate</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry silently forever until it succeeds</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Return an empty string so the model isn&#39;t confused</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Return a tool_result with is_error true and a message like &quot;Database timed out after 10s; try a narrower date range&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Let the exception end the loop so that a human can investigate it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Retry it in the harness until it works, hiding the failure from the model</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Return an empty result so the model isn&#39;t distracted by the error</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Return is_error true with an actionable note, e.g. &quot;narrow the dates&quot;</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> An informative error result lets the model adapt — retry, narrow the query or try another approach. Crashing or returning nothing removes that option.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> An informative error result lets the model adapt: retry, narrow the query or try another approach. Crashing or returning nothing removes that option. Silent retries suit transient API errors, but a query that times out every time needs the model to change it.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">4</span><div>Why does the tool_result go in a message with role &quot;user&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>From the model&#39;s perspective it is new information arriving from outside, and the API alternates assistant and user turns</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Because tool results are written by the end user</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Because the user must approve every tool result</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It&#39;s an arbitrary convention with no meaning</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tool output is new outside information, and turns alternate with the model</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Because the API only accepts structured content blocks in user messages</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Because a human user has to approve every tool result before it&#39;s sent</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Because the end user&#39;s credentials were used to run the tool on their behalf</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The conversation alternates between the model (assistant) and everything outside it (user). Tool output is external input, so it arrives in a user turn.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The conversation alternates between the model (assistant) and everything outside it (user). Tool output is external input, so it arrives in a user turn. Assistant messages carry structured blocks too (tool_use, thinking), so it isn&#39;t about block types.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">5</span><div>What does &quot;strict&quot;: true on a tool guarantee?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>That the arguments are semantically correct, e.g. a date is in the future</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>That the model&#39;s arguments for that tool conform to its JSON Schema, via constrained decoding</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>That the tool&#39;s output is valid JSON</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>That the tool will be called on every turn</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The arguments will be semantically valid, e.g. a date in the future</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The model&#39;s arguments for the tool will conform to its JSON Schema</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The tool&#39;s output will be valid JSON when it&#39;s sent back as a result</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The model will call that tool at least once before ending its turn</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Strict mode constrains generation so arguments match the schema&#39;s structure and types. It says nothing about whether the values make sense; validate semantics yourself.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Strict mode constrains generation so arguments match the schema&#39;s structure and types. It doesn&#39;t force a call, says nothing about your tool&#39;s output, and can&#39;t check whether the values make sense; validate semantics yourself.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Which of these is a server tool, executed by the provider rather than your harness?</div></div>
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The Anthropic-defined bash tool</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The text editor tool</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The Anthropic-defined text editor</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A get_weather function you wrote</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Web search</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The provider&#39;s web search tool</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Web search, web fetch and code execution run on the provider&#39;s infrastructure. Bash and the text editor are Anthropic-defined but client-executed: you run them in your own sandbox.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Web search, web fetch and code execution run on the provider&#39;s infrastructure. Bash and the text editor are tempting because Anthropic defines them, but they&#39;re client-executed: you run them in your own sandbox.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">7</span><div>A response comes back with stop_reason &quot;max_tokens&quot; and a tool_use block at the end. What should you do?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Send a tool_result with is_error true and continue</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Don&#39;t execute it; the arguments may be truncated, so retry with a higher max_tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Execute the tool call; the arguments are probably complete</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Switch tool_choice to none</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Send an is_error tool_result for that call, then carry on with the loop</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Don&#39;t run it; the arguments may be cut off, so retry with more tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Run it if the input parses, since the arguments are probably complete</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Set tool_choice to none and ask the model to finish without tools</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Hitting the token limit can cut a tool call&#39;s arguments off mid-generation. Running a possibly-partial call is risky; retry the turn with more room.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Hitting the token limit can cut a tool call&#39;s arguments off mid-generation, and input that happens to parse can still be missing fields. Running a possibly-partial call is risky; retry the turn with more room rather than papering over it.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -810,7 +814,7 @@ runner = client.beta.messages.tool_runner(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

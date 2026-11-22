@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -300,7 +301,7 @@ TOOLS = [{
 <tr>
 <td><code>pause_turn</code></td>
 <td>A <dfn class="gt" tabindex="0" data-t="Server tool" data-d="A tool executed by the model provider's infrastructure, such as web search or code execution, rather than by your application. Long server-tool turns can pause and need resuming." data-l="tool-use" data-a="server-tool">server-side tool</dfn> loop paused</td>
-<td>Re-send the conversation unchanged</td>
+<td>Append the paused turn and re-send (no &quot;Continue&quot; message)</td>
 </tr>
 <tr>
 <td><code>refusal</code></td>
@@ -316,6 +317,7 @@ TOOLS = [{
 </div>
 <p>The <code>max_tokens</code> case is subtle: a response cut off mid-<code>tool_use</code> can carry a <em>partial but parseable</em> input, so a file write could silently truncate the file. The final program drops such a turn and asks for smaller steps. <code>pause_turn</code> only appears with server tools such as web search, but handling it costs two lines.</p>
 <h2 id="a-real-toolset"><a class="anchor" href="#a-real-toolset" aria-hidden="true">#</a>A Real Toolset</h2>
+<p>From here on, snippets are excerpts from the complete program at the end: tool code lives in a <code>Workspace</code> class (<code>self.root</code> is the resolved workspace directory) and loop code in an <code>Agent</code> class (<code>self.ws</code> is its <code>Workspace</code>). Read each snippet for the idea, then find it in context in the final listing.</p>
 <h3 id="file-tools-and-exact-string-edits"><a class="anchor" href="#file-tools-and-exact-string-edits" aria-hidden="true">#</a>File tools and exact-string edits</h3>
 <p>Reading is simple: return the file with line numbers so the model can cite locations. Editing has three common designs:</p>
 <ul>
@@ -880,56 +882,56 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">1</span><div>Claude returns a response with two tool_use blocks. How should the harness reply?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Run the first tool, send its result, and wait for Claude to ask again for the second</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Run the first tool, return its result, and let Claude re-request the second</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Send two user messages, one tool_result each, in the order the tools finished</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Run both, then send one user message containing both tool_result blocks with matching tool_use_ids</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Send only the text of both outputs, concatenated, as a plain user message</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Run both, then send one user message with both tool_results, ids matched</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Run both and send their outputs as one plain-text user message, in order</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Every tool_use needs a tool_result with the same id, all in one user message. Splitting them discourages parallel calls later.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Every tool_use needs a tool_result carrying the same tool_use_id, and all of them go in one user message. Plain text breaks the id pairing (the next request is rejected), and splitting results across messages discourages parallel calls later.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">2</span><div>A response stops with stop_reason &quot;max_tokens&quot; and its last block is a write_file tool_use whose input parses fine. What should the harness do?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Treat it like end_turn and return to the user</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Execute it, since the input parsed as valid JSON</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Append &quot;Continue&quot; as an assistant message so Claude resumes where it stopped</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Not execute it, because the content may be silently truncated; drop the turn and ask for smaller steps or raise max_tokens</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Execute it, but mark the tool_result is_error so Claude double-checks it</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Execute it, since the input parsed as valid JSON and matches the schema</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Append an assistant message saying &quot;Continue&quot; so Claude finishes the call</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Skip it, since the content may be cut off, and ask for smaller steps</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A truncated input can parse as a valid but partial object, so executing it could write a cut-off file. Prefill is unavailable on current models; retry with smaller steps or a higher max_tokens.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A truncated input can still be a valid object (a cut-off &quot;content&quot; string is still a string), so schema checks don&#39;t help, and flagging it afterwards doesn&#39;t un-write the truncated file. Assistant prefill like &quot;Continue&quot; is rejected on current models; drop the turn and ask for smaller steps or raise max_tokens.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Why does mini-agent return a failed edit as an is_error tool_result instead of raising an exception?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>is_error results are cheaper because they are not counted as input tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It makes the model skip the tool on future turns</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model can read the error, adjust (for example re-read the file) and retry, instead of the whole run failing</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API rejects conversations where a tool raised an exception</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>is_error results are billed at a lower rate, so failures are cheaper to report</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It tells Claude to stop using edit_file and fall back to write_file instead</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model reads the error, adjusts (say, re-reads the file) and retries</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The API rejects any request whose tool raised an exception in the harness</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors as observations let the agent self-correct. Crashing discards progress; hiding the error makes the model think the edit worked.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Errors as observations let the agent self-correct; the message even says what to do next. The API never sees your Python exceptions, and is_error carries no pricing or &quot;stop using this tool&quot; meaning; raising would just crash the loop and discard progress.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">4</span><div>The model calls read_file with path &quot;../../home/me/.ssh/id_rsa&quot;. What does the resolve() check do?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It strips the &#39;..&#39; segments and reads home/me/.ssh/id_rsa inside the workspace</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It resolves the full path, sees it is not inside the workspace root, and returns an error result</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It asks the user for approval because the path is unusual</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Nothing, because the file exists and is readable</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It strips the &#39;..&#39; segments and reads home/me/.ssh/id_rsa in the workspace</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It canonicalizes the path, finds it outside the root, and returns an error</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It sends the call to the approval gate, since odd paths need a human&#39;s OK</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Nothing, since relative paths are assumed to be inside the workspace</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> resolve() produces a canonical absolute path (no &#39;..&#39;, symlinks followed); is_relative_to(root) rejects it, and the model gets an is_error result.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> resolve() collapses &#39;..&#39; and follows symlinks, then is_relative_to(root) rejects the result and the model gets an is_error result. Silently stripping &#39;..&#39; would read a different file than requested, and read_file is not behind the approval gate at all.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>Across steps of one turn, cache_read_input_tokens is always 0. Which change is the most likely culprit?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Using adaptive thinking</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Running with adaptive thinking on every request</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Appending the full response.content to history</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Returning tool errors with is_error true</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Putting the current time into the system prompt on every call</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Returning tool failures with is_error set to true</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Putting the current time in the system prompt</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is a prefix match over tools, system, then messages; a per-request value near the front invalidates everything after it.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Caching is a prefix match over tools, then system, then messages; a value that changes every request near the front invalidates everything after it. Appending to history only adds to the end of the prefix, which is exactly what caching expects.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
@@ -940,7 +942,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Send tool results back with matching tool_use_ids</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Turn exceptions raised inside a tool into is_error results</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The runner owns loop mechanics; what your tools may touch is your policy.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The runner owns loop mechanics (schemas, dispatch, id matching, error results); what your tools may touch is your policy, so mini-agent&#39;s runner version still calls the same Workspace methods.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -1006,7 +1008,7 @@ TOOL_NAMES = {t[<span class="hljs-string">&quot;name&quot;</span>] <span class="
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

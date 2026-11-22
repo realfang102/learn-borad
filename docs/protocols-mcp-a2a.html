@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -593,12 +594,12 @@ asyncio.run(main())</code></pre></div>
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>In MCP, what is the relationship between a host, its clients and servers?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The host and client are the same thing; servers are optional</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The host runs one client per server; each client maintains a connection to exactly one server</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Servers connect to each other through the host</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>One client connects to many servers on behalf of the host</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Host and client are one process; servers are plugins</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>The host runs one dedicated client per server</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Servers talk to each other via the host&#39;s client</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>One client multiplexes many servers for the host</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A host (like Claude Desktop) creates a separate client for each server connection, which keeps servers isolated from each other.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A host (like Claude Desktop) creates a separate client for each server connection. That one-to-one pairing is what keeps servers isolated from each other: a single multiplexing client would blur exactly the boundary the host uses to enforce consent and policy.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
@@ -609,62 +610,62 @@ asyncio.run(main())</code></pre></div>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Prompts</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Resources</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tools are model-controlled: the model decides when to call them. Resources are attached by the application, prompts are invoked by the user, and roots are a client feature.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tools are model-controlled: the model decides when to call them. Resources are attached by the application, prompts are invoked by the user, and roots are a client feature describing where the server may operate.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Why does the MCP spec forbid &quot;token passthrough&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Forwarding a client&#39;s token to upstream APIs breaks audience binding and accountability, enabling confused-deputy and token-misuse attacks</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>OAuth 2.1 tokens cannot be serialized</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Upstream APIs do not accept Bearer tokens</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It doubles network latency</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It was issued for the MCP server, so forwarding defeats audience binding</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Forwarding tokens requires the user to repeat the OAuth consent screen</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Passthrough tokens expire too quickly for long-running upstream calls</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Upstream APIs reject Bearer tokens that were minted by a different client</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tokens must be issued for, and validated by, the specific server. Passing them through lets a server act with authority that was never granted to it and obscures who is acting.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Tokens are audience-bound: issued for, and validated by, one specific server. Forwarding one lets a server wield authority that was never granted for that upstream API and obscures who is acting, which is a confused-deputy setup. The other options describe inconveniences, not the security reason.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>A server you approved last month now has a tool description instructing the model to include the contents of ~/.aws/credentials in its arguments. What attacks does this illustrate?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>DNS rebinding</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Sampling abuse</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Prompt injection via a tool&#39;s results</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>DNS rebinding of a local HTTP server</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A rug pull combined with tool poisoning</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Token passthrough</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Token passthrough plus a confused deputy</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The definition changed after approval (rug pull) and now hides malicious instructions in the description (tool poisoning). Hosts should surface and re-approve definition changes.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The definition changed after approval (rug pull) and now hides malicious instructions in the description (tool poisoning). It is tempting to call it injection via results, but the payload sits in the tool&#39;s definition, which the model reads before any call. Hosts should surface and re-approve definition changes.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>What did the 2026-07-28 MCP revision change about the protocol&#39;s core lifecycle?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It removed tools in favor of resources</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It made stdio the only allowed transport</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It replaced JSON-RPC with gRPC</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It removed the initialize handshake and session IDs; each request carries its protocol version and capabilities, making servers stateless</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It kept the handshake but let sessions be shared across server replicas</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>It made stdio mandatory and moved HTTP transport into an extension</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It replaced JSON-RPC with gRPC so remote servers can stream responses</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It removed the handshake and sessions; each request carries its version</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Moving version and capability information into every request lets any server instance handle any request behind a plain load balancer, which simplifies scaling remote servers.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Each request now carries its protocol version and capabilities in <code>_meta</code>, and <code>Mcp-Session-Id</code> is gone, so any server instance can handle any request behind a plain load balancer. Sharing sessions across replicas is the workaround the old design forced on people, not what the revision did.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>When should you use A2A rather than MCP?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To delegate a long-running, multi-turn task to an independent agent owned by another organization, without seeing its internals</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To expose a deterministic calculator function</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>To give your agent read access to a Postgres database</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>To stream UI events to a React frontend</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>To delegate a multi-turn task to another firm&#39;s opaque agent</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>To expose a deterministic pricing calculator to many agents</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>To give your agent read access to a partner&#39;s Postgres database</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>To stream an agent&#39;s progress events to a React frontend</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A2A is for opaque peer agents and long-running tasks, with lifecycle states, clarification turns, streaming and push notifications. Databases and functions are MCP territory; UI events are AG-UI&#39;s.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A2A is for opaque peer agents and long-running tasks, with lifecycle states, clarification turns, streaming and push notifications. A database or a calculator is a capability with a schema, which is MCP territory even when it belongs to a partner; UI event streaming is AG-UI&#39;s job.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Which statement about AGENTS.md and Agent Skills is accurate?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Both are network protocols carried over JSON-RPC</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>AGENTS.md gives a repository&#39;s instructions to coding agents; Agent Skills package task know-how in folders with a SKILL.md that agents load on demand</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Agent Skills replace MCP servers entirely</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>AGENTS.md is only read by OpenAI products</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Both are wire protocols that a host negotiates with a server</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Both are file conventions: repo instructions and on-demand know-how</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Skills are loaded in full at startup, just like AGENTS.md instructions</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>AGENTS.md is read only by OpenAI&#39;s coding agents, not by others</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Both are file conventions, not wire protocols. AGENTS.md provides project context; skills provide reusable procedural instructions via progressive disclosure, complementing MCP&#39;s capabilities.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Neither is a network protocol. AGENTS.md gives coding agents a repository&#39;s instructions; a skill is a folder with a SKILL.md whose short description sits in context while the full instructions load only when a task matches (progressive disclosure), which is why &quot;loaded in full at startup&quot; is wrong.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -730,7 +731,7 @@ asyncio.run(main())</code></pre></div>
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

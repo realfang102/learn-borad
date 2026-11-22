@@ -362,11 +362,18 @@ function linkTerms(html, M, ownSlug, limit = 45) {
 const termMatcher = buildTermMatcher(glossary);
 for (const l of lessons) l.html = linkTerms(l.html, termMatcher, l.slug);
 
+let projects = null;
+const prFile = path.join(CONTENT, "projects.md");
+if (fs.existsSync(prFile)) {
+  const { data, body } = parseFrontMatter(fs.readFileSync(prFile, "utf8"), "projects.md");
+  projects = { ...data, ...renderMarkdown(body, "projects") };
+}
+
 // ---------- validation ----------
 const knownPages = new Set([
   ...curriculum.modules.flatMap((m) => m.lessons.map((s) => `${s}.html`)),
   "index.html", "glossary.html", "papers.html", "cheatsheet.html", "lab.html",
-  "paths.html", "flashcards.html", "review.html", "exam.html", "progress.html", "about.html", "curriculum.html",
+  "paths.html", "flashcards.html", "review.html", "projects.html", "exam.html", "progress.html", "about.html", "curriculum.html",
 ]);
 for (const l of lessons) {
   for (const href of l.links) if (!knownPages.has(href)) warn(`${l.slug}: broken internal link → ${href}`);
@@ -375,6 +382,8 @@ for (const l of lessons) {
   if (!l.takeaways) warn(`${l.slug}: no "Key Takeaways" section`);
 }
 const allCurriculumSlugs = new Set(curriculum.modules.flatMap((m) => m.lessons));
+for (const doc of [cheatsheet, projects].filter(Boolean))
+  for (const href of doc.links) if (!knownPages.has(href)) warn(`${doc.slug}: broken internal link → ${href}`);
 for (const g of glossary) if (g.lesson && !allCurriculumSlugs.has(g.lesson)) warn(`glossary ${g.term}: unknown lesson ${g.lesson}`);
 
 // ---------- write output ----------
@@ -404,7 +413,10 @@ fs.writeFileSync(path.join(OUT, "assets", "course-data.js"), `window.COURSE=${JS
 
 // Search index (lazy-loaded by the client)
 const searchIndex = [];
-for (const l of lessons) {
+const searchDocs = [...lessons];
+if (cheatsheet) searchDocs.push({ title: cheatsheet.title || "Cheat Sheet", slug: "cheatsheet", html: cheatsheet.html });
+if (projects) searchDocs.push({ title: projects.title || "Projects", slug: "projects", html: projects.html });
+for (const l of searchDocs) {
   // split rendered html by h2/h3 into sections
   const parts = l.html.split(/(?=<h[23] id=")/);
   for (const part of parts) {
@@ -436,6 +448,7 @@ write("paths.html", T.pathsPage(site));
 write("glossary.html", T.glossaryPage(site));
 write("papers.html", T.papersPage(site));
 if (cheatsheet) write("cheatsheet.html", T.cheatsheetPage(site));
+if (projects) write("projects.html", T.cheatsheetPage(site, projects, "projects", "Learn by building", false));
 write("lab.html", T.labPage(site));
 write("flashcards.html", T.flashcardsPage(site));
 write("exam.html", T.examPage(site));

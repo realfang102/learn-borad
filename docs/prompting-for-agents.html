@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -637,6 +638,7 @@ closely. Lead with the outcome. [9]
 client = anthropic.Anthropic()  <span class="hljs-comment"># reads ANTHROPIC_API_KEY</span>
 PROMPT_VERSION = <span class="hljs-string">&quot;coding-agent/v14&quot;</span>  <span class="hljs-comment"># tag this in your eval results too</span>
 system_prompt = Path(<span class="hljs-string">f&quot;prompts/<span class="hljs-subst">{PROMPT_VERSION}</span>.txt&quot;</span>).read_text()
+issue_text = Path(<span class="hljs-string">&quot;issue.md&quot;</span>).read_text()  <span class="hljs-comment"># this run&#x27;s task</span>
 
 response = client.messages.create(
     model=<span class="hljs-string">&quot;claude-opus-5-5&quot;</span>,
@@ -674,92 +676,92 @@ response = client.messages.create(
 <h2 id="check-your-understanding"><a class="anchor" href="#check-your-understanding" aria-hidden="true">#</a>Check Your Understanding</h2>
 <div class="quiz" data-quiz="prompting-for-agents" data-total="8">
 
-<div class="quiz-q" data-correct="2">
+<div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">1</span><div>A prompt says &quot;NEVER use markdown.&quot; The agent&#39;s replies go to an SMS gateway. What is the best improvement?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Move the rule into every tool description</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add three examples of plain-text replies</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Explain that replies are sent as SMS, which shows markdown symbols literally, so use plain text</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Repeat the rule in capitals at the start and end of the prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Repeat the rule in capitals at both the start and end of the prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Say replies go out as SMS, which shows markdown symbols literally</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Add three short examples of good plain-text replies after the rule</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Use structured output with a schema that has no markdown fields</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Giving the reason lets the model generalize — it will also avoid tables, long URLs and other things that render badly as SMS — and lets it weigh the rule sensibly. Repetition and capitals add emphasis without information.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Giving the reason lets the model generalize (it will also avoid tables, long URLs and other things that render badly as SMS) and weigh the rule sensibly. Examples help pin a format but don&#39;t explain it, and a JSON schema constrains shape, not whether the text inside contains markdown. Repetition and capitals add emphasis without information.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Which instruction is pitched at the right altitude for a support agent handling refund requests?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>&quot;You may refund up to $200 without approval, because finance reviews larger amounts individually; check the order records before deciding, since customers sometimes confuse orders.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Handle refunds appropriately.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;CRITICAL: You MUST follow refund policy at all times.&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;STEP 1: apologize. STEP 2: look up order. STEP 3: if amount &lt; 50, refund; else if amount &lt; 200, offer credit; else...&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>&quot;Refund up to $200 yourself; finance reviews more. Check the order first.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>&quot;Handle refund requests appropriately and in line with company policy.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>&quot;CRITICAL: You MUST always follow the refund policy, with no exceptions.&quot;</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>&quot;STEP 1: apologize. STEP 2: look up order. STEP 3: if &lt; $50, refund; else...&quot;</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The right altitude states the goal, the bounds of authority and the reasons, while leaving the conversation to the model. The first is too vague, the second is a brittle script, and the fourth adds pressure without information.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The right altitude states the goal, the bounds of authority and the reasons, and leaves the conversation to the model. The first is too vague, the second is a brittle script that breaks on unscripted cases, and the fourth adds pressure without information.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Your agent prompt includes one detailed example trajectory: search_orders, then get_order, then issue_refund. What risk does this create?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent may copy the exact sequence, even calling issue_refund when the customer only wanted tracking info</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>None — examples always improve tool-calling accuracy</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The API rejects prompts that mention tool names</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The example will be cached and slow down future requests</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>The agent may copy the sequence, issuing refunds to people who only asked</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Little risk: a single worked example reliably improves tool-calling accuracy</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>The model may treat the example&#39;s tool names as the only tools allowed</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>The long example pushes the real instructions out of the model&#39;s view</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Examples are the strongest signal in a prompt and agents tend to imitate trajectories. Use several varied examples labeled as illustrative, or describe the strategy instead.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Examples are the strongest signal in a prompt, and agents tend to imitate trajectories, even calling issue_refund when the customer only wanted tracking info. Use several varied examples labeled as illustrative, or describe the strategy instead. One example of moderate length doesn&#39;t crowd out the rest of the prompt.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>An agent runs unattended in CI and keeps ending its run with &quot;Should I also update the tests?&quot; What is the most effective prompt fix?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Remove the agent&#39;s ability to output text</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add &quot;Be thorough. Do NOT stop early.&quot; in capitals</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>State that the run is unattended and nobody can answer questions, give an ask-vs-act policy based on reversibility, and define done as including passing tests</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add &quot;think step by step&quot; to the system prompt</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Give it a list of questions it&#39;s allowed to ask and all others banned</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add &quot;Be thorough. Do NOT stop early or ask questions.&quot; in capitals</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Say nobody can answer in CI, and define done as including tests</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add &quot;think step by step before you end your turn&quot; to the prompt</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The agent lacks operating facts and a definition of done. Telling it the situation and what completion means changes the right behavior directly; generic pressure language tends to cause other problems such as over-verification.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> The agent lacks operating facts and a definition of done. Telling it the situation and what completion means changes the right behavior directly. Generic pressure language tends to cause other problems such as over-verification, and a whitelist of questions doesn&#39;t tell it what to do instead.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">5</span><div>With a model that supports adaptive thinking, how should you get more careful reasoning on a hard agent task?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Lower max_tokens so the model is forced to be efficient</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add &quot;think step by step&quot; and require a <scratchpad> section in the output</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Configure thinking and raise the effort level, and tell the agent how its work will be verified</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add a JSON field called reasoning that must be at least 500 words</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Lower max_tokens so that the model is pushed to be more focused and direct</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Add &quot;think step by step&quot; and require a <scratchpad> section first</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Raise the effort setting and tell it how its work will be verified</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add a required &quot;reasoning&quot; field to the JSON output it produces</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Native thinking is controlled by configuration (thinking and effort), which is more reliable than prose. What prompts still add is task-specific knowledge such as how to verify success.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Native thinking is controlled by configuration (thinking and effort), which is more reliable than prose. A reasoning field in the output duplicates what thinking blocks already provide and on some current Claude models can even trigger a refusal for reasoning extraction. What prompts still add is task-specific knowledge such as how to verify success.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Where should the fact &quot;search_orders only covers orders from the last 18 months&quot; live?</div></div>
   <div class="quiz-options" role="group">
     <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>In the search_orders tool description, as part of its contract</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Nowhere; the model will discover it from errors</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In a few-shot example</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>In the system prompt, so the model sees it first</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>In a few-shot example showing a search for an older order failing</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>In the tool&#39;s error message, returned when old orders are missing</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>In the system prompt&#39;s policy section, so it&#39;s seen on every step</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Limits on what a tool returns are part of the tool&#39;s contract. Keeping them in the description means they travel with the tool to any agent that uses it.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Limits on what a tool returns are part of the tool&#39;s contract. Keeping them in the description means the model knows before calling, and the fact travels with the tool to any agent that uses it. An error message helps too, but the model only sees it after a wasted call (and an empty result may not look like an error at all).</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">7</span><div>For a multi-session coding task, why include a &quot;Dead ends&quot; section in the agent&#39;s progress file?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It reduces the cost of prompt caching</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A fresh context has no memory of failed approaches and would otherwise retry them</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It is required by the version-control system</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It lets the model skip running tests</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>It gives the model negative examples, which improves later outputs</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A fresh context has no memory of failed tries and would retry them</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>It lets the reviewer see how hard the task was before approving it</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>It keeps git history clean, since failed experiments are never committed</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Progress files are the agent&#39;s memory across context resets. Recording what didn&#39;t work, and why, prevents a new session from repeating the same expensive mistakes.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Progress files are the agent&#39;s memory across context resets. Recording what didn&#39;t work, and why, prevents a new session from repeating the same expensive mistakes. Reviewers may find it useful, but that&#39;s a side benefit, not the reason.</div>
 </div>
 
-<div class="quiz-q" data-correct="0">
+<div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">8</span><div>A teammate&#39;s meta-prompting tool rewrote your system prompt and it &quot;looks much better.&quot; What should happen before shipping it?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Run it against your eval suite over multiple trials, compare with the current version, and read failing transcripts</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ship it to half of production traffic immediately</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Nothing, model-written prompts are optimized by construction</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Add capital letters to the most important rules</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Have a second model review the new prompt and confirm it improved</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Ship it to 5% of traffic and watch user complaints for a week</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Run both versions on your eval suite over several trials, and compare</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Diff the two versions and check that no existing rule was dropped or changed</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt is code; every change needs regression testing. Model-improved prompts often become longer and more emphatic, which can degrade behavior on capable models.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> A prompt is code; every change needs regression testing on realistic tasks before it reaches users. A model&#39;s opinion or a text diff can&#39;t tell you how behavior changed, and complaint rates are a slow, noisy signal. Model-improved prompts often become longer and more emphatic, which can degrade behavior on capable models.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -767,10 +769,10 @@ response = client.messages.create(
 <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener">Anthropic: Prompt engineering overview</a> — official guide to clarity, examples, XML tags and model-specific best practices.</li>
 <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic: Effective context engineering for AI agents</a> — source of the &quot;right altitude&quot; framing and advice on canonical examples.</li>
 <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener">Anthropic: Effective harnesses for long-running agents</a> — progress files, feature lists and incremental sessions for multi-context-window work.</li>
-<li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener">Anthropic: Building effective agents</a> — when to use agents vs workflows, and why prompting the tool interface matters as much as the main prompt.</li>
+<li><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Anthropic: Building effective agents</a> — when to use agents vs workflows, and why prompting the tool interface matters as much as the main prompt.</li>
 <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener">Anthropic: Claude Code best practices</a> — practical prompting for a production coding agent, including project instruction files.</li>
 <li><a href="https://cookbook.openai.com/examples/gpt4-1_prompting_guide" target="_blank" rel="noopener">OpenAI: GPT-4.1 prompting guide</a> — a vendor&#39;s view of agentic reminders (persistence, tool use, planning); useful for comparing how advice shifts across model generations.</li>
-<li><a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">Wei et al., Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a> — the paper behind &quot;think step by step,&quot; useful history for understanding why native thinking replaced it.</li>
+<li><a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener">Wei et al., Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a> — the paper that introduced chain-of-thought prompting (the zero-shot &quot;Let&#39;s think step by step&quot; phrasing came from Kojima et al. later in 2022); useful history for understanding why native thinking replaced it.</li>
 </ul>
 
   </article>
@@ -815,7 +817,7 @@ response = client.messages.create(
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

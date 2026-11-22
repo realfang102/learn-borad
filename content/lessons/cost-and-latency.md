@@ -269,7 +269,7 @@ with client.messages.stream(
         print(text, end="", flush=True)
     final = stream.get_final_message()
 total = time.perf_counter() - start
-print(f"\nfirst text {first:.2f}s, total {total:.2f}s, "
+print(f"\nfirst text {first or total:.2f}s, total {total:.2f}s, "  # first is None if no text streamed
       f"{final.usage.output_tokens / total:.0f} output tok/s overall")
 ```
 
@@ -277,7 +277,7 @@ For agent UIs, stream progress as well as the final answer ("Searching orders…
 
 ### Fast mode
 
-**Fast mode** runs the *same* model with substantially faster output, at a premium. As of November 2026 it's available on Claude Opus 5.5 by setting `speed="fast"` on a request, at 2× the standard price ($8 / $40 per MTok), with availability varying by platform. Because the model doesn't change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.
+**Fast mode** runs the *same* model with substantially faster output, at a premium. As of November 2026 it's available on Claude Opus 5.5 (and a few other models) by setting `speed="fast"` on a request; on Opus 5.5 it costs 2× the standard price ($8 / $40 per MTok), and availability varies by platform. Because the model doesn't change, you buy speed with dollars instead of trading away capability. That makes it a good fit for latency-critical interactive paths where a smaller model would hurt quality. Pull the cheaper levers first (fewer output tokens, fewer turns), and check the docs for rate limits and whether fast and standard requests share cached prefixes.
 
 ### Tail latency
 
@@ -349,53 +349,53 @@ Plot candidate configurations as success rate against cost per task and pick fro
 
 ```quiz
 Q: An uncached 20-turn agent task costs $2.28. Roughly what happens to cost if the same kind of task takes 40 turns?
-- [ ] It doubles, because there are twice as many calls
-- [x] It more than triples, because each call re-sends a history that keeps growing
-- [ ] It stays about the same, since output tokens dominate
-- [ ] It halves, thanks to automatic batching
-E: Total input is roughly base × N + delta × N²/2, so the history term grows quadratically. In the worked example, 40 turns cost $7.61 against $2.28 for 20.
+- [ ] It roughly doubles, since there are twice as many calls at the same size
+- [x] It more than triples, since each call re-sends an ever-longer history
+- [ ] It roughly quadruples, since every input token's cost scales with N²
+- [ ] It grows about 1.5×, since the fixed system prompt is most of each call
+E: Total input is roughly base × N + delta × N²/2, so the history term grows quadratically. In the worked example 40 turns cost $7.61 against $2.28 for 20. It's not a full 4× because the base prompt and output grow only linearly, and the system prompt stops dominating once history piles up.
 
 Q: A system prompt starts with the current timestamp, followed by 10,000 tokens of stable instructions. What's the effect on caching?
-- [ ] Only the timestamp is uncached; the instructions still hit
-- [x] The prefix differs on every request, so nothing after the timestamp (instructions and conversation) is ever read from cache
-- [ ] The API strips timestamps before matching
-- [ ] Caching works, but with a shorter TTL
-E: Caching is an exact prefix match in tools → system → messages order. A change at byte N invalidates everything after it. Move dynamic values after the cached prefix.
+- [ ] Only the timestamp misses; the 10,000 instruction tokens after it still hit
+- [x] The prefix changes every request, so nothing after the timestamp ever hits
+- [ ] Tool definitions and the conversation still hit, since only system misses
+- [ ] Caching still works, but entries expire on the 5-minute TTL more quickly
+E: Caching is an exact prefix match in tools → system → messages order. A change at byte N invalidates everything after it, which includes the instructions and the whole conversation; tools, which render before system, are the only part that can still hit. Move dynamic values after the cached prefix.
 
 Q: A response shows input_tokens=1,200, cache_read_input_tokens=48,000, cache_creation_input_tokens=1,900. How big was the prompt?
 - [ ] 1,200 tokens
 - [ ] 48,000 tokens
 - [x] 51,100 tokens
 - [ ] 49,200 tokens
-E: input_tokens is only the uncached remainder. The total prompt is the sum of all three fields, and this is a healthy loop signature: mostly reads, a small write, a small uncached tail.
+E: input_tokens is only the uncached remainder, and cache writes are counted separately too, so the total prompt is the sum of all three fields (49,200 forgets the write). This is a healthy loop signature: mostly reads, a small write, a small uncached tail.
 
-Q: Config A costs $0.48 per attempt with a 90% success rate; config B costs $0.12 with 55%. Failures go to a human at $5 each. Which is cheaper per task, and why?
-- [ ] B, because it's 4× cheaper per attempt
-- [x] A, because B's extra failures add more in escalation cost than its token savings
-- [ ] They're equal once retries are included
-- [ ] B, because humans are cheaper than tokens
-E: Expected cost is A: 0.48 + 0.10 × 5 = $0.98, B: 0.12 + 0.45 × 5 = $2.37. Price per token doesn't predict cost per completed task.
+Q: Config A costs $0.48 per attempt with a 90% success rate; config B costs $0.12 with 55%. Failures go to a human at $5 each. Which is cheaper per task?
+- [ ] B, since at 4× cheaper per attempt it can retry each failure and still win
+- [x] A, since B's extra failures cost more in escalations than B saves in tokens
+- [ ] B, since a $0.36 saving on every attempt outweighs the 35-point gap
+- [ ] Neither; they come out about equal once escalation costs are included
+E: Expected cost is A: 0.48 + 0.10 × 5 = $0.98, B: 0.12 + 0.45 × 5 = $2.37. Retrying B helps only if failures are independent and detectable, and each retry still fails 45% of the time. Price per token doesn't predict cost per completed task.
 
 Q: Which workload fits the Batch API best?
-- [ ] A live chat assistant where users wait for replies
-- [x] A nightly run classifying yesterday's 50,000 tickets
-- [ ] A coding agent that needs many tool-calling turns interactively
-- [ ] A voice agent with sub-second latency targets
-E: Batches are asynchronous (up to 24 hours) and single-shot, at half price. They suit offline, no-one-waiting work.
+- [ ] A coding agent's many tool-calling turns, run unattended while a developer is at lunch
+- [x] A nightly job classifying yesterday's 50,000 tickets, one request per ticket
+- [ ] A chat assistant's replies, queued so that heavy traffic waits instead of failing
+- [ ] A research agent's parallel subagent searches, so they all run at half price
+E: Batches are asynchronous (most finish within an hour, up to 24 hours) and single-shot, at half price. They suit independent, offline requests. A multi-turn tool loop can't run inside a batch, and anything a user is waiting on doesn't belong there.
 
 Q: Users complain that your agent "feels slow," but total task time is acceptable. Which change most directly helps?
-- [ ] Raising max_tokens
-- [x] Streaming responses and progress updates so text appears quickly
-- [ ] Switching to the Batch API
-- [ ] Adding more tools
-E: Streaming cuts time to first visible output, the wait users actually feel, even though total time barely changes.
+- [ ] Lowering effort so that every turn of the agent uses fewer thinking tokens
+- [x] Streaming the answer and progress updates so text appears within seconds
+- [ ] Switching the route to a smaller model with higher output tokens per second
+- [ ] Caching the system prompt so time to first token drops on every model call
+E: The complaint is about felt latency, not total time. Streaming and progress updates cut time to first visible output directly. The other levers shorten real time, at some cost or quality risk, and still leave the user staring at a spinner until the answer is done.
 
 Q: Why is switching to a cheaper model midway through a long conversation often a false economy?
-- [ ] Cheaper models can't read tool results
-- [x] Caches are per model, so the whole history is re-processed at full input price, and earlier thinking may not carry over
-- [ ] The API charges a model-switch fee
-- [ ] Cheaper models have smaller context windows
-E: The cold cache on a long history can cost more than the switch saves. Route at task boundaries, or delegate bounded subtasks to a cheaper subagent instead.
+- [ ] The cheaper model must re-run every earlier tool call to rebuild its own state
+- [x] Caches are per model, so the full history is re-billed at the uncached rate
+- [ ] The API bills a model-switch surcharge equal to one turn's full input cost
+- [ ] The cheaper model's smaller context window forces an immediate compaction
+E: The cold cache on a long history can cost more than the switch saves, and earlier thinking may not carry over. No surcharge or tool re-run is involved. Route at task boundaries, or delegate bounded subtasks to a cheaper subagent instead.
 ```
 
 ## Further Reading

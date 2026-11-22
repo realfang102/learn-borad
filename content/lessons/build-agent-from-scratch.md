@@ -154,13 +154,15 @@ sequenceDiagram
 | `end_turn` | Claude finished | Return the answer |
 | `tool_use` | Claude wants tools | Run them, send results, loop |
 | `max_tokens` | Output was cut off | Never run a truncated `tool_use`; ask for smaller steps |
-| `pause_turn` | A server-side tool loop paused | Re-send the conversation unchanged |
+| `pause_turn` | A server-side tool loop paused | Append the paused turn and re-send (no "Continue" message) |
 | `refusal` | Claude declined for safety reasons | Stop; run no tools from that turn |
 | `stop_sequence` | A custom stop string matched | Treat as done (we set none) |
 
 The `max_tokens` case is subtle: a response cut off mid-`tool_use` can carry a *partial but parseable* input, so a file write could silently truncate the file. The final program drops such a turn and asks for smaller steps. `pause_turn` only appears with server tools such as web search, but handling it costs two lines.
 
 ## A Real Toolset
+
+From here on, snippets are excerpts from the complete program at the end: tool code lives in a `Workspace` class (`self.root` is the resolved workspace directory) and loop code in an `Agent` class (`self.ws` is its `Workspace`). Read each snippet for the idea, then find it in context in the final listing.
 
 ### File tools and exact-string edits
 
@@ -767,47 +769,46 @@ if __name__ == "__main__":
 
 ```quiz
 Q: Claude returns a response with two tool_use blocks. How should the harness reply?
-- [ ] Run the first tool, send its result, and wait for Claude to ask again for the second
+- [ ] Run the first tool, return its result, and let Claude re-request the second
 - [ ] Send two user messages, one tool_result each, in the order the tools finished
-- [x] Run both, then send one user message containing both tool_result blocks with matching tool_use_ids
-- [ ] Send only the text of both outputs, concatenated, as a plain user message
-E: Every tool_use needs a tool_result with the same id, all in one user message. Splitting them discourages parallel calls later.
+- [x] Run both, then send one user message with both tool_results, ids matched
+- [ ] Run both and send their outputs as one plain-text user message, in order
+E: Every tool_use needs a tool_result carrying the same tool_use_id, and all of them go in one user message. Plain text breaks the id pairing (the next request is rejected), and splitting results across messages discourages parallel calls later.
 
 Q: A response stops with stop_reason "max_tokens" and its last block is a write_file tool_use whose input parses fine. What should the harness do?
-- [ ] Execute it, since the input parsed as valid JSON
-- [x] Not execute it, because the content may be silently truncated; drop the turn and ask for smaller steps or raise max_tokens
-- [ ] Append "Continue" as an assistant message so Claude resumes where it stopped
-- [ ] Treat it like end_turn and return to the user
-E: A truncated input can parse as a valid but partial object, so executing it could write a cut-off file. Prefill is unavailable on current models; retry with smaller steps or a higher max_tokens.
+- [ ] Execute it, since the input parsed as valid JSON and matches the schema
+- [x] Skip it, since the content may be cut off, and ask for smaller steps
+- [ ] Append an assistant message saying "Continue" so Claude finishes the call
+- [ ] Execute it, but mark the tool_result is_error so Claude double-checks it
+E: A truncated input can still be a valid object (a cut-off "content" string is still a string), so schema checks don't help, and flagging it afterwards doesn't un-write the truncated file. Assistant prefill like "Continue" is rejected on current models; drop the turn and ask for smaller steps or raise max_tokens.
 
 Q: Why does mini-agent return a failed edit as an is_error tool_result instead of raising an exception?
-- [ ] The API rejects conversations where a tool raised an exception
-- [x] The model can read the error, adjust (for example re-read the file) and retry, instead of the whole run failing
-- [ ] is_error results are cheaper because they are not counted as input tokens
-- [ ] It makes the model skip the tool on future turns
-E: Errors as observations let the agent self-correct. Crashing discards progress; hiding the error makes the model think the edit worked.
+- [ ] The API rejects any request whose tool raised an exception in the harness
+- [x] The model reads the error, adjusts (say, re-reads the file) and retries
+- [ ] is_error results are billed at a lower rate, so failures are cheaper to report
+- [ ] It tells Claude to stop using edit_file and fall back to write_file instead
+E: Errors as observations let the agent self-correct; the message even says what to do next. The API never sees your Python exceptions, and is_error carries no pricing or "stop using this tool" meaning; raising would just crash the loop and discard progress.
 
 Q: The model calls read_file with path "../../home/me/.ssh/id_rsa". What does the resolve() check do?
-- [ ] Nothing, because the file exists and is readable
-- [ ] It strips the '..' segments and reads home/me/.ssh/id_rsa inside the workspace
-- [x] It resolves the full path, sees it is not inside the workspace root, and returns an error result
-- [ ] It asks the user for approval because the path is unusual
-E: resolve() produces a canonical absolute path (no '..', symlinks followed); is_relative_to(root) rejects it, and the model gets an is_error result.
+- [ ] Nothing, since relative paths are assumed to be inside the workspace
+- [ ] It strips the '..' segments and reads home/me/.ssh/id_rsa in the workspace
+- [x] It canonicalizes the path, finds it outside the root, and returns an error
+- [ ] It sends the call to the approval gate, since odd paths need a human's OK
+E: resolve() collapses '..' and follows symlinks, then is_relative_to(root) rejects the result and the model gets an is_error result. Silently stripping '..' would read a different file than requested, and read_file is not behind the approval gate at all.
 
 Q: Across steps of one turn, cache_read_input_tokens is always 0. Which change is the most likely culprit?
-- [ ] Using adaptive thinking
+- [ ] Running with adaptive thinking on every request
 - [ ] Appending the full response.content to history
-- [x] Putting the current time into the system prompt on every call
-- [ ] Returning tool errors with is_error true
-E: Caching is a prefix match over tools, system, then messages; a per-request value near the front invalidates everything after it.
+- [x] Putting the current time in the system prompt
+- [ ] Returning tool failures with is_error set to true
+E: Caching is a prefix match over tools, then system, then messages; a value that changes every request near the front invalidates everything after it. Appending to history only adds to the end of the prefix, which is exactly what caching expects.
 
 Q: Which of these does the SDK Tool Runner NOT do for you?
 - [ ] Generate input schemas from type hints and docstrings
 - [ ] Send tool results back with matching tool_use_ids
 - [ ] Turn exceptions raised inside a tool into is_error results
 - [x] Confine file paths to a workspace and allowlist commands
-E: The runner owns loop mechanics; what your tools may touch is your policy.
-
+E: The runner owns loop mechanics (schemas, dispatch, id matching, error results); what your tools may touch is your policy, so mini-agent's runner version still calls the same Workspace methods.
 ```
 
 ## Further Reading

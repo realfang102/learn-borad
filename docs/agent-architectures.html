@@ -19,7 +19,7 @@
   <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   <a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
   <nav class="top-nav" aria-label="Main">
-    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+    <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   </nav>
   <div class="header-actions">
     <button class="search-btn" type="button" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm9 16-4.3-4.3"/></svg><span>Search</span><kbd>⌘K</kbd></button>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <div class="mobile-nav" hidden>
-  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
+  <a href="curriculum.html">Curriculum</a><a href="paths.html">Paths</a><a href="lab.html">Lab</a><a href="projects.html">Projects</a><a href="glossary.html">Glossary</a><a href="papers.html">Reading List</a><a href="cheatsheet.html">Cheat Sheet</a>
   <a href="progress.html">Progress</a><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice Exam</a>
 </div>
 <div class="layout-lesson">
@@ -114,6 +114,7 @@
       </ol>
     </details>
     <div class="side-extra">
+      <a href="projects.html">🏗️ Hands-on projects</a>
       <a href="cheatsheet.html">📋 Cheat sheet</a>
       <a href="glossary.html">📖 Glossary</a>
       <a href="review.html">🧠 Course review</a>
@@ -222,6 +223,7 @@ Plan: Find the director&#x27;s other notable films.
 <p>The LLM never sees an observation until the solver step, so total LLM calls are roughly two regardless of the number of tool calls. The authors reported large token savings relative to ReAct on multi-hop QA with comparable or better accuracy, and that the decoupling allowed the planner&#39;s skill to be distilled into a smaller model. The catch is obvious: <strong>the plan cannot adapt to surprises</strong>. If <code>#E1</code> comes back empty or ambiguous, the worker blindly proceeds.</p>
 <p>Here is a compact ReWOO with the Anthropic SDK. The planner emits a structured plan; the worker is pure Python:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">python</span><button type="button" class="copy-btn" aria-label="Copy code">Copy</button></div><pre><code class="hljs language-python"><span class="hljs-keyword">import</span> re
+<span class="hljs-keyword">from</span> typing <span class="hljs-keyword">import</span> <span class="hljs-type">Literal</span>
 <span class="hljs-keyword">import</span> anthropic
 <span class="hljs-keyword">from</span> pydantic <span class="hljs-keyword">import</span> BaseModel
 
@@ -230,7 +232,7 @@ MODEL = <span class="hljs-string">&quot;claude-opus-5-5&quot;</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Step</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
     var: <span class="hljs-built_in">str</span>        <span class="hljs-comment"># e.g. &quot;E1&quot;</span>
-    tool: <span class="hljs-built_in">str</span>       <span class="hljs-comment"># &quot;search&quot; or &quot;calculate&quot;</span>
+    tool: <span class="hljs-type">Literal</span>[<span class="hljs-string">&quot;search&quot;</span>, <span class="hljs-string">&quot;calculate&quot;</span>]   <span class="hljs-comment"># constrained, so TOOLS[step.tool] can&#x27;t KeyError</span>
     <span class="hljs-built_in">input</span>: <span class="hljs-built_in">str</span>      <span class="hljs-comment"># may reference earlier vars like &quot;#E1&quot;</span>
 
 <span class="hljs-keyword">class</span> <span class="hljs-title class_">Plan</span>(<span class="hljs-title class_ inherited__">BaseModel</span>):
@@ -398,6 +400,7 @@ Trial 2: normalize with s.lower() and filter str.isalnum, then compare -&gt; PAS
     draft: <span class="hljs-built_in">str</span>
     revisions: <span class="hljs-built_in">int</span>
 
+<span class="hljs-comment"># run_research_agent, write_report and passes_review are your own functions</span>
 <span class="hljs-keyword">def</span> <span class="hljs-title function_">research</span>(<span class="hljs-params">state: State</span>) -&gt; <span class="hljs-built_in">dict</span>:
     <span class="hljs-keyword">return</span> {<span class="hljs-string">&quot;notes&quot;</span>: run_research_agent(state[<span class="hljs-string">&quot;question&quot;</span>])}   <span class="hljs-comment"># a ReAct agent as one node</span>
 
@@ -575,78 +578,78 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">1</span><div>What distinguishes ReWOO from ReAct?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>ReWOO uses tree search over trajectories</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>ReWOO uses tools; ReAct does not</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>ReWOO plans all tool calls up front with placeholders and only shows observations to a final solver, so the LLM does not reason between tool calls</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>ReWOO runs tool calls in parallel as a DAG</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>ReWOO reflects after each failed trial and retries with notes</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>ReWOO dispatches its tool calls in parallel as a dependency-ordered DAG</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>ReWOO plans all calls up front; only a final solver sees results</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>ReWOO searches a tree of trajectories and backs up on failure</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> ReWOO&#39;s planner, worker and solver separation removes observations from the reasoning loop, cutting tokens and calls, at the cost of being unable to adapt mid-run. The DAG idea is LLMCompiler; tree search is LATS.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> ReWOO&#39;s planner, worker and solver separation removes observations from the reasoning loop, cutting tokens and calls at the cost of being unable to adapt mid-run. The DAG of parallel calls is LLMCompiler, tree search is LATS, and reflect-and-retry is Reflexion.</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
   <div class="quiz-question"><span class="quiz-num">2</span><div>Reflexion improved results on coding tasks. What is its most critical dependency?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A reliable evaluator signal (such as unit tests) that tells it when and how it failed</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Fine-tuning the model on its reflections</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Parallel tool calls</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A very long context window</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A trustworthy signal, like unit tests, saying it failed</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Fine-tuning the model&#39;s weights on its own reflections</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A stronger second model to write the reflections</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A context window long enough to hold every past trial&#39;s log</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reflexion learns verbally from failure. Without a trustworthy success/failure signal, reflections can diagnose the wrong problem and reinforce bad strategies.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Reflexion learns verbally from failure, without touching weights, and the same model can reflect on itself. What it cannot do without is a reliable success/failure signal: with a weak or LLM-only evaluator, reflections diagnose the wrong problem and reinforce bad strategies.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">3</span><div>Why is LATS hard to apply to an agent that sends emails and makes purchases?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>LATS only works with small models</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Tree search requires reverting to earlier states to explore alternative branches, and real-world side effects cannot be undone</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>MCTS requires a numerical reward from the user</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>LATS cannot call external tools</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Tree search can&#39;t call external tools, only reason about them</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Exploring branches means undoing actions, which can&#39;t be done</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>MCTS needs a numeric reward from the user after every step</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Its value estimates are too noisy to trust for financial decisions</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exploring multiple branches means trying actions and backing up. In environments with irreversible effects, that is unsafe or impossible.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Exploring alternative branches means trying actions and then backing up to an earlier state. With irreversible side effects (a sent email, a purchase) that is unsafe or impossible. Noisy value estimates are a real weakness, but not the blocker here.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">4</span><div>In CoALA terms, a coding agent&#39;s CLAUDE.md or AGENTS.md instruction file is best described as:</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Working memory</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Episodic memory</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Long-term semantic memory</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Episodic memory (past runs)</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Explicit procedural memory</span></button>
     <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>An external grounding action</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Procedural memory is knowledge of how to do things. CoALA distinguishes implicit procedural memory (weights) from explicit procedural memory (code, prompts, instruction files).</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Procedural memory is knowledge of <em>how to do things</em>, and CoALA distinguishes implicit procedural memory (weights) from explicit procedural memory (code, prompts, instruction files). Semantic memory is tempting, but it holds facts about the world, not how to work on this project.</div>
 </div>
 
 <div class="quiz-q" data-correct="3">
   <div class="quiz-question"><span class="quiz-num">5</span><div>A compliance rule says a refund must never be issued before identity verification. Which design gives the strongest guarantee?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Running three voters on whether to refund</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A system prompt saying &quot;always verify identity first&quot;</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A Reflexion loop that learns the rule from failures</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A state graph with no edge from the start state to the refund node that bypasses verification</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>An LLM judge that checks the transcript before each refund</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>A system prompt that states the rule in bold, repeated at the end</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>A Reflexion loop that learns the rule from earlier failed runs</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>A state graph with no edge to refund that skips verification</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Graph structure makes the illegal transition impossible. Prompt instructions are probabilistic; learning from failure means failures happen first.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Graph structure makes the illegal transition impossible. Prompt instructions are probabilistic, a judge is another probabilistic check, and learning from failure means failures happen first.</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
   <div class="quiz-question"><span class="quiz-num">6</span><div>Modern APIs let models emit several tool calls in one turn. Which architecture&#39;s main benefit does this partly absorb?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Blackboard</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Plan-and-Execute</span></button>
     <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>LLMCompiler</span></button>
     <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Self-Ask</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Reflexion</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>ReWOO</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMCompiler&#39;s core contribution was parallel execution of independent calls. Native parallel tool calls capture much of that when independent calls are visible at the same step, though explicit DAGs still help for deep dependency chains.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> LLMCompiler&#39;s core contribution was parallel execution of independent calls. Native parallel tool calls capture much of that when the independent calls are visible at the same step. ReWOO&#39;s benefit is fewer LLM calls, not concurrency, and Plan-and-Execute runs its steps one at a time.</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
   <div class="quiz-question"><span class="quiz-num">7</span><div>Why do many practitioners now default to &quot;one capable model with good tools in a simple loop&quot;?</div></div>
   <div class="quiz-options" role="group">
-    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>Single agents are always cheaper than workflows</span></button>
-    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Complex architectures are impossible to implement with current APIs</span></button>
-    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Strong models now plan, reflect and parallelize adaptively, so rigid scaffolds often add cost and constrain them without improving results</span></button>
-    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Simple loops never fail</span></button>
+    <button type="button" class="quiz-opt" data-i="0"><span class="quiz-letter">A</span><span>A single loop is reliably cheaper than any fixed workflow</span></button>
+    <button type="button" class="quiz-opt" data-i="1"><span class="quiz-letter">B</span><span>Current APIs make complex multi-stage agent architectures impractical</span></button>
+    <button type="button" class="quiz-opt" data-i="2"><span class="quiz-letter">C</span><span>Strong models plan and reflect adaptively; rigid scaffolds can hurt</span></button>
+    <button type="button" class="quiz-opt" data-i="3"><span class="quiz-letter">D</span><span>Simple loops are guaranteed to terminate, unlike graph agents</span></button>
   </div>
-  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Much elaborate scaffolding compensated for weaker models. With capable models, structure should be added only where evaluations show it helps.</div>
+  <div class="quiz-expl" hidden><strong class="quiz-verdict"></strong> Much elaborate scaffolding compensated for weaker models. With capable models, structure should be added only where evaluations show it helps. Simple loops still need step budgets to terminate, and a fixed workflow is often cheaper when the path is known.</div>
 </div>
 <div class="quiz-footer"><div class="quiz-score" aria-live="polite"></div><button type="button" class="btn btn-ghost quiz-reset">Reset quiz</button></div>
 </div><h2 id="further-reading"><a class="anchor" href="#further-reading" aria-hidden="true">#</a>Further Reading</h2>
@@ -703,7 +706,7 @@ result = graph.invoke({<span class="hljs-string">&quot;question&quot;</span>: <s
     <div class="footer-brand"><a class="brand" href="index.html"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c3ee"/></linearGradient></defs><rect x="2" y="2" width="28" height="28" rx="8" fill="url(#lg)"/><path d="M10 21.5 16 9l6 12.5M12.3 17h7.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="23.5" cy="9.5" r="2.2" fill="#fff"/></svg><span>Agent Academy</span></a>
       <p>A free, open, comprehensive course on AI agents — from first principles to production and the research frontier.</p></div>
     <div class="footer-cols">
-      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a></div>
+      <div><h4>Learn</h4><a href="curriculum.html">Curriculum</a><a href="paths.html">Learning paths</a><a href="lab.html">Interactive lab</a><a href="projects.html">Hands-on projects</a></div>
       <div><h4>Practice</h4><a href="review.html">Course review</a><a href="flashcards.html">Flashcards</a><a href="exam.html">Practice exam</a><a href="progress.html">Your progress</a></div>
       <div><h4>Reference</h4><a href="glossary.html">Glossary</a><a href="papers.html">Reading list</a><a href="cheatsheet.html">Cheat sheet</a><a href="about.html">About</a></div>
     </div>

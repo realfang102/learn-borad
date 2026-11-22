@@ -134,6 +134,7 @@ Here is a compact ReWOO with the Anthropic SDK. The planner emits a structured p
 
 ```python
 import re
+from typing import Literal
 import anthropic
 from pydantic import BaseModel
 
@@ -142,7 +143,7 @@ MODEL = "claude-opus-5-5"
 
 class Step(BaseModel):
     var: str        # e.g. "E1"
-    tool: str       # "search" or "calculate"
+    tool: Literal["search", "calculate"]   # constrained, so TOOLS[step.tool] can't KeyError
     input: str      # may reference earlier vars like "#E1"
 
 class Plan(BaseModel):
@@ -315,6 +316,7 @@ class State(TypedDict):
     draft: str
     revisions: int
 
+# run_research_agent, write_report and passes_review are your own functions
 def research(state: State) -> dict:
     return {"notes": run_research_agent(state["question"])}   # a ReAct agent as one node
 
@@ -431,53 +433,53 @@ Relative characteristics, assuming the same model and tools. Real numbers depend
 
 ```quiz
 Q: What distinguishes ReWOO from ReAct?
-- [ ] ReWOO uses tools; ReAct does not
-- [x] ReWOO plans all tool calls up front with placeholders and only shows observations to a final solver, so the LLM does not reason between tool calls
-- [ ] ReWOO runs tool calls in parallel as a DAG
-- [ ] ReWOO uses tree search over trajectories
-E: ReWOO's planner, worker and solver separation removes observations from the reasoning loop, cutting tokens and calls, at the cost of being unable to adapt mid-run. The DAG idea is LLMCompiler; tree search is LATS.
+- [ ] ReWOO dispatches its tool calls in parallel as a dependency-ordered DAG
+- [x] ReWOO plans all calls up front; only a final solver sees results
+- [ ] ReWOO searches a tree of trajectories and backs up on failure
+- [ ] ReWOO reflects after each failed trial and retries with notes
+E: ReWOO's planner, worker and solver separation removes observations from the reasoning loop, cutting tokens and calls at the cost of being unable to adapt mid-run. The DAG of parallel calls is LLMCompiler, tree search is LATS, and reflect-and-retry is Reflexion.
 
 Q: Reflexion improved results on coding tasks. What is its most critical dependency?
-- [ ] A very long context window
-- [ ] Fine-tuning the model on its reflections
-- [x] A reliable evaluator signal (such as unit tests) that tells it when and how it failed
-- [ ] Parallel tool calls
-E: Reflexion learns verbally from failure. Without a trustworthy success/failure signal, reflections can diagnose the wrong problem and reinforce bad strategies.
+- [ ] A context window long enough to hold every past trial's log
+- [ ] Fine-tuning the model's weights on its own reflections
+- [x] A trustworthy signal, like unit tests, saying it failed
+- [ ] A stronger second model to write the reflections
+E: Reflexion learns verbally from failure, without touching weights, and the same model can reflect on itself. What it cannot do without is a reliable success/failure signal: with a weak or LLM-only evaluator, reflections diagnose the wrong problem and reinforce bad strategies.
 
 Q: Why is LATS hard to apply to an agent that sends emails and makes purchases?
-- [ ] LATS cannot call external tools
-- [x] Tree search requires reverting to earlier states to explore alternative branches, and real-world side effects cannot be undone
-- [ ] LATS only works with small models
-- [ ] MCTS requires a numerical reward from the user
-E: Exploring multiple branches means trying actions and backing up. In environments with irreversible effects, that is unsafe or impossible.
+- [ ] Its value estimates are too noisy to trust for financial decisions
+- [x] Exploring branches means undoing actions, which can't be done
+- [ ] Tree search can't call external tools, only reason about them
+- [ ] MCTS needs a numeric reward from the user after every step
+E: Exploring alternative branches means trying actions and then backing up to an earlier state. With irreversible side effects (a sent email, a purchase) that is unsafe or impossible. Noisy value estimates are a real weakness, but not the blocker here.
 
 Q: In CoALA terms, a coding agent's CLAUDE.md or AGENTS.md instruction file is best described as:
-- [ ] Episodic memory
-- [ ] Working memory
+- [ ] Episodic memory (past runs)
+- [ ] Long-term semantic memory
 - [x] Explicit procedural memory
 - [ ] An external grounding action
-E: Procedural memory is knowledge of how to do things. CoALA distinguishes implicit procedural memory (weights) from explicit procedural memory (code, prompts, instruction files).
+E: Procedural memory is knowledge of *how to do things*, and CoALA distinguishes implicit procedural memory (weights) from explicit procedural memory (code, prompts, instruction files). Semantic memory is tempting, but it holds facts about the world, not how to work on this project.
 
 Q: A compliance rule says a refund must never be issued before identity verification. Which design gives the strongest guarantee?
-- [ ] A system prompt saying "always verify identity first"
-- [ ] A Reflexion loop that learns the rule from failures
-- [x] A state graph with no edge from the start state to the refund node that bypasses verification
-- [ ] Running three voters on whether to refund
-E: Graph structure makes the illegal transition impossible. Prompt instructions are probabilistic; learning from failure means failures happen first.
+- [ ] A system prompt that states the rule in bold, repeated at the end
+- [ ] A Reflexion loop that learns the rule from earlier failed runs
+- [x] A state graph with no edge to refund that skips verification
+- [ ] An LLM judge that checks the transcript before each refund
+E: Graph structure makes the illegal transition impossible. Prompt instructions are probabilistic, a judge is another probabilistic check, and learning from failure means failures happen first.
 
 Q: Modern APIs let models emit several tool calls in one turn. Which architecture's main benefit does this partly absorb?
-- [ ] Reflexion
+- [ ] ReWOO
 - [ ] Self-Ask
 - [x] LLMCompiler
-- [ ] Blackboard
-E: LLMCompiler's core contribution was parallel execution of independent calls. Native parallel tool calls capture much of that when independent calls are visible at the same step, though explicit DAGs still help for deep dependency chains.
+- [ ] Plan-and-Execute
+E: LLMCompiler's core contribution was parallel execution of independent calls. Native parallel tool calls capture much of that when the independent calls are visible at the same step. ReWOO's benefit is fewer LLM calls, not concurrency, and Plan-and-Execute runs its steps one at a time.
 
 Q: Why do many practitioners now default to "one capable model with good tools in a simple loop"?
-- [ ] Complex architectures are impossible to implement with current APIs
-- [x] Strong models now plan, reflect and parallelize adaptively, so rigid scaffolds often add cost and constrain them without improving results
-- [ ] Simple loops never fail
-- [ ] Single agents are always cheaper than workflows
-E: Much elaborate scaffolding compensated for weaker models. With capable models, structure should be added only where evaluations show it helps.
+- [ ] Current APIs make complex multi-stage agent architectures impractical
+- [x] Strong models plan and reflect adaptively; rigid scaffolds can hurt
+- [ ] Simple loops are guaranteed to terminate, unlike graph agents
+- [ ] A single loop is reliably cheaper than any fixed workflow
+E: Much elaborate scaffolding compensated for weaker models. With capable models, structure should be added only where evaluations show it helps. Simple loops still need step budgets to terminate, and a fixed workflow is often cheaper when the path is known.
 ```
 
 ## Further Reading

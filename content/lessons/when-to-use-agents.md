@@ -223,53 +223,53 @@ If you can't tick most of these boxes, step down a rung. You can always climb la
 
 ```quiz
 Q: A team must extract the same six fields from 2 million PDFs a month. Which approach best fits?
-- [x] A single structured-output call per document, possibly inside a simple workflow
-- [ ] An autonomous agent per document that decides how to read it
-- [ ] A multi-agent system with a reviewer agent for each document
-- [ ] A deep-research agent
-E: The task is well-defined, extremely high-volume and low-value per item. The lowest rung that works (one call with structured output) wins on cost, latency and predictability.
+- [x] One structured-output call per document, in a simple workflow
+- [ ] An agent per document that decides how best to read each one
+- [ ] A workflow plus a reviewer agent that double-checks every file
+- [ ] A cheap-model agent per document, to keep the per-file cost low
+E: The task is well-defined, extremely high-volume and low-value per item. The lowest rung that works (one call with structured output) wins on cost, latency and predictability. A cheaper model doesn't fix the problem with the agent options: they add steps and unpredictability the task doesn't need.
 
 Q: Under the simple compounding model, roughly what end-to-end success does a 20-step task have at 95% per-step success?
 - [ ] About 95%
 - [ ] About 75%
 - [x] About 36%
-- [ ] About 5%
-E: 0.95^20 ≈ 0.36. Per-step reliability that sounds high still compounds into frequent failure over long tasks.
+- [ ] Well under 10%
+E: 0.95^20 ≈ 0.36. 75% is a common guess from treating the failures as adding up linearly, but per-step reliability multiplies, so even 95% per step compounds into frequent failure over long tasks.
 
 Q: Which change most directly improves an agent's end-to-end success without changing the model?
-- [ ] Adding more tools that overlap with existing ones
-- [x] Giving it feedback signals (tests, validators) and actionable errors so it can detect and fix mistakes
-- [ ] Removing the step limit so it has more chances
-- [ ] Splitting it into several agents
-E: Detection and recovery reduce the effective per-step failure rate, for example from 5% to 1% with 80% recovery, which turns about 36% success into about 82% over 20 steps.
+- [ ] Removing the step limit so the agent gets more chances to finish
+- [x] Adding tests and validators so it can spot and fix its own mistakes
+- [ ] Splitting the task across several agents that each do fewer steps
+- [ ] Adding more specialized tools so it always has the exact one it needs
+E: Detection and recovery reduce the effective per-step failure rate, for example from 5% to 1% with 80% recovery, which turns about 36% success into about 82% over 20 steps. Splitting across agents adds coordination failures, extra overlapping tools lengthen trajectories, and removing the step limit just lets failures run longer.
 
 Q: According to Anthropic's framing, when do agents tend to be the right choice over workflows?
-- [ ] Whenever a task involves more than one LLM call
-- [x] For open-ended problems where the required steps can't be predicted or hard-coded
-- [ ] Whenever the highest-capability model is available
-- [ ] When latency must be minimized
-E: Workflows offer predictability for well-defined tasks; agents fit when flexibility and model-driven decisions are needed because the path depends on what's discovered.
+- [ ] When a task needs several LLM calls and a few different tools
+- [x] When the steps needed can't be predicted or hard-coded in advance
+- [ ] When the task is high-stakes and so needs the most capable model
+- [ ] When the task has many branches that you can list in advance
+E: Workflows can make many calls, use many tools and handle many known branches. Agents fit when the path itself depends on what's discovered, so it can't be written down ahead of time. High stakes argue for *more* control, not less.
 
 Q: Why do an agent's input-token costs grow faster than linearly with the number of steps?
-- [ ] Providers charge a premium for later steps
-- [x] The full, growing transcript is resent on every call, so total input scales roughly with the square of the step count
-- [ ] Tool definitions double in size each step
-- [ ] Output tokens are counted as input on the next step only
-E: Each call includes everything so far. Summing a context that grows linearly gives roughly quadratic total input, which prompt caching mitigates.
+- [ ] Providers charge a higher input rate once a context passes a size limit
+- [x] The growing transcript is resent each call, so the total is ~quadratic
+- [ ] Each step's thinking tokens are billed again as input on every call
+- [ ] Tool definitions are re-added to the prompt once per tool call made
+E: Each call includes everything so far. Summing a context that grows linearly gives roughly quadratic total input, which prompt caching mitigates. Tool definitions are sent once per request, not once per call made, and their size doesn't grow with steps.
 
 Q: Which proposal shows the "autonomy without feedback" anti-pattern?
-- [ ] A coding agent that runs tests after each change
-- [ ] A research agent whose report is reviewed by an analyst
-- [x] An agent that rewrites marketing pages and publishes them directly, with no checks or metrics on whether the changes are correct
-- [ ] A support agent that needs approval for refunds over $500
+- [ ] A coding agent that runs the full test suite after each edit it makes
+- [ ] A research agent whose final report is checked by a human analyst
+- [x] An agent that rewrites marketing pages and publishes them unchecked
+- [ ] A support agent that must get approval for refunds of over $500
 E: With no signal to detect mistakes and no review before an irreversible publish, errors compound silently. The other options include tests, review or approval gates.
 
 Q: A support product handles 80% of tickets with simple lookups and 20% with messy investigations. What is usually the best architecture?
-- [ ] An autonomous agent for all tickets, for consistency
-- [ ] A fixed workflow for all tickets
-- [x] A cheap router or workflow for the common cases, with an agent reserved for the complex long tail
-- [ ] A multi-agent system where every ticket is handled by several agents
-E: Mixing rungs puts each part of the problem on the lowest rung that handles it, keeping cost and latency low for common cases while still covering the hard ones.
+- [ ] One agent for all tickets, so every customer gets consistent handling
+- [x] A cheap router or workflow for common cases, an agent for the rest
+- [ ] A fixed workflow with a branch added for each investigation type
+- [ ] An agent for all tickets, run on a small model to keep costs down
+E: Mixing rungs puts each part of the problem on the lowest rung that handles it, keeping cost and latency low for common cases while still covering the hard ones. Messy investigations are exactly the cases you can't enumerate as branches in advance.
 ```
 
 ## Further Reading

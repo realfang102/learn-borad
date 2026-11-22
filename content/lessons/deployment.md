@@ -338,46 +338,46 @@ Use this as a launch review. Each item should have an owner and evidence.
 
 ```quiz
 Q: An agent's tasks take 2–15 minutes and users watch progress in a web UI. Which deployment shape fits best?
-- [ ] A synchronous HTTP endpoint with a 20-minute timeout
+- [ ] A synchronous endpoint with a 20-minute timeout that streams tokens as they arrive
 - [x] An async job queue with workers, streaming progress events to the client over SSE
-- [ ] A cron job that runs every 15 minutes
-- [ ] A batch API submission per user request
-E: Long tasks belong in workers that survive disconnects and can resume from checkpoints, with progress streamed for perceived latency. Long synchronous requests break on timeouts and tie up connections.
+- [ ] A WebSocket held open to one server process that runs the whole loop in memory
+- [ ] A Batch API submission per request, with the UI polling until the result is ready
+E: Long tasks belong in workers that survive disconnects and resume from checkpoints, with progress streamed back. Streaming over a long synchronous request or a single in-memory process still dies when the connection or that process drops, and batches can take up to 24 hours with no tool loop.
 
 Q: Why are plain Docker containers generally considered insufficient for running untrusted, model-written code from many tenants?
-- [ ] Containers can't limit CPU or memory
-- [x] Containers share the host kernel, so a kernel exploit can escape; gVisor or microVMs add a much stronger boundary
-- [ ] Containers can't run Python
-- [ ] Containers are too slow to start
-E: Namespaces and cgroups share one kernel. gVisor shrinks the kernel attack surface; microVMs add hardware virtualization.
+- [ ] Containers can't cap CPU and memory tightly enough to stop crypto-mining abuse
+- [x] Containers share the host kernel, so one kernel exploit can escape the sandbox
+- [ ] Containers can't block outbound network access, so code can exfiltrate data
+- [ ] Containers keep state between runs, so one tenant's files leak to the next
+E: Namespaces and cgroups share one kernel; gVisor shrinks that attack surface and microVMs add hardware virtualization. Containers can enforce resource limits and default-deny egress, and you can make them ephemeral; the shared kernel is the gap configuration can't close.
 
 Q: What's the main advantage of injecting credentials at an egress proxy instead of passing them into the sandbox?
-- [ ] It makes API calls faster
-- [x] The secret never exists where model-influenced code can read or leak it, and the allowlist blocks exfiltration to unknown hosts
-- [ ] It removes the need for credential rotation
-- [ ] It lets the model choose which credential to use
-E: Code in the sandbox makes unauthenticated requests, and the proxy attaches credentials only for allowlisted destinations. Prompt-injected code has no key to steal.
+- [ ] Credentials can be long-lived, since the proxy hides them from the model anyway
+- [x] Sandbox code never holds the secret, and the allowlist blocks unknown hosts
+- [ ] The model can pick the right credential per call, since the proxy lists them all
+- [ ] Each sandbox gets its own copy of the key, so revoking one doesn't affect others
+E: Code in the sandbox makes unauthenticated requests, and the proxy attaches credentials only for allowlisted destinations, so prompt-injected code has no key to steal. You still want short-lived, scoped credentials behind the proxy, and the model never chooses or sees them.
 
 Q: You deploy a new system prompt. Why should conversations already in progress keep the old version?
-- [ ] The API rejects system prompt changes mid-conversation
-- [x] Changing the prompt mid-conversation invalidates the prompt cache and, on current models, the model's preserved earlier reasoning, and it makes behavior hard to attribute to one version
-- [ ] New prompts only take effect after 24 hours
-- [ ] Old conversations can't be stored with the new version
-E: Apply new versions to new sessions to keep costs predictable, reasoning continuous and traces attributable.
+- [ ] The API rejects a changed top-level system prompt partway through a conversation
+- [x] A mid-session change breaks the cache and preserved reasoning, and muddles traces
+- [ ] Older sessions' stored history can't be replayed under a different system prompt
+- [ ] Rollback is impossible once sessions have run on both old and new prompt versions
+E: The API accepts the change, but it re-bills the whole history uncached, invalidates preserved reasoning on current models, and makes behavior hard to attribute to one version. Apply new versions to new sessions.
 
 Q: When shadow-testing a new agent version on live traffic, what must you do with side-effecting tools?
-- [ ] Nothing; shadow runs are read-only by definition
-- [x] Stub them or make them read-only, or the shadow will take real actions such as sending duplicate emails
-- [ ] Run them twice to compare results
-- [ ] Route them through the Batch API
-E: A shadow processes real inputs. Unless its tools are stubbed, it will act on the world alongside production.
+- [ ] Let them run, since the shadow's outputs are never shown to the user anyway
+- [x] Stub them or make them read-only, or the shadow takes real actions twice
+- [ ] Give them idempotency keys so the shadow's calls dedupe with production's
+- [ ] Run them only on the canary slice, since shadows and canaries share traffic
+E: A shadow processes real inputs, so live tools act on the world alongside production. Hiding output from users doesn't stop a refund or an email, and idempotency keys built from each run's intent won't match across two different agent runs.
 
 Q: A deploy makes cost per task jump 3× with no change in success rate. Which signal most likely localizes the cause fastest?
-- [ ] Provider status page
-- [ ] User feedback scores
-- [x] Cache hit rate and steps per task, compared across agent versions
-- [ ] Number of tools defined
-E: A cost jump with unchanged quality usually means a cache-breaking change in prompt assembly or a looping/verbosity change. Both show up in cache hit rate and steps per task by version.
+- [ ] The provider's status page and API error rates, to rule out a pricing incident
+- [ ] Output tokens per call by version, since a new prompt often makes answers longer
+- [x] Cache hit rate and steps per task, compared between old and new versions
+- [ ] Per-tenant spend, to find the customer whose usage jumped after the deploy
+E: A cost jump with unchanged quality after a deploy usually means a cache-breaking change in prompt assembly or extra steps. Longer answers rarely triple cost, since input dominates in agent loops, and a deploy-wide jump points at the version, not one tenant.
 ```
 
 ## Further Reading

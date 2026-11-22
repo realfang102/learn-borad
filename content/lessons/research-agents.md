@@ -303,53 +303,53 @@ Use deep research as a fast, well-read research assistant whose work you spot-ch
 
 ```quiz
 Q: What most fundamentally distinguishes a deep research agent from search-augmented chat?
-- [ ] It uses a larger model
-- [ ] It always uses multiple agents
-- [x] It iterates adaptively, using what it finds to decide what to search for next
-- [ ] It only uses academic sources
-E: Search-augmented chat retrieves once for the user's query. Deep research loops: each result changes the next query, gaps trigger follow-ups, and the process ends with synthesis.
+- [ ] It runs on a larger, more capable model than chat does
+- [ ] It splits each question across several parallel subagents
+- [x] It iterates, using each finding to decide what to search next
+- [ ] It retrieves many more documents in a single, up-front search pass
+E: Search-augmented chat retrieves once for the user's query. Deep research loops: each result changes the next query, gaps trigger follow-ups, and the process ends with synthesis. Retrieving more documents in a single pass is still one-shot retrieval, and many deep research systems are single-agent.
 
 Q: In the lead-agent and subagent architecture, what is the main benefit of giving each subagent its own context window?
-- [ ] It makes each subagent cheaper than a single agent
-- [x] Subagents can read large amounts of raw material and return condensed findings, keeping the lead's context focused
-- [ ] It eliminates the need for citations
-- [ ] It guarantees subagents never duplicate work
-E: Subagents act as context compressors and enable parallelism. They do not prevent duplication on their own; clear task descriptions from the lead are needed for that.
+- [ ] Each subagent is cheaper, so total research cost goes down
+- [x] Subagents digest raw sources and pass the lead only condensed findings
+- [ ] Separate contexts stop the subagents from duplicating one another's work
+- [ ] The lead can verify each citation against the subagent's transcript
+E: Subagents act as context compressors and enable parallelism. They raise total cost rather than lowering it, and separate contexts do not prevent duplication on their own: Anthropic found clear task descriptions from the lead were needed for that.
 
 Q: Anthropic reported multi-agent systems use roughly 15 times the tokens of a chat interaction. What is the practical implication?
-- [ ] Multi-agent research should be the default for every question
-- [x] It is worth it for high-value, breadth-heavy questions, and simple queries should be routed to cheaper paths
-- [ ] Token usage has no relationship to research quality
-- [ ] Subagents should use the largest available model
-E: Token spend correlates strongly with performance, but cost matters. Scaling effort to query complexity is a core design principle.
+- [ ] Make multi-agent research the default, since higher token spend drives quality
+- [x] Reserve it for high-value, broad questions and route simple ones elsewhere
+- [ ] Give subagents the largest model, since quality per token matters most
+- [ ] Cap each subagent at a few tool calls so cost matches a single chat
+E: Token spend does correlate strongly with performance, which is the tempting half-truth, but cost matters, so effort should scale with query value and complexity. Capping every subagent hard throws away the breadth that justified the architecture.
 
 Q: Ten news articles report the same statistic, all quoting one company's press release. How should a research agent treat this?
-- [ ] As strong evidence, since ten sources agree
-- [x] As a single source, ideally traced to the original press release and noted as coming from an interested party
-- [ ] As unreliable, to be excluded entirely
-- [ ] As a conflict between sources
-E: Triangulation requires independent sources. Copies of one origin add no corroboration, and the original's incentives should be noted.
+- [ ] As strong evidence, since ten outlets independently chose to report it
+- [x] As one source, traced back to the release and flagged as company-issued
+- [ ] As unreliable, so the statistic should be dropped from the report entirely
+- [ ] As a conflict to resolve by checking which outlet reported it first
+E: Triangulation requires independent sources; copies of one origin add no corroboration. That does not make the figure worthless: report it, attribute it to the original, and note the issuer's incentives.
 
 Q: Which mitigation most directly prevents fabricated citations?
-- [ ] Asking the model to be careful about citations
-- [ ] Using a longer context window
-- [x] Generating citations only from documents actually retrieved by tools, with supporting quotes attached
-- [ ] Limiting the report length
-E: Fabricated citations typically come from the model's memory. Grounding citations in the tool layer, plus verification, addresses the root cause.
+- [ ] Instructing the model to cite only sources it is highly confident about
+- [ ] Using a model with a longer context window to hold more sources
+- [x] Drawing citations only from tool-retrieved documents, with quotes attached
+- [ ] Running a final pass that checks every cited URL actually loads a live page
+E: Fabricated citations typically come from the model's memory, so grounding citations in the tool layer addresses the root cause. A live-URL check catches some fakes after the fact, but a real page that does not support the claim (misattribution) passes it.
 
 Q: What does STORM contribute to research-agent design?
-- [ ] A benchmark of hard-to-find facts
-- [ ] A method for verifying citations with a separate model
-- [x] Perspective-guided question asking via simulated conversations, followed by outline-first writing
-- [ ] A protocol for agents to share memory
-E: STORM improves question diversity by simulating writers with different perspectives interviewing a grounded expert, then curates an outline before writing.
+- [ ] A benchmark of hard-to-find facts with short, verifiable answers
+- [ ] A separate verifier model that checks each citation against its source
+- [x] Simulated multi-perspective interviews, then outline-first writing
+- [ ] A lead agent that spawns parallel subagents, each with its own context
+E: STORM improves question diversity by simulating writers with different perspectives interviewing a grounded expert, then curates an outline before writing. The benchmark describes BrowseComp, and the lead/subagent design is Anthropic's Research architecture.
 
 Q: Why is BrowseComp a good complement to rubric-based report evaluation?
-- [ ] It scores the writing style of long reports
-- [x] Its answers are hard to find but short and easy to verify, so it objectively measures search persistence and skill
-- [ ] It only uses offline documents
-- [ ] It replaces the need for human review
-E: Verifiable benchmarks test the search engine of the agent; rubric judges test the report. Together with human spot-checks they cover each other's blind spots.
+- [ ] It grades long reports on citation accuracy and completeness
+- [x] Its short, verifiable answers objectively test search persistence
+- [ ] It uses a fixed offline corpus, so its scores are fully reproducible
+- [ ] It rates report quality with human experts instead of LLM judges
+E: BrowseComp questions are hard to find but easy to check, so they test the agent's searching, not its writing. It runs against the live web, not a frozen corpus. Rubric judges test the report; together with human spot-checks they cover each other's blind spots.
 ```
 
 ## Further Reading

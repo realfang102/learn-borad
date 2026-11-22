@@ -305,46 +305,46 @@ Other adoption lessons that recur across domains:
 
 ```quiz
 Q: Which property best explains why software engineering is more mature for agents than legal research?
-- [ ] Lawyers use less software than developers
-- [x] Code can be checked cheaply and automatically with tests and compilers, while legal correctness requires slow expert review
-- [ ] Legal documents are shorter than codebases
-- [ ] Coding agents use larger models
-E: Verifiability is the strongest predictor of agent maturity. Automated checks enable self-correction, evaluation and trust.
+- [ ] Developers adopted AI tools earlier, so the products have had longer to mature
+- [x] Code is checked cheaply by tests and compilers; legal work needs expert review
+- [ ] Legal documents are longer than most codebases and overflow context windows
+- [ ] Law firms restrict data access, so agents cannot reach the right documents
+E: Verifiability is the strongest predictor of agent maturity: automated checks enable self-correction, evaluation and trust. Earlier adoption is partly a *consequence* of that verifiability, and context length or data access are solvable engineering problems rather than the root difference.
 
 Q: A data-analysis agent writes a SQL query that runs without errors and returns a revenue figure. What is the main residual risk?
-- [ ] The query might have a syntax error
-- [x] The query might answer the wrong question semantically, for example by double counting or using the wrong definition of revenue
-- [ ] The database might reject the query
-- [ ] The agent might take too long
-E: Silent semantic errors are the core risk in BI agents. Semantic layers, showing queries and sanity checks against known figures reduce it.
+- [ ] The query may time out on very large warehouse tables
+- [x] It may answer the wrong question, e.g. by double counting
+- [ ] The figure may be stale because the agent cached old results
+- [ ] The query may hide a syntax error the database silently tolerated
+E: Silent semantic errors (wrong joins, the wrong definition of revenue) are the core risk in BI agents. A query that ran and returned a value has already passed the syntax and timeout hurdles. Semantic layers, showing queries and sanity checks against known figures reduce the risk.
 
 Q: Why are personal assistant agents considered especially risky for prompt injection?
-- [ ] They use smaller models
-- [ ] They run on phones
-- [x] They combine access to private data, exposure to untrusted content and the ability to take actions
-- [ ] They do not support confirmation dialogs
-E: This combination lets injected instructions in an email or web page exfiltrate data or trigger actions. Confirmation gates and least privilege are essential.
+- [ ] They run on mobile devices, which lack the sandboxing of servers
+- [ ] Their tasks are so diverse that no evaluation suite can cover them
+- [x] They mix private data, untrusted content and the ability to act
+- [ ] They read web pages, which can hide text that only models notice
+E: This combination lets injected instructions in an email or web page exfiltrate data or trigger actions. Hidden text is one delivery route, but research agents read the same pages; what makes assistants riskier is the private data and actions available to a hijacked agent. Confirmation gates and least privilege are essential.
 
 Q: When scoring a use case, which single factor rated "poor" is the biggest warning sign?
-- [ ] Volume
+- [ ] Error tolerance
 - [ ] Value per task
 - [x] Verifiability
 - [ ] Tool access
-E: If you cannot tell whether the agent is right, you cannot evaluate, improve or trust it. Other weaknesses can often be mitigated with human approval or better integrations.
+E: If you cannot tell whether the agent is right, you cannot evaluate, improve or trust it. Poor error tolerance is the tempting answer, but it can be managed by keeping a human approval step; poor tool access can be fixed with integrations or a GUI agent.
 
 Q: A company's support agent reaches 90% approval of its drafted refunds over three months. What is a sensible next step in the adoption path?
-- [ ] Immediately grant full autonomy for all refund types
-- [x] Allow direct action for the consistently approved categories, audit a sample, and keep approval for the rest
-- [ ] Remove human agents from the support team
-- [ ] Return to copilot mode
-E: Autonomy should expand category by category as evidence accumulates, with sampling audits and a path back to approval if quality drifts.
+- [ ] Grant full autonomy for all refund types, since 90% is a high approval rate
+- [x] Let it act on the consistently approved categories and audit a sample
+- [ ] Keep approval mode until the rate reaches 100% across every category
+- [ ] Move back to copilot mode, since 10% of refunds were still rejected
+E: Autonomy should expand category by category as evidence accumulates, with sampling audits and a path back to approval if quality drifts. An overall 90% can hide weak categories, and demanding 100% everywhere means autonomy never arrives.
 
 Q: Which item is most often missing from overly optimistic agent ROI estimates?
-- [ ] Model token costs
-- [x] Human review time and the cost of errors that slip through
-- [ ] The number of tasks
-- [ ] Labor cost per task
-E: Token costs are visible and usually small. Review time, remediation of errors, and maintenance are larger and often ignored.
+- [ ] Per-task model and infrastructure costs
+- [x] Human review time and errors that slip through
+- [ ] The number of tasks eligible for the agent
+- [ ] The loaded labor cost of the human baseline
+E: Token and infrastructure costs are visible and usually small, and task volume and labor cost are the inputs every estimate starts from. Review time, remediation of errors and maintenance are larger and often ignored.
 ```
 
 ## Further Reading

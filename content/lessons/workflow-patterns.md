@@ -522,53 +522,53 @@ Frameworks such as LangGraph, the Claude Agent SDK, the OpenAI Agents SDK, CrewA
 
 ```quiz
 Q: What is the defining difference between a workflow and an agent in Anthropic's framing?
-- [ ] Workflows use tools; agents do not
-- [x] In a workflow, code defines the control flow; in an agent, the LLM dynamically decides its own steps
-- [ ] Workflows use small models; agents use frontier models
-- [ ] Agents always involve multiple LLMs, workflows only one
-E: Both can use tools and any model. The distinction is who controls the path: predefined code paths (workflow) versus the model directing its own process and tool usage (agent).
+- [ ] Workflows call tools through code; agents call them natively
+- [x] Who controls the path: predefined code, or the model itself
+- [ ] Workflows use small, cheap models; agents need frontier ones
+- [ ] Agents coordinate several LLMs; workflows make a single call
+E: Both can use tools and any model, and a workflow can involve many calls. The distinction is who controls the path: predefined code paths (workflow) versus the model directing its own process and tool usage (agent).
 
 Q: Your support bot handles billing, technical and sales questions, and improving the technical prompt keeps hurting billing answers. Which pattern most directly addresses this?
 - [ ] Evaluator-optimizer
 - [ ] Voting
 - [x] Routing
 - [ ] Prompt chaining
-E: Routing separates concerns: each category gets its own specialized prompt, so optimizing one path no longer degrades the others.
+E: Routing separates concerns: each category gets its own specialized prompt, so optimizing one path no longer degrades the others. An evaluator loop would polish answers but still from one overloaded prompt.
 
 Q: How does orchestrator-workers differ from sectioning-style parallelization?
-- [ ] Orchestrator-workers runs sequentially; sectioning runs in parallel
-- [x] In orchestrator-workers the subtasks are decided by an LLM at runtime; in sectioning they are predefined in code
-- [ ] Sectioning requires multiple models; orchestrator-workers uses one
-- [ ] There is no difference; they are synonyms
-E: Both can fan out in parallel. The key difference is flexibility: the orchestrator determines how many subtasks there are and what they are based on the specific input.
+- [ ] Orchestrator-workers runs its subtasks one after another
+- [x] An LLM picks the subtasks at runtime instead of code
+- [ ] Sectioning uses one model; workers each need a different model
+- [ ] Orchestrator-workers skips the final aggregation step
+E: Both can fan out in parallel and both combine results at the end. The key difference is flexibility: the orchestrator decides how many subtasks there are and what each is, based on the specific input, whereas sectioning's split is fixed in code.
 
 Q: You run three identical prompts in a voting setup and they almost always agree, even when wrong. What is the most likely fix?
-- [ ] Add more identical voters
-- [ ] Switch to prompt chaining
-- [x] Make the voters genuinely diverse, with different instructions, lenses, context or models
-- [ ] Lower the vote threshold to 1 of 3
-E: Correlated voters share failure modes, so adding more of them adds cost without confidence. Diversity in framing or model decorrelates their errors.
+- [ ] Add more identical voters to strengthen the majority
+- [ ] Raise the threshold so all three must agree to pass
+- [x] Give each voter a different lens, context slice or model
+- [ ] Have each voter re-read the others' answers and then revote
+E: Correlated voters share failure modes, so adding more of them, or demanding unanimity, adds cost without adding information. Letting voters see each other's answers correlates them even further. Diversity in framing, context or model decorrelates their errors.
 
 Q: Which is the best signal that evaluator-optimizer will pay off for a task?
-- [ ] The task is latency-sensitive
-- [x] Clear criteria exist, and written feedback would demonstrably improve a first draft
-- [ ] The inputs fall into several distinct categories
-- [ ] The number of steps is unpredictable
-E: Evaluator-optimizer works when evaluation criteria are clear and iterative refinement adds measurable value, much like a writer revising with an editor's notes.
+- [ ] The task is latency-sensitive and must answer quickly
+- [x] Written feedback against clear criteria improves drafts
+- [ ] Inputs fall into several clearly distinct categories
+- [ ] The number of steps needed is hard to predict in advance
+E: Evaluator-optimizer works when criteria are clear and a critique demonstrably improves the next draft, like a writer revising with an editor's notes. Distinct categories point to routing, an unpredictable number of steps points to an agent, and latency sensitivity argues against extra rounds.
 
 Q: What is a "programmatic gate" in prompt chaining?
-- [ ] A rate limiter between API calls
-- [ ] A special API parameter that blocks unsafe output
-- [x] A code check on an intermediate output that decides whether the chain continues, retries or stops
-- [ ] A human approval step
-E: Gates are ordinary code (schema validation, keyword checks, tests) that verify intermediate results, catching errors before they compound through later steps.
+- [ ] A rate limiter that spaces out the chain's API calls
+- [ ] An LLM judge that rewrites weak intermediate outputs
+- [x] Code that checks a step's output and continues or stops
+- [ ] A pause where a human reviews and approves each step's output
+E: Gates are ordinary code (schema validation, keyword checks, tests) that verify intermediate results and decide whether to continue, retry or stop, catching errors before they compound. An LLM judge can serve as a gate when code cannot check the property, but it judges rather than rewrites, and it is the fallback, not the definition.
 
 Q: A team jumps straight to an autonomous multi-tool agent for a task that always follows the same four steps. What is the main problem?
-- [ ] Agents cannot call more than three tools
-- [x] They pay extra latency, cost and unpredictability for flexibility the task does not need; a prompt chain would be simpler and more reliable
-- [ ] Autonomous agents cannot run fixed sequences
-- [ ] The task requires voting
-E: When the path is known in advance, encoding it in code is cheaper, faster, easier to test and less error-prone than letting the model rediscover it every run.
+- [ ] The agent cannot be given more than a handful of tools
+- [x] It pays for flexibility the task doesn't need; chain it
+- [ ] Autonomous agents are unable to follow a fixed sequence of steps
+- [ ] A fixed four-step task should be handled with voting
+E: An agent can follow the four steps, but it pays extra latency, cost and unpredictability to rediscover a path that is known in advance. Encoding the path as a prompt chain is cheaper, faster, easier to test and less error-prone.
 ```
 
 ## Further Reading

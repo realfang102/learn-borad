@@ -231,7 +231,7 @@ This **separation of concerns** keeps the lead's context clean for synthesis and
 
 When a model processes a prompt, it computes key/value tensors for every token (the **KV cache**). If the next request starts with **exactly the same prefix**, a provider can reuse that work: **prompt caching**. For agents this matters enormously, because each step re-sends everything before it with a little appended.
 
-Manus called KV-cache hit rate *the single most important metric* for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time, but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.
+Manus called KV-cache hit rate *the single most important metric* for a production agent. They reported input-to-output token ratios around 100:1, and noted that on Claude, cached input tokens cost about a tenth of uncached ones. Exact prices vary by model and change over time (on current Claude models in 2026, a cache read costs about 5% of the base input price, and a 5-minute cache write 1.25×), but cache reads are consistently a small fraction of the uncached input price, with a modest premium on writes. Caching also cuts time-to-first-token.
 
 Caching is a **prefix match**: change one byte early and everything after it is recomputed. Render order is tools, then system, then messages. That gives a set of design rules:
 
@@ -334,60 +334,60 @@ The process matters more than the specific numbers: **measure** what fills your 
 
 ```quiz
 Q: A team upgrades to a model with a 1M-token window and starts putting the entire codebase in every request. Quality on multi-step tasks drops. What's the most likely explanation?
-- [ ] The model can't read code in long contexts
-- [x] Context rot and attention dilution: irrelevant tokens act as distractors, and performance degrades with length even when everything fits
-- [ ] Prompt caching doesn't work above 200K tokens
-- [ ] The API silently truncates the middle of long prompts
-E: Fitting in the window isn't the same as being used well. Studies of lost-in-the-middle and context rot show degradation with length, especially with similar-but-irrelevant content.
+- [ ] The prompt now exceeds the cache limit, so each call reprocesses everything
+- [x] Irrelevant tokens act as distractors, and quality degrades as length grows
+- [ ] The provider quietly truncates the middle of prompts beyond a set length
+- [ ] Code is tokenized less efficiently, so it overflows the window in practice
+E: Fitting in the window isn't the same as being used well: lost-in-the-middle and context-rot studies show degradation with length, especially with similar-but-irrelevant content. A cache miss would raise cost and latency, not lower quality.
 
 Q: Which system prompt instruction is at the "right altitude"?
-- [ ] "Be helpful and accurate."
-- [ ] "If message contains 'cancel' and plan is 'pro' and tenure < 90 days, output template C3."
-- [x] "Offer retention discounts only to customers who cite price as the reason for cancelling; we've found discounts don't retain customers leaving for other reasons. If unsure why they're leaving, ask."
-- [ ] "Never do anything wrong."
-E: The right altitude gives concrete guidance and the reasoning behind it, so the model can generalize to cases the author didn't anticipate, without hard-coding brittle logic.
+- [ ] "Act as a world-class retention specialist and always put the customer first."
+- [ ] "If message contains 'cancel', plan is 'pro' and tenure < 90 days, use template C3."
+- [x] "Offer discounts only if price is why they're leaving; ask if unsure. Discounts don't retain others."
+- [ ] "Follow the retention playbook carefully, and use good judgment on edge cases."
+E: The right altitude gives concrete guidance plus the reason behind it, so the model can generalize to cases the author didn't anticipate. The template rule is too low (brittle if-else logic); the persona and "use good judgment" lines are too high, since they assume context the model doesn't have.
 
 Q: How do Agent Skills implement progressive disclosure?
-- [ ] They compress all skill instructions into a single embedding
-- [x] Only each skill's name and description sit in context; the full SKILL.md and its referenced files are loaded when the task calls for them
-- [ ] They load every skill's full instructions but hide them from the user
-- [ ] They run each skill in a separate model
-E: Layered loading means hundreds of skills cost only a few tokens each until one is needed, which keeps the fixed context small.
+- [ ] Each skill's body is embedded, and the closest matches are retrieved per turn
+- [x] Only names and descriptions stay in context; bodies and files load on demand
+- [ ] All skill bodies load once, then get summarized to keep the prefix cached
+- [ ] Each skill runs in its own sub-agent that returns a short result to the lead
+E: Layered loading means hundreds of skills cost a few dozen tokens each until one is needed: the model itself reads the full SKILL.md, and any referenced files, when the task calls for it. That's model-directed loading, not embedding retrieval or summarization.
 
 Q: Your agent's cache_read_input_tokens is zero on every request despite cache_control markers. Which of these is the most likely culprit?
-- [ ] The conversation history is append-only
-- [ ] Tools are sorted by name
-- [x] The system prompt starts with "Current time: {now}" rendered to the second
-- [ ] The latest user message changes every turn
-E: Caching is a prefix match. A per-request timestamp at the top changes the first bytes of every prompt and invalidates everything after it. A changing final message is expected and harmless.
+- [ ] The newest tool result is appended to the end of the history each turn
+- [ ] The tools array is sorted alphabetically by name before every request
+- [x] The system prompt begins with "Current time: {now}" accurate to the second
+- [ ] A mode-switch reminder is appended as a system message at the very end
+E: Caching is a prefix match, and render order is tools, then system, then messages. A per-request timestamp near the front changes early bytes on every call and invalidates everything after it. Appending at the end, and sorting deterministically, are exactly what keeps the prefix stable.
 
 Q: Why does Manus recommend masking tools instead of removing them from the tool list as the agent's state changes?
-- [ ] Removing tools is not supported by any API
-- [ ] Masking makes tool calls faster to execute
-- [x] Tool definitions sit at the front of the prompt, so changing them invalidates the KV cache, and earlier turns would reference tools that no longer exist, confusing the model
-- [ ] Masked tools cost fewer tokens than removed ones
-E: A stable tool list preserves the cached prefix and a coherent history. Constraining which tools may be selected achieves the same behavioral goal without those costs.
+- [ ] Fewer listed tools make selection noisier, since the model loses contrasts
+- [ ] Masked tools are still billed, but at the cheaper cached-input token rate
+- [x] Editing the list breaks the cache, and old turns cite tools that vanished
+- [ ] Removal forces the provider to recompile the tool schemas on every turn
+E: Tool definitions render at the very front, so changing them invalidates the KV cache, and earlier turns would reference tools that no longer exist, confusing the model. Constraining which tools may be selected gets the behavioral effect without those costs.
 
 Q: When is a sub-agent most clearly the right context-engineering choice?
-- [ ] When two agents must make tightly coupled edits to the same files
-- [x] When a subtask is read-heavy and separable, like exploring a codebase to answer a specific question, so a condensed summary is all the lead needs
-- [ ] When you want to reduce total token usage
-- [ ] When the lead agent's context is empty
-E: Sub-agents isolate exploration noise and return compact results. They usually increase total tokens, and they're risky for tightly coupled write work where shared context matters.
+- [ ] When two parts of a feature need coordinated edits to the same set of files
+- [x] When a read-heavy subtask can be handed off and only its summary is needed
+- [ ] When you want to cut total token usage across the whole task's run
+- [ ] When the lead agent's own context is still small and has lots of room
+E: Sub-agents isolate exploration noise and return compact results. Cutting total tokens is the tempting wrong answer: each sub-agent pays for its own context, so totals usually go up. They're also risky for tightly coupled write work, where shared context matters.
 
 Q: A teammate proposes deleting failed tool calls from the history so the transcript stays "clean." What's the strongest argument against it?
-- [ ] Failed calls are needed for billing
-- [x] Seeing failures and their error messages helps the model avoid repeating them, and rewriting history also invalidates the prompt cache
-- [ ] The API rejects histories without errors
-- [ ] Deleting messages increases output tokens
-E: Errors are evidence. Keeping them in context lets the model adapt within the session, and append-only history keeps caching effective.
+- [ ] Failed calls hold the tool_use IDs needed to match later tool results
+- [x] The model learns from visible failures, and edits break the prompt cache
+- [ ] Leaving failures in lets you skip is_error flags on later tool results
+- [ ] Deleting turns makes the model re-plan from scratch on the next request
+E: Errors are evidence: seeing a failed action and its message makes the model less likely to repeat it, and append-only history keeps caching effective. A deleted turn doesn't trigger a fresh plan; the model simply loses information it needed.
 
 Q: Why does the context-editing config include clear_at_least?
-- [ ] To guarantee every tool result is cleared at least once
-- [ ] To keep a minimum number of tool results
-- [x] Each clearing invalidates the prompt cache from the edit point, so clearing only a few tokens can cost more than it saves
-- [ ] It sets the maximum context size
-E: Clearing trades a cache rebuild for a smaller context. A minimum clearing amount makes sure each edit is worth that cost, which is why clearing should happen in large, infrequent batches.
+- [ ] To make sure no tool result stays in context longer than a set token span
+- [ ] To set how many of the most recent tool results are kept untouched
+- [x] Each clear rebuilds the cache, so tiny clears can cost more than they save
+- [ ] To cap the context size, clearing whatever is needed to stay under it
+E: Clearing trades a cache rebuild for a smaller context, so a minimum amount ensures each edit is worth that cost; batch it into large, infrequent clears. The number of recent results kept is the separate keep setting, and the trigger, not clear_at_least, decides when clearing starts.
 ```
 
 ## Further Reading

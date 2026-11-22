@@ -51,7 +51,7 @@ flowchart TB
     B --> C["Agent SDKs (Claude Agent SDK, OpenAI Agents SDK, Google ADK, Strands)"]
     B --> D["Orchestration frameworks (LangGraph, Microsoft Agent Framework, CrewAI, Mastra)"]
     B --> E["Specialized (LlamaIndex, Haystack, DSPy, Letta, smolagents, Pydantic AI)"]
-    C --> F["Managed platforms (Claude Managed Agents, Bedrock AgentCore, Vertex AI Agent Engine)"]
+    C --> F["Managed platforms (Claude Managed Agents, Bedrock AgentCore, Google Agent Runtime)"]
     D --> F
 ```
 
@@ -146,9 +146,9 @@ Frameworks run in *your* process. Managed platforms run the agent (or its infras
 | Platform | What it manages | Notes (as of Nov 2026) |
 |---|---|---|
 | **Claude Managed Agents** (Anthropic, beta) | The agent loop and a per-session container where tools run | You create a versioned **agent** config (model, system prompt, tools, MCP servers, skills), then start **sessions** that stream events; self-hosted sandboxes are an option |
-| **OpenAI Responses API + AgentKit** | Model calls with built-in tools (web search, file search, code interpreter, computer use, remote MCP) and conversation state | The Assistants API was shut down in August 2026 in favor of Responses. AgentKit (2025) added ChatKit and a visual Agent Builder; OpenAI has announced it is winding down Agent Builder and its Evals product, pointing builders to the Agents SDK |
+| **OpenAI Responses API + AgentKit** | Model calls with built-in tools (web search, file search, code interpreter, computer use, remote MCP) and conversation state | The Assistants API was shut down in August 2026 in favor of Responses. AgentKit (2025) added ChatKit and a visual Agent Builder; In 2026 OpenAI announced it is winding down Agent Builder and its Evals product, pointing builders to the Agents SDK |
 | **Amazon Bedrock AgentCore** | Modular services: Runtime (isolated sessions), Memory, Gateway (APIs and Lambda functions as MCP tools), Identity, Code Interpreter, Browser, Observability, plus later policy and evaluation features | Framework- and model-agnostic: host Strands, LangGraph, CrewAI or your own loop |
-| **Google Vertex AI Agent Engine** | Managed runtime for ADK, LangGraph and other agents, with sessions, memory and evaluation | In 2026 Google moved Vertex AI under the Gemini Enterprise Agent Platform, where the runtime appears as Agent Runtime |
+| **Google Agent Runtime** (formerly Vertex AI Agent Engine) | Managed runtime for ADK, LangGraph and other agents, with sessions, memory and evaluation | In April 2026 Google announced the Gemini Enterprise Agent Platform as Vertex AI's successor; Agent Engine was renamed Agent Runtime there |
 
 Managed platforms trade control and portability for operations you do not have to build: sandbox isolation, long-running sessions, credentials vaulting and scaling. They matter most when agents run unattended, for many users, with real permissions. See [deployment](deployment.html).
 
@@ -188,7 +188,7 @@ Work through these in order; early answers eliminate most options.
 | **Observability** | What tracing and evals do you need, and where must data live? | Built-in: OpenAI SDK, LangSmith, Logfire. Portable: OpenTelemetry-based options |
 | **Vendor lock-in** | How costly is switching model or cloud later? | Model-agnostic frameworks; keep tools in MCP servers |
 | **Maturity** | Release history, breaking changes, maintainers, community, docs | Prefer 1.0+ with a clear deprecation policy for production |
-| **Where it runs** | Your servers, a customer's VPC, a managed cloud? | Self-host: libraries. Managed: AgentCore, Agent Engine, Claude Managed Agents |
+| **Where it runs** | Your servers, a customer's VPC, a managed cloud? | Self-host: libraries. Managed: AgentCore, Google Agent Runtime, Claude Managed Agents |
 
 ```mermaid
 flowchart TD
@@ -245,7 +245,7 @@ langchain_tool = lc_tool(get_order_status, parse_docstring=True)
 - A framework is worth it when it solves a specific hard problem (durability, resumable approvals, multi-agent coordination, integrations, team conventions), not to avoid writing a 40-line loop.
 - The landscape has layers: model APIs, SDK helpers, agent SDKs, orchestration frameworks, specialized frameworks and managed platforms.
 - LangGraph leads on explicit, durable, resumable control; the Claude Agent SDK on ready-made computer-use tooling; the OpenAI Agents SDK on minimal multi-agent primitives; Google ADK and Strands on their clouds; LlamaIndex and Haystack on retrieval; DSPy on optimization; Letta on memory; Mastra and the Vercel AI SDK on TypeScript.
-- Managed platforms (Claude Managed Agents, Bedrock AgentCore, Vertex AI Agent Engine, OpenAI's Responses stack) trade control for operated sandboxes, sessions, identity and scale.
+- Managed platforms (Claude Managed Agents, Bedrock AgentCore, Google Agent Runtime, OpenAI's Responses stack) trade control for operated sandboxes, sessions, identity and scale.
 - Choose by language, control needs, durability, observability, lock-in and maturity, and confirm with your own evaluation suite.
 - Keep tools, prompts, evals and state framework-independent so migration stays cheap.
 
@@ -261,46 +261,46 @@ langchain_tool = lc_tool(get_order_status, parse_docstring=True)
 
 ```quiz
 Q: Which is the strongest reason to adopt an agent framework?
-- [ ] Writing the agent loop yourself is error-prone and slow
-- [x] You need a capability that is genuinely hard to build, such as durable runs with approvals that can wait days
-- [ ] Frameworks always produce better model outputs than raw API calls
-- [ ] Frameworks remove the need for evaluation
-E: The loop is short. Frameworks earn their abstraction tax with hard features such as durability, checkpointing, resumable human-in-the-loop, integrations and tracing.
+- [ ] Writing the agent loop yourself is error-prone and slow to get right
+- [x] You need durable runs whose approvals can wait days without losing state
+- [ ] Frameworks get better answers out of the model than raw API calls do
+- [ ] Frameworks ship evaluation tooling, so you can skip writing your own evals
+E: The loop is a few dozen lines, and a framework doesn't make the model smarter. Frameworks earn their abstraction tax with genuinely hard features such as durable execution, checkpointing and resumable human-in-the-loop; built-in eval tooling still needs your own task suite.
 
 Q: Your team runs a large AutoGen-based system and Semantic Kernel plugins in .NET. What is the most forward-looking plan?
-- [ ] Stay on AutoGen indefinitely because it is still receiving new features
-- [x] Plan a migration to Microsoft Agent Framework, which succeeds both and reached 1.0 in 2026
-- [ ] Rewrite everything in CrewAI because it is the most popular
-- [ ] Move to the OpenAI Assistants API
-E: Microsoft Agent Framework merges AutoGen and Semantic Kernel; the older projects are in maintenance mode. The Assistants API was shut down in 2026.
+- [ ] Stay on AutoGen, since its v0.4 rewrite is where new features now land
+- [x] Plan a migration to Microsoft Agent Framework, their 1.0 successor
+- [ ] Move to AG2, since it is Microsoft's official continuation of AutoGen
+- [ ] Move to OpenAI's Assistants API, which hosts threads and tools for you
+E: Microsoft Agent Framework (1.0 in April 2026) merges AutoGen and Semantic Kernel, which are now in maintenance mode. AG2 is a community fork by some original AutoGen creators, not Microsoft's successor, and the Assistants API was shut down in August 2026.
 
 Q: Which framework's flagship agent writes its actions as Python code instead of JSON tool calls?
-- [ ] DSPy
-- [ ] Haystack
+- [ ] Stanford's DSPy
+- [ ] deepset's Haystack
 - [x] Hugging Face smolagents
-- [ ] Pydantic AI
-E: smolagents' CodeAgent emits Python snippets that call tools, which can compose actions efficiently but requires a real sandbox for execution.
+- [ ] the Pydantic team's Pydantic AI
+E: smolagents' CodeAgent emits Python snippets that call tools, which composes actions efficiently but requires a real sandbox. DSPy is tempting because it is "programming, not prompting", but that refers to how you build the pipeline, not to the agent's action format.
 
 Q: You need an agent that edits files, runs shell commands and searches the web, and you want production-grade tools and permissions without writing them. Which is the most direct fit?
 - [ ] DSPy
 - [x] Claude Agent SDK
 - [ ] LlamaIndex
 - [ ] Vercel AI SDK core functions
-E: The Claude Agent SDK ships Claude Code's built-in file, shell, search and web tools with permissions, hooks and sessions. The others would require building those tools.
+E: The Claude Agent SDK ships Claude Code's built-in file, shell, search and web tools with permissions, hooks and sessions. The Vercel AI SDK can run a tool loop, but you would still write and secure every tool yourself.
 
 Q: What is the most effective way to keep a future framework migration cheap?
-- [ ] Use every advanced feature of your current framework so the migration is worth it
-- [ ] Avoid writing tests until the framework choice is final
-- [x] Keep tools, prompts, evals and state independent of the framework, and wrap tools with thin adapters
-- [ ] Choose the framework with the most GitHub stars
-E: Plain tool functions (or MCP servers), version-controlled prompts, an implementation-independent eval suite and your own state schema are what carry over.
+- [ ] Hide the framework behind your own generic "agent" abstraction layer
+- [ ] Pick the framework with the most integrations, so you never outgrow it
+- [x] Keep tools, prompts, evals and state independent of the framework
+- [ ] Defer writing evals until the framework choice has fully settled down
+E: Plain tool functions (or MCP servers) with thin adapters, version-controlled prompts, an implementation-independent eval suite and your own state schema carry over. A do-everything wrapper over frameworks tends to leak and become a framework of its own, and the eval suite is what tells you a migration worked, so it should come first.
 
 Q: How do managed agent platforms such as Bedrock AgentCore or Claude Managed Agents differ from frameworks such as LangGraph?
-- [ ] They cannot use tools
-- [ ] They only support a single model provider each
-- [x] They operate infrastructure for you, such as isolated sandboxes, session state, identity and scaling, trading some control and portability
-- [ ] They replace the need for system prompts
-E: Frameworks run in your process; managed platforms run the agent or its infrastructure as a service. AgentCore is even framework- and model-agnostic.
+- [ ] They run your tools only on the vendor's servers, never in your network
+- [ ] Each one supports only its own vendor's models and agent framework
+- [x] They operate sandboxes, sessions, identity and scaling as a service
+- [ ] They replace code with a visual, no-code editor for agent workflows
+E: Frameworks run in your process; managed platforms run the agent or its infrastructure for you, trading some control and portability. AgentCore hosts Strands, LangGraph, CrewAI or your own loop, and Claude Managed Agents can use self-hosted sandboxes; visual builders are a separate product category.
 ```
 
 ## Further Reading
